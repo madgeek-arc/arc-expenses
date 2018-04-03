@@ -1,0 +1,188 @@
+<div class="tm-header-mobile uk-hidden@m">
+  <nav class="uk-navbar-container uk-navbar" uk-navbar="">
+    <div class="uk-navbar-left">
+      <a class="uk-navbar-toggle" href="#tm-mobile" uk-toggle="">
+        <div uk-navbar-toggle-icon="" class="uk-navbar-toggle-icon uk-icon">
+        </div>
+      </a>
+    </div>
+    <div class="uk-navbar-center">
+      <a class="uk-navbar-item navbar-brand-athena uk-logo" [routerLink]="['/home']">
+        <!--<img src="../../../assets/imgs/ARCLogo.png"-->
+             <!--class="uk-responsive-height" alt="Athena Research Center">-->
+      </a>
+    </div>
+  </nav>
+  <div id="tm-mobile" uk-offcanvas="" mode="slide" overlay="" class="uk-offcanvas">
+    <div class="uk-offcanvas-bar">
+      <button class="uk-offcanvas-close uk-close uk-icon" type="button" uk-close="">
+      </button>
+      <div class="uk-child-width-1-1 uk-grid uk-grid-stack" uk-grid="">
+        <div>
+          <div class="uk-panel" id="module-0">
+            <ul class="uk-nav uk-nav-default">
+              <li class="uk-nav-header" [routerLinkActive]="['uk-active']">
+                <a [routerLink]="['/home']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">
+                  Home
+                  <!--<img class="uk-responsive-height" src="./imgs/Icons/Home_24white.svg" alt="home">-->
+                </a>
+              </li>
+              <li class="uk-nav-header uk-parent" [routerLinkActive]="['uk-active']">Search
+                <ul class="uk-nav-sub">
+                  <li><a [routerLink]="['/search', { resourceType: 'application' }]" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">Applications</a></li>
+                  <li><a [routerLink]="['/search', { resourceType: 'component' }]" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">Components</a></li>
+                  <li><a [routerLink]="['/search', { resourceType: 'corpus' }]" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">Corpora</a></li>
+                  <li><a [routerLink]="['/search', { resourceType: 'lexical' }]" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">Annotation Resources</a></li>
+                  <li><a [routerLink]="['/search', { resourceType: 'language' }]" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">Models & Grammars</a></li>
+                  <!--<li><a [routerLink]="['/search']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">...</a></li>-->
+                </ul>
+              </li>
+              <li class="uk-nav-header uk-parent" [routerLinkActive]="['uk-active']">Add
+                <ul class="uk-nav-sub">
+                  <li><a [routerLink]="['/resourceRegistration/application']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">Applications</a></li>
+                  <li><a [routerLink]="['/resourceRegistration/component']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">Components</a></li>
+                  <li><a [routerLink]="['/resourceRegistration/corpus']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">Corpora</a></li>
+                  <li><a [routerLink]="['/resourceRegistration/lexical']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">Annotation Resources</a></li>
+                  <li><a [routerLink]="['/resourceRegistration/language']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">Models & Grammars</a></li>
+                </ul>
+              </li>
+              <li class="uk-nav-header" [routerLinkActive]="['uk-active']">
+                <a [routerLink]="['/runApplication']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">
+                  Process
+                  <!--<img class="uk-responsive-height" src="./imgs/Icons/Home_24white.svg" alt="home">-->
+                </a>
+              </li>
+              <li class="uk-nav-header" [routerLinkActive]="['uk-active']">
+                <a [routerLink]="['/support']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">
+                  Support
+                  <!--<img class="uk-responsive-height" src="./imgs/Icons/Home_24white.svg" alt="home">-->
+                </a>
+              </li>
+
+              <!--<li class="uk-nav-header uk-parent" [routerLinkActive]="['uk-active']">-->
+
+                                <!--<span *ngIf="oAuthService.isUserLoggedIn" >-->
+                                  <!--<span> {{oAuthService.getLoggedInUser +" "}} <span class="uk-margin-small-right uk-icon" ><svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" ratio="1"><circle fill="none" stroke="#000" stroke-width="1.1" cx="9.9" cy="6.4" r="4.4"></circle><path fill="none" stroke="#000" stroke-width="1.1" d="M1.5,19 C2.3,14.5 5.8,11.2 10,11.2 C14.2,11.2 17.7,14.6 18.5,19.2"></path></svg></span></span>-->
+                                <!--</span>-->
+                <!--<span *ngIf="!oAuthService.isUserLoggedIn">-->
+                                    <!--<a class="loginLink" (click)="loginWithState()" >Sign in | Register <span class="uk-margin-small-right uk-icon" ><svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" ratio="1"><circle fill="none" stroke="#000" stroke-width="1.1" cx="9.9" cy="6.4" r="4.4"></circle><path fill="none" stroke="#000" stroke-width="1.1" d="M1.5,19 C2.3,14.5 5.8,11.2 10,11.2 C14.2,11.2 17.7,14.6 18.5,19.2"></path></svg></span>-->
+                                    <!--</a>-->
+                               <!--</span>-->
+
+                <!--<ul *ngIf="oAuthService.isUserLoggedIn" class="uk-nav-sub">-->
+                  <!--&lt;!&ndash;<li><a href="" >My profile</a></li>&ndash;&gt;-->
+                  <!--<li><a [routerLink]="['/mySpace/applications']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">My Applications</a></li>-->
+                  <!--<li><a [routerLink]="['/mySpace/components']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">My Components</a></li>-->
+                  <!--<li><a [routerLink]="['/mySpace/corpora']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">My Corpora</a></li>-->
+                  <!--<li><a [routerLink]="['/mySpace/lexicals']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">My Annotation Resources</a></li>-->
+                  <!--<li><a [routerLink]="['/mySpace/languages']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">My Models & Grammars</a></li>-->
+                  <!--<li><a [routerLink]="['/mySpace/operations']" routerLinkActive="uk-active" class="uk-offcanvas-close offcanvas-close">My Operations</a></li>-->
+                  <!--<li><a routerLink="/home" (click)="logout()" >Log out</a></li>-->
+                <!--</ul>-->
+              <!--</li>-->
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tm-header uk-visible@m" uk-header="">
+  <div class="uk-navbar-container uk-sticky" uk-sticky="" media="768" cls-active="uk-active uk-navbar-sticky" style="">
+    <div class="uk-container uk-container-expand">
+      <nav class="uk-navbar" uk-navbar="{&quot;align&quot;:&quot;left&quot;}">
+        <div class="uk-navbar-left">
+          <a routerLink="/home" class="uk-navbar-item navbar-brand-athena uk-logo">
+            <!--<img src="../../../assets/imgs/ARCLogo.png"-->
+                 <!--class="uk-responsive-height" alt="Athena Research Center">-->
+          </a>
+        </div>
+        <div class="uk-navbar-center">
+          <ul class="uk-navbar-nav">
+            <li class="uk-parent" [routerLinkActive]="['uk-active']">
+              <a routerLink="/home" routerLinkActive="uk-active">
+                Home
+                <!--<img class="uk-responsive-height" src="./imgs/Icons/Home_24white.svg" alt="home">-->
+              </a>
+            </li>
+            <li class="uk-parent" [routerLinkActive]="['uk-active']"><a href="#" class="" aria-expanded="false">Search</a>
+              <div class="uk-navbar-dropdown uk-navbar-dropdown-bottom-left" style="top: 80px; left: 106.55px;" id="searchMenu" (click)="onClick('searchMenu')">
+                <div class="uk-navbar-dropdown-grid uk-child-width-1-1 uk-grid uk-grid-stack" uk-grid="">
+                  <div class="uk-first-column">
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li><a [routerLink]="['/search', { resourceType: 'application' }]" routerLinkActive="uk-active">Applications</a></li>
+                      <li><a [routerLink]="['/search', { resourceType: 'component' }]" routerLinkActive="uk-active">Components</a></li>
+                      <li><a [routerLink]="['/search', { resourceType: 'corpus' }]" routerLinkActive="uk-active">Corpora</a></li>
+                      <li><a [routerLink]="['/search', { resourceType: 'lexical' }]" routerLinkActive="uk-active">Annotation Resources</a></li>
+                      <li><a [routerLink]="['/search', { resourceType: 'language' }]" routerLinkActive="uk-active">Models & Grammars</a></li>
+                      <!--<li><a [routerLink]="['/search']" routerLinkActive="uk-active">...</a></li>-->
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="uk-parent" [routerLinkActive]="['uk-active']"><a href="#" class="" aria-expanded="false">Add</a>
+              <div class="uk-navbar-dropdown uk-navbar-dropdown-bottom-left" style="top: 80px; left: 106.55px;" id="actions" (click)="onClick('actions')">
+                <div class="uk-navbar-dropdown-grid uk-child-width-1-1 uk-grid uk-grid-stack" uk-grid="">
+                  <div class="uk-first-column">
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li><a [routerLink]="['/resourceRegistration/application']" routerLinkActive="uk-active">Applications</a></li>
+                      <li><a [routerLink]="['/resourceRegistration/component']" routerLinkActive="uk-active">Components</a></li>
+                      <li><a [routerLink]="['/resourceRegistration/corpus']" routerLinkActive="uk-active">Corpora</a></li>
+                      <li><a [routerLink]="['/resourceRegistration/lexical']" routerLinkActive="uk-active">Annotation Resources</a></li>
+                      <li><a [routerLink]="['/resourceRegistration/language']" routerLinkActive="uk-active">Models & Grammars</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li class="uk-parent" [routerLinkActive]="['uk-active']">
+              <a routerLink="/runApplication" routerLinkActive="uk-active">
+                Process
+                <!--<img class="uk-responsive-height" src="./imgs/Icons/Home_24white.svg" alt="home">-->
+              </a>
+            </li>
+            <li class="uk-parent" [routerLinkActive]="['uk-active']">
+              <a routerLink="/support" routerLinkActive="uk-active">
+                Support
+                <!--<img class="uk-responsive-height" src="./imgs/Icons/Home_24white.svg" alt="home">-->
+              </a>
+            </li>
+          </ul>
+        </div>
+        <!--<div class="uk-navbar-right">-->
+
+          <!--<ul class="uk-navbar-nav">-->
+            <!--<li class="uk-parent">-->
+
+              <!--<a *ngIf="oAuthService.isUserLoggedIn" class="loginLink">-->
+                <!--<span> {{oAuthService.getLoggedInUser + " "}} <span class="uk-margin-small-right uk-icon" ><svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" ratio="1"><circle fill="none" stroke="#000" stroke-width="1.1" cx="9.9" cy="6.4" r="4.4"></circle><path fill="none" stroke="#000" stroke-width="1.1" d="M1.5,19 C2.3,14.5 5.8,11.2 10,11.2 C14.2,11.2 17.7,14.6 18.5,19.2"></path></svg></span></span>-->
+              <!--</a>-->
+              <!--<a *ngIf="!oAuthService.isUserLoggedIn" class="loginLink" (click)="loginWithState()" >Sign in | Register <span class="uk-margin-small-right uk-icon" ><svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" ratio="1"><circle fill="none" stroke="#000" stroke-width="1.1" cx="9.9" cy="6.4" r="4.4"></circle><path fill="none" stroke="#000" stroke-width="1.1" d="M1.5,19 C2.3,14.5 5.8,11.2 10,11.2 C14.2,11.2 17.7,14.6 18.5,19.2"></path></svg> </span>-->
+              <!--</a>-->
+
+
+              <!--<div *ngIf="oAuthService.isUserLoggedIn" class="uk-navbar-dropdown uk-navbar-dropdown-bottom-left"   id="userMenu" (click)="onClick('userMenu')"  >-->
+                <!--<div class="uk-navbar-dropdown-grid uk-child-width-1-1 uk-grid uk-grid-stack" uk-grid="">-->
+                  <!--<div class="uk-first-column">-->
+                    <!--<ul class="uk-nav uk-navbar-dropdown-nav">-->
+                      <!--&lt;!&ndash;<li><a href="" >My profile</a></li>&ndash;&gt;-->
+                      <!--<li><a [routerLink]="['/mySpace/applications']" routerLinkActive="uk-active">My Applications</a></li>-->
+                      <!--<li><a [routerLink]="['/mySpace/components']" routerLinkActive="uk-active">My Components</a></li>-->
+                      <!--<li><a [routerLink]="['/mySpace/corpora']" routerLinkActive="uk-active">My Corpora</a></li>-->
+                      <!--<li><a [routerLink]="['/mySpace/lexicals']" routerLinkActive="uk-active">My Annotation Resources</a></li>-->
+                      <!--<li><a [routerLink]="['/mySpace/languages']" routerLinkActive="uk-active">My Models & Grammars</a></li>-->
+                      <!--<li><a [routerLink]="['/mySpace/operations']" routerLinkActive="uk-active">My Operations</a></li>-->
+                      <!--<li><a routerLink="/home" (click)="logout()">Log out</a></li>-->
+                    <!--</ul>-->
+                  <!--</div>-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</li>-->
+          <!--</ul>-->
+        <!--</div>-->
+      </nav>
+    </div>
+  </div><div class="uk-sticky-placeholder" style="height: 80px; margin: 0px;" hidden="hidden"></div>
+</div>
