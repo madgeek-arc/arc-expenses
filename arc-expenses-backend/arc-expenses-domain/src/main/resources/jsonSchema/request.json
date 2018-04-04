@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Request",
+  "description": "A request for funds",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The unique identifier of the request",
+      "type": "integer"
+    },
+    "title": {
+      "description": "Title of the request",
+      "type": "string"
+    },
+    "description": {
+      "description": "Description of the request",
+      "type": "string"
+    },
+    "organization_id": {
+      "description": "ID of the organization that requests funding",
+      "type": "string"
+    },
+    "institute_id": {
+      "description": "ID of the institute that requests funding",
+      "type": "string"
+    },
+    "project_id": {
+      "description": "ID of the project that requests funding",
+      "type": "string"
+    },
+    "user_id": {
+      "description": "ID of the user that requests funding",
+      "type": "string"
+    }
+  },
+  "required": ["id", "description", "user_id", "project_id"]
+}

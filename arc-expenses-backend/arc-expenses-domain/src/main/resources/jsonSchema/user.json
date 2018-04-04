@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "User",
+  "description": "A user of the system",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The unique identifier of the user",
+      "type": "string"
+    },
+    "name": {
+      "description": "Name of the user",
+      "type": "string"
+    },
+    "role": {
+      "description": "Role of the user",
+      "type": "string"
+    }
+  },
+  "required": ["id", "name", "role"]
+}

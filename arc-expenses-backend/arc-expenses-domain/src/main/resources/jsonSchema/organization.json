@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "User",
+  "description": "An organization",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "The unique identifier of the organization",
+      "type": "integer"
+    },
+    "name": {
+      "description": "Name of the organization",
+      "type": "string"
+    }
+  },
+  "required": ["id", "name"]
+}
