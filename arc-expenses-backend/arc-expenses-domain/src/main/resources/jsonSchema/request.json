@@ -1,37 +1,276 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "definitions": {
+    "person": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "firstname": { "type": "string" },
+        "lastname": { "type": "string" },
+        "hidden": { "type": "boolean" }
+      },
+      "required": [
+        "email",
+        "firstname",
+        "lastname"
+      ]
+    },
+    "personOfInterest": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "firstname": { "type": "string" },
+        "lastname": { "type": "string" },
+        "delegates": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/person" }
+        }
+      },
+      "required": [
+        "email",
+        "firstname",
+        "lastname"
+      ]
+    },
+    "user": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "firstname": { "type": "string" },
+        "lastname": { "type": "string" },
+        "firstnameLatin": { "type": "string" },
+        "lastnameLatin": { "type": "string" }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstname",
+        "lastname"
+      ]
+    },
+    "organization": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "POY": { "$ref": "#/definitions/personOfInterest" },
+        "director": { "$ref": "#/definitions/personOfInterest" },
+        "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" }
+      },
+      "required": [
+        "id",
+        "name",
+        "POY",
+        "director",
+        "dioikitikoSumvoulio"
+      ]
+    },
+    "institute": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "organization": { "$ref": "#/definitions/organization" },
+        "director": { "$ref": "#/definitions/personOfInterest" },
+        "accountingRegistration": { "$ref": "#/definitions/personOfInterest" },
+        "accountingPayment": { "$ref": "#/definitions/personOfInterest" },
+        "accountingDirector": { "$ref": "#/definitions/personOfInterest" },
+        "diaugeia": { "$ref": "#/definitions/personOfInterest" }
+      },
+      "required": [
+        "id",
+        "name",
+        "organization",
+        "director",
+        "accountingRegistration",
+        "accountingPayment",
+        "accountingDirector",
+        "diaugeia"
+      ]
+    },
+    "project": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "acronym": { "type": "string" },
+        "institute": { "$ref": "#/definitions/institute" },
+        "parentProject": { "$ref": "#/definitions/project" },
+        "scientificCoordinator": { "$ref": "#/definitions/personOfInterest" },
+        "operator": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/personOfInterest" }
+        },
+        "startDate": { "type": "date-time" },
+        "endDate": { "type": "date-time" }
+      },
+      "required": [
+        "id",
+        "name",
+        "institute",
+        "scientificCoordinator",
+        "operator"
+      ]
+    },
+    "attachment": {
+      "type": "object",
+      "properties": {
+        "filename": { "type": "string" },
+        "mimetype": { "type": "string" },
+        "size": { "type": "integer" },
+        "url": { "type": "" }
+      }
+    },
+    "required": [
+      "filename",
+      "url"
+    ]
+  },
+
   "title": "Request",
-  "description": "A request for funds",
   "type": "object",
   "properties": {
     "id": {
-      "description": "The unique identifier of the request",
-      "type": "integer"
-    },
-    "title": {
-      "description": "Title of the request",
+      "description": "The unique identifier of the project.",
+      "title": "Input Corpus ID",
       "type": "string"
     },
-    "description": {
-      "description": "Description of the request",
+    "project": { "$ref": "#/definitions/project" },
+    "requester": { "$ref": "#/definitions/personOfInterest" },
+    "requesterPosition": {
+      "description": "Position of the requester in the Institute.",
+      "title": "Requester position",
       "type": "string"
     },
-    "organization_id": {
-      "description": "ID of the organization that requests funding",
-      "type": "string"
+    "stage1": {
+      "type": "object",
+      "properties": {
+        "requestDate": { "type": "string" },
+        "subject": { "type": "string" },
+        "supplier": { "type": "string" },
+        "supplierSelectionMethod": { "type": "string" },
+        "amountInEuros": { "type": "number" },
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
     },
-    "institute_id": {
-      "description": "ID of the institute that requests funding",
-      "type": "string"
+    "stage2": {
+      "type": "object",
+      "properties": {
+        "scientificCoordinator": { "$ref": "#/definitions/person"},
+        "date": { "type": "date-time"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
     },
-    "project_id": {
-      "description": "ID of the project that requests funding",
-      "type": "string"
+    "stage3": {
+      "type": "object",
+      "properties": {
+        "operator": { "$ref": "#/definitions/person"},
+        "date": { "type": "date-time"},
+        "analiftheiYpoxrewsi": { "type": "boolean"},
+        "fundsAvailable": { "type": "boolean"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
     },
-    "user_id": {
-      "description": "ID of the user that requests funding",
-      "type": "string"
+    "stage3a": {
+      "type": "object",
+      "properties": {
+        "date": { "type": "date-time"},
+        "organizationDirector": { "$ref": "#/definitions/person"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stage3b": {
+      "type": "object",
+      "properties": {
+        "date": { "type": "date-time"},
+        "dioikitikoSumvoulio": { "$ref": "#/definitions/person"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stage4": {
+      "type": "object",
+      "properties": {
+        "POY": { "$ref": "#/definitions/person"},
+        "date": { "type": "date-time"},
+        "analiftheiYpoxrewsi": { "type": "boolean"},
+        "fundsAvailable": { "type": "boolean"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stage5": {
+      "type": "object",
+      "properties": {
+        "instituteDirector": { "$ref": "#/definitions/person"},
+        "date": { "type": "date-time"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stage6": {
+      "type": "object",
+      "properties": {
+        "organizationDiaugeia": { "$ref": "#/definitions/person"},
+        "date": { "type": "date-time"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stage7": {
+      "type": "object",
+      "properties": {
+        "accountingDirector": { "$ref": "#/definitions/person"},
+        "date": { "type": "date-time"},
+        "checkRegularity": { "type": "boolean"},
+        "checkLegality": { "type": "boolean"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stage8": {
+      "type": "object",
+      "properties": {
+        "POY": { "$ref": "#/definitions/person"},
+        "date": { "type": "date-time"},
+        "checkRegularity": { "type": "boolean"},
+        "checkLegality": { "type": "boolean"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stage9": {
+      "type": "object",
+      "properties": {
+        "accountingRegistration": { "$ref": "#/definitions/person"},
+        "date": { "type": "date-time"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stage10": {
+      "type": "object",
+      "properties": {
+        "accountingPayment": { "$ref": "#/definitions/person"},
+        "date": { "type": "date-time"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
     }
-  },
-  "required": ["id", "description", "user_id", "project_id"]
+  }
 }
