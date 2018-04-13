@@ -14,6 +14,8 @@
     <context:component-scan base-package="config"/>
     <context:component-scan base-package="controller"/>
     <context:component-scan base-package="service"/>
+    <context:component-scan base-package="eu.openminted.registry.*"/>
+
 
     <mvc:resources mapping="swagger-ui.html" location="classpath:/META-INF/resources/"/>
     <mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
