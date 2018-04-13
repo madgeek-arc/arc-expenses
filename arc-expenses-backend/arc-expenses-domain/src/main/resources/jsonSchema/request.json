@@ -138,7 +138,7 @@
       "type": "string"
     },
     "project": { "$ref": "#/definitions/project" },
-    "requester": { "$ref": "#/definitions/personOfInterest" },
+    "requester": { "$ref": "#/definitions/user" },
     "requesterPosition": {
       "description": "Position of the requester in the Institute.",
       "title": "Requester position",
