@@ -18,5 +18,6 @@
 
 	<modules>
 		<module>./arc-expenses-domain</module>
+		<module>./arc-expenses-service</module>
 	</modules>
 </project>
