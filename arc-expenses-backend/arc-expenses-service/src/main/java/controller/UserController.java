@@ -28,7 +28,7 @@ public class UserController {
     @Value("${ACS_URL}")
     private String assertionConsumerServiceUrl;
 
-    @Value("${idp.issuer.idD}")
+    @Value("${idp.issuer.id}")
     private String IDP_ISSUER_ID;
 
 

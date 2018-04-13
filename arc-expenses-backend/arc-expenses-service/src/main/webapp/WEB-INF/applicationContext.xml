@@ -8,12 +8,13 @@
         	http://www.springframework.org/schema/context
         	http://www.springframework.org/schema/context/spring-context-4.0.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-
+    <context:component-scan base-package="eu.openminted.registry.core"/>
     <context:property-placeholder location="classpath*:application.properties" />
     <context:annotation-config/>
     <context:component-scan base-package="config"/>
     <context:component-scan base-package="controller"/>
     <context:component-scan base-package="service"/>
+
 
     <mvc:resources mapping="swagger-ui.html" location="classpath:/META-INF/resources/"/>
     <mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
