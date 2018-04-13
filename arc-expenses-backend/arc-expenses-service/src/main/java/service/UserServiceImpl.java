@@ -17,12 +17,12 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
 @Service
-public class LogInServiceImpl implements LogInService {
+public class UserServiceImpl implements UserService {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(LogInServiceImpl.class.getName());
+    private static Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class.getName());
 
 
-    public LogInServiceImpl() {
+    public UserServiceImpl() {
 
         /* Initializing the OpenSAML library, Should be in some central place */
         try {

@@ -4,10 +4,15 @@
       "name": "id",
       "path": "$.id",
       "type": "java.lang.String"
+    },
+    {
+      "name": "email",
+      "path": "$.email",
+      "type": "java.lang.String"
     }
   ],
   "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
-  "name": "request",
+  "name": "user",
   "aliasGroup" : null,
   "payloadType": "json",
   "schemaUrl":"https://github.com/madgeek-arc/arc-expenses/blob/master/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/request.json"

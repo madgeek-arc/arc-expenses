@@ -9,17 +9,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import service.LogInService;
+import service.UserService;
 
 @RestController
 @RequestMapping(value = "/login")
 @Api(description = "User Login API  ",  tags = {"user login"})
-public class LogInController {
+public class UserController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogInController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    LogInService logInService;
+    UserService userService;
 
     @Value("${idp.url}")
     private String IDP_URL;
@@ -36,7 +36,7 @@ public class LogInController {
     public String redirectToIDPWithAuthNRequest() {
 
         String redirectUrl, redirectString = null;
-        redirectUrl = logInService.getAuthNRedirectUrl(IDP_URL, assertionConsumerServiceUrl, IDP_ISSUER_ID);
+        redirectUrl = userService.getAuthNRedirectUrl(IDP_URL, assertionConsumerServiceUrl, IDP_ISSUER_ID);
         LOGGER.debug("Redirecting to " + redirectUrl );
         return "redirect:" + redirectUrl;
     }

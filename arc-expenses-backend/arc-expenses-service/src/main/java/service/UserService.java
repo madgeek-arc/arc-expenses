@@ -1,5 +1,5 @@
 package service;
 
-public interface LogInService {
+public interface UserService {
     String getAuthNRedirectUrl(String idpAppURL, String assertionConsumerServiceUrl, String issuerId);
 }
