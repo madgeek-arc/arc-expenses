@@ -18,7 +18,7 @@
                         [ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
           </help-content>
 -->
-
+          {{diagnostic}}
           <div class="uk-container uk-container-expand uk-margin-medium-top uk-margin-medium-bottom">
             <h1 class="uk-h3 uk-heading-bullet">Πρωτογενές Αίτημα & Έγκριση Δαπάνης</h1>
 
@@ -45,58 +45,100 @@
                 </form>
                  -->
 
-                <form class="uk-form-horizontal uk-margin-large">
-
-                  <div class="uk-margin">
-                    <label class="uk-form-label" for="form-horizontal-select-institute">Ινστιτούτο / Μονάδα</label>
-                    <div class="uk-form-controls">
-                      <select class="uk-select" id="form-horizontal-select-institute">
-                        <option>Option 01</option>
-                        <option>Option 02</option>
-                      </select>
+                <form #newRequestComponent="ngForm" class="uk-form-horizontal uk-margin-large">
+                  <fieldset data-uk-margin>
+                    <legend>Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="request-institute">Ινστιτούτο / Μονάδα</label>
+                      <div class="uk-form-controls">
+                        <select class="uk-select" id="request-institute" [(ngModel)]="myRequest.institute" name="institute">
+                          <option *ngFor="let institute of institutes" [value]="institute">{{institute}}</option>
+                        </select>
+                      </div>
                     </div>
-                  </div>
-                  <div class="uk-margin">
-                    <label class="uk-form-label" for="form-horizontal-text">Ινστιτούτο / Μονάδα</label>
-                    <div class="uk-form-controls">
-                      <input class="uk-input" id="form-horizontal-text" type="text" placeholder="-- επιλέξτε ινστιτούτο / μονάδα --">
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="request-program">Επιλέξτε το πρόγραμμα</label>
+                      <div class="uk-form-controls">
+                        <select class="uk-select" id="request-program" [(ngModel)]="myRequest.program" name="program">
+                          <option *ngFor="let program of programs" [value]="program">{{program}}</option>
+                        </select>
+                      </div>
                     </div>
-                  </div>
-
-                  <div class="uk-margin">
-                    <label class="uk-form-label" for="form-horizontal-text">Από</label>
-                    <div class="uk-form-controls">
-                      <!-- <input class="uk-input" id="form-horizontal-text" type="text" placeholder="ονοματεπώνυμο"> -->
-                      <div class="uk-width-1-1">
-                        <div class="uk-width-1-2@s">
-                          <input class="uk-input" type="text" placeholder="ονοματεπώνυμο">
-                        </div>
-                        <div class="uk-width-1-2@s">
-                          <input class="uk-input" type="text" placeholder="θέση στον φορέα">
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="request-name">Από</label>
+                      <div class="uk-form-controls">
+                        <div class="uk-grid uk-width-1-1">
+                          <div class="uk-width-1-2@s">
+                            <input class="uk-input" type="text" placeholder="Oνοματεπώνυμο" id="request-name" required
+                                  [(ngModel)]="myRequest.name" name="name">
+                          </div>
+                          <div class="uk-width-1-2@s">
+                            <input class="uk-input" type="text" placeholder="θέση στον φορέα" id="request-position" required
+                                  [(ngModel)]="myRequest.position" name="position">
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  <div class="uk-margin">
-                    <label class="uk-form-label" for="form-horizontal-select">Επιλέξτε το πρόγραμμα</label>
-                    <div class="uk-form-controls">
-                      <select class="uk-select" id="form-horizontal-select">
-                        <option>Option 01</option>
-                        <option>Option 02</option>
-                      </select>
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="request-text">Θέμα</label>
+                      <div class="uk-form-controls">
+                        <div class="uk-width-1-1">
+                          <div class="uk-width-1-1@s">
+                            <textarea class="uk-form-help-block uk-text-small uk-width-1-1 uk-height-small" id="request-text" required
+                                      [(ngModel)]="myRequest.requestText" name="requestText"></textarea>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-
-                  <div class="uk-margin">
-                    <div class="uk-form-label">Radio</div>
-                    <div class="uk-form-controls uk-form-controls-text">
-                      <label><input class="uk-radio" type="radio" name="radio1"> Option 01</label><br>
-                      <label><input class="uk-radio" type="radio" name="radio1"> Option 02</label>
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="request-supplier">Προμηθευτής</label>
+                      <div class="uk-form-controls">
+                        <div class="uk-width-1-1">
+                          <div class="uk-width-1-2@s">
+                            <input class="uk-input" type="text" placeholder="" id="request-supplier" required
+                                   [(ngModel)]="myRequest.supplier" name="supplier">
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="request-ssm">Τρόπος επιλογής προμηθευτή</label>
+                      <div class="uk-form-controls">
+                        <select class="uk-select" id="request-ssm" [(ngModel)]="myRequest.ssm" name="ssm">
+                          <option *ngFor="let sel of selMethods" [value]="sel">{{sel}}</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="request-ammount">Ποσό (σε EUR)</label>
+                      <div class="uk-form-controls">
+                        <div class="uk-width-1-1">
+                          <div class="uk-width-1-2@s">
+                            <input class="uk-input" type="text" id="request-ammount" required
+                                   [(ngModel)]="myRequest.ammount" name="ammount" #spy>
+                            <br>TODO: remove this: {{spy.className}}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="uk-margin">
+                      <div class="uk-form-label">Επισύναψη αρχείου</div>
+                      <div class="uk-form-controls uk-form-controls-text">
+                        <label><input class="uk-radio" type="radio" name="radio1"> Option 01</label><br>
+                        <label><input class="uk-radio" type="radio" name="radio1"> Option 02</label>
+                      </div>
+                    </div>
+
+                    <div class="uk-margin-large-top">
+                      <div class="uk-form-controls">
+                        <button class="uk-button uk-align-right uk-width-1-2" id="request-submit">Υποβολή</button>
+                      </div>
+                    </div>
+
+                  </fieldset>
+
                 </form>
-
               </div>
               <div class="tm-sidebar uk-width-1-4@m helpBox">
                 <div class="uk-card uk-card-body uk-card-secondary sidemenu">
