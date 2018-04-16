@@ -18,7 +18,9 @@
                         [ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
           </help-content>
 -->
-          {{diagnostic}}
+
+          {{newRequestForm.value | json }} <br>
+          {{newRequestForm.status }}
           <div class="uk-container uk-container-expand uk-margin-medium-top uk-margin-medium-bottom">
             <h1 class="uk-h3 uk-heading-bullet">Πρωτογενές Αίτημα & Έγκριση Δαπάνης</h1>
 
@@ -45,13 +47,13 @@
                 </form>
                  -->
 
-                <form #newRequestComponent="ngForm" class="uk-form-horizontal uk-margin-large">
+                <form [formGroup]="newRequestForm" class="uk-form-horizontal uk-margin-large">
                   <fieldset data-uk-margin>
                     <legend>Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>
                     <div class="uk-margin">
                       <label class="uk-form-label" for="request-institute">Ινστιτούτο / Μονάδα</label>
                       <div class="uk-form-controls">
-                        <select class="uk-select" id="request-institute" [(ngModel)]="myRequest.institute" name="institute">
+                        <select class="uk-select" id="request-institute" formControlName="institute" name="institute">
                           <option *ngFor="let institute of institutes" [value]="institute">{{institute}}</option>
                         </select>
                       </div>
@@ -59,7 +61,7 @@
                     <div class="uk-margin">
                       <label class="uk-form-label" for="request-program">Επιλέξτε το πρόγραμμα</label>
                       <div class="uk-form-controls">
-                        <select class="uk-select" id="request-program" [(ngModel)]="myRequest.program" name="program">
+                        <select class="uk-select" id="request-program" formControlName="program" name="program">
                           <option *ngFor="let program of programs" [value]="program">{{program}}</option>
                         </select>
                       </div>
@@ -70,11 +72,11 @@
                         <div class="uk-grid uk-width-1-1">
                           <div class="uk-width-1-2@s">
                             <input class="uk-input" type="text" placeholder="Oνοματεπώνυμο" id="request-name" required
-                                  [(ngModel)]="myRequest.name" name="name">
+                                   formControlName="name" name="name">
                           </div>
                           <div class="uk-width-1-2@s">
                             <input class="uk-input" type="text" placeholder="θέση στον φορέα" id="request-position" required
-                                  [(ngModel)]="myRequest.position" name="position">
+                                   formControlName="position" name="position">
                           </div>
                         </div>
                       </div>
@@ -85,7 +87,7 @@
                         <div class="uk-width-1-1">
                           <div class="uk-width-1-1@s">
                             <textarea class="uk-form-help-block uk-text-small uk-width-1-1 uk-height-small" id="request-text" required
-                                      [(ngModel)]="myRequest.requestText" name="requestText"></textarea>
+                                      formControlName="requestText" name="requestText"></textarea>
                           </div>
                         </div>
                       </div>
@@ -96,7 +98,7 @@
                         <div class="uk-width-1-1">
                           <div class="uk-width-1-2@s">
                             <input class="uk-input" type="text" placeholder="" id="request-supplier" required
-                                   [(ngModel)]="myRequest.supplier" name="supplier">
+                                   formControlName="supplier" name="supplier">
                           </div>
                         </div>
                       </div>
@@ -104,7 +106,7 @@
                     <div class="uk-margin">
                       <label class="uk-form-label" for="request-ssm">Τρόπος επιλογής προμηθευτή</label>
                       <div class="uk-form-controls">
-                        <select class="uk-select" id="request-ssm" [(ngModel)]="myRequest.ssm" name="ssm">
+                        <select class="uk-select" id="request-ssm" formControlName="supplierSelectionMethod" name="ssm">
                           <option *ngFor="let sel of selMethods" [value]="sel">{{sel}}</option>
                         </select>
                       </div>
@@ -115,7 +117,7 @@
                         <div class="uk-width-1-1">
                           <div class="uk-width-1-2@s">
                             <input class="uk-input" type="text" id="request-ammount" required
-                                   [(ngModel)]="myRequest.ammount" name="ammount" #spy>
+                                   formControlName="ammount" name="ammount" #spy>
                             <br>TODO: remove this: {{spy.className}}
                           </div>
                         </div>
@@ -125,14 +127,19 @@
                     <div class="uk-margin">
                       <div class="uk-form-label">Επισύναψη αρχείου</div>
                       <div class="uk-form-controls uk-form-controls-text">
-                        <label><input class="uk-radio" type="radio" name="radio1"> Option 01</label><br>
-                        <label><input class="uk-radio" type="radio" name="radio1"> Option 02</label>
+
                       </div>
                     </div>
 
                     <div class="uk-margin-large-top">
                       <div class="uk-form-controls">
-                        <button class="uk-button uk-align-right uk-width-1-2" id="request-submit">Υποβολή</button>
+                        <div class="uk-width-1-1">
+                          <div class="uk-width-1-2@s uk-align-right">
+
+                            <button class="uk-button" id="request-submit" type="submit" style="width: 200px">Υποβολή</button>
+
+                          </div>
+                        </div>
                       </div>
                     </div>
 

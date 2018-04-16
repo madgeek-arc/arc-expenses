@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {Request} from '../request';
+import { Request } from '../request';
+import { FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-new-request',
@@ -8,27 +9,54 @@ import {Request} from '../request';
 })
 export class NewRequestComponent implements OnInit {
 
-  institutes = ['ILSP', 'IMSI', 'ISI', 'SPU', 'PPA'];
+  newRequestForm = FormGroup;
+  // newRequestForm = new FormGroup ({
+  //     name: new FormControl(),
+  //     institute: new FormControl(),
+  //     program: new FormControl(),
+  //     position: new FormControl(),
+  //     requestText: new FormControl(),
+  //     supplier: new FormControl(),
+  //     ssm: new FormControl(),
+  //     ammount: new FormControl()
+  // });
 
-  programs = ['program1', 'program2', 'program3'];
+    institutes = ['ILSP', 'IMSI', 'ISI', 'SPU', 'PPA'];
 
-  selMethods = ['Απ\' ευθείας ανάθεση', 'Έρευνα αγοράς', 'Διαγωνισμός'];
+    programs = ['program1', 'program2', 'program3'];
 
-  myRequest =  new Request(10, 'des new-request.component.ts',
-      'SPU',
-      'director',
-      'program2',
-      'Μπάμπης',
-      'Διαγωνισμός',
-      1000.5,
-      'I request more money because I am greedy');
+    selMethods = ['Απ\' ευθείας ανάθεση', 'Έρευνα αγοράς', 'Διαγωνισμός'];
 
-  submitted = false;
+    myRequest =  new Request(10, 'des new-request.component.ts',
+        'SPU',
+        'director',
+        'program2',
+        'Μπάμπης',
+        'Διαγωνισμός',
+        1000.5,
+        'I request more money because I am greedy');
 
-  onSubmit() { this.submitted = true; }
+  constructor(private fb: FormBuilder) {
+      this.createForm();
+  }
 
-  // TODO: Remove this when we're done
-  get diagnostic() { return JSON.stringify(this.myRequest); }
+  createForm() {
+      this.newRequestForm = this.fb.group({
+          name: ['', Validators.required ],
+          institute: '',
+          program: '',
+          position: '',
+          requestText: '',
+          supplier: '',
+          supplierSelectionMethod: '',
+          ammount: ''
+      });
+  }
+
+
+  // submitted = false;
+
+  // onSubmit() { this.submitted = true; }
 
   constructor() { }
 

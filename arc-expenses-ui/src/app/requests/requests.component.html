@@ -45,7 +45,7 @@
             </form>
              -->
 
-            <form class="uk-form-horizontal uk-margin-large">
+            <form [formGroup]="newRequestForm" class="uk-form-horizontal uk-margin-large">
 
               <div class="uk-margin">
                 <label class="uk-form-label" for="form-horizontal-text">Ινστιτούτο / Μονάδα</label>
@@ -57,7 +57,6 @@
               <div class="uk-margin">
                 <label class="uk-form-label" for="form-horizontal-text">Από</label>
                 <div class="uk-form-controls">
-                  <!-- <input class="uk-input" id="form-horizontal-text" type="text" placeholder="ονοματεπώνυμο"> -->
                   <div class="uk-width-1-1">
                     <div class="uk-width-1-2@s">
                       <input class="uk-input" type="text" placeholder="ονοματεπώνυμο">

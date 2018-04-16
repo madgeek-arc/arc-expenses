@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { TopMenuComponent } from './shared/top-menu/top-menu.component';
@@ -9,6 +9,7 @@ import { NewRequestComponent } from './new-request/new-request.component';
 import { HomeComponent } from './home/home.component';
 import { RequestsComponent } from './requests/requests.component';
 import { AboutComponent } from './about/about.component';
+import { SignUpComponent } from './sign-up/sign-up.component';
 
 @NgModule({
   declarations: [
@@ -17,12 +18,13 @@ import { AboutComponent } from './about/about.component';
     NewRequestComponent,
     HomeComponent,
     RequestsComponent,
-    AboutComponent
+    AboutComponent,
+    SignUpComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

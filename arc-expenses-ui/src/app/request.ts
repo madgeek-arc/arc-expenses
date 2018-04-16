@@ -1,4 +1,15 @@
 export class Request {
+
+    id = 0;
+    name = '';
+    institute = '';
+    program = '';
+    position = '';
+    requestText = '';
+    supplier = '';
+    supplierSelectionMethod = '';
+    ammount = 0;
+
     constructor(
         public id: number,
         public name: string,
@@ -6,10 +17,8 @@ export class Request {
         public position: string,
         public program: string,
         public supplier: string,
-        public ssm: string,
+        public supplierSelectionMethod: string,
         public ammount: number,
         public requestText?: string
     ) {  }
-
-
 }
