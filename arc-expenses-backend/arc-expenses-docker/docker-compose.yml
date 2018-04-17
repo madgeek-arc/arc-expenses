@@ -1,0 +1,99 @@
+version: "2"
+
+services:
+  tomcat:
+    container_name: tomcat
+    build: ../arc-expenses-service
+    links:
+      - db
+      - elastic
+      - jms
+    ports:
+      - "8080:8080"
+      - "8009:8009"
+    networks:
+      - esnet
+    env_file:
+      - secret.env
+    restart: unless-stopped
+  db:
+    container_name: postgres
+    build: registry-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - esnet
+    restart: unless-stopped
+  jms:
+    container_name: jms
+    image: rmohr/activemq:5.14.0-alpine
+    ports:
+      - "61616:61616"
+    networks:
+      - esnet
+    restart: unless-stopped
+  elastic:
+    container_name: elastic
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.3.3
+    #image: elasticsearch:5.2.2-alpine
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: 1g
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - "9222:9200"
+      - "9333:9300"
+    networks:
+      - esnet
+    restart: unless-stopped
+  elasticsearch2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.3.3
+    #image: elasticsearch:5.2.2-alpine
+    container_name: elasticsearch2
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=elastic"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: 1g
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - esdata2:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+    restart: unless-stopped
+volumes:
+  esdata1:
+    driver: local
+  esdata2:
+    driver: local
+  pgdata:
+    driver: local
+
+networks:
+  esnet:
+    driver: bridge

@@ -7,8 +7,10 @@ import eu.openminted.registry.core.service.ResourceCRUDService;
 import eu.openminted.registry.core.service.SearchService;
 import gr.athenarc.request.Request;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-public class RequestService implements ResourceCRUDService<Request> {
+@Service("requestService")
+public class RequestServiceImpl implements ResourceCRUDService<Request> {
 
     @Autowired
     SearchService searchService;
