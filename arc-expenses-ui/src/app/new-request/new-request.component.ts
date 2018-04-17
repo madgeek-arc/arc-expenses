@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Request } from '../request';
 import { FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {Project, Request, Stage1} from '../operation';
 
 @Component({
   selector: 'app-new-request',
@@ -9,17 +9,9 @@ import { FormBuilder, FormGroup, Validators} from '@angular/forms';
 })
 export class NewRequestComponent implements OnInit {
 
-  newRequestForm = FormGroup;
-  // newRequestForm = new FormGroup ({
-  //     name: new FormControl(),
-  //     institute: new FormControl(),
-  //     program: new FormControl(),
-  //     position: new FormControl(),
-  //     requestText: new FormControl(),
-  //     supplier: new FormControl(),
-  //     ssm: new FormControl(),
-  //     ammount: new FormControl()
-  // });
+  newRequestForm: FormGroup;
+
+  request: Request;
 
     institutes = ['ILSP', 'IMSI', 'ISI', 'SPU', 'PPA'];
 
@@ -27,14 +19,7 @@ export class NewRequestComponent implements OnInit {
 
     selMethods = ['Απ\' ευθείας ανάθεση', 'Έρευνα αγοράς', 'Διαγωνισμός'];
 
-    myRequest =  new Request(10, 'des new-request.component.ts',
-        'SPU',
-        'director',
-        'program2',
-        'Μπάμπης',
-        'Διαγωνισμός',
-        1000.5,
-        'I request more money because I am greedy');
+    programSelected = false;
 
   constructor(private fb: FormBuilder) {
       this.createForm();
@@ -42,23 +27,41 @@ export class NewRequestComponent implements OnInit {
 
   createForm() {
       this.newRequestForm = this.fb.group({
-          name: ['', Validators.required ],
+          name: ['', Validators.pattern('^\\w+\\s\\w+$') ],
           institute: '',
           program: '',
           position: '',
           requestText: '',
           supplier: '',
           supplierSelectionMethod: '',
-          ammount: ''
+          ammount: ['', Validators.pattern('^\\d*(\\.\\d{1,2})?$') ],
+          director: 'kapoios'
       });
   }
 
+  submitRequest(): boolean {
+    this.request = new Request();
+    this.request.stage1 = new Stage1();
+    this.request.stage1.supplier = this.newRequestForm.get('supplier').value;
+    this.request.stage1.supplierSelectionMethod = this.newRequestForm.get('supplierSelectionMethod').value;
+    this.request.stage1.subject = this.newRequestForm.get('requestText').value;
+    this.request.stage1.amountInEuros = this.newRequestForm.get('ammount').value;
+    // this.request.stage1.attachment. = this.newRequestForm.get('').value;
 
-  // submitted = false;
+    this.request.project = new Project();
+    this.request.project.acronym = this.newRequestForm.get('program').value;
 
-  // onSubmit() { this.submitted = true; }
+    this.createForm();
+    return true;
+  }
 
-  constructor() { }
+  // constructor() { }
+
+  show(event: any) {
+    if (event.target.value) {
+      this.programSelected = true;
+    }
+  }
 
   ngOnInit() {
   }

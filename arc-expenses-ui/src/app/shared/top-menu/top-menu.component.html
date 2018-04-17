@@ -1,7 +1,7 @@
 <div class="tm-header uk-visible@m" uk-header="">
-    <div class="uk-navbar-container uk-sticky" style="">
+    <div class="uk-navbar-container uk-sticky" uk-sticky style="">
         <div class="uk-container uk-container-expand">
-            <nav class="uk-navbar-container" uk-navbar>
+            <nav class="uk-navbar-container" uk-navbar style="">
                 <div class="uk-navbar-left">
                     <a routerLink="/home" class="uk-navbar-item navbar-brand-athena uk-logo"></a>
                 </div>
@@ -47,6 +47,7 @@
                     </ul>
                 </div>
             </nav>
+            <hr class="uk-hr uk-margin-remove uk-padding-remove">
         </div>
     </div>
     <!--<div class="uk-sticky-placeholder" style="height: 80px; margin: 0px;" hidden="hidden"></div>-->
@@ -101,17 +102,20 @@
 
 
 <div class="tm-header-mobile uk-hidden@m">
-    <nav class="uk-navbar-container uk-navbar" uk-navbar="">
-        <div class="uk-navbar-left">
-            <a class="uk-navbar-toggle" href="#tm-mobile" uk-toggle="">
-                <div uk-navbar-toggle-icon="" class="uk-navbar-toggle-icon uk-icon">
-                </div>
-            </a>
-        </div>
-        <div class="uk-navbar-center">
-            <a routerLink="/home" class="uk-navbar-item navbar-brand-athena uk-logo"></a>
-        </div>
-    </nav>
+    <div  class="uk-navbar-container" uk-sticky>
+        <nav class="uk-navbar">
+            <div class="uk-navbar-left">
+                <a class="uk-navbar-toggle" href="#tm-mobile" uk-toggle>
+                    <div uk-navbar-toggle-icon="" class="uk-navbar-toggle-icon uk-icon">
+                    </div>
+                </a>
+            </div>
+            <div class="uk-navbar-center">
+                <a routerLink="/home" class="uk-navbar-item navbar-brand-athena uk-logo"></a>
+            </div>
+        </nav>
+        <hr class="uk-hr uk-margin-remove uk-padding-remove">
+    </div>
     <div id="tm-mobile" uk-offcanvas="" mode="slide" overlay="" class="uk-offcanvas">
         <div class="uk-offcanvas-bar">
             <button class="uk-offcanvas-close uk-close uk-icon" type="button" style="color: #2d2e33" uk-close>
