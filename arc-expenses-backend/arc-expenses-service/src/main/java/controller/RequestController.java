@@ -1,19 +1,19 @@
 package controller;
 
 import eu.openminted.registry.core.service.ResourceTypeService;
+import eu.openminted.registry.core.validation.ResourceValidator;
 import org.springframework.beans.factory.annotation.Autowired;
-import service.RequestService;
+import service.RequestServiceImpl;
 
 public class RequestController {
 
     @Autowired
-    RequestService requestService;
+    RequestServiceImpl requestServiceImpl;
     @Autowired
     ResourceTypeService resourceTypeService;
-   /* @Autowired
-    PoolParser poolParser;
+//    @Autowired
+//    PoolParser poolParser;
     @Autowired
-    ResourceValidator resourceValidator;*/
-
+    ResourceValidator resourceValidator;
 
 }

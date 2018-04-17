@@ -15,5 +15,5 @@
   "name": "user",
   "aliasGroup" : null,
   "payloadType": "json",
-  "schemaUrl":"https://github.com/madgeek-arc/arc-expenses/blob/master/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/request.json"
+  "schema" : "{\r\n  \"$schema\": \"http:\/\/json-schema.org\/draft-04\/schema#\",\r\n\"user\": {\r\n      \"type\": \"object\",\r\n      \"properties\": {\r\n        \"id\": { \"type\": \"string\" },\r\n        \"email\": { \"type\": \"string\" },\r\n        \"firstname\": { \"type\": \"string\" },\r\n        \"lastname\": { \"type\": \"string\" },\r\n        \"firstnameLatin\": { \"type\": \"string\" },\r\n        \"lastnameLatin\": { \"type\": \"string\" }\r\n      },\r\n      \"required\": [\r\n        \"id\",\r\n        \"email\",\r\n        \"firstname\",\r\n        \"lastname\"\r\n      ]\r\n    }\r\n}"
 }
