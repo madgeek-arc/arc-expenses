@@ -41,7 +41,7 @@
                       </div>
                     </div>
                     <!--<ng-container *ngIf="prog.value!=''">-->
-                    <div *ngIf="programSelected">
+                    <ng-container *ngIf="programSelected">
                       <div class="uk-margin">
                         <label class="uk-form-label" for="request-institute">Ινστιτούτο / Μονάδα</label>
                         <div class="uk-form-controls">
@@ -122,7 +122,7 @@
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </ng-container>
                     {{request | json}}
                   </fieldset>
 
