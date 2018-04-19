@@ -1,112 +1,205 @@
-<!--<div class="uk-section uk-section-default">-->
-<div class="uk-container-expand" style="margin-top: 20px">
-  <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid>
-    <div class="uk-width-1-1@m uk-first-column">
-      <!--<h1 class="uk-h3 uk-heading-bullet">Υπάρχοντα Αιτήματα</h1>-->
+<div class="uk-section-default uk-section uk-section-small uk-padding-remove-bottom" style="min-height: 325px">
+  <div class="uk-container">
+    <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
+      <div class="uk-width-1-1@m uk-first-column">
 
+        <h1 class="uk-h3 uk-heading-bullet">{{title}}</h1>
+        <!--<hr class="uk-divider-small">-->
 
-      <!--<hr class="uk-divider-small">-->
+        <!--<div class="uk-margin">-->
+        <!--Paste the copied XML file below, or use one of the options to upload and preview the XML file-->
+        <!--before you submit it.-->
+        <!--</div>-->
 
-      <!--<div class="uk-margin">-->
-      <!--Paste the copied XML file below, or use one of the options to upload and preview the XML file-->
-      <!--before you submit it.-->
-      <!--</div>-->
+        <!-- TOP HELP CONTENT -->
+        <help-content #topHelperContent [position]="'top'"
+                      [ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
+        </help-content>
 
-      <!-- TOP HELP CONTENT -->
-      <!--
-<help-content #topHelperContent [position]="'top'"
-                    [ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
-      </help-content>
--->
+        <div class="uk-container uk-margin-medium-top uk-margin-medium-bottom">
+          <div class="uk-grid">
 
-      <div class="uk-container uk-container-expand uk-margin-medium-top uk-margin-medium-bottom">
-        <h1 class="uk-h3 uk-heading-bullet">Υπάρχοντα Αιτήματα</h1>
+            <!-- LEFT HELP CONTENT -->
+            <aside-help-content #leftHelperContent [position]="'left'"
+                                [ngClass]="leftHelperContent.isPresent()?'tm-sidebar uk-width-1-4@m uk-first-column':'clear-style'">
+            </aside-help-content>
 
-        <div class="uk-grid">
-          <!-- MIDDLE -->
-          <div class=" uk-width-expand@m">
+            <!-- MIDDLE -->
+            <div class=" uk-width-expand@m">
 
-            <!--
-            <form class="form-horizontal">
-                <div class="uk-grid uk-form-horizontal">
-                    <label class="uk-width-1-5 required">
-                        Version
-                    </label>
-                    <div class="uk-width-expand@m">
-                        <input class="uk-input" formcontrolname="version" placeholder="Version in the form of major.minor.patch" type="text">
-                        <div>
-                            <i><small>Associates a resource with a numeric pattern
-                            of the form major_version.minor_version.patch (in accordance
-                            to the semantic versioning guidelines, cf. http://semver.org)
-                            that identifies its version</small></i>
-                        </div>
-                    </div>
+              <div class="uk-form-horizontal uk-margin-large">
+
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="form-horizontal-text">Ινστιτούτο / Μονάδα</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" id="form-horizontal-text" type="text" placeholder="-- επιλέξτε ινστιτούτο / μονάδα --">
+                  </div>
                 </div>
-            </form>
-             -->
 
-            <form [formGroup]="newRequestForm" class="uk-form-horizontal uk-margin-large">
-
-              <div class="uk-margin">
-                <label class="uk-form-label" for="form-horizontal-text">Ινστιτούτο / Μονάδα</label>
-                <div class="uk-form-controls">
-                  <input class="uk-input" id="form-horizontal-text" type="text" placeholder="-- επιλέξτε ινστιτούτο / μονάδα --">
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="form-horizontal-text">Από</label>
+                  <div class="uk-form-controls">
+                    <div class="uk-width-1-1">
+                      <div class="uk-width-1-2@s">
+                        <input class="uk-input" type="text" placeholder="ονοματεπώνυμο">
+                      </div>
+                      <div class="uk-width-1-2@s">
+                        <input class="uk-input" type="text" placeholder="θέση στον φορέα">
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <div class="uk-margin">
-                <label class="uk-form-label" for="form-horizontal-text">Από</label>
-                <div class="uk-form-controls">
-                  <div class="uk-width-1-1">
-                    <div class="uk-width-1-2@s">
-                      <input class="uk-input" type="text" placeholder="ονοματεπώνυμο">
-                    </div>
-                    <div class="uk-width-1-2@s">
-                      <input class="uk-input" type="text" placeholder="θέση στον φορέα">
-                    </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="form-horizontal-select">Select</label>
+                  <div class="uk-form-controls">
+                    <select class="uk-select" id="form-horizontal-select">
+                      <option>Option 01</option>
+                      <option>Option 02</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="uk-margin">
+                  <div class="uk-form-label">Radio</div>
+                  <div class="uk-form-controls uk-form-controls-text">
+                    <label><input class="uk-radio" type="radio" name="radio1"> Option 01</label><br>
+                    <label><input class="uk-radio" type="radio" name="radio1"> Option 02</label>
                   </div>
                 </div>
               </div>
 
-              <div class="uk-margin">
-                <label class="uk-form-label" for="form-horizontal-select">Select</label>
-                <div class="uk-form-controls">
-                  <select class="uk-select" id="form-horizontal-select">
-                    <option>Option 01</option>
-                    <option>Option 02</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="uk-margin">
-                <div class="uk-form-label">Radio</div>
-                <div class="uk-form-controls uk-form-controls-text">
-                  <label><input class="uk-radio" type="radio" name="radio1"> Option 01</label><br>
-                  <label><input class="uk-radio" type="radio" name="radio1"> Option 02</label>
-                </div>
-              </div>
-            </form>
-
-          </div>
-          <div class="tm-sidebar uk-width-1-4@m helpBox">
-            <div class="uk-card uk-card-body uk-card-secondary sidemenu">
-              <h3>Πληροφορίες / Βοήθεια</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse neque enim,
-                blandit commodo aliquet id, varius ac lorem. Morbi pretium mauris at magna euismod,
-                eu malesuada nisi lobortis. Nunc faucibus leo pulvinar ipsum venenatis mattis. Pellentesque
-                placerat feugiat maximus. In at ornare leo, vitae gravida mi. Curabitur quis mi
-                tincidunt, molestie neque non, ullamcorper elit. Etiam a justo vitae arcu commodo pharetra.
-                Nulla quis dolor tellus. Proin massa nibh, euismod et fringilla vitae, finibus nec sapien.
-                Donec sit amet dignissim mi. Proin quis suscipit arcu. Nunc laoreet elit orci, sed eleifend
-                orci finibus at. Nam vulputate, sem ac efficitur scelerisque, dolor odio accumsan turpis,
-                vel gravida dolor ex vel augue. Donec eu libero aliquet, aliquet turpis eu, molestie dui.
-                Fusce varius tellus varius scelerisque molestie. Nullam efficitur tortor at ligula
-                bibendum dapibus.</p>
             </div>
+
+            <!-- RIGHT HELP CONTENT -->
+            <aside-help-content #rightHelperContent [position]="'right'"
+                                [ngClass]="rightHelperContent.isPresent()?'tm-sidebar uk-width-1-4@m uk-first-column':'clear-style'">
+            </aside-help-content>
+
           </div>
         </div>
+
+
+        <!-- BOTTOM HELP CONTENT -->
+        <help-content #bottomHelperContent [position]="'bottom'"
+                      [ngClass]="bottomHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
+        </help-content>
+
+
       </div>
     </div>
   </div>
 </div>
+
+<!--&lt;!&ndash;<div class="uk-section uk-section-default">&ndash;&gt;-->
+<!--<div class="uk-container-expand" style="margin-top: 20px">-->
+  <!--<div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid>-->
+    <!--<div class="uk-width-1-1@m uk-first-column">-->
+      <!--&lt;!&ndash;<h1 class="uk-h3 uk-heading-bullet">Υπάρχοντα Αιτήματα</h1>&ndash;&gt;-->
+
+
+      <!--&lt;!&ndash;<hr class="uk-divider-small">&ndash;&gt;-->
+
+      <!--&lt;!&ndash;<div class="uk-margin">&ndash;&gt;-->
+      <!--&lt;!&ndash;Paste the copied XML file below, or use one of the options to upload and preview the XML file&ndash;&gt;-->
+      <!--&lt;!&ndash;before you submit it.&ndash;&gt;-->
+      <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+      <!--&lt;!&ndash; TOP HELP CONTENT &ndash;&gt;-->
+      <!--&lt;!&ndash;-->
+<!--<help-content #topHelperContent [position]="'top'"-->
+                    <!--[ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">-->
+      <!--</help-content>-->
+<!--&ndash;&gt;-->
+
+      <!--<div class="uk-container uk-container-expand uk-margin-medium-top uk-margin-medium-bottom">-->
+        <!--<h1 class="uk-h3 uk-heading-bullet">Υπάρχοντα Αιτήματα</h1>-->
+
+        <!--<div class="uk-grid">-->
+          <!--&lt;!&ndash; MIDDLE &ndash;&gt;-->
+          <!--<div class=" uk-width-expand@m">-->
+
+            <!--&lt;!&ndash;-->
+            <!--<form class="form-horizontal">-->
+                <!--<div class="uk-grid uk-form-horizontal">-->
+                    <!--<label class="uk-width-1-5 required">-->
+                        <!--Version-->
+                    <!--</label>-->
+                    <!--<div class="uk-width-expand@m">-->
+                        <!--<input class="uk-input" formcontrolname="version" placeholder="Version in the form of major.minor.patch" type="text">-->
+                        <!--<div>-->
+                            <!--<i><small>Associates a resource with a numeric pattern-->
+                            <!--of the form major_version.minor_version.patch (in accordance-->
+                            <!--to the semantic versioning guidelines, cf. http://semver.org)-->
+                            <!--that identifies its version</small></i>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</form>-->
+             <!--&ndash;&gt;-->
+
+            <!--<form [formGroup]="newRequestForm" class="uk-form-horizontal uk-margin-large">-->
+
+              <!--<div class="uk-margin">-->
+                <!--<label class="uk-form-label" for="form-horizontal-text">Ινστιτούτο / Μονάδα</label>-->
+                <!--<div class="uk-form-controls">-->
+                  <!--<input class="uk-input" id="form-horizontal-text" type="text" placeholder="&#45;&#45; επιλέξτε ινστιτούτο / μονάδα &#45;&#45;">-->
+                <!--</div>-->
+              <!--</div>-->
+
+              <!--<div class="uk-margin">-->
+                <!--<label class="uk-form-label" for="form-horizontal-text">Από</label>-->
+                <!--<div class="uk-form-controls">-->
+                  <!--<div class="uk-width-1-1">-->
+                    <!--<div class="uk-width-1-2@s">-->
+                      <!--<input class="uk-input" type="text" placeholder="ονοματεπώνυμο">-->
+                    <!--</div>-->
+                    <!--<div class="uk-width-1-2@s">-->
+                      <!--<input class="uk-input" type="text" placeholder="θέση στον φορέα">-->
+                    <!--</div>-->
+                  <!--</div>-->
+                <!--</div>-->
+              <!--</div>-->
+
+              <!--<div class="uk-margin">-->
+                <!--<label class="uk-form-label" for="form-horizontal-select">Select</label>-->
+                <!--<div class="uk-form-controls">-->
+                  <!--<select class="uk-select" id="form-horizontal-select">-->
+                    <!--<option>Option 01</option>-->
+                    <!--<option>Option 02</option>-->
+                  <!--</select>-->
+                <!--</div>-->
+              <!--</div>-->
+
+              <!--<div class="uk-margin">-->
+                <!--<div class="uk-form-label">Radio</div>-->
+                <!--<div class="uk-form-controls uk-form-controls-text">-->
+                  <!--<label><input class="uk-radio" type="radio" name="radio1"> Option 01</label><br>-->
+                  <!--<label><input class="uk-radio" type="radio" name="radio1"> Option 02</label>-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</form>-->
+
+          <!--</div>-->
+          <!--<div class="tm-sidebar uk-width-1-4@m helpBox">-->
+            <!--<div class="uk-card uk-card-body uk-card-secondary sidemenu">-->
+              <!--<h3>Πληροφορίες / Βοήθεια</h3>-->
+              <!--<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse neque enim,-->
+                <!--blandit commodo aliquet id, varius ac lorem. Morbi pretium mauris at magna euismod,-->
+                <!--eu malesuada nisi lobortis. Nunc faucibus leo pulvinar ipsum venenatis mattis. Pellentesque-->
+                <!--placerat feugiat maximus. In at ornare leo, vitae gravida mi. Curabitur quis mi-->
+                <!--tincidunt, molestie neque non, ullamcorper elit. Etiam a justo vitae arcu commodo pharetra.-->
+                <!--Nulla quis dolor tellus. Proin massa nibh, euismod et fringilla vitae, finibus nec sapien.-->
+                <!--Donec sit amet dignissim mi. Proin quis suscipit arcu. Nunc laoreet elit orci, sed eleifend-->
+                <!--orci finibus at. Nam vulputate, sem ac efficitur scelerisque, dolor odio accumsan turpis,-->
+                <!--vel gravida dolor ex vel augue. Donec eu libero aliquet, aliquet turpis eu, molestie dui.-->
+                <!--Fusce varius tellus varius scelerisque molestie. Nullam efficitur tortor at ligula-->
+                <!--bibendum dapibus.</p>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</div>-->
+    <!--</div>-->
+  <!--</div>-->
+<!--</div>-->
 <!--</div>-->

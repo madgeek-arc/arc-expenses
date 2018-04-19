@@ -7,6 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class RequestsComponent implements OnInit {
 
+  title = 'Υπάρχοντα Αιτήματα';
   constructor() { }
 
   ngOnInit() {

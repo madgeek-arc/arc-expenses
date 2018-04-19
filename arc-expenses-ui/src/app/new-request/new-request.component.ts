@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {Project, Request, Stage1} from '../operation';
+import {Project, Request, Stage1} from '../domain/operation';
 
 @Component({
   selector: 'app-new-request',
@@ -20,6 +20,8 @@ export class NewRequestComponent implements OnInit {
     selMethods = ['Απ\' ευθείας ανάθεση', 'Έρευνα αγοράς', 'Διαγωνισμός'];
 
     programSelected = false;
+
+    title = 'Πρωτογενές Αίτημα & Έγκριση Δαπάνης';
 
   constructor(private fb: FormBuilder) {
       this.createForm();

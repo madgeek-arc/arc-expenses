@@ -10,6 +10,10 @@ import { HomeComponent } from './home/home.component';
 import { RequestsComponent } from './requests/requests.component';
 import { AboutComponent } from './about/about.component';
 import { SignUpComponent } from './sign-up/sign-up.component';
+import {AsideHelpContentComponent, HelpContentComponent} from './shared/help-content/help-content.component';
+import {HelpContentService} from './shared/help-content/help-content.service';
+import {RequestService} from './request.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -19,14 +23,20 @@ import { SignUpComponent } from './sign-up/sign-up.component';
     HomeComponent,
     RequestsComponent,
     AboutComponent,
-    SignUpComponent
+    SignUpComponent,
+    HelpContentComponent,
+    AsideHelpContentComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [
+    HelpContentService,
+    RequestService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
