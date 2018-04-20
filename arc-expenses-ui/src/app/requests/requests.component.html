@@ -3,7 +3,7 @@
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
       <div class="uk-width-1-1@m uk-first-column">
 
-        <h1 class="uk-h3 uk-heading-bullet">{{title}}</h1>
+        <h1 class="uk-h3 uk-heading-bullet uk-padding">{{title}}</h1>
         <!--<hr class="uk-divider-small">-->
 
         <!--<div class="uk-margin">-->
@@ -27,46 +27,75 @@
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
-              <div class="uk-form-horizontal uk-margin-large">
+              <!--<div class="uk-form-horizontal uk-margin-large">-->
 
-                <div class="uk-margin">
-                  <label class="uk-form-label" for="form-horizontal-text">Ινστιτούτο / Μονάδα</label>
-                  <div class="uk-form-controls">
-                    <input class="uk-input" id="form-horizontal-text" type="text" placeholder="-- επιλέξτε ινστιτούτο / μονάδα --">
+                <!--<div class="uk-margin">-->
+                  <!--<label class="uk-form-label" for="form-horizontal-text">Ινστιτούτο / Μονάδα</label>-->
+                  <!--<div class="uk-form-controls">-->
+                    <!--<input class="uk-input" id="form-horizontal-text" type="text" placeholder="&#45;&#45; επιλέξτε ινστιτούτο / μονάδα &#45;&#45;">-->
+                  <!--</div>-->
+                <!--</div>-->
+
+                <!--<div class="uk-margin">-->
+                  <!--<label class="uk-form-label" for="form-horizontal-text">Από</label>-->
+                  <!--<div class="uk-form-controls">-->
+                    <!--<div class="uk-width-1-1">-->
+                      <!--<div class="uk-width-1-2@s">-->
+                        <!--<input class="uk-input" type="text" placeholder="ονοματεπώνυμο">-->
+                      <!--</div>-->
+                      <!--<div class="uk-width-1-2@s">-->
+                        <!--<input class="uk-input" type="text" placeholder="θέση στον φορέα">-->
+                      <!--</div>-->
+                    <!--</div>-->
+                  <!--</div>-->
+                <!--</div>-->
+
+                <!--<div class="uk-margin">-->
+                  <!--<label class="uk-form-label" for="form-horizontal-select">Select</label>-->
+                  <!--<div class="uk-form-controls">-->
+                    <!--<select class="uk-select" id="form-horizontal-select">-->
+                      <!--<option>Option 01</option>-->
+                      <!--<option>Option 02</option>-->
+                    <!--</select>-->
+                  <!--</div>-->
+                <!--</div>-->
+
+                <!--<div class="uk-margin">-->
+                  <!--<div class="uk-form-label">Radio</div>-->
+                  <!--<div class="uk-form-controls uk-form-controls-text">-->
+                    <!--<label><input class="uk-radio" type="radio" name="radio1"> Option 01</label><br>-->
+                    <!--<label><input class="uk-radio" type="radio" name="radio1"> Option 02</label>-->
+                  <!--</div>-->
+                <!--</div>-->
+              <!--</div>-->
+
+
+<!-- form --> <div class="uk-form-horizontal uk-margin-large">
+
+                <!--<fieldset>-->
+                  <div class="uk-align-center">
+                    <div class="uk-width-1-2 uk-align-center">
+                    <input class="uk-input uk-width-2-3 uk-comment uk-comment-meta uk-search-field uk-box-shadow">
+                    <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="ngOnInit()">Αναζήτηση</button>
                   </div>
-                </div>
-
-                <div class="uk-margin">
-                  <label class="uk-form-label" for="form-horizontal-text">Από</label>
-                  <div class="uk-form-controls">
-                    <div class="uk-width-1-1">
-                      <div class="uk-width-1-2@s">
-                        <input class="uk-input" type="text" placeholder="ονοματεπώνυμο">
-                      </div>
-                      <div class="uk-width-1-2@s">
-                        <input class="uk-input" type="text" placeholder="θέση στον φορέα">
-                      </div>
+                    <div>
+                      <p>Sorting goes here</p>
                     </div>
                   </div>
-                </div>
+                <!--</fieldset>-->
+              </div>
+              <table class="uk-table uk-table-hover uk-table-divider">
+                <tbody>
+                  <tr *ngFor="let entry of listOfRequests" class="uk-link" [routerLink]="['request-stage', entry.id]">
+                    <td>{{entry.id}}</td>
+                    <td>{{entry.requesterPosition}}</td>
+                    <td>{{entry.stage}}</td>
+                  </tr>
+                </tbody>
+              </table>
 
-                <div class="uk-margin">
-                  <label class="uk-form-label" for="form-horizontal-select">Select</label>
-                  <div class="uk-form-controls">
-                    <select class="uk-select" id="form-horizontal-select">
-                      <option>Option 01</option>
-                      <option>Option 02</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="uk-margin">
-                  <div class="uk-form-label">Radio</div>
-                  <div class="uk-form-controls uk-form-controls-text">
-                    <label><input class="uk-radio" type="radio" name="radio1"> Option 01</label><br>
-                    <label><input class="uk-radio" type="radio" name="radio1"> Option 02</label>
-                  </div>
-                </div>
+              <div>
+                <p>Paging goes here</p>
               </div>
 
             </div>

@@ -1,4 +1,4 @@
-// Generated using typescript-generator version 2.1.406 on 2018-04-17 09:50:02.
+// Generated using typescript-generator version 2.1.406 on 2018-04-20 12:58:33.
 
 export class Attachment {
     filename: string;
@@ -57,6 +57,7 @@ export class Request {
     project: Project;
     requester: Requester;
     requesterPosition: string;
+    stage: string;
     stage1: Stage1;
     stage2: Stage2;
     stage3: Stage3;

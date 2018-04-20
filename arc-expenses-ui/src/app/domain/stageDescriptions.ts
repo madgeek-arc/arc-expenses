@@ -1,5 +1,3 @@
-import {variable} from '@angular/compiler/src/output/output_ast';
-
 export class StageFieldDescription {
   label: string;
   type: string;
@@ -12,49 +10,42 @@ export class StageDescription {
   delegateField: string;
 }
 
-export let approvedDesc = {
-  label: '',
-  type: 'boolean',
+export const fundsAvailableDesc = {
+  label: 'Υπάρχει διαθέσιμη πίστωση',
+  type: 'checkbox',
   description: '',
   required: true
 };
 
-export const fundsAvailableDesc = {
-  label: '',
-  type: 'boolean',
-  description: '',
-  required: false
-};
-
 export const analiftheiYpoxrewsiDesc = {
-  label: '',
-  type: 'boolean',
+  label: 'Έχει αναληφθεί η υποχρέωση',
+  type: 'checkbox',
   description: '',
-  required: false
+  required: true
 };
 
 export const checkRegularityDesc = {
-  label: '',
-  type: 'boolean',
+  label: 'Έλεγχος Ορθότητας',
+  type: 'checkbox',
   description: '',
-  required: ''
+  required: true
 };
 
 export const checkLegalityDesc = {
-  label: '',
-  type: 'boolean',
+  label: 'Νομικός Έλεγχος',
+  type: 'checkbox',
   description: '',
-  required: ''
+  required: true
 };
 
 export const Stage2Desc = {
   delegateField: 'scientificCoordinator',
-  stageFields: [approvedDesc]
+  stageFields: []
 };
 
 export const Stage3Desc = {
   delegateField: 'operator',
-  stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc, approvedDesc]
+  stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc]
 };
 
 export const Stage3aDesc = {
@@ -69,7 +60,7 @@ export const Stage3bDesc = {
 
 export const Stage4Desc = {
   delegateField: 'POY',
-  stageFields: []
+  stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc]
 };
 
 export const Stage5Desc = {
@@ -84,12 +75,12 @@ export const Stage6Desc = {
 
 export const Stage7Desc = {
   delegateField: 'accountingDirector',
-  stageFields: []
+  stageFields: [checkRegularityDesc, checkLegalityDesc]
 };
 
 export const Stage8Desc = {
   delegateField: 'POY',
-  stageFields: []
+  stageFields: [checkRegularityDesc, checkLegalityDesc]
 };
 
 export const Stage9Desc = {

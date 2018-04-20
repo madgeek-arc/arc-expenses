@@ -14,7 +14,8 @@ import {AsideHelpContentComponent, HelpContentComponent} from './shared/help-con
 import {HelpContentService} from './shared/help-content/help-content.service';
 import {RequestService} from './request.service';
 import { HttpClientModule } from '@angular/common/http';
-import { StageFormComponent } from './stage-form/stage-form.component';
+import { StageFormComponent } from './shared/stage-form/stage-form.component';
+import { RequestStageComponent } from './request-stage/request-stage.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { StageFormComponent } from './stage-form/stage-form.component';
     SignUpComponent,
     HelpContentComponent,
     AsideHelpContentComponent,
-    StageFormComponent
+    StageFormComponent,
+    RequestStageComponent
   ],
   imports: [
     BrowserModule,

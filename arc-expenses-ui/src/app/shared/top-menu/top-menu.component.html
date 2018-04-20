@@ -3,27 +3,27 @@
         <div class="uk-container uk-container-expand">
             <nav class="uk-navbar-container" uk-navbar style="">
                 <div class="uk-navbar-left">
-                    <a routerLink="/home" class="uk-navbar-item navbar-brand-athena uk-logo"></a>
+                    <a [routerLink]="['home']" class="uk-navbar-item navbar-brand-athena uk-logo"></a>
                 </div>
                 <div class="uk-navbar-right">
                     <ul class="uk-navbar-nav">
                         <li class="uk-parent" [routerLinkActive]="['uk-active']">
-                            <a [routerLink]="['home']" [routerLinkActive]="['uk-active']">
+                            <a [routerLink]="['home']">
                                 Αρχική
                             </a>
                         </li>
                         <li class="uk-parent" [routerLinkActive]="['uk-active']">
-                            <a [routerLink]="['new-request']" routerLinkActive="uk-active">
+                            <a [routerLink]="['new-request']">
                                 Νέο Αίτημα
                             </a>
                         </li>
                         <li class="uk-parent" [routerLinkActive]="['uk-active']">
-                            <a [routerLink]="['requests']" routerLinkActive="uk-active">
+                            <a [routerLink]="['requests']">
                                 Αιτήματα
                             </a>
                         </li>
                         <li class="uk-parent" [routerLinkActive]="['uk-active']">
-                            <a [routerLink]="['about']" routerLinkActive="uk-active">
+                            <a [routerLink]="['about']">
                                 Σχετικά
                             </a>
                         </li>
@@ -54,53 +54,6 @@
 </div>
 
 
-<!--
-<div class="tm-header uk-hidden@m" uk-header="">
-    <div class="uk-navbar-container uk-sticky" style="">
-        <div class="uk-container uk-container-expand">
-            <nav class="uk-navbar-container" uk-navbar>
-                <div class="uk-navbar-left">
-                    <a routerLink="/home" class="uk-navbar-item navbar-brand-athena uk-logo"></a>
-                </div>
-                <div class="uk-navbar-right">
-                    <ul class="uk-navbar-nav">
-                        <li class="uk-parent" [routerLinkActive]="['uk-active']">
-                            <a [routerLink]="['home']" [routerLinkActive]="['uk-active']">
-                                Αρχική
-                            </a>
-                        </li>
-                        <li class="uk-parent" [routerLinkActive]="['uk-active']">
-                            <a [routerLink]="['new-request']" routerLinkActive="uk-active">
-                                Νέο Αίτημα
-                            </a>
-                        </li>
-                        <li class="uk-parent" [routerLinkActive]="['uk-active']">
-                            <a [routerLink]="['requests']" routerLinkActive="uk-active">
-                                Αιτήματα
-                            </a>
-                        </li>
-                        <li class="uk-parent" [routerLinkActive]="['uk-active']">
-                            <a [routerLink]="['about']" routerLinkActive="uk-active">
-                                Σχετικά
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="uk-navbar-right">
-                    <ul class="uk-navbar-nav">
-                        <li class="uk-parent">
-                            <a class="loginLink">Είσοδος <span class="uk-margin-small-right uk-icon"><svg height="20" ratio="1" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><circle cx="9.9" cy="6.4" fill="none" r="4.4" stroke="#000" stroke-width="1.1"></circle><path d="M1.5,19 C2.3,14.5 5.8,11.2 10,11.2 C14.2,11.2 17.7,14.6 18.5,19.2" fill="none" stroke="#000" stroke-width="1.1"></path></svg> </span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </div>
-    </div>
-</div>
--->
-
-
 <div class="tm-header-mobile uk-hidden@m">
     <div  class="uk-navbar-container" uk-sticky>
         <nav class="uk-navbar">
@@ -124,28 +77,28 @@
                 <div>
                     <div class="uk-panel" id="module-0">
                         <ul class="uk-nav uk-nav-default">
-                            <li class="uk-nav-header uk-active">
-                                <a src="index.html" class="uk-offcanvas-close offcanvas-close">
+                            <li class="uk-nav-header" [routerLinkActive]="['uk-active']">
+                                <a [routerLink]="['home']">
                                     Αρχική
                                 </a>
                             </li>
-                            <li class="uk-nav-header">
-                                <a src="#" class="uk-offcanvas-close offcanvas-close">
+                            <li class="uk-nav-header" [routerLinkActive]="['uk-active']">
+                                <a [routerLink]="['new-request']">
                                     Νέο Αίτημα
                                 </a>
                             </li>
-                            <li class="uk-nav-header">
-                                <a src="#" class="uk-offcanvas-close offcanvas-close">
+                            <li class="uk-nav-header" [routerLinkActive]="['uk-active']">
+                                <a [routerLink]="['requests']">
                                     Αιτήματα
                                 </a>
                             </li>
-                            <li class="uk-nav-header">
-                                <a src="#" class="uk-offcanvas-close offcanvas-close">
+                            <li class="uk-nav-header" [routerLinkActive]="['uk-active']">
+                                <a [routerLink]="['about']">
                                     Σχετικά
                                 </a>
                             </li>
-                            <li class="uk-nav-header">
-                                <a src="#" class="uk-offcanvas-close offcanvas-close">
+                            <li class="uk-nav-header" [routerLinkActive]="['uk-active']">
+                                <a [routerLink]="['sign-up']">
                                     Είσοδος
                                 </a>
                             </li>
