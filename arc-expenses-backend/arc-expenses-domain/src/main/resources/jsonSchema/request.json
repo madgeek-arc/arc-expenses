@@ -144,6 +144,11 @@
       "title": "Requester position",
       "type": "string"
     },
+    "stage": {
+      "description": "Current stage of the request.",
+      "title": "Stage",
+      "type": "string"
+    },
     "stage1": {
       "type": "object",
       "properties": {
