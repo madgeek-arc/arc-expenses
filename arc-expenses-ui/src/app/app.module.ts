@@ -16,6 +16,11 @@ import {RequestService} from './request.service';
 import { HttpClientModule } from '@angular/common/http';
 import { StageFormComponent } from './shared/stage-form/stage-form.component';
 import { RequestStageComponent } from './request-stage/request-stage.component';
+import {
+    Stage2Component, Stage3Component, Stage3aComponent, StageComponent,
+    Stage3bComponent, Stage4Component, Stage5Component, Stage6Component, Stage7Component, Stage8Component,
+    Stage9Component, Stage10Component
+} from './request-stage/stages-components';
 
 @NgModule({
   declarations: [
@@ -29,7 +34,19 @@ import { RequestStageComponent } from './request-stage/request-stage.component';
     HelpContentComponent,
     AsideHelpContentComponent,
     StageFormComponent,
-    RequestStageComponent
+    RequestStageComponent,
+    StageComponent,
+    Stage2Component,
+    Stage3Component,
+    Stage3aComponent,
+    Stage3bComponent,
+    Stage4Component,
+    Stage5Component,
+    Stage6Component,
+    Stage7Component,
+    Stage8Component,
+    Stage9Component,
+    Stage10Component
   ],
   imports: [
     BrowserModule,

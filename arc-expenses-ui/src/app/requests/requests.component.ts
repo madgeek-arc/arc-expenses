@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {
-    analiftheiYpoxrewsiDesc, approvedDesc, checkLegalityDesc, checkRegularityDesc, StageDescription
+    analiftheiYpoxrewsiDesc, checkLegalityDesc, checkRegularityDesc, StageDescription
 } from '../domain/stageDescriptions';
 import { Request } from '../domain/operation';
 
@@ -17,7 +17,7 @@ export class RequestsComponent implements OnInit {
 
   exampleStageDesc: StageDescription = {
       delegateField: 'delegateFieldName',
-      stageFields: [analiftheiYpoxrewsiDesc, approvedDesc, checkLegalityDesc, checkRegularityDesc]
+      stageFields: [analiftheiYpoxrewsiDesc, checkLegalityDesc, checkRegularityDesc]
   };
 
   listOfRequests: Request [] = [
