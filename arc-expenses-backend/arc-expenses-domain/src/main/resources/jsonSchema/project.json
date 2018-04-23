@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "definitions": {
+    "personOfInterest": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "firstname": { "type": "string" },
+        "lastname": { "type": "string" },
+        "delegates": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/person" }
+        }
+      },
+      "required": [
+        "email",
+        "firstname",
+        "lastname"
+      ]
+    },
+    "organization": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "POY": { "$ref": "#/definitions/personOfInterest" },
+        "director": { "$ref": "#/definitions/personOfInterest" },
+        "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" }
+      },
+      "required": [
+        "id",
+        "name",
+        "POY",
+        "director",
+        "dioikitikoSumvoulio"
+      ]
+    },
+    "institute": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "organization": { "$ref": "#/definitions/organization" },
+        "director": { "$ref": "#/definitions/personOfInterest" },
+        "accountingRegistration": { "$ref": "#/definitions/personOfInterest" },
+        "accountingPayment": { "$ref": "#/definitions/personOfInterest" },
+        "accountingDirector": { "$ref": "#/definitions/personOfInterest" },
+        "diaugeia": { "$ref": "#/definitions/personOfInterest" }
+      },
+      "required": [
+        "id",
+        "name",
+        "organization",
+        "director",
+        "accountingRegistration",
+        "accountingPayment",
+        "accountingDirector",
+        "diaugeia"
+      ]
+    },
+    "project": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "acronym": { "type": "string" },
+        "institute": { "$ref": "#/definitions/institute" },
+        "parentProject": { "$ref": "#/definitions/project" },
+        "scientificCoordinator": { "$ref": "#/definitions/personOfInterest" },
+        "operator": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/personOfInterest" }
+        },
+        "startDate": { "type": "date-time" },
+        "endDate": { "type": "date-time" }
+      },
+      "required": [
+        "id",
+        "name",
+        "institute",
+        "scientificCoordinator",
+        "operator"
+      ]
+    },
+    "attachment": {
+      "type": "object",
+      "properties": {
+        "filename": { "type": "string" },
+        "mimetype": { "type": "string" },
+        "size": { "type": "integer" },
+        "url": { "type": "" }
+      }
+    },
+    "required": [
+      "filename",
+      "url"
+    ]
+  }
+}
