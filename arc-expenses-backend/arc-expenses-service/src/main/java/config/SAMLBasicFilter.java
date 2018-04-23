@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class SAMLFilter extends GenericFilterBean{
+public class SAMLBasicFilter extends GenericFilterBean{
 
     @Override
     public void doFilter(

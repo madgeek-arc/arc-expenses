@@ -1,19 +1,23 @@
 {
   "indexFields": [
     {
-      "name": "id",
-      "path": "$.id",
-      "type": "java.lang.String"
+      "name": "user_id",
+      "path": "//*[local-name()='id']/text()",
+      "type": "java.lang.String",
+      "primaryKey":true,
+      "multivalued":false
     },
     {
       "name": "email",
-      "path": "$.email",
-      "type": "java.lang.String"
+      "path": "//*[local-name()='email']/text()",
+      "type": "java.lang.String",
+      "primaryKey":false,
+      "multivalued":false
     }
   ],
   "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
   "name": "user",
   "aliasGroup" : null,
-  "payloadType": "json",
-  "schema" : "{\r\n  \"$schema\": \"http:\/\/json-schema.org\/draft-04\/schema#\",\r\n\"user\": {\r\n      \"type\": \"object\",\r\n      \"properties\": {\r\n        \"id\": { \"type\": \"string\" },\r\n        \"email\": { \"type\": \"string\" },\r\n        \"firstname\": { \"type\": \"string\" },\r\n        \"lastname\": { \"type\": \"string\" },\r\n        \"firstnameLatin\": { \"type\": \"string\" },\r\n        \"lastnameLatin\": { \"type\": \"string\" }\r\n      },\r\n      \"required\": [\r\n        \"id\",\r\n        \"email\",\r\n        \"firstname\",\r\n        \"lastname\"\r\n      ]\r\n    }\r\n}"
+  "payloadType": "xml",
+  "schema" : "<?xml version=\"1.0\"?>\r\n<xs:schema xmlns:xs=\"http:\/\/www.w3.org\/2001\/XMLSchema\">\r\n\r\n<xs:element name=\"user\">\r\n  <xs:complexType>\r\n    <xs:sequence>\r\n      <xs:element name=\"id\" type=\"xs:string\"\/>\r\n      <xs:element name=\"username\" type=\"xs:string\"\/>\r\n      <xs:element name=\"email\" type=\"xs:string\"\/>\r\n    <\/xs:sequence>\r\n  <\/xs:complexType>\r\n<\/xs:element>\r\n\r\n<\/xs:schema>"
 }

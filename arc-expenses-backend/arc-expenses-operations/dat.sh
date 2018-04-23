@@ -30,7 +30,7 @@ case $1 in
             ;;
             *)
                 ${dat} del types
-               # ${dat} del resources
+                ${dat} del resources
             ;;
         esac
     ;;

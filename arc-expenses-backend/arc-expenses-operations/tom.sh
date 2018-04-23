@@ -5,11 +5,11 @@ tom=./`basename "$0"`
 case $1 in
     up)
         cd ../arc-expenses-docker
-        docker-compose up -d --build
+        sudo docker-compose up -d --build
     ;;
     down)
         cd ../arc-expenses-docker
-        docker-compose down
+        sudo docker-compose down
     ;;
     restart)
         ${tom} down

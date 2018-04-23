@@ -1,8 +1,8 @@
 {
   "indexFields": [
     {
-      "name": "id",
-      "path": "$.id",
+      "name": "request_id",
+      "path": "//*[local-name()='id']/text()",
       "type": "java.lang.String"
     }
   ],
@@ -10,5 +10,5 @@
   "name": "request",
   "aliasGroup" : null,
   "payloadType": "json",
-  "schemaUrl":"https://github.com/madgeek-arc/arc-expenses/blob/master/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/request.json"
+  "schemaUrl":"https://raw.githubusercontent.com/madgeek-arc/arc-expenses/master/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/request.json"
 }

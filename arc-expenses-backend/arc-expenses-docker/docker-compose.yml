@@ -53,11 +53,12 @@ services:
     mem_limit: 1g
     cap_add:
       - IPC_LOCK
-    volumes:
-      - esdata1:/usr/share/elasticsearch/data
+#    volumes:
+#      - esdata1:/usr/share/elasticsearch/data
     ports:
       - "9222:9200"
       - "9333:9300"
+
     networks:
       - esnet
     restart: unless-stopped
@@ -81,8 +82,8 @@ services:
     mem_limit: 1g
     cap_add:
       - IPC_LOCK
-    volumes:
-      - esdata2:/usr/share/elasticsearch/data
+#    volumes:
+#      - esdata2:/usr/share/elasticsearch/data
     networks:
       - esnet
     restart: unless-stopped

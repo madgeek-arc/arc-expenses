@@ -1,0 +1,23 @@
+{
+  "indexFields": [
+    {
+      "name": "project_id",
+      "path": "//*[local-name()='id']/text()",
+      "type": "java.lang.String",
+      "primaryKey":true,
+      "multivalued":false
+    },
+    {
+      "name": "project_acronym",
+      "path": "//*[local-name()='acronym']/text()",
+      "type": "java.lang.String",
+      "primaryKey":false,
+      "multivalued":false
+    }
+  ],
+  "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
+  "name": "project",
+  "aliasGroup" : null,
+  "payloadType": "json",
+  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/master/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/project.json"
+}

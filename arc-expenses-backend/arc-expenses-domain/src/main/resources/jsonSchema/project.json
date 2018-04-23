@@ -72,8 +72,8 @@
           "type": "array",
           "items": { "$ref": "#/definitions/personOfInterest" }
         },
-        "startDate": { "type": "date-time" },
-        "endDate": { "type": "date-time" }
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" }
       },
       "required": [
         "id",
@@ -89,7 +89,7 @@
         "filename": { "type": "string" },
         "mimetype": { "type": "string" },
         "size": { "type": "integer" },
-        "url": { "type": "" }
+        "url": { "type": "string" }
       }
     },
     "required": [
