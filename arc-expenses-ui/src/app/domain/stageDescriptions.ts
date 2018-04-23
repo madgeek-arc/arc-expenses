@@ -10,29 +10,36 @@ export class StageDescription {
   delegateField: string;
 }
 
+export const commentDesc = {
+  label: 'Σχόλια',
+  type: 'textarea',
+  description: '',
+  required: true
+};
+
 export const fundsAvailableDesc = {
-  label: 'Υπάρχει διαθέσιμη πίστωση',
+  label: 'Υπάρχει διαθέσιμη πίστωση;',
   type: 'checkbox',
   description: '',
   required: true
 };
 
 export const analiftheiYpoxrewsiDesc = {
-  label: 'Έχει αναληφθεί η υποχρέωση',
+  label: 'Έχει αναληφθεί η υποχρέωση;',
   type: 'checkbox',
   description: '',
   required: true
 };
 
 export const checkRegularityDesc = {
-  label: 'Έλεγχος Ορθότητας',
+  label: 'Έγινε έλεγχος ορθότητας;',
   type: 'checkbox',
   description: '',
   required: true
 };
 
 export const checkLegalityDesc = {
-  label: 'Νομικός Έλεγχος',
+  label: 'Έγινε νομικός Έλεγχος;',
   type: 'checkbox',
   description: '',
   required: true

@@ -27,20 +27,13 @@
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
-              <div class="uk-width-1-1">
-
+              <div class="uk-width-1-1 uk-margin-bottom">
+                <p>stage 1 info</p>
               </div>
 
-              <div class="uk-width-1-1">
-                <div class="uk-form-controls">
-                  <p>### EXAMPLE STAGE FORM FIELD ###</p>
-                  <div *ngFor="let desc of exampleStageDesc.stageFields">
-                    <app-stage-form [description]="desc">
-                      <input class="uk-form-controls uk-checkbox" type="{{desc.type}}" *ngIf="desc.required">
-                    </app-stage-form>
-                  </div>
-                </div>
-              </div>
+              <stage2-component [wasSubmitted]="true" [currentStage]="stage2Test" (emitStage)="getSubmittedStage($event)"></stage2-component>
+
+              <stage3-component [wasSubmitted]="false"[currentStage]="stage3Test" (emitStage)="getSubmittedStage($event)"></stage3-component>
 
 
 
