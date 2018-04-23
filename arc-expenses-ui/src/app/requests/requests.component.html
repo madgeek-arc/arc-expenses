@@ -3,20 +3,14 @@
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
       <div class="uk-width-1-1@m uk-first-column">
 
-        <h1 class="uk-h3 uk-heading-bullet uk-padding">{{title}}</h1>
-        <!--<hr class="uk-divider-small">-->
-
-        <!--<div class="uk-margin">-->
-        <!--Paste the copied XML file below, or use one of the options to upload and preview the XML file-->
-        <!--before you submit it.-->
-        <!--</div>-->
+        <h1 class="uk-h3 uk-heading-bullet uk-padding-small uk-margin-remove">{{title}}</h1>
 
         <!-- TOP HELP CONTENT -->
         <help-content #topHelperContent [position]="'top'"
                       [ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
         </help-content>
 
-        <div class="uk-container uk-margin-medium-top uk-margin-medium-bottom">
+        <div class="uk-container uk-margin-medium-top uk-margin-remove">
           <div class="uk-grid">
 
             <!-- LEFT HELP CONTENT -->
@@ -25,80 +19,223 @@
             </aside-help-content>
 
             <!-- MIDDLE -->
-            <div class=" uk-width-expand@m">
-
-              <!--<div class="uk-form-horizontal uk-margin-large">-->
-
-                <!--<div class="uk-margin">-->
-                  <!--<label class="uk-form-label" for="form-horizontal-text">Ινστιτούτο / Μονάδα</label>-->
-                  <!--<div class="uk-form-controls">-->
-                    <!--<input class="uk-input" id="form-horizontal-text" type="text" placeholder="&#45;&#45; επιλέξτε ινστιτούτο / μονάδα &#45;&#45;">-->
-                  <!--</div>-->
-                <!--</div>-->
-
-                <!--<div class="uk-margin">-->
-                  <!--<label class="uk-form-label" for="form-horizontal-text">Από</label>-->
-                  <!--<div class="uk-form-controls">-->
-                    <!--<div class="uk-width-1-1">-->
-                      <!--<div class="uk-width-1-2@s">-->
-                        <!--<input class="uk-input" type="text" placeholder="ονοματεπώνυμο">-->
-                      <!--</div>-->
-                      <!--<div class="uk-width-1-2@s">-->
-                        <!--<input class="uk-input" type="text" placeholder="θέση στον φορέα">-->
-                      <!--</div>-->
-                    <!--</div>-->
-                  <!--</div>-->
-                <!--</div>-->
-
-                <!--<div class="uk-margin">-->
-                  <!--<label class="uk-form-label" for="form-horizontal-select">Select</label>-->
-                  <!--<div class="uk-form-controls">-->
-                    <!--<select class="uk-select" id="form-horizontal-select">-->
-                      <!--<option>Option 01</option>-->
-                      <!--<option>Option 02</option>-->
-                    <!--</select>-->
-                  <!--</div>-->
-                <!--</div>-->
-
-                <!--<div class="uk-margin">-->
-                  <!--<div class="uk-form-label">Radio</div>-->
-                  <!--<div class="uk-form-controls uk-form-controls-text">-->
-                    <!--<label><input class="uk-radio" type="radio" name="radio1"> Option 01</label><br>-->
-                    <!--<label><input class="uk-radio" type="radio" name="radio1"> Option 02</label>-->
-                  <!--</div>-->
-                <!--</div>-->
-              <!--</div>-->
-
+            <form [formGroup]="requestsForm" class=" uk-width-expand@m">
 
 <!-- form --> <div class="uk-form-horizontal uk-margin-large">
 
                 <!--<fieldset>-->
                   <div class="uk-align-center">
                     <div class="uk-width-1-2 uk-align-center">
-                    <input class="uk-input uk-width-2-3 uk-comment uk-comment-meta uk-search-field uk-box-shadow">
-                    <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="ngOnInit()">Αναζήτηση</button>
-                  </div>
-                    <div>
-                      <p>Sorting goes here</p>
+                      <input class="uk-input uk-width-2-3 uk-comment uk-comment-meta uk-search-field uk-box-shadow"
+                           placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο">
+                      <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="ngOnInit()">Αναζήτηση</button>
+                    </div>
+                    <div id="sort-by" class="uk-width-medium uk-align-right">
+
+
+                      <select class="uk-select uk-align-left uk-width-small uk-margin-remove" formControlName="stage">
+                        <option *ngFor="let stage of stages"><span>{{stage==='0' ? 'όλα τα στάδια' : stage}}</span></option>
+                      </select>
+                      <!--<select class="uk-select uk-width-small uk-align-right uk-margin-remove" formControlName="date">-->
+                        <!--<option>Ημ/νια</option>-->
+                        <!--<option id="stage">Στάδιο</option>-->
+                      <!--</select>-->
                     </div>
                   </div>
                 <!--</fieldset>-->
               </div>
               <table class="uk-table uk-table-hover uk-table-divider">
+                <thead>
+                  <tr>
+
+                    <!-- TODO: create sortBy -->
+                    <td class="uk-link" (click)="sortBy(1)">Α/Α</td>
+                    <td class="uk-link" (click)="sortBy(2)">Πρόγραμμα</td>
+                    <td class="uk-link">Ινστιτούτο/Μονάδα</td>
+                    <td class="uk-link">Αιτών</td>
+                    <td class="uk-link">Ημ/νια</td>
+                    <td class="uk-link">Στάδιο</td>
+                    <td class="uk-link">Κατάσταση</td>
+                  </tr>
+                </thead>
                 <tbody>
                   <tr *ngFor="let entry of listOfRequests" class="uk-link" [routerLink]="['request-stage', entry.id]">
                     <td>{{entry.id}}</td>
                     <td>{{entry.requesterPosition}}</td>
                     <td>{{entry.stage}}</td>
+                    <td>{{entry.id}}</td>
+                    <td>{{entry.requesterPosition}}</td>
+                    <td>
+                      <div>{{entry.stage}}</div>
+                      <div>{{entry.stage1.amountInEuros}}&euro;</div>
+                    </td>
+                    <td>
+                      <div>{{entry.stage}}</div>
+                      <div>{{entry.st}</div>
+                      <div>{{entry.stage1.amountInEuros}}&euro;</div>
+                    </td>
                   </tr>
                 </tbody>
               </table>
 
-              <div>
-                <p>Paging goes here</p>
-              </div>
+              <!--||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||-->
+              <!-- TODO: uncomment here to create paging -->
+              <!--&lt;!&ndash;<div *ngIf="jobsOfUser">&ndash;&gt;<div>-->
+                <!--&lt;!&ndash;<div class="uk-grid page-controls">&ndash;&gt;-->
+                  <!--&lt;!&ndash;<div class="uk-margin-bottom uk-width-1-1 filters">&ndash;&gt;-->
+                    <!--&lt;!&ndash;<div class="links">&ndash;&gt;-->
+                      <!--&lt;!&ndash;<div class="filterLabel">Filter by job type:</div>&ndash;&gt;-->
+                      <!--&lt;!&ndash;<div class="inlineBlock">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<select class="form-control" #selectType (change)="getJobType(selectType.value)">&ndash;&gt;-->
+                          <!--&lt;!&ndash;<option value="noneSelected">&#45;&#45;none selected&#45;&#45;</option>&ndash;&gt;-->
+                          <!--&lt;!&ndash;<option *ngFor="let type of jobTypes" value="{{type}}">{{type}}</option>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</select>&ndash;&gt;-->
+                      <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                  <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                  <!--&lt;!&ndash;<div class="uk-margin-bottom uk-width-1-1 filters">&ndash;&gt;-->
+                    <!--&lt;!&ndash;<div class="links uk-inline">&ndash;&gt;-->
+                      <!--&lt;!&ndash;<div class="filterLabel" style="display: inline;">Filter validation jobs:</div>&ndash;&gt;-->
+                      <!--&lt;!&ndash;<a class="uk-active"&ndash;&gt;-->
+                         <!--&lt;!&ndash;[class.active]="currentFilter==='all'"&ndash;&gt;-->
+                         <!--&lt;!&ndash;(click)="filterJobs('all')">All jobs ({{this.jobsOfUser.totalJobs}})</a>&ndash;&gt;-->
+                      <!--&lt;!&ndash;<a class="uk-active"&ndash;&gt;-->
+                         <!--&lt;!&ndash;[class.active]="currentFilter==='successful'"&ndash;&gt;-->
+                         <!--&lt;!&ndash;(click)="filterJobs('successful')">successful ({{this.jobsOfUser.totalJobsSuccessful}})</a>&ndash;&gt;-->
+                      <!--&lt;!&ndash;<a class="uk-active"&ndash;&gt;-->
+                         <!--&lt;!&ndash;[class.active]="currentFilter==='failed'"&ndash;&gt;-->
+                         <!--&lt;!&ndash;(click)="filterJobs('failed')">failed ({{this.jobsOfUser.totalJobsFailed}})</a>&ndash;&gt;-->
+                      <!--&lt;!&ndash;<a class="uk-active"&ndash;&gt;-->
+                         <!--&lt;!&ndash;[class.active]="currentFilter==='ongoing'"&ndash;&gt;-->
+                         <!--&lt;!&ndash;(click)="filterJobs('ongoing')">ongoing ({{this.jobsOfUser.totalJobsOngoing}})</a>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                    <!--<div class="show-options uk-inline" style="float: right;">-->
+                      <!--<div class="filterLabel" style="display: inline;">Jobs per page:</div>-->
+                      <!--<div class="inlineBlock">-->
+                        <!--<select #itemsPerPage class="form-control" (change)="getItemsPerPage(itemsPerPage.value)">-->
+                          <!--<option value="10" selected>10</option>-->
+                          <!--<option value="25">25</option>-->
+                          <!--<option value="50">50</option>-->
+                          <!--<option value="100">100</option>-->
+                        <!--</select>-->
+                      <!--</div>-->
+                    <!--</div>-->
+                  <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                <!--<div class="contentAndPagerPanel">-->
+                  <!--<div>-->
+                    <!--<ul class="uk-pagination">-->
+                      <!--<li>-->
+                        <!--<a class="uk-link uk-link-muted" (click)="goToPreviousPage()">-->
+                      <!--<span class="uk-margin-small-right uk-pagination-previous uk-icon" uk-pagination-previous="">-->
+                        <!--<svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"-->
+                             <!--icon="pagination-previous" ratio="1"></svg>-->
+                      <!--</span>-->
+                          <!--Previous-->
+                        <!--</a>-->
+                      <!--</li>-->
+                      <!--<li class="uk-margin-auto-left">-->
+                        <!--<a class="uk-link uk-link-muted" (click)="goToNextPage()">-->
+                          <!--Next-->
+                          <!--<span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">-->
+                        <!--<svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"-->
+                             <!--icon="pagination-next" ratio="1"></svg>-->
+                      <!--</span>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                    <!--</ul>-->
+                    <!--<div class="resultsPageLabel">page {{ currentPage+1 }} of {{ totalPages }}</div>-->
+                  <!--</div>-->
+                  <!--&lt;!&ndash;<div>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<div>&ndash;&gt;-->
+                      <!--&lt;!&ndash;<div&ndash;&gt;-->
+                              <!--&lt;!&ndash;class="uk-overflow-auto uk-scrollspy-inview uk-animation-slide-top-medium uk-margin-top uk-margin-bottom">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<table class="uk-table uk-table-middle uk-table-striped" style="vertical-align: top !important;">&ndash;&gt;-->
+                          <!--&lt;!&ndash;<thead>&ndash;&gt;-->
+                          <!--&lt;!&ndash;<tr>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<th>Repository</th>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<th>Validation Type</th>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<th>Status</th>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<th>Score</th>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<th>Started</th>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<th>Guidelines</th>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<th>Actions</th>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<th></th>&ndash;&gt;-->
+                          <!--&lt;!&ndash;</tr>&ndash;&gt;-->
+                          <!--&lt;!&ndash;</thead>&ndash;&gt;-->
+                          <!--&lt;!&ndash;<div *ngIf="infoMessage" class="uk-alert">{{ infoMessage }}</div>&ndash;&gt;-->
+                          <!--&lt;!&ndash;<tbody *ngIf="jobsOfUser && jobsOfUser.jobs">&ndash;&gt;-->
+                          <!--&lt;!&ndash;<tr class="el-item" *ngFor="let job of jobsOfUser.jobs">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<td class="uk-table-shrink" style="vertical-align: top !important;">&ndash;&gt;-->
+                              <!--&lt;!&ndash;<div class="el-title">{{ job.baseUrl }}</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<td class="uk-table-shrink">&ndash;&gt;-->
+                              <!--&lt;!&ndash;<div class="el-title">OAI Content<br>OAI Usage</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<td class="uk-table-shrink">&ndash;&gt;-->
+                              <!--&lt;!&ndash;<div class="el-title">{{ job.contentJobStatus }}<br>{{ job.usageJobStatus }}</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<td class="uk-table-shrink">&ndash;&gt;-->
+                              <!--&lt;!&ndash;<div class="el-title">{{ job.contentJobScore }}<br>{{ job.usageJobScore }}</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<td class="uk-table-shrink" style="vertical-align: top !important;">&ndash;&gt;-->
+                              <!--&lt;!&ndash;<div class="el-title">{{ job.started }}</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<td class="uk-table-shrink" style="vertical-align: top !important;">&ndash;&gt;-->
+                              <!--&lt;!&ndash;<div class="el-title">{{ job.guidelinesShortName }}</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<td class="uk-table-shrink" style="vertical-align: top !important;">&ndash;&gt;-->
+                              <!--&lt;!&ndash;<div class="el-link actions">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<div class="viewDetailsLinkWrapper">&ndash;&gt;-->
+                                  <!--&lt;!&ndash;<a class="viewDetails" [routerLink]="[job.id]">View Results<i&ndash;&gt;-->
+                                          <!--&lt;!&ndash;class="fa fa-angle-right"></i></a>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<div>&ndash;&gt;-->
+                                  <!--&lt;!&ndash;<a class="resubmitJob" (click)="resubmitJob(job.id)">Resubmit Job<i&ndash;&gt;-->
+                                          <!--&lt;!&ndash;class="fa fa-repeat"></i></a>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                              <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<td class="uk-table-shrink" style="vertical-align: top !important;">&ndash;&gt;-->
+                              <!--&lt;!&ndash;<img src="{{ getResultImage(job.ended,job.error) }}" width="20" height="20">&ndash;&gt;-->
+                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
+                          <!--&lt;!&ndash;</tr>&ndash;&gt;-->
+                          <!--&lt;!&ndash;</tbody>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</table>&ndash;&gt;-->
+                      <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                  <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                  <!--<div>-->
+                    <!--<ul class="uk-pagination">-->
+                      <!--<li>-->
+                        <!--<a class="uk-link uk-link-muted" (click)="goToPreviousPage()">-->
+                    <!--<span class="uk-margin-small-right uk-pagination-previous uk-icon" uk-pagination-previous="">-->
+                      <!--<svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"-->
+                           <!--icon="pagination-previous" ratio="1"></svg>-->
+                    <!--</span>-->
+                          <!--Previous-->
+                        <!--</a>-->
+                      <!--</li>-->
+                      <!--<li class="uk-margin-auto-left">-->
+                        <!--<a class="uk-link uk-link-muted" (click)="goToNextPage()">-->
+                          <!--Next-->
+                          <!--<span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">-->
+                        <!--<svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"-->
+                             <!--icon="pagination-next" ratio="1"></svg>-->
+                      <!--</span>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                    <!--</ul>-->
+                    <!--<div class="resultsPageLabel">page {{ currentPage+1 }} of {{ totalPages }}</div>-->
+                  <!--</div>-->
+                <!--</div>-->
+                <!--<div class="row"></div>-->
+              <!--</div>-->
 
-            </div>
+
+              <!--|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||-->
+
+            </form>
 
             <!-- RIGHT HELP CONTENT -->
             <aside-help-content #rightHelperContent [position]="'right'"
@@ -119,116 +256,3 @@
     </div>
   </div>
 </div>
-
-<!--&lt;!&ndash;<div class="uk-section uk-section-default">&ndash;&gt;-->
-<!--<div class="uk-container-expand" style="margin-top: 20px">-->
-  <!--<div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid>-->
-    <!--<div class="uk-width-1-1@m uk-first-column">-->
-      <!--&lt;!&ndash;<h1 class="uk-h3 uk-heading-bullet">Υπάρχοντα Αιτήματα</h1>&ndash;&gt;-->
-
-
-      <!--&lt;!&ndash;<hr class="uk-divider-small">&ndash;&gt;-->
-
-      <!--&lt;!&ndash;<div class="uk-margin">&ndash;&gt;-->
-      <!--&lt;!&ndash;Paste the copied XML file below, or use one of the options to upload and preview the XML file&ndash;&gt;-->
-      <!--&lt;!&ndash;before you submit it.&ndash;&gt;-->
-      <!--&lt;!&ndash;</div>&ndash;&gt;-->
-
-      <!--&lt;!&ndash; TOP HELP CONTENT &ndash;&gt;-->
-      <!--&lt;!&ndash;-->
-<!--<help-content #topHelperContent [position]="'top'"-->
-                    <!--[ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">-->
-      <!--</help-content>-->
-<!--&ndash;&gt;-->
-
-      <!--<div class="uk-container uk-container-expand uk-margin-medium-top uk-margin-medium-bottom">-->
-        <!--<h1 class="uk-h3 uk-heading-bullet">Υπάρχοντα Αιτήματα</h1>-->
-
-        <!--<div class="uk-grid">-->
-          <!--&lt;!&ndash; MIDDLE &ndash;&gt;-->
-          <!--<div class=" uk-width-expand@m">-->
-
-            <!--&lt;!&ndash;-->
-            <!--<form class="form-horizontal">-->
-                <!--<div class="uk-grid uk-form-horizontal">-->
-                    <!--<label class="uk-width-1-5 required">-->
-                        <!--Version-->
-                    <!--</label>-->
-                    <!--<div class="uk-width-expand@m">-->
-                        <!--<input class="uk-input" formcontrolname="version" placeholder="Version in the form of major.minor.patch" type="text">-->
-                        <!--<div>-->
-                            <!--<i><small>Associates a resource with a numeric pattern-->
-                            <!--of the form major_version.minor_version.patch (in accordance-->
-                            <!--to the semantic versioning guidelines, cf. http://semver.org)-->
-                            <!--that identifies its version</small></i>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</form>-->
-             <!--&ndash;&gt;-->
-
-            <!--<form [formGroup]="newRequestForm" class="uk-form-horizontal uk-margin-large">-->
-
-              <!--<div class="uk-margin">-->
-                <!--<label class="uk-form-label" for="form-horizontal-text">Ινστιτούτο / Μονάδα</label>-->
-                <!--<div class="uk-form-controls">-->
-                  <!--<input class="uk-input" id="form-horizontal-text" type="text" placeholder="&#45;&#45; επιλέξτε ινστιτούτο / μονάδα &#45;&#45;">-->
-                <!--</div>-->
-              <!--</div>-->
-
-              <!--<div class="uk-margin">-->
-                <!--<label class="uk-form-label" for="form-horizontal-text">Από</label>-->
-                <!--<div class="uk-form-controls">-->
-                  <!--<div class="uk-width-1-1">-->
-                    <!--<div class="uk-width-1-2@s">-->
-                      <!--<input class="uk-input" type="text" placeholder="ονοματεπώνυμο">-->
-                    <!--</div>-->
-                    <!--<div class="uk-width-1-2@s">-->
-                      <!--<input class="uk-input" type="text" placeholder="θέση στον φορέα">-->
-                    <!--</div>-->
-                  <!--</div>-->
-                <!--</div>-->
-              <!--</div>-->
-
-              <!--<div class="uk-margin">-->
-                <!--<label class="uk-form-label" for="form-horizontal-select">Select</label>-->
-                <!--<div class="uk-form-controls">-->
-                  <!--<select class="uk-select" id="form-horizontal-select">-->
-                    <!--<option>Option 01</option>-->
-                    <!--<option>Option 02</option>-->
-                  <!--</select>-->
-                <!--</div>-->
-              <!--</div>-->
-
-              <!--<div class="uk-margin">-->
-                <!--<div class="uk-form-label">Radio</div>-->
-                <!--<div class="uk-form-controls uk-form-controls-text">-->
-                  <!--<label><input class="uk-radio" type="radio" name="radio1"> Option 01</label><br>-->
-                  <!--<label><input class="uk-radio" type="radio" name="radio1"> Option 02</label>-->
-                <!--</div>-->
-              <!--</div>-->
-            <!--</form>-->
-
-          <!--</div>-->
-          <!--<div class="tm-sidebar uk-width-1-4@m helpBox">-->
-            <!--<div class="uk-card uk-card-body uk-card-secondary sidemenu">-->
-              <!--<h3>Πληροφορίες / Βοήθεια</h3>-->
-              <!--<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse neque enim,-->
-                <!--blandit commodo aliquet id, varius ac lorem. Morbi pretium mauris at magna euismod,-->
-                <!--eu malesuada nisi lobortis. Nunc faucibus leo pulvinar ipsum venenatis mattis. Pellentesque-->
-                <!--placerat feugiat maximus. In at ornare leo, vitae gravida mi. Curabitur quis mi-->
-                <!--tincidunt, molestie neque non, ullamcorper elit. Etiam a justo vitae arcu commodo pharetra.-->
-                <!--Nulla quis dolor tellus. Proin massa nibh, euismod et fringilla vitae, finibus nec sapien.-->
-                <!--Donec sit amet dignissim mi. Proin quis suscipit arcu. Nunc laoreet elit orci, sed eleifend-->
-                <!--orci finibus at. Nam vulputate, sem ac efficitur scelerisque, dolor odio accumsan turpis,-->
-                <!--vel gravida dolor ex vel augue. Donec eu libero aliquet, aliquet turpis eu, molestie dui.-->
-                <!--Fusce varius tellus varius scelerisque molestie. Nullam efficitur tortor at ligula-->
-                <!--bibendum dapibus.</p>-->
-            <!--</div>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</div>-->
-    <!--</div>-->
-  <!--</div>-->
-<!--</div>-->
-<!--</div>-->
