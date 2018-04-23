@@ -3,7 +3,13 @@
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
       <div class="uk-width-1-1@m uk-first-column">
 
-        <h1 class="uk-h3 uk-heading-bullet uk-padding">{{title}}</h1>
+        <h1 class="uk-h2">{{title}}</h1>
+        <!--<hr class="uk-divider-small">-->
+
+        <!--<div class="uk-margin">-->
+        <!--Paste the copied XML file below, or use one of the options to upload and preview the XML file-->
+        <!--before you submit it.-->
+        <!--</div>-->
 
         <!-- TOP HELP CONTENT -->
         <help-content #topHelperContent [position]="'top'"
@@ -21,7 +27,22 @@
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
-              Coming soon...
+              <div class="uk-width-1-1">
+
+              </div>
+
+              <div class="uk-width-1-1">
+                <div class="uk-form-controls">
+                  <p>### EXAMPLE STAGE FORM FIELD ###</p>
+                  <div *ngFor="let desc of exampleStageDesc.stageFields">
+                    <app-stage-form [description]="desc">
+                      <input class="uk-form-controls uk-checkbox" type="{{desc.type}}" *ngIf="desc.required">
+                    </app-stage-form>
+                  </div>
+                </div>
+              </div>
+
+
 
             </div>
 

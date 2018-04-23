@@ -5,6 +5,7 @@ import { NewRequestComponent } from './new-request/new-request.component';
 import {RequestsComponent} from './requests/requests.component';
 import {AboutComponent} from './about/about.component';
 import {SignUpComponent} from './sign-up/sign-up.component';
+import {RequestStageComponent} from './request-stage/request-stage.component';
 
 const appRoutes: Routes = [
   {
@@ -22,7 +23,10 @@ const appRoutes: Routes = [
   },
   {
     path: 'requests',
-    component: RequestsComponent
+    children: [
+      { path: '', component: RequestsComponent },
+      { path: 'request-stage/:id', component: RequestStageComponent }
+    ]
   },
   {
     path: 'about',
