@@ -30,69 +30,125 @@
                            placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο">
                       <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="ngOnInit()">Αναζήτηση</button>
                     </div>
-                    <div id="sort-by" class="uk-width-medium uk-align-right">
 
 
-                      <select class="uk-select uk-align-left uk-width-small uk-margin-remove" formControlName="stage">
-                        <option *ngFor="let stage of stages"><span>{{stage==='0' ? 'όλα τα στάδια' : stage}}</span></option>
-                      </select>
-                      <!--<select class="uk-select uk-width-small uk-align-right uk-margin-remove" formControlName="date">-->
-                        <!--<option>Ημ/νια</option>-->
-                        <!--<option id="stage">Στάδιο</option>-->
-                      <!--</select>-->
+      <!-- Filters -->
+                    <div id="filters" class="uk-width-1-2 uk-align-right">
+                      <div class="uk-width-small uk-align-right uk-margin-remove">
+                        <label for="req-status" style="padding-left: 15px">Κατάσταση:</label>
+                        <select class="uk-select uk-width-small" id="req-status" formControlName="status">
+                          <option value="all">όλα</option>
+                          <option *ngFor="let state of states">{{state}}</option>
+                        </select>
+                      </div>
+                      <div class="uk-width-small uk-align-right uk-margin-remove">
+                        <label for="req-stage" style="padding-left: 15px">Στάδιο:</label>
+                        <select class="uk-select uk-width-small" id="req-stage" formControlName="stage">
+                          <option *ngFor="let stage of stages"><span>{{stage==='0' ? 'όλα τα στάδια' : stage}}</span></option>
+                        </select>
+                      </div>
+                      <!--<div class="uk-width-small uk-align-right uk-margin-remove">-->
+                        <!--<label for="req-date" style="padding-left: 15px">Ημ/νια:</label>-->
+                        <!--<select class="uk-select uk-width-small" id="req-date" formControlName="stage">-->
+                          <!--<option *ngFor="let stage of stages"><span>{{stage==='0' ? 'όλα τα στάδια' : stage}}</span></option>-->
+                        <!--</select>-->
+                      <!--</div>-->
+
                     </div>
+      <!-- /Filters -->
                   </div>
-                <!--</fieldset>-->
-              </div>
-              <table class="uk-table uk-table-hover uk-table-divider">
-                <thead>
-                  <tr>
 
-                    <!-- TODO: create sortBy -->
-                    <td class="uk-link" (click)="sortBy(1)">Α/Α</td>
-                    <td class="uk-link" (click)="sortBy(2)">Πρόγραμμα</td>
-                    <td class="uk-link">Ινστιτούτο/Μονάδα</td>
-                    <td class="uk-link">Αιτών</td>
-                    <td class="uk-link">Ημ/νια</td>
-                    <td class="uk-link">Στάδιο</td>
-                    <td class="uk-link">Κατάσταση</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let entry of listOfRequests" class="uk-link" [routerLink]="['request-stage', entry.id]">
-                    <td>{{entry.id}}</td>
-                    <td>{{entry.requesterPosition}}</td>
-                    <td>{{entry.stage}}</td>
-                    <td>{{entry.id}}</td>
-                    <td>{{entry.requesterPosition}}</td>
-                    <td>
-                      <div>{{entry.stage}}</div>
-                      <div>{{entry.stage1.amountInEuros}}&euro;</div>
-                    </td>
-                    <td>
-                      <div>{{entry.stage}}</div>
-                      <div>{{entry.st}</div>
-                      <div>{{entry.stage1.amountInEuros}}&euro;</div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              </div>
+
+                <!--TODO: continue here-->
+                <div class="uk-padding">
+      <!-- Paging-top -->
+                  <div class="uk-width-1-1 uk-align-center">
+                    <ul class="uk-pagination">
+                      <li>
+                        <a class="uk-link uk-link-muted" (click)="goToPreviousPage()">
+                    <span class="uk-margin-small-right uk-pagination-previous uk-icon" uk-pagination-previous="">
+                      <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
+                           icon="pagination-previous" ratio="1"></svg>
+                    </span>
+                          Previous
+                        </a>
+                      </li>
+                      <li class="uk-margin-auto-left">
+                        <a class="uk-link uk-link-muted" (click)="goToNextPage()">
+                          Next
+                          <span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">
+                          <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
+                               icon="pagination-next" ratio="1"></svg>
+                        </span>
+                        </a>
+                      </li>
+                    </ul>
+                    <div class="resultsPageLabel">page {{ currentPage+1 }} of {{ totalPages }}</div>
+                  </div>
+      <!-- /Paging-top -->
+
+
+                </div>
+
+
+
+                <!--</fieldset>-->
+              <!--</div>-->
+
+                  <table class="uk-table uk-table-hover uk-table-divider">
+                    <thead>
+                      <tr>
+
+                        <!-- TODO: create sortBy -->
+                        <td class="uk-link" (click)="sortBy(1)">Α/Α</td>
+                        <td class="uk-link" (click)="sortBy(2)">Πρόγραμμα</td>
+                        <td class="uk-link">Ινστιτούτο/Μονάδα</td>
+                        <td class="uk-link">Αιτών</td>
+                        <td class="uk-link">Ημ/νια</td>
+                        <td class="uk-link">Στάδιο</td>
+                        <td class="uk-link">Κατάσταση</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let entry of listOfRequests" class="uk-link" [routerLink]="['request-stage', entry.id]">
+                        <td>{{entry.id}}</td>
+                        <td>{{entry.requesterPosition}}</td>
+                        <td>{{entry.stage}}</td>
+                        <td>{{entry.id}}</td>
+                        <td>{{entry.requesterPosition}}</td>
+                        <td>
+                          <div>{{entry.stage}}</div>
+                          <div>{{entry.stage1.amountInEuros}}&euro;</div>
+                        </td>
+                        <td>
+                          <div>{{entry.status}}</div>
+                          <!--<div>{{entry.st}</div>-->
+                          <div>{{entry.stage1.amountInEuros}}&euro;</div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
 
               <!--||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||-->
               <!-- TODO: uncomment here to create paging -->
               <!--&lt;!&ndash;<div *ngIf="jobsOfUser">&ndash;&gt;<div>-->
                 <!--&lt;!&ndash;<div class="uk-grid page-controls">&ndash;&gt;-->
-                  <!--&lt;!&ndash;<div class="uk-margin-bottom uk-width-1-1 filters">&ndash;&gt;-->
-                    <!--&lt;!&ndash;<div class="links">&ndash;&gt;-->
-                      <!--&lt;!&ndash;<div class="filterLabel">Filter by job type:</div>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<div class="inlineBlock">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<select class="form-control" #selectType (change)="getJobType(selectType.value)">&ndash;&gt;-->
-                          <!--&lt;!&ndash;<option value="noneSelected">&#45;&#45;none selected&#45;&#45;</option>&ndash;&gt;-->
-                          <!--&lt;!&ndash;<option *ngFor="let type of jobTypes" value="{{type}}">{{type}}</option>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</select>&ndash;&gt;-->
-                      <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                  <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+
+  <!--&lt;!&ndash;<div class="uk-margin-bottom uk-width-1-1 filters">&ndash;&gt;-->
+    <!--&lt;!&ndash;<div class="links">&ndash;&gt;-->
+      <!--&lt;!&ndash;<div class="filterLabel">Filter by job type:</div>&ndash;&gt;-->
+      <!--&lt;!&ndash;<div class="inlineBlock">&ndash;&gt;-->
+        <!--&lt;!&ndash;<select class="form-control" #selectType (change)="getJobType(selectType.value)">&ndash;&gt;-->
+          <!--&lt;!&ndash;<option value="noneSelected">&#45;&#45;none selected&#45;&#45;</option>&ndash;&gt;-->
+          <!--&lt;!&ndash;<option *ngFor="let type of jobTypes" value="{{type}}">{{type}}</option>&ndash;&gt;-->
+        <!--&lt;!&ndash;</select>&ndash;&gt;-->
+      <!--&lt;!&ndash;</div>&ndash;&gt;-->
+    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+  <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+
                   <!--&lt;!&ndash;<div class="uk-margin-bottom uk-width-1-1 filters">&ndash;&gt;-->
                     <!--&lt;!&ndash;<div class="links uk-inline">&ndash;&gt;-->
                       <!--&lt;!&ndash;<div class="filterLabel" style="display: inline;">Filter validation jobs:</div>&ndash;&gt;-->
@@ -109,17 +165,21 @@
                          <!--&lt;!&ndash;[class.active]="currentFilter==='ongoing'"&ndash;&gt;-->
                          <!--&lt;!&ndash;(click)="filterJobs('ongoing')">ongoing ({{this.jobsOfUser.totalJobsOngoing}})</a>&ndash;&gt;-->
                     <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                    <!--<div class="show-options uk-inline" style="float: right;">-->
-                      <!--<div class="filterLabel" style="display: inline;">Jobs per page:</div>-->
-                      <!--<div class="inlineBlock">-->
-                        <!--<select #itemsPerPage class="form-control" (change)="getItemsPerPage(itemsPerPage.value)">-->
-                          <!--<option value="10" selected>10</option>-->
-                          <!--<option value="25">25</option>-->
-                          <!--<option value="50">50</option>-->
-                          <!--<option value="100">100</option>-->
-                        <!--</select>-->
-                      <!--</div>-->
-                    <!--</div>-->
+
+
+  <!--&lt;!&ndash;<div class="show-options uk-inline" style="float: right;">&ndash;&gt;-->
+    <!--&lt;!&ndash;<div class="filterLabel" style="display: inline;">Jobs per page:</div>&ndash;&gt;-->
+    <!--&lt;!&ndash;<div class="inlineBlock">&ndash;&gt;-->
+      <!--&lt;!&ndash;<select #itemsPerPage class="form-control" (change)="getItemsPerPage(itemsPerPage.value)">&ndash;&gt;-->
+        <!--&lt;!&ndash;<option value="10" selected>10</option>&ndash;&gt;-->
+        <!--&lt;!&ndash;<option value="25">25</option>&ndash;&gt;-->
+        <!--&lt;!&ndash;<option value="50">50</option>&ndash;&gt;-->
+        <!--&lt;!&ndash;<option value="100">100</option>&ndash;&gt;-->
+      <!--&lt;!&ndash;</select>&ndash;&gt;-->
+    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+  <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+
                   <!--&lt;!&ndash;</div>&ndash;&gt;-->
                 <!--&lt;!&ndash;</div>&ndash;&gt;-->
                 <!--<div class="contentAndPagerPanel">-->
@@ -138,9 +198,9 @@
                         <!--<a class="uk-link uk-link-muted" (click)="goToNextPage()">-->
                           <!--Next-->
                           <!--<span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">-->
-                        <!--<svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"-->
-                             <!--icon="pagination-next" ratio="1"></svg>-->
-                      <!--</span>-->
+                            <!--<svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"-->
+                                 <!--icon="pagination-next" ratio="1"></svg>-->
+                          <!--</span>-->
                         <!--</a>-->
                       <!--</li>-->
                     <!--</ul>-->
@@ -220,9 +280,9 @@
                         <!--<a class="uk-link uk-link-muted" (click)="goToNextPage()">-->
                           <!--Next-->
                           <!--<span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">-->
-                        <!--<svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"-->
-                             <!--icon="pagination-next" ratio="1"></svg>-->
-                      <!--</span>-->
+                            <!--<svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"-->
+                                 <!--icon="pagination-next" ratio="1"></svg>-->
+                          <!--</span>-->
                         <!--</a>-->
                       <!--</li>-->
                     <!--</ul>-->
