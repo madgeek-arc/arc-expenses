@@ -103,8 +103,8 @@
           "type": "array",
           "items": { "$ref": "#/definitions/personOfInterest" }
         },
-        "startDate": { "type": "date-time" },
-        "endDate": { "type": "date-time" }
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" }
       },
       "required": [
         "id",
@@ -149,6 +149,7 @@
       "title": "Stage",
       "type": "string"
     },
+    "status": "string",
     "stage1": {
       "type": "object",
       "properties": {
@@ -164,7 +165,7 @@
       "type": "object",
       "properties": {
         "scientificCoordinator": { "$ref": "#/definitions/person"},
-        "date": { "type": "date-time"},
+        "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
@@ -174,7 +175,7 @@
       "type": "object",
       "properties": {
         "operator": { "$ref": "#/definitions/person"},
-        "date": { "type": "date-time"},
+        "date": { "type": "string"},
         "analiftheiYpoxrewsi": { "type": "boolean"},
         "fundsAvailable": { "type": "boolean"},
         "approved": { "type": "boolean"},
@@ -185,7 +186,7 @@
     "stage3a": {
       "type": "object",
       "properties": {
-        "date": { "type": "date-time"},
+        "date": { "type": "string"},
         "organizationDirector": { "$ref": "#/definitions/person"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
@@ -195,7 +196,7 @@
     "stage3b": {
       "type": "object",
       "properties": {
-        "date": { "type": "date-time"},
+        "date": { "type": "string"},
         "dioikitikoSumvoulio": { "$ref": "#/definitions/person"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
@@ -206,7 +207,7 @@
       "type": "object",
       "properties": {
         "POY": { "$ref": "#/definitions/person"},
-        "date": { "type": "date-time"},
+        "date": { "type": "string"},
         "analiftheiYpoxrewsi": { "type": "boolean"},
         "fundsAvailable": { "type": "boolean"},
         "approved": { "type": "boolean"},
@@ -218,7 +219,7 @@
       "type": "object",
       "properties": {
         "instituteDirector": { "$ref": "#/definitions/person"},
-        "date": { "type": "date-time"},
+        "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
@@ -228,7 +229,7 @@
       "type": "object",
       "properties": {
         "organizationDiaugeia": { "$ref": "#/definitions/person"},
-        "date": { "type": "date-time"},
+        "date": { "type": "string"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
       }
@@ -237,7 +238,7 @@
       "type": "object",
       "properties": {
         "accountingDirector": { "$ref": "#/definitions/person"},
-        "date": { "type": "date-time"},
+        "date": { "type": "string"},
         "checkRegularity": { "type": "boolean"},
         "checkLegality": { "type": "boolean"},
         "approved": { "type": "boolean"},
@@ -249,7 +250,7 @@
       "type": "object",
       "properties": {
         "POY": { "$ref": "#/definitions/person"},
-        "date": { "type": "date-time"},
+        "date": { "type": "string"},
         "checkRegularity": { "type": "boolean"},
         "checkLegality": { "type": "boolean"},
         "approved": { "type": "boolean"},
@@ -261,7 +262,7 @@
       "type": "object",
       "properties": {
         "accountingRegistration": { "$ref": "#/definitions/person"},
-        "date": { "type": "date-time"},
+        "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
@@ -271,7 +272,7 @@
       "type": "object",
       "properties": {
         "accountingPayment": { "$ref": "#/definitions/person"},
-        "date": { "type": "date-time"},
+        "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
