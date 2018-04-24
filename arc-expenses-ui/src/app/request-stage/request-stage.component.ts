@@ -9,6 +9,8 @@ import {ActivatedRoute} from '@angular/router';
   styleUrls: ['./request-stage.component.scss']
 })
 export class RequestStageComponent implements OnInit {
+  errorMessage: string;
+  successMessage: string;
 
   title = 'Αίτημα X';
   currentRequest: Request;
@@ -51,32 +53,35 @@ export class RequestStageComponent implements OnInit {
 
   getCurrentRequest() {
     const requestId = this.route.snapshot.paramMap.get('id');
-    /*call api to get request info*/
+    /*call api to get request info or throw errorMessage*/
 
     this.currentRequest = new Request();
     this.currentRequest.stage = '3';
+    this.currentRequest.stage2 = this.stage2Test;
+    this.currentRequest.stage3 = this.stage3Test;
   }
 
   getSubmittedStage(newStage: any) {
-    console.log(`got ${JSON.stringify(newStage, null, 1)}`);
-    const currentStageName = 'stage' + this.currentRequest.stage;
-    console.log(`submitting as ${currentStageName}`);
-    this.currentRequest[currentStageName] = newStage;
-    if (this.currentRequest.stage !== '3' && this.currentRequest.stage !== '3a') {
-        this.currentRequest.stage = (+this.currentRequest.stage + 1).toString();
-    } else {
-        if (this.currentRequest.stage === '3') {
-            this.currentRequest.stage = '3a';
-        } else {
-            this.currentRequest.stage = '3b';
-        }
-    }
+      console.log(`got ${JSON.stringify(newStage, null, 1)}`);
+      const currentStageName = 'stage' + this.currentRequest.stage;
+      console.log(`submitting as ${currentStageName}`);
+      this.currentRequest[currentStageName] = newStage;
+      if (this.currentRequest.stage !== '3' && this.currentRequest.stage !== '3a') {
+          this.currentRequest.stage = (+this.currentRequest.stage + 1).toString();
+      } else {
+          if (this.currentRequest.stage === '3') {
+              this.currentRequest.stage = '3a';
+          } else {
+              this.currentRequest.stage = '3b';
+          }
+      }
 
-    this.submitRequest();
+      this.submitRequest();
   }
 
   submitRequest() {
-    /*submit this.currentRequest*/
+      /*submit this.currentRequest*/
+      this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν επιτυχώς';
   }
 
 }

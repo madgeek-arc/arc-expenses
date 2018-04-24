@@ -26,6 +26,8 @@
 
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
+              <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
+              <div *ngIf="successMessage" class="uk-alert uk-alert-success">{{ successMessage }}</div>
 
               <div class="uk-width-1-1 uk-margin-bottom">
                 <p>stage 1 info</p>

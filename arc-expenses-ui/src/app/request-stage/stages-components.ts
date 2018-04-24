@@ -1,7 +1,13 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
-import {Attachment, Delegate, Stage2, Stage3} from '../domain/operation';
-import {commentDesc, Stage2Desc, Stage3Desc, StageDescription, StageFieldDescription} from '../domain/stageDescriptions';
+import {
+    Attachment, Delegate, Stage2, Stage3, Stage3b, Stage3a, Stage4, Stage5,
+    Stage6, Stage7, Stage8, Stage9, Stage10
+} from '../domain/operation';
+import {
+    commentDesc, Stage10Desc, Stage2Desc, Stage3aDesc, Stage3bDesc, Stage3Desc, Stage4Desc, Stage5Desc, Stage6Desc,
+    Stage7Desc, Stage8Desc, Stage9Desc, StageDescription, StageFieldDescription
+} from '../domain/stageDescriptions';
 import {DatePipe} from '@angular/common';
 
 @Component ({
@@ -12,14 +18,17 @@ export class StageComponent implements OnInit {
 
     @Output() emitStage: EventEmitter<any> = new EventEmitter<any>();
     @Input() wasSubmitted: boolean;
+    wasApproved: boolean;
 
     stageForm: FormGroup;
+    stageTitle: string;
 
     /*additional controls will be added dynamically according to the stage*/
     stageFormDefinition = {
         comment: [''],
         attachment: ['', Validators.required]
     };
+    uploadedFile: File;
 
     @Input() currentStage: any;
     stageDescription: StageDescription; /*contains the name of the delegate field and the list of the extra fields descriptions*/
@@ -34,9 +43,12 @@ export class StageComponent implements OnInit {
 
     ngOnInit() {
         this.stageForm = this.fb.group(this.stageFormDefinition);
-        this.getAttachmentInput('attachment url');
+        if (this.currentStage && this.currentStage['approved']) {
+            this.wasApproved = this.currentStage['approved'];
+        }
     }
 
+    /*creates extra formControls according to the extra fields list*/
     createExtraFields() {
         if (this.stageForm) {
             for (const newControl of this.stageExtraFieldsList) {
@@ -45,12 +57,15 @@ export class StageComponent implements OnInit {
         }
     }
 
-    getAttachmentInput(newAttachment: string) {
-        this.stageForm.get('attachment').setValue(newAttachment);
+    getAttachmentInput(newFiles: FileList) {
+        /*run script to upload file*/
+        this.uploadedFile = newFiles[0];
+        console.log('this.uploadedFile is : ', this.uploadedFile);
+        this.stageForm.get('attachment').setValue(this.uploadedFile.name);
     }
 
-    approveRequest( wasApproved: boolean ) {
-        this.currentStage['approved'] = wasApproved;
+    approveRequest( approved: boolean ) {
+        this.currentStage['approved'] = approved;
         this.submitForm();
     }
 
@@ -64,7 +79,8 @@ export class StageComponent implements OnInit {
             this.currentStage['comment'] = this.stageForm.get('comment').value;
             this.currentStage['attachment'] = this.createAttachment();
             console.log(this.currentStage);
-            this.emitStage.emit(this.currentStage);
+            /*call api and update request*/
+            this.emitStage.emit(this.currentStage); /*or false according to the api response*/
         }
     }
 
@@ -98,32 +114,41 @@ export class StageComponent implements OnInit {
 <div class="uk-width-1-1 uk-margin-bottom">
     <div *ngIf="wasSubmitted && currentStage" class="uk-form-controls">
         <hr class="uk-divider-icon">
-        <h5 class="uk-h4">Stage2</h5>
-        <div>Εγκρίθηκε από τον επιστημονικό υπεύθυνο ({{ currentStage[stageDescription.delegateField]['firstname'] }}
-             {{ currentStage[stageDescription.delegateField]['lastname'] }}) την {{ currentStage['date'] }}</div>
-        <div *ngIf="currentStage['comment']"><span class="uk-text-bold">Σχόλια: </span><span> {{ currentStage['comment'] }} </span></div>
-        <div><a class="uk-link" href="#">Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a></div>
+        <h5>{{ stageTitle }}</h5>
+        <div>
+            <span *ngIf="wasApproved">Εγκρίθηκε</span>
+            <span *ngIf="!wasApproved">Απορρίφθηκε</span>
+            από τον επιστημονικό υπεύθυνο ({{ currentStage[stageDescription.delegateField]['firstname'] }}
+            {{ currentStage[stageDescription.delegateField]['lastname'] }}) την {{ currentStage['date'] }}
+        </div>
+        <div *ngIf="currentStage['comment']"><span class="uk-text-bold">
+            Σχόλια: </span><span> {{ currentStage['comment'] }} </span></div>
+        <div><a class="uk-link" href="{{ currentStage['attachment'] ? currentStage['attachment']['url'] : '#' }}">
+            Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a></div>
     </div>
     <div *ngIf="!wasSubmitted" [formGroup]="stageForm" class="uk-form-controls">
         <hr>
-        <h5 class="uk-h4">Stage2</h5>
+        <h5>{{ stageTitle }}</h5>
         <app-stage-form [description]="commentFieldDesc">
             <textarea formControlName="comment" class="uk-form-controls uk-textarea"></textarea>
         </app-stage-form>
         <div>
-            <div class="uk-margin-top uk-margin-bottom" style="text-align: center; padding: 20px; border:4px dashed lightgray;">
-                <div *ngIf="!stageForm.get('attachment').value">
+            <label for="fileUpload" class="uk-margin-top uk-margin-bottom" style="text-align: center; padding: 20px; border:4px dashed lightgray;">
+                <div *ngIf="stageForm.get('attachment').value === ''">
                     Επισυνάψτε το αρχείο σας ρίχνοντάς το εδώ ή πατώντας <a href="#">εδώ</a>
                 </div>
-                <div><a href="#" title="Click to choose another file">{{ stageForm.get('attachment').value }}</a></div>
-                <input formControlName="attachment" type="text" hidden>
-            </div>
+                <div *ngIf="stageForm.get('attachment').value !== ''">
+                    <a href="#" title="Click to choose another file">{{ stageForm.get('attachment').value }}</a>
+                </div>
+                <input id="fileUpload" formControlName="attachment" type="file">
+            </label>
         </div>
         <div>
             <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
             <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>
         </div>
-        <div><span class="uk-text-small">Το έγγραφο θα κατατεθεί με ημερομηνία {{ getCurrentDateString() }}</span></div>
+        <div><span class="uk-text-small">
+            Το έγγραφο θα κατατεθεί με ημερομηνία {{ getCurrentDateString() }}</span></div>
     </div>
 </div>
 `
@@ -131,8 +156,9 @@ export class StageComponent implements OnInit {
 export class Stage2Component extends StageComponent implements OnInit {
 
     ngOnInit () {
+        this.stageTitle = 'Stage 2';
         super.ngOnInit();
-        if (!this.wasSubmitted) { this.currentStage = new Stage2(); }
+        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage2(); }
         this.stageDescription = Stage2Desc;
     }
 
@@ -145,9 +171,13 @@ export class Stage2Component extends StageComponent implements OnInit {
 <div class="uk-width-1-1 uk-margin-bottom">
     <div *ngIf="wasSubmitted && currentStage" class="uk-form-controls">
         <hr class="uk-divider-icon">
-        <h5>Stage3</h5>
-        <div>Εγκρίθηκε από τον χειριστή του προγράμματος ({{ currentStage[stageDescription.delegateField]['firstname'] }}
-            {{ currentStage[stageDescription.delegateField]['lastname'] }}) την {{ currentStage['date'] }}</div>
+        <h5>{{ stageTitle }}</h5>
+        <div>
+            <span *ngIf="wasApproved">Εγκρίθηκε</span>
+            <span *ngIf="!wasApproved">Απορρίφθηκε</span>
+            από τον χειριστή του προγράμματος ({{ currentStage[stageDescription.delegateField]['firstname'] }}
+            {{ currentStage[stageDescription.delegateField]['lastname'] }}) την {{ currentStage['date'] }}
+        </div>
         <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
             <app-stage-form [description]="desc">
                 <input class="uk-form-controls uk-checkbox"
@@ -155,27 +185,30 @@ export class Stage2Component extends StageComponent implements OnInit {
             </app-stage-form>
         </div>
         <div *ngIf="currentStage['comment']"><span class="uk-text-bold">Σχόλια: </span><span> {{ currentStage['comment'] }} </span></div>
-        <div><a class="uk-link" href="#">Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a></div>
+        <div><a class="uk-link" href="{{ currentStage['attachment'] ? currentStage['attachment']['url'] : '#' }}">
+            Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a></div>
     </div>
     <div *ngIf="!wasSubmitted" [formGroup]="stageForm" class="uk-form-controls">
         <hr>
-        <h5>Stage3</h5>
+        <h5>{{ stageTitle }}</h5>
         <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
             <app-stage-form [description]="desc">
                 <input formControlName="{{stageExtraFieldsList[controlIndex]}}" class="uk-form-controls uk-checkbox" type="checkbox">
             </app-stage-form>
         </div>
         <app-stage-form [description]="commentFieldDesc">
-            <textarea formControlName="comment" class="uk-form-controls uk-textarea" rows="3"></textarea>
+            <textarea formControlName="comment" class="uk-form-controls uk-textarea" rows="2"></textarea>
         </app-stage-form>
-        <div>
-            <div class="uk-margin-top uk-margin-bottom" style="text-align: center; padding: 20px; border:4px dashed lightgray;">
+        <div class="uk-margin-top uk-margin-bottom" style="text-align: center; padding: 20px; border:4px dashed lightgray;">
+            <label for="fileUpload" class="uk-link uk-height-1-1">
                 <div *ngIf="!stageForm.get('attachment').value">
-                    Επισυνάψτε το αρχείο σας ρίχνοντάς το εδώ ή πατώντας <a href="#">εδώ</a>
+                    <span>Επισυνάψτε το αρχείο σας ρίχνοντάς το εδώ ή πατώντας εδώ</span>
                 </div>
-                <div><a href="#" title="Click to choose another file">{{ stageForm.get('attachment').value }}</a></div>
-                <input formControlName="attachment" type="text" hidden>
-            </div>
+                <div class="uk-clearfix"><a href="#" title="Click to choose another file">{{ stageForm.get('attachment').value }}</a></div>
+                <input id="fileUpload" formControlName="attachment" type="file"
+                       (change)="getAttachmentInput($event.target.files)" 
+                       class="uk-width-1-1 uk-height-1-1" style="text-align: center">
+            </label>
         </div>
         <div>
             <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
@@ -189,8 +222,9 @@ export class Stage2Component extends StageComponent implements OnInit {
 export class Stage3Component extends StageComponent implements OnInit {
 
     ngOnInit () {
+        this.stageTitle = 'Stage 3';
         super.ngOnInit();
-        if (!this.wasSubmitted) { this.currentStage = new Stage3(); }
+        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage3(); }
         this.stageDescription = Stage3Desc;
         this.stageExtraFieldsList = ['analiftheiYpoxrewsi', 'fundsAvailable'];
         this.createExtraFields();
@@ -207,6 +241,8 @@ export class Stage3aComponent extends StageComponent implements OnInit {
 
     ngOnInit () {
         super.ngOnInit();
+        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage3a(); }
+        this.stageDescription = Stage3aDesc;
     }
 }
 
@@ -219,10 +255,9 @@ export class Stage3aComponent extends StageComponent implements OnInit {
 export class Stage3bComponent extends StageComponent implements OnInit {
 
     ngOnInit () {
-        /*this.stageFormDefinition = {
-            approved: ['', Validators.required]
-        };*/
         super.ngOnInit();
+        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage3b(); }
+        this.stageDescription = Stage3bDesc;
     }
 }
 
@@ -241,6 +276,10 @@ export class Stage4Component extends StageComponent implements OnInit {
             fundsAvailable: ['', Validators.required]
         };*/
         super.ngOnInit();
+        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage4(); }
+        this.stageDescription = Stage4Desc;
+        this.stageExtraFieldsList = ['analiftheiYpoxrewsi', 'fundsAvailable'];
+        this.createExtraFields();
     }
 }
 
@@ -253,10 +292,9 @@ export class Stage4Component extends StageComponent implements OnInit {
 export class Stage5Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        /*this.stageFormDefinition = {
-            approved: ['', Validators.required]
-        };*/
         super.ngOnInit();
+        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage5(); }
+        this.stageDescription = Stage5Desc;
     }
 }
 
@@ -271,6 +309,9 @@ export class Stage6Component extends StageComponent implements OnInit {
 
     ngOnInit () {
         super.ngOnInit();
+        /*NO APPROVE FIELD !!*/
+        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage6(); }
+        this.stageDescription = Stage6Desc;
     }
 }
 
@@ -284,12 +325,11 @@ export class Stage6Component extends StageComponent implements OnInit {
 export class Stage7Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        /*this.stageFormDefinition = {
-            approved: ['', Validators.required],
-            checkRegularity: ['', Validators.required],
-            checkLegality: ['', Validators.required]
-        };*/
         super.ngOnInit();
+        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage7(); }
+        this.stageDescription = Stage7Desc;
+        this.stageExtraFieldsList = ['checkRegularity', 'checkLegality'];
+        this.createExtraFields();
     }
 }
 
@@ -302,12 +342,11 @@ export class Stage7Component extends StageComponent implements OnInit {
 export class Stage8Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        /*this.stageFormDefinition = {
-            approved: ['', Validators.required],
-            checkRegularity: ['', Validators.required],
-            checkLegality: ['', Validators.required]
-        };*/
         super.ngOnInit();
+        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage8(); }
+        this.stageDescription = Stage8Desc;
+        this.stageExtraFieldsList = ['checkRegularity', 'checkLegality'];
+        this.createExtraFields();
     }
 }
 
@@ -320,10 +359,9 @@ export class Stage8Component extends StageComponent implements OnInit {
 export class Stage9Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        /*this.stageFormDefinition = {
-            approved: ['', Validators.required]
-        };*/
         super.ngOnInit();
+        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage9(); }
+        this.stageDescription = Stage9Desc;
     }
 }
 
@@ -336,9 +374,8 @@ export class Stage9Component extends StageComponent implements OnInit {
 export class Stage10Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        /*this.stageFormDefinition = {
-            approved: ['', Validators.required]
-        };*/
         super.ngOnInit();
+        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage10(); }
+        this.stageDescription = Stage10Desc;
     }
 }
