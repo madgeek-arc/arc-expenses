@@ -30,14 +30,46 @@
               <div *ngIf="successMessage" class="uk-alert uk-alert-success">{{ successMessage }}</div>
 
               <div class="uk-width-1-1 uk-margin-bottom">
-                <p>stage 1 info</p>
+                <p>
+                  <span class="uk-text-bold">Από: </span>
+                  <span class="uk-width-expand">
+                    {{ currentRequest.requester.firstname }} {{ currentRequest.requester.lastname }},
+                    {{ currentRequest.requesterPosition }}
+                  </span>
+                  <span class="uk-text-bold">, την </span>
+                  <span class="uk-width-expand">
+                    {{ currentRequest.stage1.requestDate }}
+                  </span>
+                </p>
+                <p>
+                  <span class="uk-text-bold">για το πρόγραμμα: </span>
+                  <span class="uk-width-expand">{{ currentRequest.project.name }}</span>
+                  <span class="uk-text-bold">του Ινστιτούτου: </span>
+                  <span class="uk-width-expand">{{ currentRequest.project.institute.name }}</span>
+                </p>
+                <p>
+                  <span class="uk-text-bold">Θέμα: </span>
+                  <span class="uk-text-justify">{{ currentRequest.stage1.subject }}</span>
+                </p>
+                <p>
+                  <span class="uk-text-bold">Προμηθευτής: </span>
+                  <span class="uk-width-expand">{{ currentRequest.stage1.supplier }},</span>
+                  <span class="uk-text-bold"> του οποίου η επιλογή έγινε με </span>
+                  <span class="uk-width-expand">{{ currentRequest.stage1.supplierSelectionMethod }}</span>
+                </p>
+                <p>
+                  <span class="uk-text-bold">Ποσόν: </span>
+                  <span class="uk-width-expand">{{ currentRequest.stage1.amountInEuros }} EUR</span>
+                </p>
+                <div *ngIf="currentRequest.stage1.attachment">
+                  <a class="uk-link" href="{{ currentRequest.stage1.attachment.url }}">
+                  Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a>
+                </div>
               </div>
 
               <stage2-component [wasSubmitted]="true" [currentStage]="stage2Test" (emitStage)="getSubmittedStage($event)"></stage2-component>
 
               <stage3-component [wasSubmitted]="false"[currentStage]="stage3Test" (emitStage)="getSubmittedStage($event)"></stage3-component>
-
-
 
             </div>
 

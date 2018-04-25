@@ -25,8 +25,7 @@ export class StageComponent implements OnInit {
 
     /*additional controls will be added dynamically according to the stage*/
     stageFormDefinition = {
-        comment: [''],
-        attachment: ['', Validators.required]
+        comment: ['']
     };
     uploadedFile: File;
 
@@ -57,11 +56,22 @@ export class StageComponent implements OnInit {
         }
     }
 
-    getAttachmentInput(newFiles: FileList) {
+    getAttachmentInput(event: any) {
         /*run script to upload file*/
-        this.uploadedFile = newFiles[0];
+        this.uploadedFile = event.target.files[0];
         console.log('this.uploadedFile is : ', this.uploadedFile);
-        this.stageForm.get('attachment').setValue(this.uploadedFile.name);
+    }
+
+    getDroppedFile(event: any) {
+        event.preventDefault();
+        console.log(event.dataTransfer.files[0]);
+        /*run script to upload file*/
+        this.uploadedFile = <File>event.dataTransfer.files[0];
+        console.log('this.droppedFile is : ', this.uploadedFile);
+    }
+
+    allowDrop(event: any) {
+        event.preventDefault();
     }
 
     approveRequest( approved: boolean ) {
@@ -71,6 +81,7 @@ export class StageComponent implements OnInit {
 
     submitForm() {
         if (this.stageForm && this.stageForm.valid) {
+            /*PROBABLY ALREADY FILLED !*/
             this.currentStage[this.stageDescription.delegateField] = this.createDelegate();
             this.currentStage['date'] = this.getCurrentDateString();
             for (const controlName of this.stageExtraFieldsList) {
@@ -94,12 +105,15 @@ export class StageComponent implements OnInit {
     }
 
     createAttachment(): Attachment {
-        const tempAttahment: Attachment = new Attachment();
-        tempAttahment.filename = '';
-        tempAttahment.mimetype = '';
-        tempAttahment.size = 0;
-        tempAttahment.url = this.stageForm.get('attachment').value;
-        return tempAttahment;
+        const tempAttachment: Attachment = new Attachment();
+        if (this.uploadedFile) {
+            tempAttachment.filename = this.uploadedFile.name;
+            tempAttachment.mimetype = this.uploadedFile.type;
+            tempAttachment.size = this.uploadedFile.size;
+            tempAttachment.url = '';
+        }
+
+        return tempAttachment;
     }
 
     getCurrentDateString() {
@@ -113,7 +127,7 @@ export class StageComponent implements OnInit {
     template: `
 <div class="uk-width-1-1 uk-margin-bottom">
     <div *ngIf="wasSubmitted && currentStage" class="uk-form-controls">
-        <hr class="uk-divider-icon">
+        <hr>
         <h5>{{ stageTitle }}</h5>
         <div>
             <span *ngIf="wasApproved">Εγκρίθηκε</span>
@@ -122,9 +136,12 @@ export class StageComponent implements OnInit {
             {{ currentStage[stageDescription.delegateField]['lastname'] }}) την {{ currentStage['date'] }}
         </div>
         <div *ngIf="currentStage['comment']"><span class="uk-text-bold">
-            Σχόλια: </span><span> {{ currentStage['comment'] }} </span></div>
-        <div><a class="uk-link" href="{{ currentStage['attachment'] ? currentStage['attachment']['url'] : '#' }}">
-            Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a></div>
+            Σχόλια: </span><span> {{ currentStage['comment'] }} </span>
+        </div>
+        <div><a class="uk-link"
+                href="{{ currentStage['attachment'] ? currentStage['attachment']['url'] : '#' }}">
+            Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a>
+        </div>
     </div>
     <div *ngIf="!wasSubmitted" [formGroup]="stageForm" class="uk-form-controls">
         <hr>
@@ -132,23 +149,22 @@ export class StageComponent implements OnInit {
         <app-stage-form [description]="commentFieldDesc">
             <textarea formControlName="comment" class="uk-form-controls uk-textarea"></textarea>
         </app-stage-form>
-        <div>
-            <label for="fileUpload" class="uk-margin-top uk-margin-bottom" style="text-align: center; padding: 20px; border:4px dashed lightgray;">
-                <div *ngIf="stageForm.get('attachment').value === ''">
-                    Επισυνάψτε το αρχείο σας ρίχνοντάς το εδώ ή πατώντας <a href="#">εδώ</a>
-                </div>
-                <div *ngIf="stageForm.get('attachment').value !== ''">
-                    <a href="#" title="Click to choose another file">{{ stageForm.get('attachment').value }}</a>
-                </div>
-                <input id="fileUpload" formControlName="attachment" type="file">
-            </label>
+        <div data-tooltip title="Επιλέξτε αρχείο" (drop)="getDroppedFile($event)" (dragover)="allowDrop($event)">
+            <div class="uk-link uk-placeholder uk-text-center uk-margin-top uk-width-1-1" uk-form-custom>
+                <i class="uk-icon-cloud-upload uk-icon-medium uk-text-muted uk-margin-small-right"></i>
+                <input type="file" name="selectedFile" (change)="getAttachmentInput($event)">
+                <span class="uk-link">Επισυνάψτε το αρχείο σας ρίχνοντάς το εδώ ή πατώντας εδώ</span>
+                <div><span class="uk-text-bold">Επιλεγμένο αρχείο: </span>
+                    {{uploadedFile ? uploadedFile.name : "επιλέξτε αρχείο"}}</div>
+            </div>
         </div>
         <div>
             <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
             <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>
         </div>
         <div><span class="uk-text-small">
-            Το έγγραφο θα κατατεθεί με ημερομηνία {{ getCurrentDateString() }}</span></div>
+            ημερομηνία κατάθεσης: {{ getCurrentDateString() }}</span>
+        </div>
     </div>
 </div>
 `
@@ -170,7 +186,7 @@ export class Stage2Component extends StageComponent implements OnInit {
     template: `
 <div class="uk-width-1-1 uk-margin-bottom">
     <div *ngIf="wasSubmitted && currentStage" class="uk-form-controls">
-        <hr class="uk-divider-icon">
+        <hr>
         <h5>{{ stageTitle }}</h5>
         <div>
             <span *ngIf="wasApproved">Εγκρίθηκε</span>
@@ -199,16 +215,14 @@ export class Stage2Component extends StageComponent implements OnInit {
         <app-stage-form [description]="commentFieldDesc">
             <textarea formControlName="comment" class="uk-form-controls uk-textarea" rows="2"></textarea>
         </app-stage-form>
-        <div class="uk-margin-top uk-margin-bottom" style="text-align: center; padding: 20px; border:4px dashed lightgray;">
-            <label for="fileUpload" class="uk-link uk-height-1-1">
-                <div *ngIf="!stageForm.get('attachment').value">
-                    <span>Επισυνάψτε το αρχείο σας ρίχνοντάς το εδώ ή πατώντας εδώ</span>
-                </div>
-                <div class="uk-clearfix"><a href="#" title="Click to choose another file">{{ stageForm.get('attachment').value }}</a></div>
-                <input id="fileUpload" formControlName="attachment" type="file"
-                       (change)="getAttachmentInput($event.target.files)" 
-                       class="uk-width-1-1 uk-height-1-1" style="text-align: center">
-            </label>
+        <div data-tooltip title="Επιλέξτε αρχείο" (drop)="getDroppedFile($event)" (dragover)="allowDrop($event)">
+            <div class="uk-link uk-placeholder uk-text-center uk-margin-top uk-width-1-1" uk-form-custom>
+                <i class="uk-icon-cloud-upload uk-icon-medium uk-text-muted uk-margin-small-right"></i>
+                <input type="file" name="selectedFile" (change)="getAttachmentInput($event)">
+                <span class="uk-link">Επισυνάψτε το αρχείο σας ρίχνοντάς το εδώ ή πατώντας εδώ</span>
+                <div><span class="uk-text-bold">Επιλεγμένο αρχείο: </span>
+                    {{uploadedFile ? uploadedFile.name : "επιλέξτε αρχείο"}}</div>
+            </div>
         </div>
         <div>
             <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>

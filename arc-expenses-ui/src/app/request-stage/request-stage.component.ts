@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {analiftheiYpoxrewsiDesc, checkLegalityDesc, checkRegularityDesc, StageDescription} from '../domain/stageDescriptions';
-import {Request, Delegate, Stage2, Stage3} from '../domain/operation';
+import {Request, Institute, Delegate, Stage1, Stage2, Stage3, Requester, Project, Attachment} from '../domain/operation';
 import {ActivatedRoute} from '@angular/router';
 
 @Component({
@@ -56,6 +56,23 @@ export class RequestStageComponent implements OnInit {
     /*call api to get request info or throw errorMessage*/
 
     this.currentRequest = new Request();
+    this.currentRequest.id = 'request1';
+    this.currentRequest.project = new Project();
+    this.currentRequest.project.name = 'project 2';
+    this.currentRequest.project.institute = new Institute();
+    this.currentRequest.project.institute.name = 'Institute name';
+    this.currentRequest.requester = new Requester();
+    this.currentRequest.requester.firstname = 'Some';
+    this.currentRequest.requester.lastname = 'Requester';
+    this.currentRequest.requesterPosition = 'requester position';
+    this.currentRequest.stage1 = new Stage1();
+    this.currentRequest.stage1.requestDate = '25/4/2018';
+    this.currentRequest.stage1.subject = 'request subject';
+    this.currentRequest.stage1.supplier = 'supplier name';
+    this.currentRequest.stage1.supplierSelectionMethod = 'selection method';
+    this.currentRequest.stage1.amountInEuros = 232.23;
+    this.currentRequest.stage1.attachment = new Attachment();
+    this.currentRequest.stage1.attachment.filename = 'filename.txt';
     this.currentRequest.stage = '3';
     this.currentRequest.stage2 = this.stage2Test;
     this.currentRequest.stage3 = this.stage3Test;

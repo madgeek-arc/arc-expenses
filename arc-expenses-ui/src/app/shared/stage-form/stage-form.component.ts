@@ -4,11 +4,11 @@ import { StageFieldDescription } from '../../domain/stageDescriptions';
 @Component({
   selector: 'app-stage-form',
   template: `
-<div class="uk-grid">
-    <label class="uk-width-2-5" *ngIf="description.label!=null">
+<div class="uk-grid uk-margin-small-top">
+    <label class="uk-width-1-3" *ngIf="description.label!=null">
         {{description.label}}
     </label>
-    <div class="uk-width-expand\@m" [ngClass]="{'uk-text-danger': !valid}">
+    <div class="uk-width-expand" [ngClass]="{'uk-text-danger': !valid}">
         <ng-content></ng-content>
     </div>
 </div>
