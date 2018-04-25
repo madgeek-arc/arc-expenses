@@ -21,81 +21,94 @@
             <!-- MIDDLE -->
             <form [formGroup]="requestsForm" class=" uk-width-expand@m">
 
-<!-- form --> <div class="uk-form-horizontal uk-margin-large">
-
-                <!--<fieldset>-->
-                  <div class="uk-align-center">
-                    <div class="uk-width-1-2 uk-align-center">
-                      <input class="uk-input uk-width-2-3 uk-comment uk-comment-meta uk-search-field uk-box-shadow"
-                           placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο">
-                      <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="ngOnInit()">Αναζήτηση</button>
-                    </div>
+<!-- form --> <div class="uk-form-horizontal uk-margin-large uk-padding-remove-bottom">
 
 
-      <!-- Filters -->
-                    <div id="filters" class="uk-width-1-2 uk-align-right">
-                      <div class="uk-width-small uk-align-right uk-margin-remove">
-                        <label for="req-status" style="padding-left: 15px">Κατάσταση:</label>
-                        <select class="uk-select uk-width-small" id="req-status" formControlName="status">
-                          <option value="all">όλα</option>
-                          <option *ngFor="let state of states">{{state}}</option>
-                        </select>
-                      </div>
-                      <div class="uk-width-small uk-align-right uk-margin-remove">
-                        <label for="req-stage" style="padding-left: 15px">Στάδιο:</label>
-                        <select class="uk-select uk-width-small" id="req-stage" formControlName="stage">
-                          <option *ngFor="let stage of stages"><span>{{stage==='0' ? 'όλα τα στάδια' : stage}}</span></option>
-                        </select>
-                      </div>
-                      <!--<div class="uk-width-small uk-align-right uk-margin-remove">-->
-                        <!--<label for="req-date" style="padding-left: 15px">Ημ/νια:</label>-->
-                        <!--<select class="uk-select uk-width-small" id="req-date" formControlName="stage">-->
-                          <!--<option *ngFor="let stage of stages"><span>{{stage==='0' ? 'όλα τα στάδια' : stage}}</span></option>-->
-                        <!--</select>-->
-                      <!--</div>-->
-
-                    </div>
-      <!-- /Filters -->
+                <div class="uk-align-center">
+                  <div class="uk-width-1-2 uk-align-center">
+                    <input class="uk-input uk-width-2-3 uk-search-field"
+                         placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο" formControlName="searchText">
+                    <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="ngOnInit()">Αναζήτηση</button>
                   </div>
 
-              </div>
+          <!-- Filters -->
+                  <div id="filters" class="uk-width-1-1 uk-align-right uk-inline">
+                    <div class="uk-width-small uk-align-right uk-margin-remove">
+                      <!--<div class="uk-width-small uk-align-right uk-margin">-->
+                      <div class="show-options uk-inline" style="float: right;">
+                        <label for="req-pagesize" style="display: inline;">Αιτήσεις:</label>
+                        <div class="inlineBlock">
+                          <select id="req-pagesize" #itemsPerPage class="form-control" (change)="getItemsPerPage(itemsPerPage.value)">
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
 
-                <!--TODO: continue here-->
-                <div class="uk-padding">
-      <!-- Paging-top -->
-                  <div class="uk-width-1-1 uk-align-center">
-                    <ul class="uk-pagination">
-                      <li>
-                        <a class="uk-link uk-link-muted" (click)="goToPreviousPage()">
-                    <span class="uk-margin-small-right uk-pagination-previous uk-icon" uk-pagination-previous="">
-                      <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
-                           icon="pagination-previous" ratio="1"></svg>
-                    </span>
-                          Previous
-                        </a>
-                      </li>
-                      <li class="uk-margin-auto-left">
-                        <a class="uk-link uk-link-muted" (click)="goToNextPage()">
-                          Next
-                          <span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">
-                          <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
-                               icon="pagination-next" ratio="1"></svg>
-                        </span>
-                        </a>
-                      </li>
-                    </ul>
-                    <div class="resultsPageLabel">page {{ currentPage+1 }} of {{ totalPages }}</div>
+                    <div class="uk-width-small uk-align-left uk-margin-remove">
+                      <label for="req-status" style="padding-left: 15px">Κατάσταση:</label>
+                      <select class="uk-select uk-width-small" id="req-status" formControlName="status">
+                        <option value="all">όλα</option>
+                        <option *ngFor="let state of states">{{state}}</option>
+                      </select>
+                    </div>
+                    <div class="uk-width-small uk-align-left uk-margin-remove" style="padding-right: 15px;">
+                      <label for="req-stage" style="padding-left: 15px">Στάδιο:</label>
+                      <select class="uk-select uk-width-small" id="req-stage" formControlName="stage">
+                        <option *ngFor="let stage of stages"><span>{{stage==='0' ? 'όλα τα στάδια' : stage}}</span></option>
+                      </select>
+                    </div>
                   </div>
-      <!-- /Paging-top -->
-
+          <!-- /Filters -->
 
                 </div>
 
 
+              </div>
+
+
+              <div class="uk-width-1-1 uk-margin uk-padding uk-padding-remove-bottom">
+          <!-- Paging-top -->
+                <div class="uk-width-1-1 uk-align-center">
+                  <ul class="uk-pagination uk-padding-small uk-padding-remove-bottom">
+                    <li>
+                      <a class="uk-link uk-link-muted" (click)="goToPreviousPage()">
+                  <span class="uk-margin-small-right uk-pagination-previous uk-icon" uk-pagination-previous="">
+                    <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
+                         icon="pagination-previous" ratio="1"></svg>
+                  </span>
+                        Previous
+                      </a>
+                    </li>
+
+                    <li class="uk-margin-auto-left">
+                      <div class="resultsPageLabel" style="all: unset; font-size: small">page {{ currentPage+1 }} of {{ totalPages }}</div>
+                    </li>
+
+                    <li class="uk-margin-auto-left">
+                      <a class="uk-link uk-link-muted" (click)="goToNextPage()">
+                        Next
+                        <span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">
+                        <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
+                             icon="pagination-next" ratio="1"></svg>
+                      </span>
+                      </a>
+                    </li>
+                  </ul>
+                  <!--<div class="resultsPageLabel">page {{ currentPage+1 }} of {{ totalPages }}</div>-->
+                </div>
+    <!-- /Paging-top -->
+
+
+              </div>
+
 
                 <!--</fieldset>-->
               <!--</div>-->
-
+<div class="uk-width-1-1 uk-overflow-auto uk-scrollspy-inview uk-animation-slide-top-medium uk-margin-top uk-margin-bottom">
                   <table class="uk-table uk-table-hover uk-table-divider">
                     <thead>
                       <tr>
@@ -129,171 +142,41 @@
                       </tr>
                     </tbody>
                   </table>
+</div>
 
-              <!--||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||-->
-              <!-- TODO: uncomment here to create paging -->
-              <!--&lt;!&ndash;<div *ngIf="jobsOfUser">&ndash;&gt;<div>-->
-                <!--&lt;!&ndash;<div class="uk-grid page-controls">&ndash;&gt;-->
+      <!-- Paging-bottom -->
+              <div class="uk-padding uk-padding-remove-top">
+                <div class="uk-width-1-1 uk-align-center">
+                  <ul class="uk-pagination">
+                    <li>
+                      <a class="uk-link uk-link-muted" (click)="goToPreviousPage()">
+                    <span class="uk-margin-small-right uk-pagination-previous uk-icon" uk-pagination-previous="">
+                      <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
+                           icon="pagination-previous" ratio="1"></svg>
+                    </span>
+                        Previous
+                      </a>
+                    </li>
 
+                    <li class="uk-margin-auto-left">
+                      <div class="resultsPageLabel" style="all: unset; font-size: small">page {{ currentPage+1 }} of {{ totalPages }}</div>
+                    </li>
 
-  <!--&lt;!&ndash;<div class="uk-margin-bottom uk-width-1-1 filters">&ndash;&gt;-->
-    <!--&lt;!&ndash;<div class="links">&ndash;&gt;-->
-      <!--&lt;!&ndash;<div class="filterLabel">Filter by job type:</div>&ndash;&gt;-->
-      <!--&lt;!&ndash;<div class="inlineBlock">&ndash;&gt;-->
-        <!--&lt;!&ndash;<select class="form-control" #selectType (change)="getJobType(selectType.value)">&ndash;&gt;-->
-          <!--&lt;!&ndash;<option value="noneSelected">&#45;&#45;none selected&#45;&#45;</option>&ndash;&gt;-->
-          <!--&lt;!&ndash;<option *ngFor="let type of jobTypes" value="{{type}}">{{type}}</option>&ndash;&gt;-->
-        <!--&lt;!&ndash;</select>&ndash;&gt;-->
-      <!--&lt;!&ndash;</div>&ndash;&gt;-->
-    <!--&lt;!&ndash;</div>&ndash;&gt;-->
-  <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                    <li class="uk-margin-auto-left">
+                      <a class="uk-link uk-link-muted" (click)="goToNextPage()">
+                        Next
+                        <span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">
+                          <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
+                               icon="pagination-next" ratio="1"></svg>
+                        </span>
+                      </a>
+                    </li>
+                  </ul>
+                  <!--<div class="resultsPageLabel">page {{ currentPage+1 }} of {{ totalPages }}</div>-->
+                </div>
+              </div>
+      <!-- /Paging-bottom -->
 
-
-                  <!--&lt;!&ndash;<div class="uk-margin-bottom uk-width-1-1 filters">&ndash;&gt;-->
-                    <!--&lt;!&ndash;<div class="links uk-inline">&ndash;&gt;-->
-                      <!--&lt;!&ndash;<div class="filterLabel" style="display: inline;">Filter validation jobs:</div>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<a class="uk-active"&ndash;&gt;-->
-                         <!--&lt;!&ndash;[class.active]="currentFilter==='all'"&ndash;&gt;-->
-                         <!--&lt;!&ndash;(click)="filterJobs('all')">All jobs ({{this.jobsOfUser.totalJobs}})</a>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<a class="uk-active"&ndash;&gt;-->
-                         <!--&lt;!&ndash;[class.active]="currentFilter==='successful'"&ndash;&gt;-->
-                         <!--&lt;!&ndash;(click)="filterJobs('successful')">successful ({{this.jobsOfUser.totalJobsSuccessful}})</a>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<a class="uk-active"&ndash;&gt;-->
-                         <!--&lt;!&ndash;[class.active]="currentFilter==='failed'"&ndash;&gt;-->
-                         <!--&lt;!&ndash;(click)="filterJobs('failed')">failed ({{this.jobsOfUser.totalJobsFailed}})</a>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<a class="uk-active"&ndash;&gt;-->
-                         <!--&lt;!&ndash;[class.active]="currentFilter==='ongoing'"&ndash;&gt;-->
-                         <!--&lt;!&ndash;(click)="filterJobs('ongoing')">ongoing ({{this.jobsOfUser.totalJobsOngoing}})</a>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
-
-
-  <!--&lt;!&ndash;<div class="show-options uk-inline" style="float: right;">&ndash;&gt;-->
-    <!--&lt;!&ndash;<div class="filterLabel" style="display: inline;">Jobs per page:</div>&ndash;&gt;-->
-    <!--&lt;!&ndash;<div class="inlineBlock">&ndash;&gt;-->
-      <!--&lt;!&ndash;<select #itemsPerPage class="form-control" (change)="getItemsPerPage(itemsPerPage.value)">&ndash;&gt;-->
-        <!--&lt;!&ndash;<option value="10" selected>10</option>&ndash;&gt;-->
-        <!--&lt;!&ndash;<option value="25">25</option>&ndash;&gt;-->
-        <!--&lt;!&ndash;<option value="50">50</option>&ndash;&gt;-->
-        <!--&lt;!&ndash;<option value="100">100</option>&ndash;&gt;-->
-      <!--&lt;!&ndash;</select>&ndash;&gt;-->
-    <!--&lt;!&ndash;</div>&ndash;&gt;-->
-  <!--&lt;!&ndash;</div>&ndash;&gt;-->
-
-
-                  <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                <!--<div class="contentAndPagerPanel">-->
-                  <!--<div>-->
-                    <!--<ul class="uk-pagination">-->
-                      <!--<li>-->
-                        <!--<a class="uk-link uk-link-muted" (click)="goToPreviousPage()">-->
-                      <!--<span class="uk-margin-small-right uk-pagination-previous uk-icon" uk-pagination-previous="">-->
-                        <!--<svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"-->
-                             <!--icon="pagination-previous" ratio="1"></svg>-->
-                      <!--</span>-->
-                          <!--Previous-->
-                        <!--</a>-->
-                      <!--</li>-->
-                      <!--<li class="uk-margin-auto-left">-->
-                        <!--<a class="uk-link uk-link-muted" (click)="goToNextPage()">-->
-                          <!--Next-->
-                          <!--<span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">-->
-                            <!--<svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"-->
-                                 <!--icon="pagination-next" ratio="1"></svg>-->
-                          <!--</span>-->
-                        <!--</a>-->
-                      <!--</li>-->
-                    <!--</ul>-->
-                    <!--<div class="resultsPageLabel">page {{ currentPage+1 }} of {{ totalPages }}</div>-->
-                  <!--</div>-->
-                  <!--&lt;!&ndash;<div>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<div>&ndash;&gt;-->
-                      <!--&lt;!&ndash;<div&ndash;&gt;-->
-                              <!--&lt;!&ndash;class="uk-overflow-auto uk-scrollspy-inview uk-animation-slide-top-medium uk-margin-top uk-margin-bottom">&ndash;&gt;-->
-                        <!--&lt;!&ndash;<table class="uk-table uk-table-middle uk-table-striped" style="vertical-align: top !important;">&ndash;&gt;-->
-                          <!--&lt;!&ndash;<thead>&ndash;&gt;-->
-                          <!--&lt;!&ndash;<tr>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<th>Repository</th>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<th>Validation Type</th>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<th>Status</th>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<th>Score</th>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<th>Started</th>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<th>Guidelines</th>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<th>Actions</th>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<th></th>&ndash;&gt;-->
-                          <!--&lt;!&ndash;</tr>&ndash;&gt;-->
-                          <!--&lt;!&ndash;</thead>&ndash;&gt;-->
-                          <!--&lt;!&ndash;<div *ngIf="infoMessage" class="uk-alert">{{ infoMessage }}</div>&ndash;&gt;-->
-                          <!--&lt;!&ndash;<tbody *ngIf="jobsOfUser && jobsOfUser.jobs">&ndash;&gt;-->
-                          <!--&lt;!&ndash;<tr class="el-item" *ngFor="let job of jobsOfUser.jobs">&ndash;&gt;-->
-                            <!--&lt;!&ndash;<td class="uk-table-shrink" style="vertical-align: top !important;">&ndash;&gt;-->
-                              <!--&lt;!&ndash;<div class="el-title">{{ job.baseUrl }}</div>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<td class="uk-table-shrink">&ndash;&gt;-->
-                              <!--&lt;!&ndash;<div class="el-title">OAI Content<br>OAI Usage</div>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<td class="uk-table-shrink">&ndash;&gt;-->
-                              <!--&lt;!&ndash;<div class="el-title">{{ job.contentJobStatus }}<br>{{ job.usageJobStatus }}</div>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<td class="uk-table-shrink">&ndash;&gt;-->
-                              <!--&lt;!&ndash;<div class="el-title">{{ job.contentJobScore }}<br>{{ job.usageJobScore }}</div>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<td class="uk-table-shrink" style="vertical-align: top !important;">&ndash;&gt;-->
-                              <!--&lt;!&ndash;<div class="el-title">{{ job.started }}</div>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<td class="uk-table-shrink" style="vertical-align: top !important;">&ndash;&gt;-->
-                              <!--&lt;!&ndash;<div class="el-title">{{ job.guidelinesShortName }}</div>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<td class="uk-table-shrink" style="vertical-align: top !important;">&ndash;&gt;-->
-                              <!--&lt;!&ndash;<div class="el-link actions">&ndash;&gt;-->
-                                <!--&lt;!&ndash;<div class="viewDetailsLinkWrapper">&ndash;&gt;-->
-                                  <!--&lt;!&ndash;<a class="viewDetails" [routerLink]="[job.id]">View Results<i&ndash;&gt;-->
-                                          <!--&lt;!&ndash;class="fa fa-angle-right"></i></a>&ndash;&gt;-->
-                                <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                                <!--&lt;!&ndash;<div>&ndash;&gt;-->
-                                  <!--&lt;!&ndash;<a class="resubmitJob" (click)="resubmitJob(job.id)">Resubmit Job<i&ndash;&gt;-->
-                                          <!--&lt;!&ndash;class="fa fa-repeat"></i></a>&ndash;&gt;-->
-                                <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                              <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<td class="uk-table-shrink" style="vertical-align: top !important;">&ndash;&gt;-->
-                              <!--&lt;!&ndash;<img src="{{ getResultImage(job.ended,job.error) }}" width="20" height="20">&ndash;&gt;-->
-                            <!--&lt;!&ndash;</td>&ndash;&gt;-->
-                          <!--&lt;!&ndash;</tr>&ndash;&gt;-->
-                          <!--&lt;!&ndash;</tbody>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</table>&ndash;&gt;-->
-                      <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                  <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                  <!--<div>-->
-                    <!--<ul class="uk-pagination">-->
-                      <!--<li>-->
-                        <!--<a class="uk-link uk-link-muted" (click)="goToPreviousPage()">-->
-                    <!--<span class="uk-margin-small-right uk-pagination-previous uk-icon" uk-pagination-previous="">-->
-                      <!--<svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"-->
-                           <!--icon="pagination-previous" ratio="1"></svg>-->
-                    <!--</span>-->
-                          <!--Previous-->
-                        <!--</a>-->
-                      <!--</li>-->
-                      <!--<li class="uk-margin-auto-left">-->
-                        <!--<a class="uk-link uk-link-muted" (click)="goToNextPage()">-->
-                          <!--Next-->
-                          <!--<span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">-->
-                            <!--<svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"-->
-                                 <!--icon="pagination-next" ratio="1"></svg>-->
-                          <!--</span>-->
-                        <!--</a>-->
-                      <!--</li>-->
-                    <!--</ul>-->
-                    <!--<div class="resultsPageLabel">page {{ currentPage+1 }} of {{ totalPages }}</div>-->
-                  <!--</div>-->
-                <!--</div>-->
-                <!--<div class="row"></div>-->
-              <!--</div>-->
-
-
-              <!--|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||-->
 
             </form>
 

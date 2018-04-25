@@ -18,6 +18,8 @@ export class RequestsComponent implements OnInit {
 
   totalPages: number = 20;
 
+  itemsPerPage = 10;
+
   stage_num = 0;
 
   requestsForm: FormGroup;
@@ -84,7 +86,7 @@ export class RequestsComponent implements OnInit {
 
   createForm() {
     this.requestsForm = this.fb.group({
-      date: '1',
+      searchText: '',
       stage: '',
       status: ''
     });
@@ -100,7 +102,9 @@ export class RequestsComponent implements OnInit {
   goToNextPage() {
   }
 
-
+  getItemsPerPage(items: number) {
+    this.itemsPerPage = items;
+  }
 
   ngOnInit() {
   }
