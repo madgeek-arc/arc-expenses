@@ -61,6 +61,14 @@
                         <option *ngFor="let stage of stages"><span>{{stage==='0' ? 'όλα τα στάδια' : stage}}</span></option>
                       </select>
                     </div>
+                    <!--<div class="uk-width-small uk-align-left uk-margin-remove" style="padding-right: 15px;">-->
+                      <!--<label for="req-date" style="padding-left: 15px">Ημ/νια:</label>-->
+                      <!--<input id="req-date" type="date" min="2018-01-01">-->
+                      <!--&lt;!&ndash; TODO: na perasw tin imerominia &ndash;&gt;-->
+                    <!--</div>-->
+
+
+
                   </div>
           <!-- /Filters -->
 
@@ -114,8 +122,8 @@
                       <tr>
 
                         <!-- TODO: create sortBy -->
-                        <td class="uk-link" (click)="sortBy(1)">Α/Α</td>
-                        <td class="uk-link" (click)="sortBy(2)">Πρόγραμμα</td>
+                        <td class="uk-link" (click)="sortBy(1)">Α/Α &#9662;</td>
+                        <td class="uk-link" (click)="sortBy(2)">Πρόγραμμα &#9652;</td>
                         <td class="uk-link">Ινστιτούτο/Μονάδα</td>
                         <td class="uk-link">Αιτών</td>
                         <td class="uk-link">Ημ/νια</td>

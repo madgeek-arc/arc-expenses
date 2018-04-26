@@ -11,6 +11,8 @@ export class NewRequestComponent implements OnInit {
 
   newRequestForm: FormGroup;
 
+  uploadedFile: File;
+
   request: Request;
 
     institutes = ['ILSP', 'IMSI', 'ISI', 'SPU', 'PPA'];
@@ -63,6 +65,10 @@ export class NewRequestComponent implements OnInit {
     if (event.target.value) {
       this.programSelected = true;
     }
+  }
+
+  getUploadedFile(file: File) {
+    this.uploadedFile = file;
   }
 
   ngOnInit() {
