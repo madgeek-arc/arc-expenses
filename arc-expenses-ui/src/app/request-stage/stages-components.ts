@@ -56,9 +56,10 @@ export class StageComponent implements OnInit {
         }
     }
 
-    getAttachmentInput(event: any) {
+    getAttachmentInput(newFile: File) {
         /*run script to upload file*/
-        this.uploadedFile = event.target.files[0];
+        /*this.uploadedFile = event.target.files[0];*/
+        this.uploadedFile = newFile;
         console.log('this.uploadedFile is : ', this.uploadedFile);
     }
 
@@ -138,7 +139,7 @@ export class StageComponent implements OnInit {
         <div *ngIf="currentStage['comment']"><span class="uk-text-bold">
             Σχόλια: </span><span> {{ currentStage['comment'] }} </span>
         </div>
-        <div><a class="uk-link"
+        <div><a class="uk-link uk-width-1-1@l uk-margin-small-top"
                 href="{{ currentStage['attachment'] ? currentStage['attachment']['url'] : '#' }}">
             Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a>
         </div>
@@ -201,7 +202,7 @@ export class Stage2Component extends StageComponent implements OnInit {
             </app-stage-form>
         </div>
         <div *ngIf="currentStage['comment']"><span class="uk-text-bold">Σχόλια: </span><span> {{ currentStage['comment'] }} </span></div>
-        <div><a class="uk-link" href="{{ currentStage['attachment'] ? currentStage['attachment']['url'] : '#' }}">
+        <div><a class="uk-link uk-width-1-1@l uk-margin-small-top" href="{{ currentStage['attachment'] ? currentStage['attachment']['url'] : '#' }}">
             Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a></div>
     </div>
     <div *ngIf="!wasSubmitted" [formGroup]="stageForm" class="uk-form-controls">
@@ -215,7 +216,7 @@ export class Stage2Component extends StageComponent implements OnInit {
         <app-stage-form [description]="commentFieldDesc">
             <textarea formControlName="comment" class="uk-form-controls uk-textarea" rows="2"></textarea>
         </app-stage-form>
-        <div data-tooltip title="Επιλέξτε αρχείο" (drop)="getDroppedFile($event)" (dragover)="allowDrop($event)">
+        <!--<div data-tooltip title="Επιλέξτε αρχείο" (drop)="getDroppedFile($event)" (dragover)="allowDrop($event)">
             <div class="uk-link uk-placeholder uk-text-center uk-margin-top uk-width-1-1" uk-form-custom>
                 <i class="uk-icon-cloud-upload uk-icon-medium uk-text-muted uk-margin-small-right"></i>
                 <input type="file" name="selectedFile" (change)="getAttachmentInput($event)">
@@ -223,7 +224,8 @@ export class Stage2Component extends StageComponent implements OnInit {
                 <div><span class="uk-text-bold">Επιλεγμένο αρχείο: </span>
                     {{uploadedFile ? uploadedFile.name : "επιλέξτε αρχείο"}}</div>
             </div>
-        </div>
+        </div>-->
+        <app-stage-form-upload-file (emitFile)="getAttachmentInput($event)"></app-stage-form-upload-file>
         <div>
             <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
             <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>

@@ -12,7 +12,7 @@ export class RequestStageComponent implements OnInit {
   errorMessage: string;
   successMessage: string;
 
-  title = 'Αίτημα X';
+  requestId: string;
   currentRequest: Request;
 
   testDelegate: Delegate = {
@@ -52,7 +52,7 @@ export class RequestStageComponent implements OnInit {
   }
 
   getCurrentRequest() {
-    const requestId = this.route.snapshot.paramMap.get('id');
+    this.requestId = this.route.snapshot.paramMap.get('id');
     /*call api to get request info or throw errorMessage*/
 
     this.currentRequest = new Request();

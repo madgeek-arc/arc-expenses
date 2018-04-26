@@ -3,13 +3,7 @@
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
       <div class="uk-width-1-1@m uk-first-column">
 
-        <h1 class="uk-h2">{{title}}</h1>
-        <!--<hr class="uk-divider-small">-->
-
-        <!--<div class="uk-margin">-->
-        <!--Paste the copied XML file below, or use one of the options to upload and preview the XML file-->
-        <!--before you submit it.-->
-        <!--</div>-->
+        <h1 class="uk-h3 uk-heading-bullet uk-padding-small">Αίτημα {{requestId}}</h1>
 
         <!-- TOP HELP CONTENT -->
         <help-content #topHelperContent [position]="'top'"
@@ -28,40 +22,43 @@
             <div class=" uk-width-expand@m">
               <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
               <div *ngIf="successMessage" class="uk-alert uk-alert-success">{{ successMessage }}</div>
-
-              <div class="uk-width-1-1 uk-margin-bottom">
-                <p>
-                  <span class="uk-text-bold">Από: </span>
-                  <span class="uk-width-expand">
-                    {{ currentRequest.requester.firstname }} {{ currentRequest.requester.lastname }},
-                    {{ currentRequest.requesterPosition }}
+              <div class="uk-margin-bottom uk-width-1-1 uk-grid">
+                <div class="uk-width-1-2@l">
+                  <span class="uk-text-bold uk-margin-small-right">Από: </span>
+                  <span>
+                    {{ currentRequest.requester.firstname }} {{ currentRequest.requester.lastname }}
+                     ({{ currentRequest.requesterPosition }})
                   </span>
-                  <span class="uk-text-bold">, την </span>
-                  <span class="uk-width-expand">
-                    {{ currentRequest.stage1.requestDate }}
-                  </span>
-                </p>
-                <p>
-                  <span class="uk-text-bold">για το πρόγραμμα: </span>
-                  <span class="uk-width-expand">{{ currentRequest.project.name }}</span>
-                  <span class="uk-text-bold">του Ινστιτούτου: </span>
-                  <span class="uk-width-expand">{{ currentRequest.project.institute.name }}</span>
-                </p>
-                <p>
-                  <span class="uk-text-bold">Θέμα: </span>
-                  <span class="uk-text-justify">{{ currentRequest.stage1.subject }}</span>
-                </p>
-                <p>
-                  <span class="uk-text-bold">Προμηθευτής: </span>
-                  <span class="uk-width-expand">{{ currentRequest.stage1.supplier }},</span>
-                  <span class="uk-text-bold"> του οποίου η επιλογή έγινε με </span>
-                  <span class="uk-width-expand">{{ currentRequest.stage1.supplierSelectionMethod }}</span>
-                </p>
-                <p>
-                  <span class="uk-text-bold">Ποσόν: </span>
-                  <span class="uk-width-expand">{{ currentRequest.stage1.amountInEuros }} EUR</span>
-                </p>
-                <div *ngIf="currentRequest.stage1.attachment">
+                </div>
+                <div class="uk-width-1-2@l">
+                  <span class="uk-text-bold uk-margin-small-right">Ημερομηνία υποβολής: </span>
+                  <span>{{ currentRequest.stage1.requestDate }}</span>
+                </div>
+                <div class="uk-width-1-2@l">
+                  <span class="uk-text-bold uk-margin-small-right">Πρόγραμμα: </span>
+                  <span>{{ currentRequest.project.name }}</span>
+                </div>
+                <div class="uk-width-1-2@l">
+                  <span class="uk-text-bold uk-margin-small-right">Ινστιτούτο: </span>
+                  <span>{{ currentRequest.project.institute.name }}</span>
+                </div>
+                <div class="uk-width-1-1@l">
+                  <div class="uk-text-bold">Θέμα:</div>
+                  <div class="uk-text-justify uk-margin-small-bottom">{{ currentRequest.stage1.subject }}</div>
+                </div>
+                <div class="uk-width-1-2@l">
+                  <span class="uk-text-bold uk-margin-small-right">Προμηθευτής: </span>
+                  <span>{{ currentRequest.stage1.supplier }}</span>
+                </div>
+                <div class="uk-width-1-2@l">
+                  <span class="uk-text-bold uk-margin-small-right">Κριτήριο επιλογής: </span>
+                  <span>{{ currentRequest.stage1.supplierSelectionMethod }}</span>
+                </div>
+                <div class="uk-width-1-2@l">
+                  <span class="uk-text-bold uk-margin-small-right">Ποσό: </span>
+                  <span>{{ currentRequest.stage1.amountInEuros }} EUR</span>
+                </div>
+                <div *ngIf="currentRequest.stage1.attachment" class="uk-width-1-1@l uk-margin-small-top">
                   <a class="uk-link" href="{{ currentRequest.stage1.attachment.url }}">
                   Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a>
                 </div>
