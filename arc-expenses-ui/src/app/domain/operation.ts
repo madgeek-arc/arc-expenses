@@ -1,4 +1,4 @@
-// Generated using typescript-generator version 2.1.406 on 2018-04-20 12:58:33.
+// Generated using typescript-generator version 2.1.406 on 2018-04-24 15:14:12.
 
 export class Attachment {
     filename: string;
@@ -48,8 +48,8 @@ export class Project {
     parentProject: Project;
     scientificCoordinator: POY;
     operator: POY[];
-    startDate: any;
-    endDate: any;
+    startDate: string;
+    endDate: string;
 }
 
 export class Request {
@@ -58,6 +58,7 @@ export class Request {
     requester: Requester;
     requesterPosition: string;
     stage: string;
+    status: any;
     stage1: Stage1;
     stage2: Stage2;
     stage3: Stage3;
@@ -92,7 +93,7 @@ export class Stage1 {
 
 export class Stage10 {
     accountingPayment: Delegate;
-    date: any;
+    date: string;
     approved: boolean;
     comment: string;
     attachment: Attachment;
@@ -100,7 +101,7 @@ export class Stage10 {
 
 export class Stage2 {
     scientificCoordinator: Delegate;
-    date: any;
+    date: string;
     approved: boolean;
     comment: string;
     attachment: Attachment;
@@ -108,7 +109,7 @@ export class Stage2 {
 
 export class Stage3 {
     operator: Delegate;
-    date: any;
+    date: string;
     analiftheiYpoxrewsi: boolean;
     fundsAvailable: boolean;
     approved: boolean;
@@ -117,7 +118,7 @@ export class Stage3 {
 }
 
 export class Stage3a {
-    date: any;
+    date: string;
     organizationDirector: Delegate;
     approved: boolean;
     comment: string;
@@ -125,7 +126,7 @@ export class Stage3a {
 }
 
 export class Stage3b {
-    date: any;
+    date: string;
     dioikitikoSumvoulio: Delegate;
     approved: boolean;
     comment: string;
@@ -134,7 +135,7 @@ export class Stage3b {
 
 export class Stage4 {
     POY: Delegate;
-    date: any;
+    date: string;
     analiftheiYpoxrewsi: boolean;
     fundsAvailable: boolean;
     approved: boolean;
@@ -144,7 +145,7 @@ export class Stage4 {
 
 export class Stage5 {
     instituteDirector: Delegate;
-    date: any;
+    date: string;
     approved: boolean;
     comment: string;
     attachment: Attachment;
@@ -152,14 +153,14 @@ export class Stage5 {
 
 export class Stage6 {
     organizationDiaugeia: Delegate;
-    date: any;
+    date: string;
     comment: string;
     attachment: Attachment;
 }
 
 export class Stage7 {
     accountingDirector: Delegate;
-    date: any;
+    date: string;
     checkRegularity: boolean;
     checkLegality: boolean;
     approved: boolean;
@@ -169,7 +170,7 @@ export class Stage7 {
 
 export class Stage8 {
     POY: Delegate;
-    date: any;
+    date: string;
     checkRegularity: boolean;
     checkLegality: boolean;
     approved: boolean;
@@ -179,7 +180,7 @@ export class Stage8 {
 
 export class Stage9 {
     accountingRegistration: Delegate;
-    date: any;
+    date: string;
     approved: boolean;
     comment: string;
     attachment: Attachment;

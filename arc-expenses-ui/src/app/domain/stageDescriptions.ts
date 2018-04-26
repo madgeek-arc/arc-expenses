@@ -39,7 +39,7 @@ export const checkRegularityDesc = {
 };
 
 export const checkLegalityDesc = {
-  label: 'Έγινε νομικός Έλεγχος;',
+  label: 'Έγινε νομικός έλεγχος;',
   type: 'checkbox',
   description: '',
   required: true

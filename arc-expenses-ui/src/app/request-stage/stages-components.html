@@ -1,0 +1,52 @@
+<div *ngIf="currentStage && currentStage['date']" class="uk-width-1-1 uk-margin-bottom">
+    <hr>
+    <div *ngIf="wasSubmitted" class="uk-form-controls">
+        <h5>{{ stageTitle }}</h5>
+        <div>
+            {{ wasApproved ? 'Εγκρίθηκε' : 'Απορρίφθηκε' }}
+            {{ delegatePositionInParagraph }}
+            ({{ currentStage[stageDescription.delegateField]['firstname'] }}
+            {{ currentStage[stageDescription.delegateField]['lastname'] }}), την {{ currentStage['date'] }}
+        </div>
+        <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
+            <app-stage-form [description]="desc">
+                <input class="uk-form-controls uk-checkbox"
+                       type="checkbox" [checked]="currentStage[ stageExtraFieldsList[controlIndex] ]" disabled>
+            </app-stage-form>
+        </div>
+        <div *ngIf="currentStage['comment']">
+            <span class="uk-text-bold uk-margin-small-right">Σχόλια: </span>
+            <span> {{ currentStage['comment'] }} </span>
+        </div>
+        <div><a class="uk-link uk-width-1-1@l uk-margin-small-top" href="{{ currentStage['attachment'] ? currentStage['attachment']['url'] : '#' }}">
+            Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a></div>
+    </div>
+    <div *ngIf="!wasSubmitted" [formGroup]="stageForm" class="uk-form-controls">
+        <h5>{{ stageTitle }}</h5>
+
+        <!--INPUTS FOR EXTRA FIELDS-->
+        <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
+            <app-stage-form [description]="desc">
+                <input formControlName="{{stageExtraFieldsList[controlIndex]}}" class="uk-form-controls uk-checkbox" type="checkbox">
+            </app-stage-form>
+        </div>
+
+        <!-- COMMENT FIELD -->
+        <app-stage-form [description]="commentFieldDesc">
+            <textarea formControlName="comment" class="uk-form-controls uk-textarea" rows="2"></textarea>
+        </app-stage-form>
+
+        <!--ATTACHMENT FIELD-->
+        <app-stage-form-upload-file (emitFile)="getAttachmentInput($event)"></app-stage-form-upload-file>
+
+        <!--BUTTONS-->
+        <div *ngIf="stageTitle != 'Stage 6'">
+            <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
+            <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>
+        </div>
+        <div *ngIf="stageTitle == 'Stage 6'">
+            <button class="uk-button uk-button-primary" (click)="submitForm()">Υποβολή</button>
+        </div>
+        <div><span class="uk-text-small">Ημερομηνία κατάθεσης: {{ getCurrentDateString() }}</span></div>
+    </div>
+</div>

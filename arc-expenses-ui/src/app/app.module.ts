@@ -14,7 +14,7 @@ import {AsideHelpContentComponent, HelpContentComponent} from './shared/help-con
 import {HelpContentService} from './shared/help-content/help-content.service';
 import {RequestService} from './request.service';
 import { HttpClientModule } from '@angular/common/http';
-import { StageFormComponent } from './shared/stage-form/stage-form.component';
+import { StageFormComponent, StageFormUploadFile } from './shared/stage-form/stage-form.component';
 import { RequestStageComponent } from './request-stage/request-stage.component';
 import {
     Stage2Component, Stage3Component, Stage3aComponent, StageComponent,
@@ -34,6 +34,7 @@ import {
     HelpContentComponent,
     AsideHelpContentComponent,
     StageFormComponent,
+    StageFormUploadFile,
     RequestStageComponent,
     StageComponent,
     Stage2Component,
