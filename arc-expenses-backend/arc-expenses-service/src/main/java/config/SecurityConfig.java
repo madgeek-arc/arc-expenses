@@ -1,4 +1,3 @@
-/*
 package config;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +11,9 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-*/
-/*
 
     @Autowired
     SAMLLogoutSuccessHandler samlLogoutSuccessHandler;
-*//*
 
 
     @Override
@@ -28,4 +24,3 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //        http.logout().logoutSuccessHandler(samlLogoutSuccessHandler).permitAll();
     }
 }
-*/

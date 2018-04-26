@@ -1,5 +1,6 @@
 package controller;
 
+import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.request.Request;
 import io.swagger.annotations.Api;
@@ -29,7 +30,7 @@ public class RequestController {
     }
 
     @RequestMapping(value =  "/getAll", method = RequestMethod.GET)
-    public List<Request> getById() {
+    public List<Request> getAll() {
         return null;
     }
 

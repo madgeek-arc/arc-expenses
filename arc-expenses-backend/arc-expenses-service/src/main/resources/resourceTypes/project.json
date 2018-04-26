@@ -2,14 +2,14 @@
   "indexFields": [
     {
       "name": "project_id",
-      "path": "//*[local-name()='id']/text()",
+      "path": "$.id",
       "type": "java.lang.String",
       "primaryKey":true,
       "multivalued":false
     },
     {
       "name": "project_acronym",
-      "path": "//*[local-name()='acronym']/text()",
+      "path": "$.acronym",
       "type": "java.lang.String",
       "primaryKey":false,
       "multivalued":false

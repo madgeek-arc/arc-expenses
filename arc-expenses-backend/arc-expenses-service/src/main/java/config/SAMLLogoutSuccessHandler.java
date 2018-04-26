@@ -1,4 +1,3 @@
-/*
 package config;
 
 import org.slf4j.Logger;
@@ -30,4 +29,3 @@ public class SAMLLogoutSuccessHandler implements LogoutSuccessHandler {
         response.sendRedirect("/logoutsuccessful");
     }
 }
-*/

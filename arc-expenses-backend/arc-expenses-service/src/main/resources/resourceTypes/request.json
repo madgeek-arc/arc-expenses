@@ -2,7 +2,22 @@
   "indexFields": [
     {
       "name": "request_id",
-      "path": "//*[local-name()='id']/text()",
+      "path": "$.id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_requester",
+      "path": "$.requester",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_status",
+      "path": "$.status",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_stge",
+      "path": "$.stage",
       "type": "java.lang.String"
     }
   ],
