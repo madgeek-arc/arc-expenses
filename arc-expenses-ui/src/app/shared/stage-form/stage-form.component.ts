@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { StageFieldDescription } from '../../domain/stageDescriptions';
+import { Delegate } from '../../domain/operation';
 
 @Component({
   selector: 'app-stage-form',

@@ -64,10 +64,32 @@
                 </div>
               </div>
 
-              <stage2-component [wasSubmitted]="true" [currentStage]="stage2Test" (emitStage)="getSubmittedStage($event)"></stage2-component>
+              <div>
+                <stage2-component [wasSubmitted]="true" [currentStage]="currentRequest.stage2" (emitStage)="getSubmittedStage($event)"></stage2-component>
+              </div>
+              <div>
+                <stage3-component [wasSubmitted]="false" [currentStage]="currentRequest.stage3" (emitStage)="getSubmittedStage($event)"></stage3-component>
+              </div>
+              <div>
+                <stage3a-component [wasSubmitted]="false" [currentStage]="currentRequest.stage3a" (emitStage)="getSubmittedStage($event)"></stage3a-component>
+              </div>
+              <div>
+                <stage3b-component [wasSubmitted]="false" [currentStage]="currentRequest.stage3b" (emitStage)="getSubmittedStage($event)"></stage3b-component>
+              </div>
 
-              <stage3-component [wasSubmitted]="false"[currentStage]="stage3Test" (emitStage)="getSubmittedStage($event)"></stage3-component>
+              <stage4-component [wasSubmitted]="false" [currentStage]="currentRequest.stage4" (emitStage)="getSubmittedStage($event)"></stage4-component>
 
+              <stage5-component [wasSubmitted]="false" [currentStage]="currentRequest.stage5" (emitStage)="getSubmittedStage($event)"></stage5-component>
+
+              <stage6-component [wasSubmitted]="true" [currentStage]="currentRequest.stage6" (emitStage)="getSubmittedStage($event)"></stage6-component>
+
+              <stage7-component [wasSubmitted]="true" [currentStage]="currentRequest.stage7" (emitStage)="getSubmittedStage($event)"></stage7-component>
+
+              <stage8-component [wasSubmitted]="true" [currentStage]="currentRequest.stage8" (emitStage)="getSubmittedStage($event)"></stage8-component>
+
+              <stage9-component [wasSubmitted]="true" [currentStage]="currentRequest.stage9" (emitStage)="getSubmittedStage($event)"></stage9-component>
+
+              <stage10-component [wasSubmitted]="true" [currentStage]="currentRequest.stage10" (emitStage)="getSubmittedStage($event)"></stage10-component>
             </div>
 
             <!-- RIGHT HELP CONTENT -->

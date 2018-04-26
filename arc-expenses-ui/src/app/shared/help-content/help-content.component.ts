@@ -36,7 +36,7 @@ export class HelpContentComponent implements OnInit {
             pageContent => this.shiftThroughContent(pageContent),
             error => this.handleError(<any>error));*/
 
-        console.log('trexei');
+       console.log('called help service');
     }
 
     shiftThroughContent(pageContent: PageContent) {

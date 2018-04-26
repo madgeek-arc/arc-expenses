@@ -36,7 +36,7 @@ export class RequestStageComponent implements OnInit {
         scientificCoordinator: this.testDelegate,
         date: '22/4/2018',
         approved: true,
-        comment: '',
+        comment: 'comment comment comment',
         attachment: null
     };
 
