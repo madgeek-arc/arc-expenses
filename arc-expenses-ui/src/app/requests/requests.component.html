@@ -68,7 +68,6 @@
                     <!--</div>-->
 
 
-
                   </div>
           <!-- /Filters -->
 
@@ -121,14 +120,22 @@
                     <thead>
                       <tr>
 
-                        <!-- TODO: create sortBy -->
-                        <td class="uk-link" (click)="sortBy(1)">Α/Α &#9662;</td>
-                        <td class="uk-link" (click)="sortBy(2)">Πρόγραμμα &#9652;</td>
-                        <td class="uk-link">Ινστιτούτο/Μονάδα</td>
-                        <td class="uk-link">Αιτών</td>
-                        <td class="uk-link">Ημ/νια</td>
-                        <td class="uk-link">Στάδιο</td>
-                        <td class="uk-link">Κατάσταση</td>
+                        <!--<td class="uk-link" (click)="sortBy(1)"><app-category [title]="'Α/Α'" [sortSymbol]="catSymbol[]"></app-category></td>-->
+                        <!--<td class="uk-link" (click)="sortBy(2)"><app-category [title]="'Πρόγραμμα'"></app-category></td>-->
+                          <!--<td class="uk-link"><app-category [title]="'Ινστιτούτο/Μονάδα'"></app-category></td>-->
+                        <!--<td class="uk-link"><app-category [title]="'Αιτών'"></app-category></td>-->
+                        <!--<td class="uk-link"><app-category [title]="'Ημ/νια'"></app-category></td>-->
+                        <!--<td class="uk-link"><app-category [title]="'Στάδιο'"></app-category></td>-->
+                        <!--<td class="uk-link"><app-category [title]="'Κατάσταση'"></app-category></td>-->
+                          <!---->
+                        <td class="uk-link" (click)="sortBy(0)">{{categories[0]}} <span [innerHtml]="catSymbols[0]"></span></td>
+                        <td class="uk-link" (click)="sortBy(1)">{{categories[1]}} <span [innerHtml]="catSymbols[1]"></span></td>
+                        <td class="uk-link" (click)="sortBy(2)">{{categories[2]}} <span [innerHtml]="catSymbols[2]"></span></td>
+                        <td class="uk-link" (click)="sortBy(3)">{{categories[3]}} <span [innerHtml]="catSymbols[3]"></span></td>
+                        <td class="uk-link" (click)="sortBy(4)">{{categories[4]}} <span [innerHtml]="catSymbols[4]"></span></td>
+                        <td class="uk-link" (click)="sortBy(5)">{{categories[5]}} <span [innerHtml]="catSymbols[5]"></span></td>
+                        <td class="uk-link" (click)="sortBy(6)">{{categories[6]}} <span [innerHtml]="catSymbols[6]"></span></td>
+                        <td class="uk-link" (click)="sortBy(7)">{{categories[7]}} <span [innerHtml]="catSymbols[7]"></span></td>
                       </tr>
                     </thead>
                     <tbody>
@@ -138,15 +145,19 @@
                         <td>{{entry.stage}}</td>
                         <td>{{entry.id}}</td>
                         <td>{{entry.requesterPosition}}</td>
-                        <td>
-                          <div>{{entry.stage}}</div>
-                          <div>{{entry.stage1.amountInEuros}}&euro;</div>
-                        </td>
-                        <td>
-                          <div>{{entry.status}}</div>
-                          <!--<div>{{entry.st}</div>-->
-                          <div>{{entry.stage1.amountInEuros}}&euro;</div>
-                        </td>
+                        <td>{{entry.stage}}</td>
+                        <td>{{entry.stage1.amountInEuros}}&euro;</td>
+                        <td>{{entry.status}}</td>
+
+                        <!--<td>-->
+                          <!--<div>{{entry.stage}}</div>-->
+                          <!--<div>{{entry.stage1.amountInEuros}}&euro;</div>-->
+                        <!--</td>-->
+                        <!--<td>-->
+                          <!--<div>{{entry.status}}</div>-->
+                          <!--&lt;!&ndash;<div>{{entry.st}</div>&ndash;&gt;-->
+                          <!--<div>{{entry.stage1.amountInEuros}}&euro;</div>-->
+                        <!--</td>-->
                       </tr>
                     </tbody>
                   </table>
