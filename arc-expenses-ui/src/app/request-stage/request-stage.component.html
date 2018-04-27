@@ -92,6 +92,9 @@
               <stage10-component [wasSubmitted]="true" [currentStage]="currentRequest.stage10" (emitStage)="getSubmittedStage($event)"></stage10-component>
             </div>
 
+            <div>
+              <button class="uk-button uk-button-primary" (click)="submitRequest()">PUSH ME</button>
+            </div>
             <!-- RIGHT HELP CONTENT -->
             <aside-help-content #rightHelperContent [position]="'right'"
                                 [ngClass]="rightHelperContent.isPresent()?'tm-sidebar uk-width-1-4@m uk-first-column':'clear-style'">
