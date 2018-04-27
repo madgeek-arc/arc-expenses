@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import {analiftheiYpoxrewsiDesc, checkLegalityDesc, checkRegularityDesc, StageDescription} from '../domain/stageDescriptions';
-import {Request, Institute, Delegate, Stage1, Stage2, Stage3, Requester, Project, Attachment} from '../domain/operation';
+import {
+    Request, Institute, Delegate, Stage1, Stage2, Stage3, Requester, Project, Attachment,
+    Stage3a
+} from '../domain/operation';
 import {ActivatedRoute} from '@angular/router';
+import { ManageRequestsService } from '../services/manage-requests.service';
 
 @Component({
   selector: 'app-request-stage',
@@ -22,12 +26,20 @@ export class RequestStageComponent implements OnInit {
     hidden: false
   };
 
+    stage3aTest: Stage3a = {
+        organizationDirector: this.testDelegate,
+        date: '',
+        approved: true,
+        comment: '',
+        attachment: null,
+    };
+
   stage3Test: Stage3 = {
     operator: this.testDelegate,
-    date: '22/4/2018',
-    analiftheiYpoxrewsi: false,
+    date: '27/04/2018',
+    analiftheiYpoxrewsi: true,
     fundsAvailable: true,
-    approved: true,
+    approved: false,
     comment: '',
     attachment: null,
   };
@@ -45,7 +57,7 @@ export class RequestStageComponent implements OnInit {
       stageFields: [analiftheiYpoxrewsiDesc, checkLegalityDesc, checkRegularityDesc]
   };
 
-  constructor(private route: ActivatedRoute) { }
+  constructor(private route: ActivatedRoute, private requestService: ManageRequestsService) { }
 
   ngOnInit() {
     this.getCurrentRequest();
@@ -56,13 +68,13 @@ export class RequestStageComponent implements OnInit {
     /*call api to get request info or throw errorMessage*/
 
     this.currentRequest = new Request();
-    this.currentRequest.id = 'request1';
+    this.currentRequest.id = '3';
     this.currentRequest.project = new Project();
-    this.currentRequest.project.name = 'project 2';
+    this.currentRequest.project.name = '5';
     this.currentRequest.project.institute = new Institute();
-    this.currentRequest.project.institute.name = 'Institute name';
+    this.currentRequest.project.institute.name = 'ILSP';
     this.currentRequest.requester = new Requester();
-    this.currentRequest.requester.firstname = 'Some';
+    this.currentRequest.requester.firstname = 'First';
     this.currentRequest.requester.lastname = 'Requester';
     this.currentRequest.requesterPosition = 'requester position';
     this.currentRequest.stage1 = new Stage1();
@@ -73,9 +85,11 @@ export class RequestStageComponent implements OnInit {
     this.currentRequest.stage1.amountInEuros = 232.23;
     this.currentRequest.stage1.attachment = new Attachment();
     this.currentRequest.stage1.attachment.filename = 'filename.txt';
-    this.currentRequest.stage = '3';
+    this.currentRequest.stage = '3a';
+    this.currentRequest.status = 'declined';
     this.currentRequest.stage2 = this.stage2Test;
     this.currentRequest.stage3 = this.stage3Test;
+    this.currentRequest.stage3a = this.stage3aTest;
   }
 
   getSubmittedStage(newStage: any) {
@@ -97,8 +111,45 @@ export class RequestStageComponent implements OnInit {
   }
 
   submitRequest() {
-      /*submit this.currentRequest*/
+      /*update this.currentRequest*/
       this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν επιτυχώς';
+      /*this.requestService.addRequest(this.currentRequest).subscribe(
+          res => console.log(`add Request responded: ${res}`),
+          error => console.log(error)
+      );*/
+  }
+
+    willShowStage(stageField: string) {
+      let stageNumber = stageField.split('stage');
+      if ( (stageNumber[1] === this.currentRequest.stage) ) {
+          if (this.currentRequest.status !== 'declined') {
+              return true;
+          } else {
+              return false;
+          }
+      } else {
+          if (this.currentRequest.stage !== '3a' && this.currentRequest.stage != '3b') {
+              if ( stageNumber[1] === '3a' || stageNumber[1] === '3b' ) {
+                  return (+this.currentRequest.stage > 3);
+              } else {
+                  return ( +stageNumber[1] <  +this.currentRequest.stage );
+              }
+          } else {
+              if (this.currentRequest.stage === '3a') {
+                  if (stageNumber[1] === '3b' ) {
+                      return false;
+                  } else {
+                      return ( +stageNumber[1] <=  3 );
+                  }
+              } else {
+                  if (stageNumber[1] === '3a' ) {
+                      return true;
+                  } else {
+                      return ( +stageNumber[1] <=  3 );
+                  }
+              }
+          }
+      }
   }
 
 }

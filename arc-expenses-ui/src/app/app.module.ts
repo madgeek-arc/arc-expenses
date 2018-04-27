@@ -21,6 +21,7 @@ import {
     Stage3bComponent, Stage4Component, Stage5Component, Stage6Component, Stage7Component, Stage8Component,
     Stage9Component, Stage10Component
 } from './request-stage/stages-components';
+import { ManageRequestsService } from './services/manage-requests.service';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import {
   ],
   providers: [
     HelpContentService,
-    RequestService
+    RequestService,
+    ManageRequestsService
   ],
   bootstrap: [AppComponent]
 })

@@ -48,12 +48,14 @@ public class ProjectServiceImpl extends AbstractGenericService<Project> implemen
     @Override
     public Project get(String id) {
         Project project;
+        Resource resource;
         try {
-            project = parserPool.deserialize(searchService.searchId("project",
-                    new SearchService.KeyValue("project_id", id)), Project.class).get();
+            resource = searchService.searchId("project",
+                    new SearchService.KeyValue("project_id", id));
+            project = parserPool.deserialize(resource,Project.class).get();
         } catch (UnknownHostException | ExecutionException | InterruptedException e) {
             LOGGER.fatal(e);
-            throw new ServiceException(e);
+            return null;
         }
         return project;
     }
@@ -70,11 +72,9 @@ public class ProjectServiceImpl extends AbstractGenericService<Project> implemen
 
     @Override
     public Project add(Project project) {
-        String serialized = null;
 
-        /*if (get(project.getId()) != null) {
-            throw new ResourceException(String.format("%s already exists!", resourceType.getName()), HttpStatus.CONFLICT);
-        }*/
+
+        String serialized = null;
 
         try {
             serialized = parserPool.serialize(project, ParserService.ParserServiceTypes.JSON).get();
@@ -102,8 +102,7 @@ public class ProjectServiceImpl extends AbstractGenericService<Project> implemen
     public Project getByAcronym(String acronym) {
         Project project;
         try {
-            project = parserPool.deserialize(searchService.searchId("project",
-                    new SearchService.KeyValue("project_acronym", acronym)), Project.class).get();
+            project = parserPool.deserialize(searchService.searchId("project",new SearchService.KeyValue("project_acronym", acronym)), Project.class).get();
         } catch (UnknownHostException | ExecutionException | InterruptedException e) {
             LOGGER.fatal(e);
             throw new ServiceException(e);

@@ -17,7 +17,11 @@ import org.springframework.stereotype.Service;
 import utils.ParserPool;
 
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Filter;
 
 @Service("requestService")
 public class RequestServiceImpl extends AbstractGenericService<Request> implements ResourceCRUDService<Request> {
@@ -52,14 +56,16 @@ public class RequestServiceImpl extends AbstractGenericService<Request> implemen
                     new SearchService.KeyValue("request_id",id)), Request.class).get();
         } catch (UnknownHostException | ExecutionException | InterruptedException e) {
             LOGGER.fatal(e);
-            throw new ServiceException(e);
+            return null;
         }
         return request;
     }
 
     @Override
     public Browsing<Request> getAll(FacetFilter facetFilter) {
-        return null;
+
+
+       return null;
     }
 
     @Override
@@ -71,10 +77,6 @@ public class RequestServiceImpl extends AbstractGenericService<Request> implemen
     @Override
     public Request add(Request request) {
         String serialized = null;
-
-        if (get(request.getId()) != null) {
-            throw new ResourceException(String.format("%s already exists!", resourceType.getName()), HttpStatus.CONFLICT);
-        }
 
         try {
             serialized = parserPool.serialize(request, ParserService.ParserServiceTypes.XML).get();
