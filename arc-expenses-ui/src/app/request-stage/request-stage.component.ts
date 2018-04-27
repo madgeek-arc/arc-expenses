@@ -25,7 +25,7 @@ export class RequestStageComponent implements OnInit {
 
   stage3Test: Stage3 = {
     operator: this.testDelegate,
-    date: '22/4/2018',
+    date: '',
     analiftheiYpoxrewsi: false,
     fundsAvailable: true,
     approved: true,
@@ -98,14 +98,33 @@ export class RequestStageComponent implements OnInit {
   }
 
   submitRequest() {
-      /*submit this.currentRequest*/
-      /*this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν επιτυχώς';*/
-      this.requestService.addRequest(this.currentRequest).subscribe(
+      /*update this.currentRequest*/
+      this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν επιτυχώς';
+      /*this.requestService.addRequest(this.currentRequest).subscribe(
           res => console.log(`add Request responded: ${res}`),
           error => console.log(error)
-      );
+      );*/
   }
 
+    willShowStage(stageField: string) {
+      let stageNumber = stageField.split('stage');
+      if (stageNumber[1] === this.currentRequest.stage) {
+          return true;
+      } else {
+          if (this.currentRequest.stage !== '3a' && this.currentRequest.stage != '3b') {
+              if (stageNumber[1] === '3a') {
 
+              } else if (stageNumber[1] === '3b') {}
+
+              return ( +stageNumber[1] <  +this.currentRequest.stage );
+          } else {
+              if (this.currentRequest.stage === '3a') {
+                  return ( +stageNumber[1] <=  3 );
+              } else {
+                  return ( +stageNumber[1] <=  3 );
+              }
+          }
+      }
+  }
 
 }

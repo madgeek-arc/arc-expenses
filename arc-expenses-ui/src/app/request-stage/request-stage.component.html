@@ -64,37 +64,29 @@
                 </div>
               </div>
 
-              <div>
-                <stage2-component [wasSubmitted]="true" [currentStage]="currentRequest.stage2" (emitStage)="getSubmittedStage($event)"></stage2-component>
-              </div>
-              <div>
-                <stage3-component [wasSubmitted]="false" [currentStage]="currentRequest.stage3" (emitStage)="getSubmittedStage($event)"></stage3-component>
-              </div>
-              <div>
-                <stage3a-component [wasSubmitted]="false" [currentStage]="currentRequest.stage3a" (emitStage)="getSubmittedStage($event)"></stage3a-component>
-              </div>
-              <div>
-                <stage3b-component [wasSubmitted]="false" [currentStage]="currentRequest.stage3b" (emitStage)="getSubmittedStage($event)"></stage3b-component>
-              </div>
+              <stage2-component [showStage]="willShowStage('stage2')" [currentStage]="currentRequest.stage2" (emitStage)="getSubmittedStage($event)"></stage2-component>
 
-              <stage4-component [wasSubmitted]="false" [currentStage]="currentRequest.stage4" (emitStage)="getSubmittedStage($event)"></stage4-component>
+              <stage3-component [showStage]="willShowStage('stage3')" [currentStage]="currentRequest.stage3" (emitStage)="getSubmittedStage($event)"></stage3-component>
 
-              <stage5-component [wasSubmitted]="false" [currentStage]="currentRequest.stage5" (emitStage)="getSubmittedStage($event)"></stage5-component>
+              <stage3a-component [showStage]="willShowStage('stage3a')" [currentStage]="currentRequest.stage3a" (emitStage)="getSubmittedStage($event)"></stage3a-component>
 
-              <stage6-component [wasSubmitted]="true" [currentStage]="currentRequest.stage6" (emitStage)="getSubmittedStage($event)"></stage6-component>
+              <stage3b-component [showStage]="willShowStage('stage3b')" [currentStage]="currentRequest.stage3b" (emitStage)="getSubmittedStage($event)"></stage3b-component>
 
-              <stage7-component [wasSubmitted]="true" [currentStage]="currentRequest.stage7" (emitStage)="getSubmittedStage($event)"></stage7-component>
+              <stage4-component [showStage]="willShowStage('stage4')" [currentStage]="currentRequest.stage4" (emitStage)="getSubmittedStage($event)"></stage4-component>
 
-              <stage8-component [wasSubmitted]="true" [currentStage]="currentRequest.stage8" (emitStage)="getSubmittedStage($event)"></stage8-component>
+              <stage5-component [showStage]="willShowStage('stage5')" [currentStage]="currentRequest.stage5" (emitStage)="getSubmittedStage($event)"></stage5-component>
 
-              <stage9-component [wasSubmitted]="true" [currentStage]="currentRequest.stage9" (emitStage)="getSubmittedStage($event)"></stage9-component>
+              <stage6-component [showStage]="willShowStage('stage6')" [currentStage]="currentRequest.stage6" (emitStage)="getSubmittedStage($event)"></stage6-component>
 
-              <stage10-component [wasSubmitted]="true" [currentStage]="currentRequest.stage10" (emitStage)="getSubmittedStage($event)"></stage10-component>
+              <stage7-component [showStage]="willShowStage('stage7')" [currentStage]="currentRequest.stage7" (emitStage)="getSubmittedStage($event)"></stage7-component>
+
+              <stage8-component [showStage]="willShowStage('stage8')" [currentStage]="currentRequest.stage8" (emitStage)="getSubmittedStage($event)"></stage8-component>
+
+              <stage9-component [showStage]="willShowStage('stage9')" [currentStage]="currentRequest.stage9" (emitStage)="getSubmittedStage($event)"></stage9-component>
+
+              <stage10-component [showStage]="willShowStage('stage10')" [currentStage]="currentRequest.stage10" (emitStage)="getSubmittedStage($event)"></stage10-component>
             </div>
 
-            <div>
-              <button class="uk-button uk-button-primary" (click)="submitRequest()">PUSH ME</button>
-            </div>
             <!-- RIGHT HELP CONTENT -->
             <aside-help-content #rightHelperContent [position]="'right'"
                                 [ngClass]="rightHelperContent.isPresent()?'tm-sidebar uk-width-1-4@m uk-first-column':'clear-style'">

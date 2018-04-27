@@ -69,7 +69,6 @@ export class NewRequestComponent implements OnInit {
         this.uploadedFile = file;
     }
 
-    ngOnInit() {
-    }
+    ngOnInit() {}
 
 }

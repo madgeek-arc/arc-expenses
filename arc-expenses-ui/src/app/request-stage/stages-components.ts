@@ -17,7 +17,8 @@ import {DatePipe} from '@angular/common';
 export class StageComponent implements OnInit {
 
     @Output() emitStage: EventEmitter<any> = new EventEmitter<any>();
-    @Input() wasSubmitted: boolean;
+    @Input() showStage: boolean;
+    wasSubmitted: boolean;
     wasApproved: boolean;
 
     /*  phrase mentioning the delegate's position.
@@ -34,7 +35,7 @@ export class StageComponent implements OnInit {
     uploadedFile: File;
 
     @Input() currentStage: any;
-    stageDescription: StageDescription; /*contains the name of the delegate field and the list of the extra fields descriptions*/
+    stageDescription: StageDescription;  /*contains the name of the delegate field and the list of the extra fields descriptions*/
     stageExtraFieldsList: string[] = []; /*contains the names of the extra fields inside the current stage class*/
                                          /*they will be used as formControlNames and also to access the corresponding values*/
 
@@ -45,10 +46,19 @@ export class StageComponent implements OnInit {
     constructor(private fb: FormBuilder) {}
 
     ngOnInit() {
-        this.stageForm = this.fb.group(this.stageFormDefinition);
-        if (this.currentStage && this.currentStage['approved']) {
-            this.wasApproved = this.currentStage['approved'];
+        this.checkIfSubmitted();
+        this.checkIfApproved();
+    }
+
+    checkIfSubmitted() {
+        this.wasSubmitted = ( this.currentStage && this.currentStage.date );
+        if (!this.wasSubmitted) {
+            this.stageForm = this.fb.group(this.stageFormDefinition);
         }
+    }
+
+    checkIfApproved() {
+        this.wasApproved = ( this.currentStage && this.currentStage['approved'] );
     }
 
     /*creates extra formControls according to the extra fields list*/
@@ -86,6 +96,8 @@ export class StageComponent implements OnInit {
             }
             console.log(this.currentStage);
             /*call api and update request*/
+            this.checkIfSubmitted();
+            this.checkIfApproved();
             this.emitStage.emit(this.currentStage); /*or false according to the api response*/
         }
     }
@@ -127,7 +139,6 @@ export class Stage2Component extends StageComponent implements OnInit {
         this.stageTitle = 'Stage 2';
         this.delegatePositionInParagraph = 'από τον επιστημονικό υπεύθυνο';
         super.ngOnInit();
-        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage2(); }
         this.stageDescription = Stage2Desc;
     }
 
@@ -144,7 +155,6 @@ export class Stage3Component extends StageComponent implements OnInit {
         this.stageTitle = 'Stage 3';
         this.delegatePositionInParagraph = 'από τον χειριστή του προγράμματος';
         super.ngOnInit();
-        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage3(); }
         this.stageDescription = Stage3Desc;
         this.stageExtraFieldsList = ['analiftheiYpoxrewsi', 'fundsAvailable'];
         this.createExtraFields();
@@ -161,7 +171,6 @@ export class Stage3aComponent extends StageComponent implements OnInit {
         this.stageTitle = 'Stage 3a';
         this.delegatePositionInParagraph = 'από τον διευθυντή του Οργανισμού';
         super.ngOnInit();
-        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage3a(); }
         this.stageDescription = Stage3aDesc;
     }
 }
@@ -176,7 +185,6 @@ export class Stage3bComponent extends StageComponent implements OnInit {
         this.stageTitle = 'Stage 3b';
         this.delegatePositionInParagraph = 'από το Διοικητικό Συμβούλιο';
         super.ngOnInit();
-        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage3b(); }
         this.stageDescription = Stage3bDesc;
     }
 }
@@ -191,7 +199,6 @@ export class Stage4Component extends StageComponent implements OnInit {
         this.stageTitle = 'Stage 4';
         this.delegatePositionInParagraph = '';
         super.ngOnInit();
-        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage4(); }
         this.stageDescription = Stage4Desc;
         this.stageExtraFieldsList = ['analiftheiYpoxrewsi', 'fundsAvailable'];
         this.createExtraFields();
@@ -208,7 +215,6 @@ export class Stage5Component extends StageComponent implements OnInit {
         this.stageTitle = 'Stage 5';
         this.delegatePositionInParagraph = 'από τον διευθυντή του Ινστιτούτου';
         super.ngOnInit();
-        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage5(); }
         this.stageDescription = Stage5Desc;
     }
 }
@@ -224,7 +230,6 @@ export class Stage6Component extends StageComponent implements OnInit {
         this.delegatePositionInParagraph = 'από την ΔΙΑΥΓΕΙΑ';
         super.ngOnInit();
         /*NO APPROVE FIELD !!*/
-        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage6(); }
         this.stageDescription = Stage6Desc;
     }
 }
@@ -240,7 +245,6 @@ export class Stage7Component extends StageComponent implements OnInit {
         this.stageTitle = 'Stage 7';
         this.delegatePositionInParagraph = 'από τον διευθυντή λογιστηρίου';
         super.ngOnInit();
-        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage7(); }
         this.stageDescription = Stage7Desc;
         this.stageExtraFieldsList = ['checkRegularity', 'checkLegality'];
         this.createExtraFields();
@@ -257,7 +261,6 @@ export class Stage8Component extends StageComponent implements OnInit {
         this.stageTitle = 'Stage 8';
         this.delegatePositionInParagraph = '';
         super.ngOnInit();
-        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage8(); }
         this.stageDescription = Stage8Desc;
         this.stageExtraFieldsList = ['checkRegularity', 'checkLegality'];
         this.createExtraFields();
@@ -274,7 +277,6 @@ export class Stage9Component extends StageComponent implements OnInit {
         this.stageTitle = 'Stage 9';
         this.delegatePositionInParagraph = '';
         super.ngOnInit();
-        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage9(); }
         this.stageDescription = Stage9Desc;
     }
 }
@@ -289,7 +291,6 @@ export class Stage10Component extends StageComponent implements OnInit {
         this.stageTitle = 'Stage 10';
         this.delegatePositionInParagraph = '';
         super.ngOnInit();
-        if (!this.wasSubmitted || !this.currentStage) { this.currentStage = new Stage10(); }
         this.stageDescription = Stage10Desc;
     }
 }
