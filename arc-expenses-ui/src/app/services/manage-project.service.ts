@@ -1,68 +1,60 @@
-/*
-* created by myrto on 27/4/2018
-* */
-
-import { Injectable } from '@angular/core';
-import { Request } from '../domain/operation';
-import { Observable } from 'rxjs/Observable';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { catchError } from 'rxjs/operators';
-import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
-import { tempApiUrl } from '../domain/tempAPI';
+import {Injectable} from '@angular/core';
+import {Project} from '../domain/operation';
+import {catchError} from 'rxjs/operators';
+import {Observable} from 'rxjs/Observable';
+import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
+import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
+import {tempApiUrl} from '../domain/tempAPI';
 
 const headerOptions = {
     headers : new HttpHeaders().set('Content-Type', 'application/json').set('Accept', 'application/json'),
     withCredentials: true
 };
 
-
-
 @Injectable()
-export class ManageRequestsService {
+export class ManageProjectService {
 
-    apiUrl = `${tempApiUrl}/request/`;
+    apiUrl = `${tempApiUrl}/project/`;
 
     constructor(private http: HttpClient) {}
 
-    addRequest(newRequest: Request): Observable<Request> {
+
+    addProject(newProject: Project): Observable<Project> {
         const url = `${this.apiUrl}add`;
         console.log(`calling ${url}`);
-        console.log(`sending ${JSON.stringify(newRequest)}`);
-
-        return this.http.post<Request>(url, JSON.stringify(newRequest), headerOptions)
+        return this.http.post<Project>(url, newProject, headerOptions)
             .pipe(
                 catchError(this.handleError)
             );
     }
 
-    getAllRequests(userEmail: string): Observable<Request[]> {
+    getAllProjects(): Observable<Project[]> {
         const url = `${this.apiUrl}getAll`;
         console.log(`calling ${url}`);
-
-        return this.http.get<Request[]>(url, headerOptions)
+        return this.http.get<Project[]>(url, headerOptions)
             .pipe(
                 catchError(this.handleError)
             );
     }
 
-    getRequestById(requestId: string, userEmail: string): Observable<any> {
-        const url = `${this.apiUrl}getById/${requestId}`;
+
+    getProjectByAcronym(acronym: string): Observable<Project> {
+        const url = `${this.apiUrl}getByAcronym/${acronym}`;
         console.log(`calling ${url}`);
-        return this.http.get<any>(url, headerOptions)
+        return this.http.get<Project>(url, headerOptions)
             .pipe(
                 catchError(this.handleError)
             );
     }
 
-    updateRequest(updatedRequest: Request, userEmail: string): Observable<Request> {
-        const url = `${this.apiUrl}updateRequest`;
+    getProjectById(projectId: string): Observable<Project> {
+        const url = `${this.apiUrl}getById/${projectId}`;
         console.log(`calling ${url}`);
-        return this.http.post<Request>(url, updatedRequest, headerOptions)
+        return this.http.get<Project>(url, headerOptions)
             .pipe(
                 catchError(this.handleError)
             );
     }
-
 
     /*handleError function as provided by angular.io (copied on 27/4/2018)*/
     private handleError(error: HttpErrorResponse) {
@@ -81,4 +73,5 @@ export class ManageRequestsService {
         return new ErrorObservable(
             'Something bad happened; please try again later.');
     }
+
 }

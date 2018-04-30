@@ -6,6 +6,7 @@ import {
 } from '../domain/operation';
 import {ActivatedRoute} from '@angular/router';
 import { ManageRequestsService } from '../services/manage-requests.service';
+import {AuthenticationService} from '../services/authentication.service';
 
 @Component({
   selector: 'app-request-stage',
@@ -18,6 +19,7 @@ export class RequestStageComponent implements OnInit {
 
   requestId: string;
   currentRequest: Request;
+  canEdit: boolean = false;
 
   testDelegate: Delegate = {
     email: 'asdf@gmail.com',
@@ -57,7 +59,9 @@ export class RequestStageComponent implements OnInit {
       stageFields: [analiftheiYpoxrewsiDesc, checkLegalityDesc, checkRegularityDesc]
   };
 
-  constructor(private route: ActivatedRoute, private requestService: ManageRequestsService) { }
+  constructor(private route: ActivatedRoute,
+              private requestService: ManageRequestsService,
+              private authService: AuthenticationService) { }
 
   ngOnInit() {
     this.getCurrentRequest();
@@ -65,7 +69,18 @@ export class RequestStageComponent implements OnInit {
 
   getCurrentRequest() {
     this.requestId = this.route.snapshot.paramMap.get('id');
+
     /*call api to get request info or throw errorMessage*/
+    this.requestService.getRequestById(this.requestId, this.authService.getUserEmail()).subscribe(
+        res => {
+                this.currentRequest = res['request'];
+                this.canEdit = res['canEdit'];
+            },
+        error => {
+            console.log(error);
+            this.errorMessage = '';
+        }
+    );
 
     this.currentRequest = new Request();
     this.currentRequest.id = '3';
@@ -86,7 +101,7 @@ export class RequestStageComponent implements OnInit {
     this.currentRequest.stage1.attachment = new Attachment();
     this.currentRequest.stage1.attachment.filename = 'filename.txt';
     this.currentRequest.stage = '3a';
-    this.currentRequest.status = 'declined';
+    this.currentRequest.status = 'pending';
     this.currentRequest.stage2 = this.stage2Test;
     this.currentRequest.stage3 = this.stage3Test;
     this.currentRequest.stage3a = this.stage3aTest;
@@ -122,13 +137,13 @@ export class RequestStageComponent implements OnInit {
     willShowStage(stageField: string) {
       let stageNumber = stageField.split('stage');
       if ( (stageNumber[1] === this.currentRequest.stage) ) {
-          if (this.currentRequest.status !== 'declined') {
+          if ( (this.currentRequest.status !== 'declined') && this.canEdit ) {
               return true;
           } else {
               return false;
           }
       } else {
-          if (this.currentRequest.stage !== '3a' && this.currentRequest.stage != '3b') {
+          if (this.currentRequest.stage !== '3a' && this.currentRequest.stage !== '3b') {
               if ( stageNumber[1] === '3a' || stageNumber[1] === '3b' ) {
                   return (+this.currentRequest.stage > 3);
               } else {
