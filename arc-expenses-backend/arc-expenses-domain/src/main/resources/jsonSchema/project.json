@@ -2,6 +2,20 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
 
   "definitions": {
+    "person": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "firstname": { "type": "string" },
+        "lastname": { "type": "string" },
+        "hidden": { "type": "boolean" }
+      },
+      "required": [
+        "email",
+        "firstname",
+        "lastname"
+      ]
+    },
     "personOfInterest": {
       "type": "object",
       "properties": {

@@ -8,6 +8,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +16,8 @@ import java.io.IOException;
 
 @Component
 public class SAMLBasicFilter extends GenericFilterBean{
+
+
 
     @Override
     public void doFilter(
@@ -25,11 +28,14 @@ public class SAMLBasicFilter extends GenericFilterBean{
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-        SAMLAuthentication samlAuthentication = new SAMLAuthentication(request.getHeader("AJP_firstname"),
-                request.getHeader("AJP_lastname"),request.getHeader("AJP_email"),request.getHeader("AJP_uid"),null);
-        SecurityContextHolder.getContext().setAuthentication(samlAuthentication);
+        if(SecurityContextHolder.getContext().getAuthentication() == null){
+            SAMLAuthentication samlAuthentication = new SAMLAuthentication(request.getHeader("AJP_firstname"),
+                    request.getHeader("AJP_lastname"),request.getHeader("AJP_email"),request.getHeader("AJP_uid"),null);
 
-        Cookie sessionCookie = new Cookie("currentUser", request.getHeader("AJP_eppn"));
+            SecurityContextHolder.getContext().setAuthentication(samlAuthentication);
+        }
+
+        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
 
         int expireSec = -1;
         sessionCookie.setMaxAge(expireSec);

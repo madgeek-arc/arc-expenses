@@ -1,23 +1,23 @@
 {
   "indexFields": [
     {
-      "name": "user_id",
+      "name": "organization_id",
       "path": "$.id",
       "type": "java.lang.String",
       "primaryKey":true,
       "multivalued":false
     },
     {
-      "name": "user_email",
-      "path": "$.email",
+      "name": "organization_name",
+      "path": "$.name",
       "type": "java.lang.String",
       "primaryKey":false,
       "multivalued":false
     }
   ],
   "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
-  "name": "user",
+  "name": "organization",
   "aliasGroup" : null,
   "payloadType": "json",
-  "schema" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/master/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/user.json"
+  "schema" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/master/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/organization.json"
 }

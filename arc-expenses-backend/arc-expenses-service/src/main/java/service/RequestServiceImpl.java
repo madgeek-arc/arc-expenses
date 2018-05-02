@@ -1,118 +1,81 @@
 package service;
 
-import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Resource;
-import eu.openminted.registry.core.domain.ResourceType;
-import eu.openminted.registry.core.exception.ResourceNotFoundException;
-import eu.openminted.registry.core.service.*;
-
-import eu.openminted.registry.core.validation.ResourceValidator;
-import exception.ResourceException;
-import gr.athenarc.request.Request;
+import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import utils.ParserPool;
 
-import java.net.UnknownHostException;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Filter;
 
 @Service("requestService")
-public class RequestServiceImpl extends AbstractGenericService<Request> implements ResourceCRUDService<Request> {
+public class RequestServiceImpl extends GenericService<Request> {
 
-    @Autowired
-    SearchService searchService;
-
-    @Autowired
-    ParserPool parserPool;
-
-    @Autowired
-    ResourceService resourceService;
-
-    @Autowired
-    ResourceValidator resourceValidator;
 
     private Logger LOGGER = Logger.getLogger(RequestServiceImpl.class);
 
-    public RequestServiceImpl(Class<Request> typeParameterClass) {
+    public RequestServiceImpl() {
         super(Request.class);
-    }
-
-    public RequestServiceImpl(){
-        super(Request.class);
-    }
-
-    @Override
-    public Request get(String id){
-        Request request;
-        try {
-            request = parserPool.deserialize(searchService.searchId("request",
-                    new SearchService.KeyValue("request_id",id)), Request.class).get();
-        } catch (UnknownHostException | ExecutionException | InterruptedException e) {
-            LOGGER.fatal(e);
-            return null;
-        }
-        return request;
-    }
-
-    @Override
-    public Browsing<Request> getAll(FacetFilter facetFilter) {
-
-
-       return null;
-    }
-
-    @Override
-    public Browsing<Request> getMy(FacetFilter facetFilter) {
-        return null;
-    }
-
-
-    @Override
-    public Request add(Request request) {
-        String serialized = null;
-
-        try {
-            serialized = parserPool.serialize(request, ParserService.ParserServiceTypes.XML).get();
-            Resource created = new Resource();
-            created.setPayload(serialized);
-            created.setResourceType(resourceType);
-            resourceService.addResource(created);
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.fatal(e);
-        }
-        return request;
-    }
-
-
-    @Override
-    public Request update(Request request) throws ResourceNotFoundException {
-
-        String serialized = null;
-        try {
-            serialized = parserPool.serialize(request, ParserService.ParserServiceTypes.XML).get();
-            Resource existing = searchService.searchId("request", new SearchService.KeyValue("request_id",request.getId()));
-            existing.setPayload(serialized);
-            resourceService.updateResource(existing);
-        } catch (InterruptedException | ExecutionException | UnknownHostException e) {
-            LOGGER.fatal(e);
-        }
-        return request;
-    }
-
-    @Override
-    public void delete(Request request) throws ResourceNotFoundException {
-
     }
 
     @Override
     public String getResourceType() {
         return "request";
+    }
+
+
+    public String generateID() {
+        String maxID = getMaxID();
+        if(maxID == null)
+            return new SimpleDateFormat("yyyyMMdd").format(new Date())+"-1";
+        else{
+            String number[] = maxID.split("-");
+            if(number[0].equals(new SimpleDateFormat("yyyyMMdd").format(new Date())))
+                return number[0]+"-"+(Integer.parseInt(number[1])+1);
+            else
+                return new SimpleDateFormat("yyyyMMdd").format(new Date())+"-1";
+        }
+    }
+
+
+    public String getMaxID() {
+
+        FacetFilter filter = new FacetFilter();
+        filter.setResourceType("request");
+        filter.setKeyword("");
+        filter.setFrom(0);
+        filter.setQuantity(1);
+
+        Map<String,Object> sort = new HashMap<>();
+        Map<String,Object> order = new HashMap<>();
+
+        String orderDirection = "desc";
+        String orderField = "creation_date";
+
+        if (orderField != null) {
+            order.put("order",orderDirection);
+            sort.put(orderField, order);
+            filter.setOrderBy(sort);
+        }
+
+        try {
+            List rs = searchService.search(filter).getResults();
+            String request = null;
+            if(rs.size() > 0) {
+                request = ((Resource) rs.get(0)).getPayload();
+                return parserPool.deserialize(request,Request.class).get().getId();
+            }
+        } catch (IOException e) {
+            LOGGER.debug("Error on search controller",e);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

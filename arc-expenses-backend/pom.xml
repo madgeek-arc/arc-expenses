@@ -13,6 +13,7 @@
 	<url>http://maven.apache.org</url>
 
 	<properties>
+		<registry.core.version>1.4.5-SNAPSHOT</registry.core.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 

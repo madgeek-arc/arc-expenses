@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "definitions": {
+    "person": {
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "firstname": { "type": "string" },
+        "lastname": { "type": "string" },
+        "hidden": { "type": "boolean" }
+      },
+      "required": [
+        "email",
+        "firstname",
+        "lastname"
+      ]
+    },
+    "personOfInterest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "firstname": {
+          "type": "string"
+        },
+        "lastname": {
+          "type": "string"
+        },
+        "delegates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/person"
+          }
+        }
+      },
+      "required": [
+        "email",
+        "firstname",
+        "lastname"
+      ]
+    },
+    "organization": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "POY": {
+          "$ref": "#/definitions/personOfInterest"
+        },
+        "director": {
+          "$ref": "#/definitions/personOfInterest"
+        },
+        "dioikitikoSumvoulio": {
+          "$ref": "#/definitions/personOfInterest"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "POY",
+        "director",
+        "dioikitikoSumvoulio"
+      ]
+    }
+  }
+}

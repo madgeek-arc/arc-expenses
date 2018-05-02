@@ -16,7 +16,7 @@
       "type": "java.lang.String"
     },
     {
-      "name": "request_stge",
+      "name": "request_stage",
       "path": "$.stage",
       "type": "java.lang.String"
     }

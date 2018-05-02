@@ -1,13 +1,21 @@
 package service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import gr.athenarc.domain.User;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends GenericService<User> {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class.getName());
+    private Logger LOGGER = Logger.getLogger(UserServiceImpl.class);
 
+    public UserServiceImpl() {
+        super(User.class);
+    }
+
+    @Override
+    public String getResourceType() {
+        return "user";
+    }
 
 }
