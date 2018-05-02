@@ -93,12 +93,14 @@
                     <execution>
                         <id>json schema to java</id>
                         <configuration>
-                            <sourceDirectory>${basedir}/src/main/resources/jsonSchema/</sourceDirectory>
-                            <targetPackage>${project.groupId}.request</targetPackage>
+                            <sourceDirectory>${basedir}/src/main/resources/jsonSchema</sourceDirectory>
+                            <!--<sourceDirectory>${basedir}/src/main/resources/jsonSchema/request.json</sourceDirectory>-->
+                            <targetPackage>${project.groupId}.domain</targetPackage>
                             <outputDirectory>target/generated-sources/jsonSchema</outputDirectory>
                             <useLongIntegers>true</useLongIntegers>
                             <includeConstructors>true</includeConstructors>
                         </configuration>
+
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -120,7 +122,7 @@
                             <outputFileType>implementationFile</outputFileType>
                             <mapClasses>asClasses</mapClasses>
                             <classPatterns>
-                                <pattern>gr.athenarc.request.*</pattern>
+                                <pattern>gr.athenarc.domain.*</pattern>
                             </classPatterns>
                             <outputFile>target/operation.ts</outputFile>
                             <outputKind>module</outputKind>
