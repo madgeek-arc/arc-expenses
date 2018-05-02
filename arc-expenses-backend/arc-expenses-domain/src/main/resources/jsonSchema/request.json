@@ -120,7 +120,7 @@
         "filename": { "type": "string" },
         "mimetype": { "type": "string" },
         "size": { "type": "integer" },
-        "url": { "type": "" }
+        "url": { "type": "string" }
       }
     },
     "required": [
@@ -149,7 +149,10 @@
       "title": "Stage",
       "type": "string"
     },
-    "status": "string",
+    "status": {
+      "title": "status",
+      "type" : "string"
+    },
     "stage1": {
       "type": "object",
       "properties": {
