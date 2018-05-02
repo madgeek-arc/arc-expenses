@@ -22,69 +22,84 @@
             <div class=" uk-width-expand@m">
               <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
               <div *ngIf="successMessage" class="uk-alert uk-alert-success">{{ successMessage }}</div>
-              <div class="uk-margin-bottom uk-width-1-1 uk-grid">
-                <div class="uk-width-1-2@l">
-                  <span class="uk-text-bold uk-margin-small-right">Από: </span>
-                  <span>
-                    {{ currentRequest.requester.firstname }} {{ currentRequest.requester.lastname }}
-                     ({{ currentRequest.requesterPosition }})
-                  </span>
+              <div *ngIf="currentRequest && currentRequest.requester && currentRequest.project && currentRequest.stage1">
+                <div class="uk-margin-bottom uk-width-1-1 uk-grid">
+                  <div class="uk-width-1-2@l">
+                    <span class="uk-text-bold uk-margin-small-right">Από: </span>
+                    <span>
+                      {{ currentRequest.requester.firstname }} {{ currentRequest.requester.lastname }}
+                       ({{ currentRequest.requesterPosition }})
+                    </span>
+                  </div>
+                  <div class="uk-width-1-2@l">
+                    <span class="uk-text-bold uk-margin-small-right">Ημερομηνία υποβολής: </span>
+                    <span>{{ currentRequest.stage1.requestDate }}</span>
+                  </div>
+                  <div class="uk-width-1-2@l">
+                    <span class="uk-text-bold uk-margin-small-right">Πρόγραμμα: </span>
+                    <span>{{ currentRequest.project.name }}</span>
+                  </div>
+                  <div class="uk-width-1-2@l">
+                    <span class="uk-text-bold uk-margin-small-right">Ινστιτούτο: </span>
+                    <span>{{ currentRequest.project.institute.name }}</span>
+                  </div>
+                  <div class="uk-width-1-1@l">
+                    <div class="uk-text-bold">Θέμα:</div>
+                    <div class="uk-text-justify uk-margin-small-bottom">{{ currentRequest.stage1.subject }}</div>
+                  </div>
+                  <div class="uk-width-1-2@l">
+                    <span class="uk-text-bold uk-margin-small-right">Προμηθευτής: </span>
+                    <span>{{ currentRequest.stage1.supplier }}</span>
+                  </div>
+                  <div class="uk-width-1-2@l">
+                    <span class="uk-text-bold uk-margin-small-right">Κριτήριο επιλογής: </span>
+                    <span>{{ currentRequest.stage1.supplierSelectionMethod }}</span>
+                  </div>
+                  <div class="uk-width-1-2@l">
+                    <span class="uk-text-bold uk-margin-small-right">Ποσό: </span>
+                    <span>{{ currentRequest.stage1.amountInEuros }} EUR</span>
+                  </div>
+                  <div *ngIf="currentRequest.stage1.attachment" class="uk-width-1-1@l uk-margin-small-top">
+                    <a class="uk-link" href="{{ currentRequest.stage1.attachment.url }}">
+                    Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a>
+                  </div>
                 </div>
-                <div class="uk-width-1-2@l">
-                  <span class="uk-text-bold uk-margin-small-right">Ημερομηνία υποβολής: </span>
-                  <span>{{ currentRequest.stage1.requestDate }}</span>
+
+                <div *ngIf="currentRequest.stage2">
+                  <stage2-component [showStage]="willShowStage('stage2')" [currentStage]="currentRequest.stage2" (emitStage)="getSubmittedStage($event)"></stage2-component>
                 </div>
-                <div class="uk-width-1-2@l">
-                  <span class="uk-text-bold uk-margin-small-right">Πρόγραμμα: </span>
-                  <span>{{ currentRequest.project.name }}</span>
+                <div *ngIf="currentRequest.stage3">
+                  <stage3-component [showStage]="willShowStage('stage3')" [currentStage]="currentRequest.stage3" (emitStage)="getSubmittedStage($event)"></stage3-component>
                 </div>
-                <div class="uk-width-1-2@l">
-                  <span class="uk-text-bold uk-margin-small-right">Ινστιτούτο: </span>
-                  <span>{{ currentRequest.project.institute.name }}</span>
+                <div *ngIf="currentRequest.stage3a">
+                  <stage3a-component [showStage]="willShowStage('stage3a')" [currentStage]="currentRequest.stage3a" (emitStage)="getSubmittedStage($event)"></stage3a-component>
                 </div>
-                <div class="uk-width-1-1@l">
-                  <div class="uk-text-bold">Θέμα:</div>
-                  <div class="uk-text-justify uk-margin-small-bottom">{{ currentRequest.stage1.subject }}</div>
+                <div *ngIf="currentRequest.stage3b">
+                  <stage3b-component [showStage]="willShowStage('stage3b')" [currentStage]="currentRequest.stage3b" (emitStage)="getSubmittedStage($event)"></stage3b-component>
                 </div>
-                <div class="uk-width-1-2@l">
-                  <span class="uk-text-bold uk-margin-small-right">Προμηθευτής: </span>
-                  <span>{{ currentRequest.stage1.supplier }}</span>
+                <div *ngIf="currentRequest.stage4">
+                  <stage4-component [showStage]="willShowStage('stage4')" [currentStage]="currentRequest.stage4" (emitStage)="getSubmittedStage($event)"></stage4-component>
                 </div>
-                <div class="uk-width-1-2@l">
-                  <span class="uk-text-bold uk-margin-small-right">Κριτήριο επιλογής: </span>
-                  <span>{{ currentRequest.stage1.supplierSelectionMethod }}</span>
+                <div *ngIf="currentRequest.stage5">
+                  <stage5-component [showStage]="willShowStage('stage5')" [currentStage]="currentRequest.stage5" (emitStage)="getSubmittedStage($event)"></stage5-component>
                 </div>
-                <div class="uk-width-1-2@l">
-                  <span class="uk-text-bold uk-margin-small-right">Ποσό: </span>
-                  <span>{{ currentRequest.stage1.amountInEuros }} EUR</span>
+                <div *ngIf="currentRequest.stage6">
+                  <stage6-component [showStage]="willShowStage('stage6')" [currentStage]="currentRequest.stage6" (emitStage)="getSubmittedStage($event)"></stage6-component>
                 </div>
-                <div *ngIf="currentRequest.stage1.attachment" class="uk-width-1-1@l uk-margin-small-top">
-                  <a class="uk-link" href="{{ currentRequest.stage1.attachment.url }}">
-                  Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a>
+                <div *ngIf="currentRequest.stage7">
+                  <stage7-component [showStage]="willShowStage('stage7')" [currentStage]="currentRequest.stage7" (emitStage)="getSubmittedStage($event)"></stage7-component>
                 </div>
+                <div *ngIf="currentRequest.stage8">
+                  <stage8-component [showStage]="willShowStage('stage8')" [currentStage]="currentRequest.stage8" (emitStage)="getSubmittedStage($event)"></stage8-component>
+                </div>
+                <div *ngIf="currentRequest.stage9">
+                  <stage9-component [showStage]="willShowStage('stage9')" [currentStage]="currentRequest.stage9" (emitStage)="getSubmittedStage($event)"></stage9-component>
+                </div>
+                <div *ngIf="currentRequest.stage10">
+                  <stage10-component [showStage]="willShowStage('stage10')" [currentStage]="currentRequest.stage10" (emitStage)="getSubmittedStage($event)"></stage10-component>
+                </div>
+
               </div>
-
-              <stage2-component [showStage]="willShowStage('stage2')" [currentStage]="currentRequest.stage2" (emitStage)="getSubmittedStage($event)"></stage2-component>
-
-              <stage3-component [showStage]="willShowStage('stage3')" [currentStage]="currentRequest.stage3" (emitStage)="getSubmittedStage($event)"></stage3-component>
-
-              <stage3a-component [showStage]="willShowStage('stage3a')" [currentStage]="currentRequest.stage3a" (emitStage)="getSubmittedStage($event)"></stage3a-component>
-
-              <stage3b-component [showStage]="willShowStage('stage3b')" [currentStage]="currentRequest.stage3b" (emitStage)="getSubmittedStage($event)"></stage3b-component>
-
-              <stage4-component [showStage]="willShowStage('stage4')" [currentStage]="currentRequest.stage4" (emitStage)="getSubmittedStage($event)"></stage4-component>
-
-              <stage5-component [showStage]="willShowStage('stage5')" [currentStage]="currentRequest.stage5" (emitStage)="getSubmittedStage($event)"></stage5-component>
-
-              <stage6-component [showStage]="willShowStage('stage6')" [currentStage]="currentRequest.stage6" (emitStage)="getSubmittedStage($event)"></stage6-component>
-
-              <stage7-component [showStage]="willShowStage('stage7')" [currentStage]="currentRequest.stage7" (emitStage)="getSubmittedStage($event)"></stage7-component>
-
-              <stage8-component [showStage]="willShowStage('stage8')" [currentStage]="currentRequest.stage8" (emitStage)="getSubmittedStage($event)"></stage8-component>
-
-              <stage9-component [showStage]="willShowStage('stage9')" [currentStage]="currentRequest.stage9" (emitStage)="getSubmittedStage($event)"></stage9-component>
-
-              <stage10-component [showStage]="willShowStage('stage10')" [currentStage]="currentRequest.stage10" (emitStage)="getSubmittedStage($event)"></stage10-component>
             </div>
 
             <!-- RIGHT HELP CONTENT -->

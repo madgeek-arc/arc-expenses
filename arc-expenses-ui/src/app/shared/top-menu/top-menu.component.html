@@ -32,7 +32,10 @@
                 <div class="uk-navbar-right">
                     <ul class="uk-navbar-nav">
                         <li class="uk-parent">
-                            <a class="loginLink" [routerLink]="['sign-up']" routerLinkActive="uk-active">Είσοδος
+                            <!--<a class="loginLink uk-margin-right" [routerLink]="['sign-up']" routerLinkActive="uk-active">Είσοδος-->
+                            <a class="loginLink" (click)="login()" routerLinkActive="uk-active">
+                                <span *ngIf="!loggedIn" class="uk-margin-right">Είσοδος</span>
+                                <span *ngIf="loggedIn" class="uk-margin-right">Έξοδος</span>
                                 <span class="uk-margin-small-right uk-icon">
                                     <svg height="20" ratio="1" viewBox="0 0 20 20" width="20"
                                          xmlns="http://www.w3.org/2000/svg">

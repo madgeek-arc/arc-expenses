@@ -6,6 +6,8 @@ import {Request, Stage1} from '../domain/operation';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {forEach} from '@angular/router/src/utils/collection';
+import {ManageRequestsService} from '../services/manage-requests.service';
+import {AuthenticationService} from '../services/authentication.service';
 
 @Component({
     selector: 'app-requests',
@@ -65,9 +67,17 @@ export class RequestsComponent implements OnInit {
       stage3a: null, stage3b: null, stage4: null, stage5: null, stage6: null, stage7: null, stage8: null, stage9: null, stage10: null},
     ];
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
-    this.createForm();
+
+  constructor(private fb: FormBuilder,
+              private http: HttpClient,
+              private requestService: ManageRequestsService,
+              private authService: AuthenticationService) {}
+
+  ngOnInit(){
+      this.createForm();
+      this.getListOfRequests();
   }
+
 
   createForm() {
     this.requestsForm = this.fb.group({
@@ -75,6 +85,14 @@ export class RequestsComponent implements OnInit {
       stage: '',
       status: ''
     });
+  }
+
+  getListOfRequests() {
+    this.requestService.getAllRequests(this.authService.getUserEmail()).subscribe(
+        /*res => this.listOfRequests = res,*/
+        res => console.log(`getAllRequests responded: ${res}`),
+        error => console.log(error)
+    );
   }
 
   sortBy(category: number) {
@@ -105,9 +123,6 @@ export class RequestsComponent implements OnInit {
 
   getItemsPerPage(items: number) {
     this.itemsPerPage = items;
-  }
-
-  ngOnInit(): void {
   }
 
 }
