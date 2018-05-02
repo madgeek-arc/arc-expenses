@@ -12,12 +12,14 @@ export class TopMenuComponent implements OnInit {
 
   constructor(private authService: AuthenticationService) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.isUserLoggedIn();
+  }
 
   login() {
     if (!this.isUserLoggedIn()) {
         this.authService.loginWithState();
-        this.loggedIn = true;
+        /*this.loggedIn = true;*/
     } else {
       this.logout();
     }
@@ -25,11 +27,11 @@ export class TopMenuComponent implements OnInit {
 
   logout() {
     this.authService.logout();
-    this.loggedIn = false;
+    /*this.loggedIn = false;*/
   }
 
   isUserLoggedIn() {
-    this.authService.getIsUserLoggedIn();
+    this.loggedIn = this.authService.getIsUserLoggedIn();
   }
 
 }

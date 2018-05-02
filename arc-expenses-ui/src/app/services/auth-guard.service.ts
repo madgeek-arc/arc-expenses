@@ -7,8 +7,6 @@ import { getCookie } from '../domain/cookieUtils';
 @Injectable ()
 export class AuthGuardService implements CanActivate {
 
-    private loginUrl = 'some.login.url';
-
     constructor (private authenticationService: AuthenticationService, private router: Router) {}
 
     canActivate (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
@@ -16,13 +14,12 @@ export class AuthGuardService implements CanActivate {
         if ( this.authenticationService.getIsUserLoggedIn() ) { return true; }
 
         /*uncomment when cookie is used*/
-        /*if ( getCookie('currentUser') != null ) { return true; }*/
+        if ( getCookie('arc_currentUser') != null ) { return true; }
 
         // Store the attempted URL for redirecting
-        /*sessionStorage.setItem('state.location', state.url);*/
+        sessionStorage.setItem('state.location', state.url);
 
-        // Navigate to the login page via the API
-        /*window.location.href = this.loginUrl;*/
+        // Navigate to the home page page
         this.router.navigate(['/home']);
 
         return false;
