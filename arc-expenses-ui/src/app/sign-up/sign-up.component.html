@@ -1,70 +1,62 @@
 <div class="uk-section-default">
   <div class="uk-container">
-    <img class="uk-align-center navbar-brand-athena uk-logo">
+    <div class="uk-align-center navbar-brand-athena uk-logo"></div>
   </div>
 </div>
 
       <div class="uk-container uk-container-expand uk-margin-medium-bottom uk-margin-medium-top">
-
-          <div class=" uk-width-1-2@m uk-align-center">
+          <div *ngIf="signUpForm" class=" uk-width-1-2@m uk-align-center">
 
             <form [formGroup]="signUpForm" class="uk-form-horizontal uk-margin-large uk-align-center">
+              <div *ngIf="errorMessage" class="uk-alert uk-alert-warning">{{errorMessage}}</div>
               <fieldset data-uk-margin>
                 <div class="uk-legend uk-text-small" style="text-align: center" >Τα παρακάτω στοιχεία θα χρησιμοποιηθούν από το σύστημα:</div>
                 <table class="uk-table uk-table-striped">
                   <tbody>
                     <tr>
-                      <label class="uk-form-label" style="text-align: right" for="user-fill-name">Όνομα</label>
-                      <div class="uk-form-controls">
-
-                            <input class="uk-box" style="margin: 2px" type="text"
-                                   id="user-fill-name" formControlName="name">
-                      </div>
+                      <td style="padding: 0">
+                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="text-align: right" for="user-fill-name">Όνομα</label>
+                        <input class=" uk-width-large" style="margin: 2px" type="text" id="user-fill-name" formControlName="name">
+                      </td>
                     </tr>
                     <tr>
-                      <label class="uk-form-label" style="text-align: right" for="user-fill-surname">Επώνυμο</label>
-                      <div class="uk-form-controls">
-
-                            <input class="uk-box" style="margin: 2px" type="text"
-                                   id="user-fill-surname" formControlName="surname">
-
-                      </div>
+                      <td style="padding: 0">
+                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="text-align: right" for="user-fill-surname">Επώνυμο</label>
+                        <input class="uk-box uk-width-large" style="margin: 2px" type="text" id="user-fill-surname" formControlName="surname">
+                      </td>
                     </tr>
                     <tr>
-                      <label class="uk-form-label" style="text-align: right" for="user-name">Name</label>
-                      <div class="uk-form-controls">
-
-                            <input class="uk-search-input uk-width-large uk-disabled" type="text" id="user-name"
-                                   formControlName="nameLatin">
-
-                      </div>
+                      <td style="padding: 0">
+                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="text-align: right" for="user-name">Name</label>
+                        <input class="uk-search-input uk-width-large uk-disabled" type="text" id="user-name"
+                               [value]="getFirstNameInLatin()" formControlName="nameLatin">
+                      </td>
                     </tr>
                     <tr>
-                      <label class="uk-form-label" style="text-align: right" for="user-surname">Surname</label>
-                      <div class="uk-form-controls">
-
-                            <input class="uk-search-input uk-width-large uk-disabled" type="text" id="user-surname"
-                                   formControlName="surnameLatin">
-
-                      </div>
+                      <td style="padding: 0">
+                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="text-align: right" for="user-surname">Surname</label>
+                        <input class="uk-search-input uk-width-large uk-disabled" type="text" id="user-surname"
+                               [value]="getLastNameInLatin()" formControlName="surnameLatin">
+                      </td>
                     </tr>
                     <tr>
-                      <label class="uk-form-label" style="text-align: right" for="user-email">e-mail</label>
-                      <div class="uk-form-controls">
-
-                            <input class="uk-search-input uk-width-large uk-disabled" type="text" id="user-email"
-                                   formControlName="email">
-
-                      </div>
+                      <td style="padding: 0">
+                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="text-align: right" for="user-email">e-mail</label>
+                        <input class="uk-search-input uk-width-large uk-disabled" type="text" id="user-email"
+                               [value]="getUserEmail()" formControlName="email">
+                      </td>
                     </tr>
                   </tbody>
                   <div class="uk-margin-large-top">
                     <div class="uk-form-controls">
-                      <div class="uk-width-1-1">
-                        <div class="uk-width-1-2@s uk-align-left">
+                      <div class="uk-width-1-1 uk-grid">
+                        <div>
 
-                          <button class="uk-button" (click)="submitRequest()" type="submit" style="width: 200px">Υποβολή</button>
+                          <button class="uk-button" (click)="updateUser()" type="submit" style="width: 200px">Υποβολή</button>
 
+                        </div>
+                        <div>
+                          <button class="uk-button" (click)="continueToHome()" style="width: 200px" hidden>Συνέχεια</button>
                         </div>
                       </div>
                     </div>

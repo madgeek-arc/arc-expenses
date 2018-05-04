@@ -19,9 +19,164 @@
             </aside-help-content>
 
             <!-- MIDDLE -->
-            <form [formGroup]="requestsForm" class=" uk-width-expand@m">
+            <div class=" uk-width-expand@m">
 
-<!-- form --> <div class="uk-form-horizontal uk-margin-large uk-padding-remove-bottom">
+                <div class="uk-form-horizontal uk-margin-large">
+                    <div class="uk-width-1-2 uk-align-center uk-margin-top">
+                        <input class="uk-input uk-width-2-3 uk-search-field"
+                               placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο" (blur)="getSearchTerm($event)">
+                        <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="getSearchResults()">Αναζήτηση</button>
+                    </div>
+                </div>
+                <div>
+                    <div *ngIf="errorMessage" class="uk-alert uk-alert-warning">{{errorMessage}}</div>
+                    <div *ngIf="loadingMessage" class="loading-big">
+                        <div class="loader-big" style="text-align: center; padding-top: 170px; color: rgb(47, 64, 80); font-weight: bold;">{{ loadingMessage }}</div>
+                        <div class="whiteFilm"></div>
+                    </div>
+                    <div *ngIf="searchResults">
+                        <div class="uk-grid page-controls">
+                            <div class="uk-margin-bottom filters">
+                                <div class="show-options uk-inline" style="float: right;">
+                                    <div class="filterLabel">Κατάσταση:</div>
+                                    <div class="inlineBlock">
+                                        <select class="form-control" (change)="chooseState($event)">
+                                            <option value="">όλα</option>
+                                            <option *ngFor="let state of states; let st_index = index" value="{{ st_index }}">{{state}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-margin-bottom filters">
+                                <div class="show-options uk-inline" style="float: right;">
+                                    <div class="filterLabel" style="display: inline;">Αιτήσεις ανά σελίδα:</div>
+                                    <div class="inlineBlock">
+                                        <select id="req-pagesize" class="form-control" (change)="getItemsPerPage($event)">
+                                            <option value="10">10</option>
+                                            <option value="25">25</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="contentAndPagerPanel">
+
+                            <div class="uk-width-1-1 uk-margin uk-padding uk-padding-remove-bottom">
+                                <!-- Paging-top -->
+                                <div class="uk-width-1-1 uk-align-center">
+                                    <ul class="uk-pagination uk-padding-small uk-padding-remove-bottom">
+                                        <li>
+                                            <a class="uk-link uk-link-muted" (click)="goToPreviousPage()">
+                                                <span class="uk-margin-small-right uk-pagination-previous uk-icon" uk-pagination-previous="">
+                                                    <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
+                                                         icon="pagination-previous" ratio="1"></svg>
+                                                </span>
+                                                Previous
+                                            </a>
+                                        </li>
+
+                                        <li class="uk-margin-auto-left">
+                                            <div class="resultsPageLabel" style="all: unset; font-size: small">page {{ currentPage+1 }} of {{ searchResults.total }}</div>
+                                        </li>
+
+                                        <li class="uk-margin-auto-left">
+                                            <a class="uk-link uk-link-muted" (click)="goToNextPage()">
+                                                Next
+                                                <span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">
+                                                    <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
+                                                         icon="pagination-next" ratio="1"></svg>
+                                                </span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div *ngIf="noRequests" class="uk-alert">{{ noRequests }}</div>
+                                <div *ngIf="listOfRequests" class="uk-width-1-1 uk-overflow-auto uk-scrollspy-inview uk-animation-slide-top-medium uk-margin-top uk-margin-bottom">
+                                    <table class="uk-table uk-table-hover uk-table-divider">
+                                        <thead>
+                                            <tr>
+                                                <th><a>Α/Α</a></th>
+                                                <th><a (click)="sortBy('project')">
+                                                    Πρόγραμμα&nbsp;
+                                                    <span *ngIf="orderField && (orderField === 'project')"
+                                                          [innerHtml]="getOrderSign()"></span>
+                                                    </a>
+                                                </th>
+                                                <th><a>Ινστιτούτο/Μονάδα</a></th>
+                                                <th><a>Αιτών</a></th>
+                                                <th><a (click)="sortBy('creation_date')">
+                                                    Ημ/νια&nbsp;
+                                                    <span *ngIf="orderField && (orderField === 'creation_date')"
+                                                          [innerHtml]="getOrderSign()"></span>
+                                                    </a>
+                                                </th>
+                                                <th><a (click)="sortBy('stage')">
+                                                    Στάδιο&nbsp;
+                                                    <span *ngIf="orderField && (orderField === 'stage')"
+                                                          [innerHtml]="getOrderSign()"></span>
+                                                    </a>
+                                                </th>
+                                                <th><a>Κατάσταση</a></th>
+                                            </tr>
+                                            <tr class="uk-link" *ngFor="let req of listOfRequests"
+                                                [routerLink]="['request-stage', req.id]"
+                                                title="Μετάβαση στην σελίδα του αιτήματος">
+                                                <td>{{ req.id }}</td>
+                                                <td>{{ req.project.acronym }}</td>
+                                                <td>{{ req.project.institute.name }}</td>
+                                                <td>{{ req.requester.firstname }} {{ req.requester.lastname }}</td>
+                                                <td>{{ req.stage1.requestDate }}</td>
+                                                <td>{{ req.stage }}</td>
+                                                <td>{{ getStatusAsString(req.status) }}</td>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="uk-width-1-1 uk-margin uk-padding uk-padding-remove-top">
+                                <!-- Paging-bottom -->
+                                <div class="uk-width-1-1 uk-align-center">
+                                    <ul class="uk-pagination uk-padding-small uk-padding-remove-top">
+                                        <li>
+                                            <a class="uk-link uk-link-muted" (click)="goToPreviousPage()">
+                                                <span class="uk-margin-small-right uk-pagination-previous uk-icon" uk-pagination-previous="">
+                                                    <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
+                                                         icon="pagination-previous" ratio="1"></svg>
+                                                </span>
+                                                Previous
+                                            </a>
+                                        </li>
+
+                                        <li class="uk-margin-auto-left">
+                                            <div class="resultsPageLabel" style="all: unset; font-size: small">page {{ currentPage+1 }} of {{ searchResults.total }}</div>
+                                        </li>
+
+                                        <li class="uk-margin-auto-left">
+                                            <a class="uk-link uk-link-muted" (click)="goToNextPage()">
+                                                Next
+                                                <span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">
+                                                    <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
+                                                         icon="pagination-next" ratio="1"></svg>
+                                                </span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- form --> <!--<div class="uk-form-horizontal uk-margin-large uk-padding-remove-bottom">
 
 
                 <div class="uk-align-center">
@@ -31,10 +186,10 @@
                     <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="ngOnInit()">Αναζήτηση</button>
                   </div>
 
-          <!-- Filters -->
+          &lt;!&ndash; Filters &ndash;&gt;
                   <div id="filters" class="uk-width-1-1 uk-align-right uk-inline">
                     <div class="uk-width-small uk-align-right uk-margin-remove">
-                      <!--<div class="uk-width-small uk-align-right uk-margin">-->
+                      &lt;!&ndash;<div class="uk-width-small uk-align-right uk-margin">&ndash;&gt;
                       <div class="show-options uk-inline" style="float: right;">
                         <label for="req-pagesize" style="display: inline;">Αιτήσεις:</label>
                         <div class="inlineBlock">
@@ -61,24 +216,22 @@
                         <option *ngFor="let stage of stages"><span>{{stage==='0' ? 'όλα τα στάδια' : stage}}</span></option>
                       </select>
                     </div>
-                    <!--<div class="uk-width-small uk-align-left uk-margin-remove" style="padding-right: 15px;">-->
-                      <!--<label for="req-date" style="padding-left: 15px">Ημ/νια:</label>-->
-                      <!--<input id="req-date" type="date" min="2018-01-01">-->
-                      <!--&lt;!&ndash; TODO: na perasw tin imerominia &ndash;&gt;-->
-                    <!--</div>-->
-
+                    &lt;!&ndash;<div class="uk-width-small uk-align-left uk-margin-remove" style="padding-right: 15px;">&ndash;&gt;
+                      &lt;!&ndash;<label for="req-date" style="padding-left: 15px">Ημ/νια:</label>&ndash;&gt;
+                      &lt;!&ndash;<input id="req-date" type="date" min="2018-01-01">&ndash;&gt;
+                      &lt;!&ndash;&lt;!&ndash; TODO: na perasw tin imerominia &ndash;&gt;&ndash;&gt;
+                    &lt;!&ndash;</div>&ndash;&gt;
 
                   </div>
-          <!-- /Filters -->
+          &lt;!&ndash; /Filters &ndash;&gt;
 
                 </div>
-
 
               </div>
 
 
               <div class="uk-width-1-1 uk-margin uk-padding uk-padding-remove-bottom">
-          <!-- Paging-top -->
+          &lt;!&ndash; Paging-top &ndash;&gt;
                 <div class="uk-width-1-1 uk-align-center">
                   <ul class="uk-pagination uk-padding-small uk-padding-remove-bottom">
                     <li>
@@ -105,29 +258,29 @@
                       </a>
                     </li>
                   </ul>
-                  <!--<div class="resultsPageLabel">page {{ currentPage+1 }} of {{ totalPages }}</div>-->
+                  &lt;!&ndash;<div class="resultsPageLabel">page {{ currentPage+1 }} of {{ totalPages }}</div>&ndash;&gt;
                 </div>
-    <!-- /Paging-top -->
+    &lt;!&ndash; /Paging-top &ndash;&gt;
 
 
               </div>
 
 
-                <!--</fieldset>-->
-              <!--</div>-->
+                &lt;!&ndash;</fieldset>&ndash;&gt;
+              &lt;!&ndash;</div>&ndash;&gt;
 <div class="uk-width-1-1 uk-overflow-auto uk-scrollspy-inview uk-animation-slide-top-medium uk-margin-top uk-margin-bottom">
                   <table class="uk-table uk-table-hover uk-table-divider">
                     <thead>
                       <tr>
 
-                        <!--<td class="uk-link" (click)="sortBy(1)"><app-category [title]="'Α/Α'" [sortSymbol]="catSymbol[]"></app-category></td>-->
-                        <!--<td class="uk-link" (click)="sortBy(2)"><app-category [title]="'Πρόγραμμα'"></app-category></td>-->
-                          <!--<td class="uk-link"><app-category [title]="'Ινστιτούτο/Μονάδα'"></app-category></td>-->
-                        <!--<td class="uk-link"><app-category [title]="'Αιτών'"></app-category></td>-->
-                        <!--<td class="uk-link"><app-category [title]="'Ημ/νια'"></app-category></td>-->
-                        <!--<td class="uk-link"><app-category [title]="'Στάδιο'"></app-category></td>-->
-                        <!--<td class="uk-link"><app-category [title]="'Κατάσταση'"></app-category></td>-->
-                          <!---->
+                        &lt;!&ndash;<td class="uk-link" (click)="sortBy(1)"><app-category [title]="'Α/Α'" [sortSymbol]="catSymbol[]"></app-category></td>&ndash;&gt;
+                        &lt;!&ndash;<td class="uk-link" (click)="sortBy(2)"><app-category [title]="'Πρόγραμμα'"></app-category></td>&ndash;&gt;
+                          &lt;!&ndash;<td class="uk-link"><app-category [title]="'Ινστιτούτο/Μονάδα'"></app-category></td>&ndash;&gt;
+                        &lt;!&ndash;<td class="uk-link"><app-category [title]="'Αιτών'"></app-category></td>&ndash;&gt;
+                        &lt;!&ndash;<td class="uk-link"><app-category [title]="'Ημ/νια'"></app-category></td>&ndash;&gt;
+                        &lt;!&ndash;<td class="uk-link"><app-category [title]="'Στάδιο'"></app-category></td>&ndash;&gt;
+                        &lt;!&ndash;<td class="uk-link"><app-category [title]="'Κατάσταση'"></app-category></td>&ndash;&gt;
+                          &lt;!&ndash;&ndash;&gt;
                         <td class="uk-link" (click)="sortBy(0)">{{categories[0]}} <span [innerHtml]="catSymbols[0]"></span></td>
                         <td class="uk-link" (click)="sortBy(1)">{{categories[1]}} <span [innerHtml]="catSymbols[1]"></span></td>
                         <td class="uk-link" (click)="sortBy(2)">{{categories[2]}} <span [innerHtml]="catSymbols[2]"></span></td>
@@ -149,21 +302,21 @@
                         <td>{{entry.stage1.amountInEuros}}&euro;</td>
                         <td>{{entry.status}}</td>
 
-                        <!--<td>-->
-                          <!--<div>{{entry.stage}}</div>-->
-                          <!--<div>{{entry.stage1.amountInEuros}}&euro;</div>-->
-                        <!--</td>-->
-                        <!--<td>-->
-                          <!--<div>{{entry.status}}</div>-->
-                          <!--&lt;!&ndash;<div>{{entry.st}</div>&ndash;&gt;-->
-                          <!--<div>{{entry.stage1.amountInEuros}}&euro;</div>-->
-                        <!--</td>-->
+                        &lt;!&ndash;<td>&ndash;&gt;
+                          &lt;!&ndash;<div>{{entry.stage}}</div>&ndash;&gt;
+                          &lt;!&ndash;<div>{{entry.stage1.amountInEuros}}&euro;</div>&ndash;&gt;
+                        &lt;!&ndash;</td>&ndash;&gt;
+                        &lt;!&ndash;<td>&ndash;&gt;
+                          &lt;!&ndash;<div>{{entry.status}}</div>&ndash;&gt;
+                          &lt;!&ndash;&lt;!&ndash;<div>{{entry.st}</div>&ndash;&gt;&ndash;&gt;
+                          &lt;!&ndash;<div>{{entry.stage1.amountInEuros}}&euro;</div>&ndash;&gt;
+                        &lt;!&ndash;</td>&ndash;&gt;
                       </tr>
                     </tbody>
                   </table>
 </div>
 
-      <!-- Paging-bottom -->
+      &lt;!&ndash; Paging-bottom &ndash;&gt;
               <div class="uk-padding uk-padding-remove-top">
                 <div class="uk-width-1-1 uk-align-center">
                   <ul class="uk-pagination">
@@ -191,13 +344,13 @@
                       </a>
                     </li>
                   </ul>
-                  <!--<div class="resultsPageLabel">page {{ currentPage+1 }} of {{ totalPages }}</div>-->
+                  &lt;!&ndash;<div class="resultsPageLabel">page {{ currentPage+1 }} of {{ totalPages }}</div>&ndash;&gt;
                 </div>
-              </div>
+              </div>-->
       <!-- /Paging-bottom -->
 
 
-            </form>
+            </div>
 
             <!-- RIGHT HELP CONTENT -->
             <aside-help-content #rightHelperContent [position]="'right'"

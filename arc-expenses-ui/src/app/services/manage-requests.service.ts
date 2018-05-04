@@ -9,6 +9,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { catchError } from 'rxjs/operators';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { tempApiUrl } from '../domain/tempAPI';
+import {SearchResults} from '../domain/extraClasses';
 
 const headerOptions = {
     headers : new HttpHeaders().set('Content-Type', 'application/json').set('Accept', 'application/json'),
@@ -35,16 +36,6 @@ export class ManageRequestsService {
             );
     }
 
-    getAllRequests(userEmail: string): Observable<Request[]> {
-        const url = `${this.apiUrl}getAll`;
-        console.log(`calling ${url}`);
-
-        return this.http.get<Request[]>(url, headerOptions)
-            .pipe(
-                catchError(this.handleError)
-            );
-    }
-
     getRequestById(requestId: string, userEmail: string): Observable<any> {
         const url = `${this.apiUrl}getById/${requestId}`;
         console.log(`calling ${url}`);
@@ -63,6 +54,29 @@ export class ManageRequestsService {
             );
     }
 
+    userCanEditRequest(userEmail: string): Observable<boolean> {
+        const url = `${this.apiUrl}auth/${userEmail}`;
+        console.log(`calling ${url}`);
+        return this.http.get(url, headerOptions).pipe(
+            catchError(this.handleError)
+        );
+    }
+
+    searchAllRequests(keyword: string, from: string, quantity: string,
+                      order: string, orderField: string, email: string): Observable<SearchResults<Request>> {
+        let url = `${this.apiUrl}getAll?email=${encodeURIComponent(email)}`;
+
+        if (keyword) { url += `&keyword=${keyword}`; }
+        if (from) { url += `&from=${from}`; }
+        if (quantity) { url += `&quantity=${quantity}`; }
+        if (order) { url += `&order=${order}`; }
+        if (orderField) { url += `&orderField=${orderField}`; }
+
+        console.log(`calling ${url}`);
+        return this.http.get<SearchResults<Request>>(url, headerOptions).pipe(
+            catchError(this.handleError)
+        );
+    }
 
     /*handleError function as provided by angular.io (copied on 27/4/2018)*/
     private handleError(error: HttpErrorResponse) {

@@ -3,6 +3,7 @@ import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
 import {AuthenticationService} from './authentication.service';
 import { getCookie } from '../domain/cookieUtils';
+import {tempBaseUrl} from '../domain/tempAPI';
 
 @Injectable ()
 export class AuthGuardService implements CanActivate {
@@ -17,10 +18,11 @@ export class AuthGuardService implements CanActivate {
         if ( getCookie('arc_currentUser') != null ) { return true; }
 
         // Store the attempted URL for redirecting
-        sessionStorage.setItem('state.location', state.url);
+        /*sessionStorage.setItem('state.location', state.url);*/
 
         // Navigate to the home page page
-        this.router.navigate(['/home']);
+        /*this.router.navigate(['home']);*/
+        window.location.href = tempBaseUrl;
 
         return false;
     }

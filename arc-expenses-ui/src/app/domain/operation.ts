@@ -45,7 +45,7 @@ export class Project {
     name: string;
     acronym: string;
     institute: Institute;
-    parentProject: Project;
+/*    parentProject: Project;*/
     scientificCoordinator: POY;
     operator: POY[];
     startDate: string;

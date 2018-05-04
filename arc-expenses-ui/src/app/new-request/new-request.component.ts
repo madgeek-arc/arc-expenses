@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {Attachment, Delegate, Institute, Organization, POY, Project, Request, Requester, Stage1} from '../domain/operation';
+import {
+    Attachment, Delegate, Institute, Organization, POY, Project, Request, Requester, Stage1, Stage2, Stage3a, Stage10, Stage3b, Stage4,
+    Stage5, Stage6,
+    Stage7,
+    Stage8,
+    Stage9, Stage3
+} from '../domain/operation';
 import {ManageRequestsService} from '../services/manage-requests.service';
 import {Router} from '@angular/router';
 import {AuthenticationService} from '../services/authentication.service';
@@ -28,8 +34,8 @@ export class NewRequestComponent implements OnInit {
 
     programs = ['program1', 'program2', 'program3'];
 
-    /*projects: Project[] = [];*/
-    projects = [
+    projects: string[] = [];
+/*    projects = [
         {
             id: '4',
             name: 'program1',
@@ -37,20 +43,65 @@ export class NewRequestComponent implements OnInit {
             institute: {
                 id: 'INST1',
                 name: 'institute 1',
-                organization: null,
+                organization: {
+                    id: 'org1',
+                    name: 'Organization 1',
+                    POY: {
+                        email: 'POY 1',
+                        firstname: 'poyfn',
+                        lastname: 'poyln',
+                        delegates: []
+                    },
+                    director: {
+                        email: 'director 1',
+                        firstname: 'dirfn',
+                        lastname: 'dirln',
+                        delegates: []
+                    },
+                    dioikitikoSumvoulio: {
+                        email: 'DS 1',
+                        firstname: 'dsfn',
+                        lastname: 'dsln',
+                        delegates: []
+                    }
+                },
                 director: {
                     email: 'directorEmail@email.com',
                     firstname: 'dirFirstName',
                     lastname: 'dirLastName',
                     delegates: [],
                 },
-                accountingRegistration: null,
-                accountingPayment: null,
-                accountingDirector: null,
-                diaugeia: null,
+                accountingRegistration: {
+                    email: 'accounting 1',
+                    firstname: 'poyfn',
+                    lastname: 'poyln',
+                    delegates: []
+                },
+                accountingPayment: {
+                    email: 'accountingPayment 1',
+                    firstname: 'poyfn',
+                    lastname: 'poyln',
+                    delegates: []
+                },
+                accountingDirector: {
+                    email: 'accountingDir 1',
+                    firstname: 'poyfn',
+                    lastname: 'poyln',
+                    delegates: []
+                },
+                diaugeia: {
+                    email: 'diaugeia 1',
+                    firstname: 'poyfn',
+                    lastname: 'poyln',
+                    delegates: []
+                },
             },
-            parentProject: null,
-            scientificCoordinator: null,
+            scientificCoordinator: {
+                email: 'scientificCoord 1',
+                firstname: 'poyfn',
+                lastname: 'poyln',
+                delegates: []
+            },
             operator: [],
             startDate: '',
             endDate: ''
@@ -62,20 +113,65 @@ export class NewRequestComponent implements OnInit {
             institute: {
                 id: 'INST2',
                 name: 'institute 2',
-                organization: null,
+                organization: {
+                    id: 'org1',
+                    name: 'Organization 2',
+                    POY: {
+                        email: 'POY 2',
+                        firstname: 'poyfn',
+                        lastname: 'poyln',
+                        delegates: []
+                    },
+                    director: {
+                        email: 'director 2',
+                        firstname: 'dirfn',
+                        lastname: 'dirln',
+                        delegates: []
+                    },
+                    dioikitikoSumvoulio: {
+                        email: 'DS 2',
+                        firstname: 'dsfn',
+                        lastname: 'dsln',
+                        delegates: []
+                    }
+                },
                 director: {
                     email: 'directorEmail@email.com',
                     firstname: 'dirFirstName',
                     lastname: 'dirLastName',
                     delegates: [],
                 },
-                accountingRegistration: null,
-                accountingPayment: null,
-                accountingDirector: null,
-                diaugeia: null,
+                accountingRegistration: {
+                    email: 'accounting 2',
+                    firstname: 'poyfn',
+                    lastname: 'poyln',
+                    delegates: []
+                },
+                accountingPayment: {
+                    email: 'accountingPayment 2',
+                    firstname: 'poyfn',
+                    lastname: 'poyln',
+                    delegates: []
+                },
+                accountingDirector: {
+                    email: 'accountingDir 2',
+                    firstname: 'poyfn',
+                    lastname: 'poyln',
+                    delegates: []
+                },
+                diaugeia: {
+                    email: 'diaugeia 2',
+                    firstname: 'poyfn',
+                    lastname: 'poyln',
+                    delegates: []
+                },
             },
-            parentProject: null,
-            scientificCoordinator: null,
+            scientificCoordinator: {
+                email: 'scientificCoord 2',
+                firstname: 'poyfn',
+                lastname: 'poyln',
+                delegates: []
+            },
             operator: [],
             startDate: '',
             endDate: ''
@@ -87,25 +183,71 @@ export class NewRequestComponent implements OnInit {
             institute: {
                 id: 'INST3',
                 name: 'institute 3',
-                organization: null,
+                organization: {
+                    id: 'org1',
+                    name: 'Organization 3',
+                    POY: {
+                        email: 'POY 3',
+                        firstname: 'poyfn',
+                        lastname: 'poyln',
+                        delegates: []
+                    },
+                    director: {
+                        email: 'director 3',
+                        firstname: 'dirfn',
+                        lastname: 'dirln',
+                        delegates: []
+                    },
+                    dioikitikoSumvoulio: {
+                        email: 'DS 3',
+                        firstname: 'dsfn',
+                        lastname: 'dsln',
+                        delegates: []
+                    }
+                },
                 director: {
                     email: 'directorEmail@email.com',
                     firstname: 'dirFirstName',
                     lastname: 'dirLastName',
                     delegates: [],
                 },
-                accountingRegistration: null,
-                accountingPayment: null,
-                accountingDirector: null,
-                diaugeia: null,
+                accountingRegistration: {
+                    email: 'accounting 3',
+                    firstname: 'poyfn',
+                    lastname: 'poyln',
+                    delegates: []
+                },
+                accountingPayment: {
+                    email: 'accountingPayment 3',
+                    firstname: 'poyfn',
+                    lastname: 'poyln',
+                    delegates: []
+                },
+                accountingDirector: {
+                    email: 'accountingDir 3',
+                    firstname: 'poyfn',
+                    lastname: 'poyln',
+                    delegates: []
+                },
+                diaugeia: {
+                    email: 'diaugeia 3',
+                    firstname: 'poyfn',
+                    lastname: 'poyln',
+                    delegates: []
+                },
             },
-            parentProject: null,
-            scientificCoordinator: null,
+            scientificCoordinator: {
+                email: 'scientificCoord 3',
+                firstname: 'poyfn',
+                lastname: 'poyln',
+                delegates: []
+            },
             operator: [],
             startDate: '',
             endDate: ''
         },
-    ];
+    ];*/
+
     chosenProject: Project;
 
     selMethods = ['Απ\' ευθείας ανάθεση', 'Έρευνα αγοράς', 'Διαγωνισμός'];
@@ -120,8 +262,7 @@ export class NewRequestComponent implements OnInit {
                 private requestService: ManageRequestsService,
                 private projectService: ManageProjectService,
                 private authService: AuthenticationService,
-                private router: Router) {
-    }
+                private router: Router) {}
 
 
     ngOnInit() {
@@ -133,32 +274,41 @@ export class NewRequestComponent implements OnInit {
     getUserInfo() {
         this.currentUser = new Requester();
         this.currentUser.id = this.authService.getUserId();
+        this.currentUser.email = this.authService.getUserEmail();
         this.currentUser.firstname = this.authService.getUserFirstName();
         this.currentUser.lastname = this.authService.getUserLastName();
         this.currentUser.firstnameLatin = this.authService.getUserFirstNameInLatin();
         this.currentUser.lastnameLatin = this.authService.getUserLastNameInLatin();
+        /*this.currentUser.id = 'userid';
+        this.currentUser.email = 'user@gmail.com';
+        this.currentUser.firstname = 'firstname';
+        this.currentUser.lastname = 'lastname';
+        this.currentUser.firstnameLatin = 'firstnameinlatin';
+        this.currentUser.lastnameLatin = 'lastnameinlatin';*/
         console.log('this.currentUser is: ', this.currentUser);
     }
 
     getProjects() {
-        this.projectService.getAllProjects().subscribe(
-            /*projects => this.projects = projects,*/
-            projects => console.log(projects),
+        this.projectService.getAllProjectsNames().subscribe(
+            projects => {
+                this.projects = projects;
+                console.log(this.projects);
+            },
             error => console.log(error)
         );
     }
 
     createForm() {
         this.newRequestForm = this.fb.group({
-            name: ['', [Validators.required, Validators.pattern('^\\w+\\s\\w+$')] ],
+            name: [''],
             program: ['', Validators.required],
-            institute: ['', Validators.required],
+            institute: [''],
             position: ['', Validators.required],
             requestText: ['', Validators.required],
             supplier: ['', Validators.required],
             supplierSelectionMethod: ['', Validators.required],
-            ammount: ['', [Validators.required, Validators.pattern('^\\d*(\\.\\d{1,2})?$')] ],
-            director: ['', Validators.required]
+            ammount: [+'', [Validators.required, Validators.min(0)] ],
+            director: ['']
         });
         this.newRequestForm.get('name').setValue(`${this.currentUser.firstname} ${this.currentUser.lastname}`);
         this.newRequestForm.get('name').disable();
@@ -167,10 +317,10 @@ export class NewRequestComponent implements OnInit {
     }
 
     submitRequest() {
+        console.log(this.newRequestForm);
         if (this.newRequestForm.valid) {
-
             this.request = new Request();
-            /*this.request.id = '';*/
+            this.request.id = '';
             this.request.project = this.chosenProject;
             this.request.requester = this.currentUser;
             this.request.requesterPosition = this.newRequestForm.get('position').value;
@@ -179,21 +329,34 @@ export class NewRequestComponent implements OnInit {
             this.request.stage1.subject = this.newRequestForm.get('requestText').value;
             this.request.stage1.supplier = this.newRequestForm.get('supplier').value;
             this.request.stage1.supplierSelectionMethod = this.newRequestForm.get('supplierSelectionMethod').value;
-            this.request.stage1.amountInEuros = this.newRequestForm.get('ammount').value;
+            this.request.stage1.amountInEuros = +this.newRequestForm.get('ammount').value;
             if (this.uploadedFile) {
                 this.request.stage1.attachment = new Attachment();
                 this.request.stage1.attachment.filename = this.uploadedFile.name;
                 this.request.stage1.attachment.mimetype = this.uploadedFile.type;
                 this.request.stage1.attachment.size = this.uploadedFile.size;
-                /*this.request.stage1.attachment.url='';*/
+                this.request.stage1.attachment.url = '';
             }
             this.request.stage = '2';
+            this.request.status = 'pending';
+            this.request.stage2 = new Stage2();
+            this.request.stage3 = new Stage3();
+            this.request.stage3a = new Stage3a();
+            this.request.stage3b = new Stage3b();
+            this.request.stage4 = new Stage4();
+            this.request.stage5 = new Stage5();
+            this.request.stage6 = new Stage6();
+            this.request.stage7 = new Stage7();
+            this.request.stage8 = new Stage8();
+            this.request.stage9 = new Stage9();
+            this.request.stage10 = new Stage10();
 
-            this.requestService.addRequest(this.request).subscribe(
+            this.requestService.addRequest(this.request).subscribe (
                 res => {this.request = res; console.log(res); },
                 error => {console.log(error); this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την υποβολή της φόρμας'; },
                 () => this.router.navigate(['/requests'])
             );
+
         } else {
             this.errorMessage = 'Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά';
         }
@@ -201,21 +364,29 @@ export class NewRequestComponent implements OnInit {
 
     getProject() {
         if (this.newRequestForm.get('program').value) {
-            this.projectService.getProjectByAcronym(this.newRequestForm.get('program').value).subscribe(
-                res => this.chosenProject = res,
-                error => console.log(error)
+            this.errorMessage = '';
+            this.projectService.getProjectByAcronym(this.newRequestForm.get('program').value).subscribe (
+                res => {
+                    this.chosenProject = res;
+                    console.log(this.chosenProject);
+                },
+                error => {
+                    console.log(error);
+                },
+                () => {
+                    this.programSelected = true;
+                    this.newRequestForm.get('institute').setValue(this.chosenProject['institute'].name);
+                    this.newRequestForm.get('director')
+                        .setValue(this.chosenProject.institute.director.firstname + ' ' + this.chosenProject.institute.director.lastname);
+                }
             );
         }
     }
 
-    show(event: any) {
+    show (event: any) {
         if (this.newRequestForm.get('program').value) {
+            this.getProject();
             this.programSelected = true;
-            this.chosenProject = this.projects[this.newRequestForm.get('program').value];
-            console.log(this.chosenProject);
-            this.newRequestForm.get('institute').setValue(this.chosenProject['institute'].name);
-            this.newRequestForm.get('director')
-                .setValue(this.chosenProject.institute.director.firstname + ' ' + this.chosenProject.institute.director.lastname);
         }
     }
 

@@ -38,6 +38,15 @@ export class ManageProjectService {
     }
 
 
+    getAllProjectsNames(): Observable<string[]> {
+        const url = `${this.apiUrl}getAllProjectNames`;
+        console.log(`calling ${url}`);
+        return this.http.get<string[]>(url, headerOptions)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
     getProjectByAcronym(acronym: string): Observable<Project> {
         const url = `${this.apiUrl}getByAcronym/${acronym}`;
         console.log(`calling ${url}`);

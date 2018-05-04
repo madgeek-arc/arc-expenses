@@ -1,13 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import {
-    analiftheiYpoxrewsiDesc, checkLegalityDesc, checkRegularityDesc, StageDescription
-} from '../domain/stageDescriptions';
-import {Request, Stage1} from '../domain/operation';
-import {FormBuilder, FormGroup} from '@angular/forms';
-import {HttpClient} from '@angular/common/http';
-import {forEach} from '@angular/router/src/utils/collection';
-import {ManageRequestsService} from '../services/manage-requests.service';
-import {AuthenticationService} from '../services/authentication.service';
+import { Request } from '../domain/operation';
+import { ManageRequestsService } from '../services/manage-requests.service';
+import { AuthenticationService } from '../services/authentication.service';
+import { SearchResults } from '../domain/extraClasses';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-requests',
@@ -16,6 +12,10 @@ import {AuthenticationService} from '../services/authentication.service';
 })
 export class RequestsComponent implements OnInit {
 
+  errorMessage: string;
+  loadingMessage: string;
+  noRequests: string;
+
   title = 'Υπάρχοντα Αιτήματα';
 
   symbols = ['', '&#9662;', '&#9652;'];
@@ -23,79 +23,66 @@ export class RequestsComponent implements OnInit {
   catSymbols = [this.symbols[0], this.symbols[0], this.symbols[0], this.symbols[0], this.symbols[0], this.symbols[0],
       this.symbols[0], this.symbols[0]];
 
-  currentPage = 0;
+  searchTerm: string;
+  currentPage: number;
+  itemsPerPage: number;
+  order: string;
+  orderField: string;
 
-  totalPages: number = 20;
+  states = ['Σε εξέλιξη', 'Απορρίφθηκε', 'Εγκρίθηκε'];
+  stages = [ { 1: 'stage1' }, { 2: 'stage2' }, { 3: 'stage3' }, { 4: 'stage3a' }, { 5: 'stage3b' }, { 6: 'stage4' }, { 7: 'stage5' },
+             { 8: 'stage6' }, { 9: 'stage7' }, { 10: 'stage8' }, { 11: 'stage9' }, { 12: 'stage10' }];
+  stageTitles = ['1', '2', '3', '3a', '3b', '4', '5', '6', '7', '8', '9', '10'];
 
-  itemsPerPage = 10;
+  searchResults: SearchResults<Request>;
 
-  stage_num = 0;
+  listOfRequests: Request [] = [];
 
-  requestsForm: FormGroup;
-
-  exampleStageDesc: StageDescription = {
-    delegateField: 'delegateFieldName',
-    stageFields: [analiftheiYpoxrewsiDesc, checkLegalityDesc, checkRegularityDesc]
-  };
-
-  stages = ['0', '1', '2', '3', '3a', '3b', '4', '5', '6', '7', '8', '9', '10'];
-  states = ['Σε εξέλιξη', 'Απορρίφθηκε', 'Εγκρίθηκε']
-
-  customStage1: Stage1 = {supplierSelectionMethod: 'kati', supplier: 'Plaisio', requestDate: '12/3/2018', amountInEuros: 234.56,
-      attachment: null, subject: 'Θελω να αγορασω mousepad'};
-
-  listOfRequests: Request [] = [
-    {id: '1', project: null, requester: null, requesterPosition: 'θεση1', stage: 'stage2', status: 'pending', stage1: this.customStage1, stage2: null, stage3: null,
-      stage3a: null, stage3b: null, stage4: null, stage5: null, stage6: null, stage7: null, stage8: null, stage9: null, stage10: null},
-    {id: '2', project: null, requester: null, requesterPosition: 'θεση3', stage: 'stage3', status: 'pending', stage1: this.customStage1, stage2: null, stage3: null,
-      stage3a: null, stage3b: null, stage4: null, stage5: null, stage6: null, stage7: null, stage8: null, stage9: null, stage10: null},
-    {id: '3', project: null, requester: null, requesterPosition: 'θεση6', stage: 'stage9', status: 'pending', stage1: this.customStage1, stage2: null, stage3: null,
-      stage3a: null, stage3b: null, stage4: null, stage5: null, stage6: null, stage7: null, stage8: null, stage9: null, stage10: null},
-    {id: '4', project: null, requester: null, requesterPosition: 'θεση9', stage: 'stage4', status: 'pending', stage1: this.customStage1, stage2: null, stage3: null,
-      stage3a: null, stage3b: null, stage4: null, stage5: null, stage6: null, stage7: null, stage8: null, stage9: null, stage10: null},
-    {id: '5', project: null, requester: null, requesterPosition: 'θεση2', stage: 'stage3a', status: 'pending', stage1: this.customStage1, stage2: null, stage3: null,
-      stage3a: null, stage3b: null, stage4: null, stage5: null, stage6: null, stage7: null, stage8: null, stage9: null, stage10: null},
-    {id: '6', project: null, requester: null, requesterPosition: 'θεση4', stage: 'stage10', status: 'pending', stage1: this.customStage1, stage2: null, stage3: null,
-      stage3a: null, stage3b: null, stage4: null, stage5: null, stage6: null, stage7: null, stage8: null, stage9: null, stage10: null},
-    {id: '7', project: null, requester: null, requesterPosition: 'θεση7', stage: 'stage7', status: 'pending', stage1: this.customStage1, stage2: null, stage3: null,
-      stage3a: null, stage3b: null, stage4: null, stage5: null, stage6: null, stage7: null, stage8: null, stage9: null, stage10: null},
-    {id: '1', project: null, requester: null, requesterPosition: 'θεση1', stage: 'stage2', status: 'pending', stage1: this.customStage1, stage2: null, stage3: null,
-      stage3a: null, stage3b: null, stage4: null, stage5: null, stage6: null, stage7: null, stage8: null, stage9: null, stage10: null},
-    {id: '2', project: null, requester: null, requesterPosition: 'θεση3', stage: 'stage3', status: 'pending', stage1: this.customStage1, stage2: null, stage3: null,
-      stage3a: null, stage3b: null, stage4: null, stage5: null, stage6: null, stage7: null, stage8: null, stage9: null, stage10: null},
-    {id: '3', project: null, requester: null, requesterPosition: 'θεση6', stage: 'stage9', status: 'pending', stage1: this.customStage1, stage2: null, stage3: null,
-      stage3a: null, stage3b: null, stage4: null, stage5: null, stage6: null, stage7: null, stage8: null, stage9: null, stage10: null},
-    ];
-
-
-  constructor(private fb: FormBuilder,
-              private http: HttpClient,
-              private requestService: ManageRequestsService,
-              private authService: AuthenticationService) {}
+  constructor(private requestService: ManageRequestsService,
+              private authService: AuthenticationService, private router: Router) {}
 
   ngOnInit(){
-      this.createForm();
+      this.initializeParams();
+  }
+
+  initializeParams() {
+      this.searchTerm = '';
+      this.currentPage = 0;
+      this.itemsPerPage = 10;
+      this.order = '';
+      this.orderField = '';
+
       this.getListOfRequests();
   }
 
-
-  createForm() {
-    this.requestsForm = this.fb.group({
-      searchText: '',
-      stage: '',
-      status: ''
-    });
-  }
-
+  /* the param 'resource' of search/all method is always 'request' */
   getListOfRequests() {
-    this.requestService.getAllRequests(this.authService.getUserEmail()).subscribe(
-        /*res => this.listOfRequests = res,*/
-        res => console.log(`getAllRequests responded: ${res}`),
-        error => console.log(error)
+    this.errorMessage = '';
+    this.requestService.searchAllRequests(this.searchTerm,
+                                          this.currentPage.toString(),
+                                          this.itemsPerPage.toString(),
+                                          this.order,
+                                          this.orderField,
+                                          this.authService.getUserEmail()).subscribe(
+        res => {
+          this.searchResults = res;
+          if (this.searchResults) {
+            this.listOfRequests = this.searchResults.results;
+            console.log(`searchAllRequests sent me ${this.listOfRequests.length} requests`);
+            console.log(this.listOfRequests);
+          }
+        },
+        error => {
+            console.log(error);
+            this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την φόρτωση των αιτημάτων';
+        },
+        () => {
+            this.searchTerm = '';
+        }
     );
   }
 
-  sortBy(category: number) {
+  /*sortBy(category: number) {
     if (this.catSymbols[category] === this.symbols[0]) {
       // console.log(this.catSymbols); // DEBUG
       // this.catSymbols.forEach(x => x = this.symbols[0]);
@@ -113,16 +100,97 @@ export class RequestsComponent implements OnInit {
       this.catSymbols[category] = this.symbols[1];
       // TODO: call sort asc
     }
+  }*/
+
+  sortBy (category: string) {
+      if (this.orderField && this.orderField === category) {
+          this.toggleOrder();
+      } else {
+          this.order = 'asc';
+      }
+      this.orderField = category;
+      this.getListOfRequests();
+      /*if (orderChoice === 'asc') {
+          this.order = 'desc';
+          this.getListOfRequests();
+          return '&#9652;';
+      } else  {
+          this.order = 'asc';
+          this.getListOfRequests();
+          return '&#9662;';
+      }*/
+  }
+
+  toggleOrder() {
+      if (this.order === 'asc') {
+          this.order = 'desc';
+      } else {
+          this.order = 'asc';
+      }
+  }
+
+  getOrderSign() {
+      if (this.order === 'asc') {
+          return '&#9652;';
+      } else {
+          return '&#9662;';
+      }
   }
 
   goToPreviousPage() {
+      if (this.currentPage > 0) {
+          this.currentPage--;
+          this.getListOfRequests();
+      }
   }
 
   goToNextPage() {
+      if (this.currentPage + 1 < this.searchResults.total) {
+          this.currentPage++;
+          this.getListOfRequests();
+      }
   }
 
-  getItemsPerPage(items: number) {
-    this.itemsPerPage = items;
+  getItemsPerPage(event: any) {
+    this.itemsPerPage = event.target.value;
+    this.getListOfRequests();
   }
+
+    getSearchTerm (event: any) {
+      this.searchTerm = event.target.value;
+    }
+
+    chooseState(event: any) {
+      const val = event.target.value;
+      if (val === 0) {
+          this.searchTerm = 'pending';
+      } else if ( val === 1 ) {
+          this.searchTerm = 'approved';
+      } else {
+          this.searchTerm = 'declined';
+      }
+      this.getListOfRequests();
+    }
+
+    getSearchResults() {
+      if (this.searchTerm) {
+          console.log('this.searchTerm is', this.searchTerm);
+          this.getListOfRequests();
+      }
+    }
+
+    gotoRequestStage(id: string) {
+      this.router.navigate([`request-stage/${id}`]);
+    }
+
+    getStatusAsString( status: string ) {
+      if (status === 'pending') {
+          return 'σε εξέλιξη';
+      } else if (status === 'approved') {
+          return 'εγκρίθηκε';
+      } else {
+          return 'απορρίφθηκε';
+      }
+}
 
 }

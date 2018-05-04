@@ -18,7 +18,7 @@
             <span class="uk-text-bold uk-margin-small-right">Σχόλια: </span>
             <span> {{ currentStage['comment'] }} </span>
         </div>
-        <div><a class="uk-link uk-width-1-1@l uk-margin-small-top" href="{{ currentStage['attachment'] ? currentStage['attachment']['url'] : '#' }}">
+        <div><a class="uk-link uk-width-1-1@l uk-margin-small-top" (click)="linkToFile()">
             Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a></div>
     </div>
     <div *ngIf="!wasSubmitted" [formGroup]="stageForm" class="uk-form-controls">

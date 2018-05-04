@@ -25,7 +25,7 @@
 
               <div>
                 <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
-                <form [formGroup]="newRequestForm" class="uk-form-horizontal">
+                <div *ngIf="newRequestForm && currentUser" [formGroup]="newRequestForm" class="uk-form-horizontal">
                   <fieldset data-uk-margin>
                     <legend>Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>
                     <div class="uk-margin">
@@ -36,19 +36,19 @@
                             <input class="uk-input" type="text" placeholder="Oνοματεπώνυμο" id="request-name"
                                    formControlName="name">
                           </div>
-                          <div class="uk-width-1-2@s">
+                          <!--<div class="uk-width-1-2@s">
                             <input class="uk-input" type="text" placeholder="θέση στον φορέα" id="request-position"
                                    formControlName="position">
-                          </div>
-                          <!--<div class="uk-width-1-2@s">
-                            <select class="uk-select" id="request-position" (change)="show($event)" formControlName="position">
-                              <option value="">&#45;&#45; επιλέξτε θέση στον φορέα &#45;&#45;</option>
+                          </div>-->
+                          <div class="uk-width-1-2@s">
+                            <select class="uk-select" id="request-position" formControlName="position">
+                              <option value="">-- επιλέξτε θέση στον φορέα --</option>
                               <option value="pos1">Θέση 1</option>
                               <option value="pos2">Θέση 2</option>
                               <option value="pos3">Θέση 3</option>
                               <option value="pos4">Θέση 4</option>
                             </select>
-                          </div>-->
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -57,7 +57,7 @@
                       <div class="uk-form-controls">
                         <select class="uk-select" id="request-program" (change)="show($event)" formControlName="program" #prog>
                           <option value="">-- επιλέξτε πρόγραμμα --</option>
-                          <option *ngFor="let program of projects; let proj_idx = index" value="{{proj_idx}}">{{program.acronym}}</option>
+                          <option *ngFor="let project of projects" value="{{project}}">{{project}}</option>
                         </select>
                       </div>
                     </div>
@@ -116,7 +116,7 @@
                         <div class="uk-width-1-1">
                           <div class="uk-width-small">
                             <input [ngClass]="{'uk-disabled': programSelected==false}" class="uk-input" type="text" id="request-ammount"
-                                   formControlName="ammount" #spy>
+                                   formControlName="ammount" placeholder="0" #spy>
                           </div>
                         </div>
                       </div>
@@ -143,7 +143,7 @@
                     {{request | json}}-->
                   </fieldset>
 
-                </form>
+                </div>
               </div>
 
             </div>

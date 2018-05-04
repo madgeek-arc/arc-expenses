@@ -9,6 +9,8 @@ import {
     Stage7Desc, Stage8Desc, Stage9Desc, StageDescription, StageFieldDescription
 } from '../domain/stageDescriptions';
 import {DatePipe} from '@angular/common';
+import {AuthenticationService} from '../services/authentication.service';
+import {Router} from '@angular/router';
 
 @Component ({
     selector: 'stage-component',
@@ -43,7 +45,7 @@ export class StageComponent implements OnInit {
 
     datePipe = new DatePipe('en-us');
 
-    constructor(private fb: FormBuilder) {}
+    constructor(private fb: FormBuilder, private authService: AuthenticationService, private router: Router) {}
 
     ngOnInit() {
         this.checkIfSubmitted();
@@ -59,6 +61,14 @@ export class StageComponent implements OnInit {
 
     checkIfApproved() {
         this.wasApproved = ( this.currentStage && this.currentStage['approved'] );
+
+        if (this.stageTitle && this.stageTitle === 'Stage 6') { this.wasApproved = true; }
+    }
+
+    linkToFile() {
+        if (this.currentStage['attachment'] && this.currentStage['attachment']['url'].length > 0 ) {
+            window.open(this.currentStage['attachment']['url'], '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
+        }
     }
 
     /*creates extra formControls according to the extra fields list*/
@@ -94,19 +104,20 @@ export class StageComponent implements OnInit {
             if (this.uploadedFile) {
                 this.currentStage['attachment'] = this.createAttachment();
             }
+
             console.log(this.currentStage);
             /*call api and update request*/
             this.checkIfSubmitted();
             this.checkIfApproved();
-            this.emitStage.emit(this.currentStage); /*or false according to the api response*/
+            this.emitStage.emit(this.currentStage);
         }
     }
 
     createDelegate(): Delegate {
         const tempDelegate: Delegate = new Delegate();
-        tempDelegate.email = '';
-        tempDelegate.firstname = '';
-        tempDelegate.lastname = '';
+        tempDelegate.email = this.authService.getUserEmail();
+        tempDelegate.firstname = this.authService.getUserFirstName();
+        tempDelegate.lastname = this.authService.getUserLastName();
         tempDelegate.hidden = false; /*WILL THE USER BE GIVEN THIS CHOICE?*/
         return tempDelegate;
     }
@@ -229,7 +240,6 @@ export class Stage6Component extends StageComponent implements OnInit {
         this.stageTitle = 'Stage 6';
         this.delegatePositionInParagraph = 'από την ΔΙΑΥΓΕΙΑ';
         super.ngOnInit();
-        /*NO APPROVE FIELD !!*/
         this.stageDescription = Stage6Desc;
     }
 }

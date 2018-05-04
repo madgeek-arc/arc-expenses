@@ -12,7 +12,7 @@ export class AppComponent implements OnInit {
 
   constructor(public router: Router, private authService: AuthenticationService) {
       // URL of the SPA to redirect the user to after login
-      this.authService.redirectUrl = '/home';
+      /*this.authService.redirectUrl = '/sign-up';*/
 
       this.authService.tryLogin();
   }

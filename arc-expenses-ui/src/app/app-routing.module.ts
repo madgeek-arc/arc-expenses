@@ -20,16 +20,16 @@ const appRoutes: Routes = [
   },
   {
     path: 'new-request',
-    component: NewRequestComponent,
-    canActivate: [AuthGuardService]
+    canActivate: [AuthGuardService],
+    component: NewRequestComponent
   },
   {
     path: 'requests',
+    canActivate: [AuthGuardService],
     children: [
         { path: '', component: RequestsComponent },
         { path: 'request-stage/:id', component: RequestStageComponent }
-      ],
-    canActivate: [AuthGuardService]
+      ]
   },
   {
     path: 'about',
@@ -37,7 +37,12 @@ const appRoutes: Routes = [
   },
   {
     path: 'sign-up',
+    canActivate: [AuthGuardService],
     component: SignUpComponent
+  },
+  {
+    path: '**',
+    redirectTo: '/home'
   }
 
 ];

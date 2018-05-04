@@ -21,7 +21,9 @@
       "styles": [
         "styles.scss"
       ],
-      "scripts": [],
+      "scripts": [
+        "assets/js/theme.js"
+      ],
       "environmentSource": "environments/environment.ts",
       "environments": {
         "dev": "environments/environment.ts",
@@ -54,6 +56,10 @@
     }
   },
   "defaults": {
+    "serve": {
+      "port": 4200,
+      "host": "aleka.athenarc.gr"
+    },
     "styleExt": "scss",
     "component": {
     }
