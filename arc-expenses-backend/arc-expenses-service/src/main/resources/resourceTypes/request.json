@@ -22,7 +22,7 @@
     },
     {
       "name": "request_project_operator",
-      "path": "$.project.operator",
+      "path": "$.project.operator[:].email",
       "type": "java.lang.String"
     },
     {
