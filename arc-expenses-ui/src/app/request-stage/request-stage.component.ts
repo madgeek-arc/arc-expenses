@@ -133,23 +133,27 @@ export class RequestStageComponent implements OnInit {
           this.currentRequest.status = 'declined';
       }
 
-      if (this.currentRequest.stage !== '3' &&
-          this.currentRequest.stage !== '3a' &&
-          this.currentRequest.stage !== '3b' &&
-          this.currentRequest.stage !== '10') {
+      if (this.currentRequest.status !== 'declined') {
+          if (this.currentRequest.stage !== '3' &&
+              this.currentRequest.stage !== '3a' &&
+              this.currentRequest.stage !== '3b' &&
+              this.currentRequest.stage !== '10') {
 
-          this.currentRequest.stage = (+this.currentRequest.stage + 1).toString();
-      } else {
-          if (this.currentRequest.stage === '3') {
-              if ( this.currentRequest.stage1.amountInEuros < 10000 ) {
-                  this.currentRequest.stage = '4';
-              } else if ( this.currentRequest.stage1.amountInEuros >= 10000 && this.currentRequest.stage1.amountInEuros < 20000 ) {
-                  this.currentRequest.stage = '3a';
-              } else {
-                  this.currentRequest.stage = '3b';
-              }
+              this.currentRequest.stage = (+this.currentRequest.stage + 1).toString();
           } else {
-              this.currentRequest.stage = '4';
+              if (this.currentRequest.stage === '10') {
+                  this.currentRequest.stage = '10';
+              } else if (this.currentRequest.stage === '3') {
+                  if (this.currentRequest.stage1.amountInEuros < 10000) {
+                      this.currentRequest.stage = '4';
+                  } else if (this.currentRequest.stage1.amountInEuros >= 10000 && this.currentRequest.stage1.amountInEuros < 20000) {
+                      this.currentRequest.stage = '3a';
+                  } else {
+                      this.currentRequest.stage = '3b';
+                  }
+              } else {
+                  this.currentRequest.stage = '4';
+              }
           }
       }
 
@@ -178,18 +182,19 @@ export class RequestStageComponent implements OnInit {
     willShowStage (stageField: string) {
       const stageNumber = stageField.split('stage');
       if ( (stageNumber[1] === this.currentRequest.stage) ) {
-          if ( this.currentRequest.status !== 'declined' ) {
-              /*return this.requestService.userCanEditRequest(this.authService.getUserEmail()).subscribe(
+          /*if ( this.currentRequest.status !== 'declined' ) {
+              /!*return this.requestService.userCanEditRequest(this.authService.getUserEmail()).subscribe(
                   res => this.canEdit = res,
                   error => {
                       console.log(error);
                       this.canEdit = false;
                   }
-              );*/
+              );*!/
               return true;
           } else {
               return false;
-          }
+          }*/
+          return true;
       } else {
           if (this.currentRequest.stage !== '3a' && this.currentRequest.stage !== '3b') {
               if ( stageNumber[1] === '3a' || stageNumber[1] === '3b' ) {

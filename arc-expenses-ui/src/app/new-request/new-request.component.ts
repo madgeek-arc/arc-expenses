@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {
     Attachment, Delegate, Institute, Organization, POY, Project, Request, Requester, Stage1, Stage2, Stage3a, Stage10, Stage3b, Stage4,
     Stage5, Stage6,
@@ -27,6 +27,9 @@ export class NewRequestComponent implements OnInit {
     newRequestForm: FormGroup;
 
     uploadedFile: File;
+
+    requestedAmmount: string;
+    searchTerm: string = '';
 
     request: Request;
 
@@ -256,7 +259,7 @@ export class NewRequestComponent implements OnInit {
 
     title = 'Πρωτογενές Αίτημα & Έγκριση Δαπάνης';
 
-    datePipe = new DatePipe('en-us');
+    datePipe = new DatePipe('el');
 
     constructor(private fb: FormBuilder,
                 private requestService: ManageRequestsService,
@@ -296,6 +299,7 @@ export class NewRequestComponent implements OnInit {
             },
             error => console.log(error)
         );
+        /*this.projects = ['proj1', 'proj2', 'proj3'];*/
     }
 
     createForm() {
@@ -307,7 +311,7 @@ export class NewRequestComponent implements OnInit {
             requestText: ['', Validators.required],
             supplier: ['', Validators.required],
             supplierSelectionMethod: ['', Validators.required],
-            ammount: [+'', [Validators.required, Validators.min(0)] ],
+            ammount: ['', [Validators.required, Validators.min(0), Validators.pattern('^\\d+(\\.\\d{1,2})?$')] ],
             director: ['']
         });
         this.newRequestForm.get('name').setValue(`${this.currentUser.firstname} ${this.currentUser.lastname}`);
@@ -383,8 +387,21 @@ export class NewRequestComponent implements OnInit {
         }
     }
 
+    updateSearchTerm(event: any) {
+        this.searchTerm = event.target.value;
+    }
+
+    updateProgramInput(acronym: string) {
+        console.log(this.projects);
+        this.newRequestForm.get('program').setValue(acronym);
+        this.searchTerm = '';
+        console.log(this.newRequestForm.get('program').value);
+        this.getProject();
+    }
+
     show (event: any) {
-        if (this.newRequestForm.get('program').value) {
+        console.log('searching for prog');
+        if (this.newRequestForm.get('program').value && this.chosenProject) {
             this.getProject();
             this.programSelected = true;
         }
@@ -394,4 +411,67 @@ export class NewRequestComponent implements OnInit {
         this.uploadedFile = file;
     }
 
+    showAmmount() {
+        /*this.requestedAmmount = '';
+        for (let c of this.newRequestForm.get('ammount').value.trim()) {
+            if (c === '.') {
+                this.requestedAmmount += ',';
+            } else if (c === ',') {
+                this.requestedAmmount += '.';
+            } else {
+                this.requestedAmmount += c;
+            }
+        }*/
+        this.requestedAmmount = this.newRequestForm.get('ammount').value.trim();
+        this.newRequestForm.get('ammount').updateValueAndValidity();
+    }
+
+}
+
+export function ammountValidator(f: AbstractControl) {
+    console.log('checking ammount');
+    const inputAmmount: string = f.get('ammount').value;
+    let countNumbers: number = 0;
+    let startCounting: boolean;
+    let addedDecimals: boolean;
+
+    if (inputAmmount) {
+        console.log(`got ${inputAmmount}`);
+        if (isNaN(+inputAmmount[0])) {
+            return 'invalid';
+        }
+        for (let c of inputAmmount) {
+            if (isNaN(+c) && c !== '.' && c !== ',') {
+                return 'invalid';
+            }
+            if (c === '.') {
+                if (addedDecimals) {
+                    return 'invalid';
+                }
+                if (startCounting) {
+                    if (!countNumbers) {
+                        return 'invalid';
+                    }
+                } else {
+                    startCounting = true;
+                }
+            } else if (c === ',') {
+                addedDecimals = true;
+                if (startCounting && countNumbers < 3) {
+                    return 'invalid';
+                }
+            } else {
+                if (startCounting) {
+                    countNumbers++;
+                    if (countNumbers === 3) {
+                        startCounting = false;
+                        countNumbers = 0;
+                    }
+                }
+            }
+        }
+        return null;
+    } else {
+        return 'invalid';
+    }
 }

@@ -100,28 +100,28 @@
                                     <table class="uk-table uk-table-hover uk-table-divider">
                                         <thead>
                                             <tr>
-                                                <th><a>Α/Α</a></th>
-                                                <th><a (click)="sortBy('project')">
+                                                <th>Αριθμός Πρωτοκόλλου</th>
+                                                <th><a (click)="sortBy('project')" title="Ταξινόμηση με βάση τον τίτλο του έργου">
                                                     Πρόγραμμα&nbsp;
                                                     <span *ngIf="orderField && (orderField === 'project')"
                                                           [innerHtml]="getOrderSign()"></span>
                                                     </a>
                                                 </th>
-                                                <th><a>Ινστιτούτο/Μονάδα</a></th>
-                                                <th><a>Αιτών</a></th>
-                                                <th><a (click)="sortBy('creation_date')">
+                                                <th>Ινστιτούτο/Μονάδα</th>
+                                                <th>Αιτών</th>
+                                                <th><a (click)="sortBy('creation_date')" title="Ταξινόμηση με βάση την ημερομηνία υποβολής του αιτήματος">
                                                     Ημ/νια&nbsp;
                                                     <span *ngIf="orderField && (orderField === 'creation_date')"
                                                           [innerHtml]="getOrderSign()"></span>
                                                     </a>
                                                 </th>
-                                                <th><a (click)="sortBy('stage')">
+                                                <th><a (click)="sortBy('stage')" title="Ταξινόμηση με βάση το στάδιο">
                                                     Στάδιο&nbsp;
                                                     <span *ngIf="orderField && (orderField === 'stage')"
                                                           [innerHtml]="getOrderSign()"></span>
                                                     </a>
                                                 </th>
-                                                <th><a>Κατάσταση</a></th>
+                                                <th>Κατάσταση</th>
                                             </tr>
                                             <tr class="uk-link" *ngFor="let req of listOfRequests"
                                                 [routerLink]="['request-stage', req.id]"

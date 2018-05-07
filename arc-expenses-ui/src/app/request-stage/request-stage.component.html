@@ -57,7 +57,7 @@
                   </div>
                   <div class="uk-width-1-2@l">
                     <span class="uk-text-bold uk-margin-small-right">Ποσό: </span>
-                    <span>{{ currentRequest.stage1.amountInEuros }} EUR</span>
+                    <span>{{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>
                   </div>
                   <div *ngIf="currentRequest.stage1.attachment" class="uk-width-1-1@l uk-margin-small-top">
                     <a class="uk-link" href="{{ currentRequest.stage1.attachment.url }}">

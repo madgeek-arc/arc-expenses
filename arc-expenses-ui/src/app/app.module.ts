@@ -25,6 +25,13 @@ import {AuthenticationService} from './services/authentication.service';
 import {AuthGuardService} from './services/auth-guard.service';
 import {ManageProjectService} from './services/manage-project.service';
 
+import {LOCALE_ID} from '@angular/core';
+import {CommonModule, registerLocaleData} from '@angular/common';
+import localeEL from '@angular/common/locales/el';
+import {FilterByTerm} from './shared/search-term.pipe';
+
+registerLocaleData(localeEL);
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -50,15 +57,18 @@ import {ManageProjectService} from './services/manage-project.service';
     Stage7Component,
     Stage8Component,
     Stage9Component,
-    Stage10Component
+    Stage10Component,
+    FilterByTerm
   ],
   imports: [
+    CommonModule,
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
     HttpClientModule
   ],
   providers: [
+    { provide: LOCALE_ID, useValue: 'el' },
     HelpContentService,
     ManageRequestsService,
     ManageProjectService,

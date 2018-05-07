@@ -35,3 +35,19 @@ export class User {
     lastname: string;
     lastnameLatin: string;
 }
+
+export class Occurences {
+    values: any;
+}
+
+
+export class Paging<T> {
+
+    total: number;
+    from: number;
+    to: number;
+
+    results: T[];
+    occurences: Occurences;
+}
+

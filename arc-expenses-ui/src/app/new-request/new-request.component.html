@@ -25,7 +25,7 @@
 
               <div>
                 <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
-                <div *ngIf="newRequestForm && currentUser" [formGroup]="newRequestForm" class="uk-form-horizontal">
+                <div *ngIf="newRequestForm && currentUser && projects" [formGroup]="newRequestForm" class="uk-form-horizontal">
                   <fieldset data-uk-margin>
                     <legend>Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>
                     <div class="uk-margin">
@@ -53,12 +53,21 @@
                       </div>
                     </div>
                     <div class="uk-margin">
-                      <label class="uk-form-label" for="request-program">Επιλέξτε πρόγραμμα <span class="uk-text-danger">(*)</span></label>
+                      <label class="uk-form-label" for="request-program">Επιλέξτε έργο <span class="uk-text-danger">(*)</span></label>
+                        <!--<div class="uk-form-controls">
+                            <select class="uk-select" id="request-program" (change)="show($event)" formControlName="program" #prog>
+                                <option value="">&#45;&#45; επιλέξτε έργο &#45;&#45;</option>
+                                <option *ngFor="let project of projects" value="{{project}}">{{project}}</option>
+                            </select>
+                        </div>-->
                       <div class="uk-form-controls">
-                        <select class="uk-select" id="request-program" (change)="show($event)" formControlName="program" #prog>
-                          <option value="">-- επιλέξτε πρόγραμμα --</option>
-                          <option *ngFor="let project of projects" value="{{project}}">{{project}}</option>
-                        </select>
+                        <input class="uk-input" type="text" id="request-program" (keyup)="updateSearchTerm($event)" (change)="show($event)" formControlName="program">
+                        <div *ngIf="searchTerm" class="uk-nav uk-padding-small uk-width-large uk-position-absolute" style="background-color: white">
+                          <ul>
+                            <li *ngFor="let project of projects | filterByTerm: searchTerm"><a (click)="updateProgramInput(project)">{{project}}</a></li>
+                            <!--<li *ngFor="let project of projects"><a (click)="updateProgramInput(project)">{{ project }}</a></li>-->
+                          </ul>
+                        </div>
                       </div>
                     </div>
                     <!--<ng-container *ngIf="prog.value!=''">-->
@@ -115,8 +124,23 @@
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">
                           <div class="uk-width-small">
-                            <input [ngClass]="{'uk-disabled': programSelected==false}" class="uk-input" type="text" id="request-ammount"
-                                   formControlName="ammount" placeholder="0" #spy>
+                            <input class="uk-input" type="text" id="request-ammount"
+                                   formControlName="ammount" placeholder="0" (blur)="showAmmount()" (focus)="newRequestForm.get('ammount').markAsUntouched()">
+                            <!--<span *ngIf="group.get('lissn').invalid && group.get('lissn').touched && group.get('lissn').dirty"
+                                  class="help-block inline uk-text-danger"
+                                  style="margin-top: 0px; margin-bottom: 0px; padding-left: 10px;">Lissn needs to be of the form: "1111-1111"</span>
+                            <input formControlName="lissn"class="form-control" type="text" (focus)="group.get('lissn').markAsUntouched()" (blur)="group.get('lissn').updateValueAndValidity()">-->
+                          </div>
+                          <div class="uk-comment-body uk-text-small uk-text-muted">
+                            Ο δεκαδικός αριθμός θα πρέπει να είναι της μορφής: <b>1111.11</b>
+                          </div>
+                          <div *ngIf="newRequestForm.get('ammount').invalid && newRequestForm.get('ammount').touched && newRequestForm.get('ammount').dirty"
+                               class="uk-comment-body uk-text-small uk-text-danger">
+                            Ο αριθμός που εισάγατε δεν είναι έγκυρος.
+                          </div>
+                          <div *ngIf="newRequestForm.get('ammount').valid && newRequestForm.get('ammount').touched && newRequestForm.get('ammount').dirty"
+                               class="uk-comment-body uk-text-small uk-text-muted">
+                            Το ποσό που εισάγατε είναι: {{ requestedAmmount | currency: 'EUR': 'symbol-narrow' }}
                           </div>
                         </div>
                       </div>

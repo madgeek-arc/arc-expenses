@@ -43,7 +43,7 @@ export class StageComponent implements OnInit {
 
     commentFieldDesc: StageFieldDescription = commentDesc; /*a description for the comments field*/
 
-    datePipe = new DatePipe('en-us');
+    datePipe = new DatePipe('el');
 
     constructor(private fb: FormBuilder, private authService: AuthenticationService, private router: Router) {}
 

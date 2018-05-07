@@ -84,13 +84,12 @@ export class AuthenticationService {
                         /*sessionStorage.removeItem('role');*/
                         deleteCookie('arc_currentUser');
                         this.isLoggedIn = false;
-                        this.router.navigate(['/home']);
                     }
                 );
             }, 1000 * 60 * 5);
             if (!sessionStorage.getItem('email')) {
                 console.log(`session.email wasn't found --> logging in via repo-service!`);
-                this.http.get(this.apiUrl + '/user/getUserInfo', headerOptions).subscribe (
+                this.http.get(this.apiUrl + '/user/getUserInfo', headerOptions).subscribe(
                     userInfo => {
                         console.log(userInfo);
                         sessionStorage.setItem('userid', userInfo['uid']);
@@ -100,28 +99,6 @@ export class AuthenticationService {
                         sessionStorage.setItem('firstnameLatin', userInfo['firstnameLatin']);
                         sessionStorage.setItem('lastnameLatin', userInfo['lastnameLatin']);
                         /*sessionStorage.setItem('role', userInfo['role']);*/
-                        this.isLoggedIn = true;
-                        console.log(`the current user is: ${sessionStorage.getItem('firstnameLatin')} ` +
-                            `${sessionStorage.getItem('lastnameLatin')}, ` +
-                            `${sessionStorage.getItem('email')}`);
-
-                        let state: string;
-                        if ( sessionStorage.getItem('state.location') ) {
-                            state = sessionStorage.getItem('state.location');
-                            sessionStorage.removeItem('state.location');
-                            console.log(`tried to login - returning to state: ${state}`);
-                        }
-                        if ( userInfo && (!sessionStorage.getItem('firstname') || !sessionStorage.getItem('lastname')) ) {
-                            this.router.navigate(['/sign-up']);
-                        } else {
-                            if (this.redirectUrl) {
-                                this.router.navigate([this.redirectUrl]);
-                            } else if (state && state !== '/sign-up') {
-                                this.router.navigate([state]);
-                            } else {
-                                this.router.navigate(['/home']);
-                            }
-                        }
                     },
                     error => {
                         console.log('login error!');
@@ -136,6 +113,34 @@ export class AuthenticationService {
                         deleteCookie('arc_currentUser');
                         this.isLoggedIn = false;
                         this.router.navigate(['/home']);
+                    },
+                    () => {
+                        this.isLoggedIn = true;
+                        console.log(`the current user is: ${sessionStorage.getItem('firstname')} ` +
+                            `${sessionStorage.getItem('lastname')}, ` +
+                            `${sessionStorage.getItem('email')}`);
+
+                        let state: string;
+                        if ( sessionStorage.getItem('state.location') ) {
+                            state = sessionStorage.getItem('state.location');
+                            sessionStorage.removeItem('state.location');
+                            console.log(`logged in - returning to state: ${state}`);
+                        }
+                        if (!sessionStorage.getItem('firstname') ||
+                            !sessionStorage.getItem('firstname') ||
+                            (sessionStorage.getItem('firstname') === 'null') ||
+                            (sessionStorage.getItem('lastname') === 'null') ) {
+                            console.log('going to sign-up');
+                            this.router.navigate(['/sign-up']);
+                        } else {
+                            if (this.redirectUrl) {
+                                this.router.navigate([this.redirectUrl]);
+                            } else if (state && state !== '/sign-up') {
+                                this.router.navigate([state]);
+                            } else {
+                                this.router.navigate(['/home']);
+                            }
+                        }
                     }
                 );
             } else {
@@ -148,7 +153,10 @@ export class AuthenticationService {
                     const state = sessionStorage.getItem('state.location');
                     sessionStorage.removeItem('state.location');
                     console.log(`tried to login - returning to state: ${state}`);
-                    if (!sessionStorage.getItem('firstname') || !sessionStorage.getItem('lastname')) {
+                    if (!sessionStorage.getItem('firstname') ||
+                        !sessionStorage.getItem('firstname') ||
+                        (sessionStorage.getItem('firstname') === 'null') ||
+                        (sessionStorage.getItem('lastname') === 'null') ) {
                         this.router.navigate(['/sign-up']);
                     } else {
                         if (this.redirectUrl) {
