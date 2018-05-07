@@ -78,4 +78,10 @@ public class RequestServiceImpl extends GenericService<Request> {
         }
         return null;
     }
+
+    public String createQuery(String email) {
+        return "request_requester = " + email + " or " +
+                "request_project_operator = " + email + " or " +
+                "request_project_operator_delegates = " + email;
+    }
 }

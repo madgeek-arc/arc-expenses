@@ -7,7 +7,7 @@
     },
     {
       "name": "request_requester",
-      "path": "$.requester",
+      "path": "$.requester.email",
       "type": "java.lang.String"
     },
     {
@@ -18,6 +18,17 @@
     {
       "name": "request_stage",
       "path": "$.stage",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_project_operator",
+      "path": "$.project.operator",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "request_project_operator_delegate",
+      "path": "$.project.operator[:].delegates[:].email",
       "type": "java.lang.String"
     }
   ],

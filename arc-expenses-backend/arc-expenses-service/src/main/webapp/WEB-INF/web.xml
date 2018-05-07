@@ -82,16 +82,16 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <!--<filter>
-        <filter-name>springSessionRepositoryFilter</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>springSessionRepositoryFilter</filter-name>
+    <!--<searchFilter>
+        <searchFilter-name>springSessionRepositoryFilter</searchFilter-name>
+        <searchFilter-class>org.springframework.web.searchFilter.DelegatingFilterProxy</searchFilter-class>
+    </searchFilter>
+    <searchFilter-mapping>
+        <searchFilter-name>springSessionRepositoryFilter</searchFilter-name>
         <url-pattern>/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>ERROR</dispatcher>
-    </filter-mapping>-->
+    </searchFilter-mapping>-->
 
 
 

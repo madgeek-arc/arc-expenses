@@ -5,7 +5,7 @@ UPLOADED=""
 FAILED=""
 function post_resourceType {
 	data=`cat $1`
-	response=$(curl -X POST --write-out %{http_code} --silent --output /dev/null --data "$data" --header "Content-Type:application/json" https://$2/arc-expenses-service/resourceType)
+	response=$(curl -X POST --write-out %{http_code} --silent --output /dev/null --data "$data" --header "Content-Type:application/json" -k https://$2/arc-expenses-service/resourceType)
 	if ((${response} >= 200 && ${response} < 300 )); then
 		colors="\e[32m"
 		UPLOADED="$1\n$UPLOADED"

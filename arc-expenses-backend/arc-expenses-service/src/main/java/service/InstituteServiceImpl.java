@@ -3,7 +3,7 @@ package service;
 import gr.athenarc.domain.Institute;
 import org.springframework.stereotype.Service;
 
-@Service("organizationService")
+@Service("instituteService")
 public class InstituteServiceImpl extends GenericService<Institute>{
 
 
