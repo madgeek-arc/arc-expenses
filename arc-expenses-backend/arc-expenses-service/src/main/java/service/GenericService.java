@@ -8,6 +8,9 @@ import eu.openminted.registry.core.service.AbstractGenericService;
 import eu.openminted.registry.core.service.ParserService;
 import eu.openminted.registry.core.service.ResourceCRUDService;
 import eu.openminted.registry.core.service.SearchService;
+import exception.ResourceException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutionException;
@@ -24,6 +27,9 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
         return null;
     }
 
+    @Autowired
+    SearchService searchService;
+
     @Override
     public T get(String id) {
         try {
@@ -39,7 +45,7 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
 
     @Override
     public Browsing<T> getAll(FacetFilter facetFilter) {
-        return null;
+        return getResults(facetFilter);
     }
 
     @Override
@@ -57,6 +63,7 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
             created.setPayload(serialized);
             created.setResourceType(resourceType);
             resourceService.addResource(created);
+            return t;
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
@@ -73,13 +80,15 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
 
     }
 
-    public T getByField(String key, String value) throws UnknownHostException, ExecutionException, InterruptedException {
+    public T getByField(String key, String value) throws Exception {
         Resource resource;
         try {
             resource =  searchService.searchId(resourceType.getName(), new SearchService.KeyValue(key,value));
-            return parserPool.deserialize(resource, typeParameterClass).get();
+            if(resource != null)
+                return parserPool.deserialize(resource, typeParameterClass).get();
+            return null;
         } catch (UnknownHostException | InterruptedException | ExecutionException e) {
-            throw e;
+            throw new Exception("Null resource!");
         }
     }
 

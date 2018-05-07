@@ -16,8 +16,6 @@ import java.util.List;
 @Api(description = "Organization API  ",  tags = {"Manage organization"})
 public class OrganizationController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectController.class);
-
     @Autowired
     OrganizationServiceImpl organizationService;
 

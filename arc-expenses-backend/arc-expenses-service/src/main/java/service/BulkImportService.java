@@ -1,0 +1,131 @@
+package service;
+
+import au.com.bytecode.opencsv.CSVReader;
+import gr.athenarc.domain.Institute;
+import gr.athenarc.domain.Organization;
+import gr.athenarc.domain.POY;
+import gr.athenarc.domain.Project;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service("bulkImport")
+public class BulkImportService {
+
+    private org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(BulkImportService.class);
+
+    private String path = "/home/panagiotis/Desktop/uploadFiles/";
+
+    @Autowired
+    OrganizationServiceImpl organizationService;
+    @Autowired
+    InstituteServiceImpl instituteService;
+    @Autowired
+    ProjectServiceImpl projectService;
+
+
+//    @PostConstruct
+    public void init() throws Exception {
+        initializeOrganizations();
+        initializeInstitutes();
+        initializeProjects();
+
+    }
+
+    private void initializeOrganizations() throws IOException {
+
+        CSVReader reader = new CSVReader(new FileReader(path + "organization.csv"));
+        String [] line;
+        line = reader.readNext();
+        while ((line = reader.readNext()) != null) {
+            Organization organization = new Organization();
+            organization.setId(line[0]);
+            organization.setName(line[1]);
+            organization.setPOY(parserPOY(line[2]));
+            organization.setDirector(parserPOY(line[3]));
+            organization.setDioikitikoSumvoulio(parserPOY(line[4]));
+            organizationService.add(organization);
+        }
+    }
+
+    private POY parserPOY(String s) {
+
+        POY poy = new POY();
+        String details[] = s.split(";");
+        poy.setEmail(details[1]);
+        poy.setFirstname((details[0].split(" "))[0]);
+        poy.setLastname((details[0].split(" "))[1]);
+        return poy;
+
+    }
+
+    private void initializeInstitutes() throws Exception {
+
+        CSVReader reader = new CSVReader(new FileReader(path+"institute.csv"));
+        String [] line;
+        line = reader.readNext();
+        while ((line = reader.readNext()) != null) {
+            Institute institute = new Institute();
+            institute.setId(line[0]);
+            institute.setName(line[1]);
+            institute.setOrganization(organizationService.getByField("organization_name",line[2]));
+            institute.setDirector(parserPOY(line[3]));
+            institute.setAccountingRegistration(parserPOY(line[4]));
+            institute.setAccountingPayment(parserPOY(line[5]));
+            institute.setAccountingDirector(parserPOY(line[6]));
+            institute.setDiaugeia(parserPOY(line[7]));
+            instituteService.add(institute);
+        }
+
+    }
+
+    private URLConnection connect(String filename){
+        URL url = null;
+        URLConnection urlConnection = null;
+        try {
+            url = new URL(path + filename);
+            return url.openConnection();
+        } catch (IOException e) {
+            LOGGER.debug(e);
+        }
+        return null;
+    }
+
+    private void initializeProjects() throws IOException {
+
+        CSVReader reader = new CSVReader(new FileReader(path + "project.csv"));
+        String [] line;
+        line = reader.readNext();
+        while ((line = reader.readNext()) != null) {
+            Project project = new Project();
+            project.setId(line[0]);
+            project.setName(line[1]);
+            project.setAcronym(line[2]);
+            project.setInstitute(instituteService.get(line[3]));
+            project.setParentProject(null);
+            project.setScientificCoordinator(parserPOY(line[5]));
+            project.setOperator(parserOperator(line[6]));
+            project.setStartDate(line[7]);
+            project.setEndDate(line[8]);
+            projectService.add(project);
+        }
+    }
+
+    private List<POY> parserOperator(String s) {
+
+        String op[] = s.split(",");
+        List<POY> operators = new ArrayList<>();
+
+        for(String operator:op)
+            operators.add(parserPOY(operator));
+        return operators;
+    }
+
+
+}

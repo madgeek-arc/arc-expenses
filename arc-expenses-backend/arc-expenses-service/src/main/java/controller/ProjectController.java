@@ -44,4 +44,9 @@ public class ProjectController {
     public List<Project> getAll() {
         return null;
     }
+
+    @RequestMapping(value =  "/getAllProjectNames", method = RequestMethod.GET)
+    public List<String> getAllProjectNames() {
+        return projectService.getAllProjectNames();
+    }
 }
