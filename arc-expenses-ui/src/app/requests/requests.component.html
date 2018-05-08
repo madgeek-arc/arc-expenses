@@ -30,14 +30,14 @@
                 </div>
                 <div>
                     <div *ngIf="errorMessage" class="uk-alert uk-alert-warning">{{errorMessage}}</div>
-                    <div *ngIf="loadingMessage" class="loading-big">
-                        <div class="loader-big" style="text-align: center; padding-top: 170px; color: rgb(47, 64, 80); font-weight: bold;">{{ loadingMessage }}</div>
-                        <div class="whiteFilm"></div>
+                    <div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">
+                        <div class="uk-overlay-default uk-position-cover"></div>
+                        <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
                     </div>
-                    <div *ngIf="searchResults">
+                    <div *ngIf="searchResults && !showSpinner">
                         <div class="uk-grid page-controls">
-                            <div class="uk-margin-bottom filters">
-                                <div class="show-options uk-inline" style="float: right;">
+                            <div class="uk-margin-bottom ">
+                                <div class="show-options uk-inline">
                                     <div class="filterLabel">Κατάσταση:</div>
                                     <div class="inlineBlock">
                                         <select class="form-control" (change)="chooseState($event)">
@@ -47,9 +47,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="uk-margin-bottom filters">
-                                <div class="show-options uk-inline" style="float: right;">
-                                    <div class="filterLabel" style="display: inline;">Αιτήσεις ανά σελίδα:</div>
+                            <div class="uk-margin-bottom ">
+                                <div class="show-options uk-inline">
+                                    <div class="filterLabel">Αιτήσεις ανά σελίδα:</div>
                                     <div class="inlineBlock">
                                         <select id="req-pagesize" class="form-control" (change)="getItemsPerPage($event)">
                                             <option value="10">10</option>
@@ -95,7 +95,6 @@
                             </div>
 
                             <div>
-                                <div *ngIf="noRequests" class="uk-alert">{{ noRequests }}</div>
                                 <div *ngIf="listOfRequests" class="uk-width-1-1 uk-overflow-auto uk-scrollspy-inview uk-animation-slide-top-medium uk-margin-top uk-margin-bottom">
                                     <table class="uk-table uk-table-hover uk-table-divider">
                                         <thead>
@@ -122,6 +121,9 @@
                                                     </a>
                                                 </th>
                                                 <th>Κατάσταση</th>
+                                            </tr>
+                                            <tr *ngIf="noRequests">
+                                                <td colspan="7" class="uk-alert uk-width-1-1">{{noRequests}}</td>
                                             </tr>
                                             <tr class="uk-link" *ngFor="let req of listOfRequests"
                                                 [routerLink]="['request-stage', req.id]"

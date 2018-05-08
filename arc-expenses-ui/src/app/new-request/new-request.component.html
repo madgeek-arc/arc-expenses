@@ -25,7 +25,11 @@
 
               <div>
                 <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
-                <div *ngIf="newRequestForm && currentUser && projects" [formGroup]="newRequestForm" class="uk-form-horizontal">
+                <div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">
+                  <div class="uk-overlay-default uk-position-cover"></div>
+                  <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
+                </div>
+                <div *ngIf="!showSpinner && newRequestForm && currentUser && projects" [formGroup]="newRequestForm" class="uk-form-horizontal">
                   <fieldset data-uk-margin>
                     <legend>Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>
                     <div class="uk-margin">
@@ -61,11 +65,17 @@
                             </select>
                         </div>-->
                       <div class="uk-form-controls">
-                        <input class="uk-input" type="text" id="request-program" (keyup)="updateSearchTerm($event)" (change)="show($event)" formControlName="program">
-                        <div *ngIf="searchTerm" class="uk-nav uk-padding-small uk-width-large uk-position-absolute" style="background-color: white">
+                        <input class="uk-input" type="text" id="request-program"
+                               (keyup)="updateSearchTerm($event)"
+                               formControlName="program">
+                        <div class="uk-comment-body uk-text-small uk-text-muted">
+                          Ξεκινήστε να γράφετε το όνομα του έργου και επιλέξτε το από την λίστα που θα εμφανιστεί.
+                        </div>
+                        <div *ngIf="searchTerm && searchTerm.length > 2" class="uk-nav uk-padding-small uk-width-large uk-position-absolute" style="background-color: white">
                           <ul>
-                            <li *ngFor="let project of projects | filterByTerm: searchTerm"><a (click)="updateProgramInput(project)">{{project}}</a></li>
-                            <!--<li *ngFor="let project of projects"><a (click)="updateProgramInput(project)">{{ project }}</a></li>-->
+                            <li *ngFor="let project of projects | filterByTerm: searchTerm">
+                              <a (click)="updateProgramInput(project)">{{project}}</a>
+                            </li>
                           </ul>
                         </div>
                       </div>

@@ -22,7 +22,16 @@
             <div class=" uk-width-expand@m">
               <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
               <div *ngIf="successMessage" class="uk-alert uk-alert-success">{{ successMessage }}</div>
-              <div *ngIf="currentRequest && currentRequest.requester && currentRequest.project && currentRequest.stage1">
+              <div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">
+                <div class="uk-overlay-default uk-position-cover"></div>
+                <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
+              </div>
+              <div *ngIf="!showSpinner &&
+                          currentRequest &&
+                          currentRequest.requester &&
+                          currentRequest.project &&
+                          currentRequest.stage1 &&
+                          (canEdit === true || canEdit === false)">
                 <div class="uk-margin-bottom uk-width-1-1 uk-grid">
                   <div class="uk-width-1-2@l">
                     <span class="uk-text-bold uk-margin-small-right">Από: </span>

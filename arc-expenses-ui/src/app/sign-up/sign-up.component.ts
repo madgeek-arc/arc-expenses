@@ -11,6 +11,7 @@ import {Router} from '@angular/router';
 export class SignUpComponent implements OnInit {
 
   errorMessage: string;
+  showSpinner: boolean;
 
   signUpForm: FormGroup;
 
@@ -22,6 +23,9 @@ export class SignUpComponent implements OnInit {
   }
 
   ngOnInit() {
+      if (this.authService.getUserFirstName()) {
+          this.router.navigate(['/home']);
+      }
       this.createForm();
   }
 
@@ -34,17 +38,28 @@ export class SignUpComponent implements OnInit {
           surnameLatin: '',
           email:  ''
       });
+      this.signUpForm.get('nameLatin').disable();
+      this.signUpForm.get('surnameLatin').disable();
+      this.signUpForm.get('email').disable();
   }
 
   updateUser() {
+      this.errorMessage = '';
+      this.showSpinner = true;
       if (this.signUpForm.valid) {
           this.authService.updateUserInfo(this.signUpForm.get('name').value, this.signUpForm.get('surname').value ).subscribe(
               user => console.log(`updateUser responded: ${user}`),
-              error => this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την αποθήκευση των αλλαγών',
-              () => this.router.navigate(['/home'])
+              error => {
+                  this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών';
+                  this.showSpinner = false;
+              },
+              () => {
+                  this.router.navigate(['/home']);
+                  this.showSpinner = false;
+              }
           );
       } else {
-          this.errorMessage = 'Παρακαλώ συμπληρώστε τα στοιχεία σας';
+          this.errorMessage = 'Παρακαλώ συμπληρώστε τα στοιχεία σας.';
       }
   }
 
@@ -62,6 +77,14 @@ export class SignUpComponent implements OnInit {
 
     getUserEmail() {
         return this.authService.getUserEmail();
+    }
+
+    getLastName() {
+      return this.authService.getUserLastName();
+    }
+
+    getFirstName() {
+      return this.authService.getUserFirstName();
     }
 
 }

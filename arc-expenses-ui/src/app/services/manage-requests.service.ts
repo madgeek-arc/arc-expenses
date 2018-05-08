@@ -9,7 +9,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { catchError } from 'rxjs/operators';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { tempApiUrl } from '../domain/tempAPI';
-import {SearchResults} from '../domain/extraClasses';
+import { Paging } from '../domain/extraClasses';
 
 const headerOptions = {
     headers : new HttpHeaders().set('Content-Type', 'application/json').set('Accept', 'application/json'),
@@ -54,16 +54,17 @@ export class ManageRequestsService {
             );
     }
 
-    userCanEditRequest(userEmail: string): Observable<boolean> {
-        const url = `${this.apiUrl}auth/${userEmail}`;
+    isEditable(req: Request, email: string): Observable<boolean> {
+        const url = `${this.apiUrl}isEditable?email=${encodeURIComponent(email)}`;
         console.log(`calling ${url}`);
-        return this.http.get(url, headerOptions).pipe(
+        //console.log(`sending ${JSON.stringify(req)}`);
+        return this.http.post<boolean>(url, JSON.stringify(req), headerOptions).pipe(
             catchError(this.handleError)
         );
     }
 
     searchAllRequests(keyword: string, from: string, quantity: string,
-                      order: string, orderField: string, email: string): Observable<SearchResults<Request>> {
+                      order: string, orderField: string, email: string): Observable<Paging<Request>> {
         let url = `${this.apiUrl}getAll?email=${encodeURIComponent(email)}`;
 
         if (keyword) { url += `&keyword=${keyword}`; }
@@ -73,7 +74,7 @@ export class ManageRequestsService {
         if (orderField) { url += `&orderField=${orderField}`; }
 
         console.log(`calling ${url}`);
-        return this.http.get<SearchResults<Request>>(url, headerOptions).pipe(
+        return this.http.get<Paging<Request>>(url, headerOptions).pipe(
             catchError(this.handleError)
         );
     }

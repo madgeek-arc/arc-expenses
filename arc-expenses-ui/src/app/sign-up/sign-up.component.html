@@ -5,7 +5,11 @@
 </div>
 
       <div class="uk-container uk-container-expand uk-margin-medium-bottom uk-margin-medium-top">
-          <div *ngIf="signUpForm" class=" uk-width-1-2@m uk-align-center">
+          <div *ngIf="!signUpForm || showSpinner" class="uk-inline">
+            <div class="uk-overlay-default uk-position-cover"></div>
+            <div uk-spinner="ratio: 2" class="uk-overlay uk-position-center uk-dark"></div>
+          </div>
+          <div *ngIf="signUpForm && !showSpinner" class=" uk-width-1-2@m uk-align-center">
 
             <form [formGroup]="signUpForm" class="uk-form-horizontal uk-margin-large uk-align-center">
               <div *ngIf="errorMessage" class="uk-alert uk-alert-warning">{{errorMessage}}</div>
@@ -14,35 +18,35 @@
                 <table class="uk-table uk-table-striped">
                   <tbody>
                     <tr>
-                      <td style="padding: 0">
-                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="text-align: right" for="user-fill-name">Όνομα (στα ελληνικά)</label>
-                        <input class=" uk-width-large" style="margin: 2px" type="text" id="user-fill-name" formControlName="name">
+                      <td style="padding: 0 10px">
+                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" for="user-fill-name">Όνομα (στα ελληνικά)</label>
+                        <input class="uk-width-1-1" style="margin: 2px" type="text" id="user-fill-name" formControlName="name">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 0 10px">
+                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" for="user-fill-surname">Επώνυμο (στα ελληνικά)</label>
+                        <input class="uk-width-1-1" style="margin: 2px" type="text" id="user-fill-surname" formControlName="surname">
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 0">
-                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="text-align: right" for="user-fill-surname">Επώνυμο (στα ελληνικά)</label>
-                        <input class="uk-box uk-width-large" style="margin: 2px" type="text" id="user-fill-surname" formControlName="surname">
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 0">
-                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="text-align: right" for="user-name">Name</label>
-                        <input class="uk-search-input uk-width-large uk-disabled" type="text" id="user-name"
+                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="padding-left: 10px" for="user-name">Name</label>
+                        <input class="uk-search-input uk-width-1-1 uk-disabled" style="padding-left: 10px" type="text" id="user-name"
                                [value]="getFirstNameInLatin()" formControlName="nameLatin">
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 0">
-                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="text-align: right" for="user-surname">Surname</label>
-                        <input class="uk-search-input uk-width-large uk-disabled" type="text" id="user-surname"
+                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="padding-left: 10px" for="user-surname">Surname</label>
+                        <input class="uk-search-input uk-width-1-1 uk-disabled" style="padding-left: 10px" type="text" id="user-surname"
                                [value]="getLastNameInLatin()" formControlName="surnameLatin">
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 0">
-                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="text-align: right" for="user-email">e-mail</label>
-                        <input class="uk-search-input uk-width-large uk-disabled" type="text" id="user-email"
+                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="padding-left: 10px" for="user-email">e-mail</label>
+                        <input class="uk-search-input uk-width-1-1 uk-disabled" style="padding-left: 10px" type="text" id="user-email"
                                [value]="getUserEmail()" formControlName="email">
                       </td>
                     </tr>

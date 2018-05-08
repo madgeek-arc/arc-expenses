@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Request } from '../domain/operation';
 import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { SearchResults } from '../domain/extraClasses';
+import { Paging } from '../domain/extraClasses';
 import {Router} from '@angular/router';
+import {isNull} from 'util';
 
 @Component({
     selector: 'app-requests',
@@ -13,7 +14,7 @@ import {Router} from '@angular/router';
 export class RequestsComponent implements OnInit {
 
   errorMessage: string;
-  loadingMessage: string;
+  showSpinner: boolean;
   noRequests: string;
 
   title = 'Υπάρχοντα Αιτήματα';
@@ -34,7 +35,7 @@ export class RequestsComponent implements OnInit {
              { 8: 'stage6' }, { 9: 'stage7' }, { 10: 'stage8' }, { 11: 'stage9' }, { 12: 'stage10' }];
   stageTitles = ['1', '2', '3', '3a', '3b', '4', '5', '6', '7', '8', '9', '10'];
 
-  searchResults: SearchResults<Request>;
+  searchResults: Paging<Request>;
 
   listOfRequests: Request [] = [];
 
@@ -57,7 +58,9 @@ export class RequestsComponent implements OnInit {
 
   /* the param 'resource' of search/all method is always 'request' */
   getListOfRequests() {
+    this.noRequests = '';
     this.errorMessage = '';
+    this.showSpinner = true;
     this.requestService.searchAllRequests(this.searchTerm,
                                           this.currentPage.toString(),
                                           this.itemsPerPage.toString(),
@@ -65,19 +68,29 @@ export class RequestsComponent implements OnInit {
                                           this.orderField,
                                           this.authService.getUserEmail()).subscribe(
         res => {
-          this.searchResults = res;
-          if (this.searchResults) {
-            this.listOfRequests = this.searchResults.results;
-            console.log(`searchAllRequests sent me ${this.listOfRequests.length} requests`);
-            console.log(this.listOfRequests);
-          }
+            if (res && !isNull(res)) {
+                this.searchResults = res;
+                if (this.searchResults && !isNull(this.searchResults.results) &&
+                    this.searchResults.results.length > 0 &&
+                    !this.searchResults.results.some(x => isNull(x))) {
+
+                    this.listOfRequests = this.searchResults.results;
+                    console.log(`searchAllRequests sent me ${this.listOfRequests.length} requests`);
+                    console.log(this.listOfRequests);
+                }
+            }
         },
         error => {
             console.log(error);
             this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την φόρτωση των αιτημάτων';
+            this.showSpinner = false;
         },
         () => {
             this.searchTerm = '';
+            this.showSpinner = false;
+            if (this.listOfRequests.length === 0) {
+                this.noRequests = 'Δεν βρέθηκαν σχετικά αιτήματα.';
+            }
         }
     );
   }
@@ -107,18 +120,9 @@ export class RequestsComponent implements OnInit {
           this.toggleOrder();
       } else {
           this.order = 'asc';
+          this.orderField = category;
       }
-      this.orderField = category;
       this.getListOfRequests();
-      /*if (orderChoice === 'asc') {
-          this.order = 'desc';
-          this.getListOfRequests();
-          return '&#9652;';
-      } else  {
-          this.order = 'asc';
-          this.getListOfRequests();
-          return '&#9662;';
-      }*/
   }
 
   toggleOrder() {
@@ -177,10 +181,6 @@ export class RequestsComponent implements OnInit {
           console.log('this.searchTerm is', this.searchTerm);
           this.getListOfRequests();
       }
-    }
-
-    gotoRequestStage(id: string) {
-      this.router.navigate([`request-stage/${id}`]);
     }
 
     getStatusAsString( status: string ) {

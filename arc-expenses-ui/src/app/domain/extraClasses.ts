@@ -27,6 +27,7 @@ export class SearchResults<T> {
     facets: Facet[];
 }
 
+/* other extra classes */
 export class User {
     email: string;
     firstname: string;
@@ -39,7 +40,6 @@ export class User {
 export class Occurences {
     values: any;
 }
-
 
 export class Paging<T> {
 

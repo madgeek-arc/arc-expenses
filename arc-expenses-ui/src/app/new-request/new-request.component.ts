@@ -21,6 +21,7 @@ import {ManageProjectService} from '../services/manage-project.service';
 export class NewRequestComponent implements OnInit {
 
     errorMessage: string;
+    showSpinner: boolean;
 
     currentUser: Requester;
 
@@ -33,223 +34,7 @@ export class NewRequestComponent implements OnInit {
 
     request: Request;
 
-    institutes = ['ILSP', 'IMSI', 'ISI', 'SPU', 'PPA'];
-
-    programs = ['program1', 'program2', 'program3'];
-
     projects: string[] = [];
-/*    projects = [
-        {
-            id: '4',
-            name: 'program1',
-            acronym: 'PROG1',
-            institute: {
-                id: 'INST1',
-                name: 'institute 1',
-                organization: {
-                    id: 'org1',
-                    name: 'Organization 1',
-                    POY: {
-                        email: 'POY 1',
-                        firstname: 'poyfn',
-                        lastname: 'poyln',
-                        delegates: []
-                    },
-                    director: {
-                        email: 'director 1',
-                        firstname: 'dirfn',
-                        lastname: 'dirln',
-                        delegates: []
-                    },
-                    dioikitikoSumvoulio: {
-                        email: 'DS 1',
-                        firstname: 'dsfn',
-                        lastname: 'dsln',
-                        delegates: []
-                    }
-                },
-                director: {
-                    email: 'directorEmail@email.com',
-                    firstname: 'dirFirstName',
-                    lastname: 'dirLastName',
-                    delegates: [],
-                },
-                accountingRegistration: {
-                    email: 'accounting 1',
-                    firstname: 'poyfn',
-                    lastname: 'poyln',
-                    delegates: []
-                },
-                accountingPayment: {
-                    email: 'accountingPayment 1',
-                    firstname: 'poyfn',
-                    lastname: 'poyln',
-                    delegates: []
-                },
-                accountingDirector: {
-                    email: 'accountingDir 1',
-                    firstname: 'poyfn',
-                    lastname: 'poyln',
-                    delegates: []
-                },
-                diaugeia: {
-                    email: 'diaugeia 1',
-                    firstname: 'poyfn',
-                    lastname: 'poyln',
-                    delegates: []
-                },
-            },
-            scientificCoordinator: {
-                email: 'scientificCoord 1',
-                firstname: 'poyfn',
-                lastname: 'poyln',
-                delegates: []
-            },
-            operator: [],
-            startDate: '',
-            endDate: ''
-        },
-        {
-            id: '5',
-            name: 'program2',
-            acronym: 'PROG2',
-            institute: {
-                id: 'INST2',
-                name: 'institute 2',
-                organization: {
-                    id: 'org1',
-                    name: 'Organization 2',
-                    POY: {
-                        email: 'POY 2',
-                        firstname: 'poyfn',
-                        lastname: 'poyln',
-                        delegates: []
-                    },
-                    director: {
-                        email: 'director 2',
-                        firstname: 'dirfn',
-                        lastname: 'dirln',
-                        delegates: []
-                    },
-                    dioikitikoSumvoulio: {
-                        email: 'DS 2',
-                        firstname: 'dsfn',
-                        lastname: 'dsln',
-                        delegates: []
-                    }
-                },
-                director: {
-                    email: 'directorEmail@email.com',
-                    firstname: 'dirFirstName',
-                    lastname: 'dirLastName',
-                    delegates: [],
-                },
-                accountingRegistration: {
-                    email: 'accounting 2',
-                    firstname: 'poyfn',
-                    lastname: 'poyln',
-                    delegates: []
-                },
-                accountingPayment: {
-                    email: 'accountingPayment 2',
-                    firstname: 'poyfn',
-                    lastname: 'poyln',
-                    delegates: []
-                },
-                accountingDirector: {
-                    email: 'accountingDir 2',
-                    firstname: 'poyfn',
-                    lastname: 'poyln',
-                    delegates: []
-                },
-                diaugeia: {
-                    email: 'diaugeia 2',
-                    firstname: 'poyfn',
-                    lastname: 'poyln',
-                    delegates: []
-                },
-            },
-            scientificCoordinator: {
-                email: 'scientificCoord 2',
-                firstname: 'poyfn',
-                lastname: 'poyln',
-                delegates: []
-            },
-            operator: [],
-            startDate: '',
-            endDate: ''
-        },
-        {
-            id: '6',
-            name: 'program3',
-            acronym: 'PROG3',
-            institute: {
-                id: 'INST3',
-                name: 'institute 3',
-                organization: {
-                    id: 'org1',
-                    name: 'Organization 3',
-                    POY: {
-                        email: 'POY 3',
-                        firstname: 'poyfn',
-                        lastname: 'poyln',
-                        delegates: []
-                    },
-                    director: {
-                        email: 'director 3',
-                        firstname: 'dirfn',
-                        lastname: 'dirln',
-                        delegates: []
-                    },
-                    dioikitikoSumvoulio: {
-                        email: 'DS 3',
-                        firstname: 'dsfn',
-                        lastname: 'dsln',
-                        delegates: []
-                    }
-                },
-                director: {
-                    email: 'directorEmail@email.com',
-                    firstname: 'dirFirstName',
-                    lastname: 'dirLastName',
-                    delegates: [],
-                },
-                accountingRegistration: {
-                    email: 'accounting 3',
-                    firstname: 'poyfn',
-                    lastname: 'poyln',
-                    delegates: []
-                },
-                accountingPayment: {
-                    email: 'accountingPayment 3',
-                    firstname: 'poyfn',
-                    lastname: 'poyln',
-                    delegates: []
-                },
-                accountingDirector: {
-                    email: 'accountingDir 3',
-                    firstname: 'poyfn',
-                    lastname: 'poyln',
-                    delegates: []
-                },
-                diaugeia: {
-                    email: 'diaugeia 3',
-                    firstname: 'poyfn',
-                    lastname: 'poyln',
-                    delegates: []
-                },
-            },
-            scientificCoordinator: {
-                email: 'scientificCoord 3',
-                firstname: 'poyfn',
-                lastname: 'poyln',
-                delegates: []
-            },
-            operator: [],
-            startDate: '',
-            endDate: ''
-        },
-    ];*/
 
     chosenProject: Project;
 
@@ -282,24 +67,23 @@ export class NewRequestComponent implements OnInit {
         this.currentUser.lastname = this.authService.getUserLastName();
         this.currentUser.firstnameLatin = this.authService.getUserFirstNameInLatin();
         this.currentUser.lastnameLatin = this.authService.getUserLastNameInLatin();
-        /*this.currentUser.id = 'userid';
-        this.currentUser.email = 'user@gmail.com';
-        this.currentUser.firstname = 'firstname';
-        this.currentUser.lastname = 'lastname';
-        this.currentUser.firstnameLatin = 'firstnameinlatin';
-        this.currentUser.lastnameLatin = 'lastnameinlatin';*/
         console.log('this.currentUser is: ', this.currentUser);
     }
 
     getProjects() {
+        this.showSpinner = true;
         this.projectService.getAllProjectsNames().subscribe(
             projects => {
                 this.projects = projects;
                 console.log(this.projects);
             },
-            error => console.log(error)
+            error => {
+                console.log(error);
+                this.showSpinner = false;
+                this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την ανάκτηση των απαραίτητων πληροφοριών.';
+            },
+            () => this.showSpinner = false
         );
-        /*this.projects = ['proj1', 'proj2', 'proj3'];*/
     }
 
     createForm() {
@@ -355,10 +139,18 @@ export class NewRequestComponent implements OnInit {
             this.request.stage9 = new Stage9();
             this.request.stage10 = new Stage10();
 
+            this.showSpinner = true;
+            this.errorMessage = '';
             this.requestService.addRequest(this.request).subscribe (
                 res => {this.request = res; console.log(res); },
-                error => {console.log(error); this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την υποβολή της φόρμας'; },
-                () => this.router.navigate(['/requests'])
+                error => {
+                    console.log(error); this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την υποβολή της φόρμας';
+                    this.showSpinner = false;
+                },
+                () => {
+                    this.router.navigate(['/requests']);
+                    this.showSpinner = false;
+                }
             );
 
         } else {
@@ -367,8 +159,9 @@ export class NewRequestComponent implements OnInit {
     }
 
     getProject() {
+        this.errorMessage = '';
         if (this.newRequestForm.get('program').value) {
-            this.errorMessage = '';
+            this.showSpinner = true;
             this.projectService.getProjectByAcronym(this.newRequestForm.get('program').value).subscribe (
                 res => {
                     this.chosenProject = res;
@@ -376,12 +169,17 @@ export class NewRequestComponent implements OnInit {
                 },
                 error => {
                     console.log(error);
+                    this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την ανάκτηση των πληροφοριών για το έργο.';
+                    this.showSpinner = false;
+                    this.searchTerm = '';
                 },
                 () => {
                     this.programSelected = true;
                     this.newRequestForm.get('institute').setValue(this.chosenProject['institute'].name);
                     this.newRequestForm.get('director')
                         .setValue(this.chosenProject.institute.director.firstname + ' ' + this.chosenProject.institute.director.lastname);
+                    this.showSpinner = false;
+                    this.searchTerm = '';
                 }
             );
         }
@@ -394,16 +192,13 @@ export class NewRequestComponent implements OnInit {
     updateProgramInput(acronym: string) {
         console.log(this.projects);
         this.newRequestForm.get('program').setValue(acronym);
-        this.searchTerm = '';
         console.log(this.newRequestForm.get('program').value);
         this.getProject();
     }
 
     show (event: any) {
-        console.log('searching for prog');
-        if (this.newRequestForm.get('program').value && this.chosenProject) {
+        if (this.newRequestForm.get('program').value && !this.chosenProject) {
             this.getProject();
-            this.programSelected = true;
         }
     }
 
@@ -412,66 +207,8 @@ export class NewRequestComponent implements OnInit {
     }
 
     showAmmount() {
-        /*this.requestedAmmount = '';
-        for (let c of this.newRequestForm.get('ammount').value.trim()) {
-            if (c === '.') {
-                this.requestedAmmount += ',';
-            } else if (c === ',') {
-                this.requestedAmmount += '.';
-            } else {
-                this.requestedAmmount += c;
-            }
-        }*/
         this.requestedAmmount = this.newRequestForm.get('ammount').value.trim();
         this.newRequestForm.get('ammount').updateValueAndValidity();
     }
 
-}
-
-export function ammountValidator(f: AbstractControl) {
-    console.log('checking ammount');
-    const inputAmmount: string = f.get('ammount').value;
-    let countNumbers: number = 0;
-    let startCounting: boolean;
-    let addedDecimals: boolean;
-
-    if (inputAmmount) {
-        console.log(`got ${inputAmmount}`);
-        if (isNaN(+inputAmmount[0])) {
-            return 'invalid';
-        }
-        for (let c of inputAmmount) {
-            if (isNaN(+c) && c !== '.' && c !== ',') {
-                return 'invalid';
-            }
-            if (c === '.') {
-                if (addedDecimals) {
-                    return 'invalid';
-                }
-                if (startCounting) {
-                    if (!countNumbers) {
-                        return 'invalid';
-                    }
-                } else {
-                    startCounting = true;
-                }
-            } else if (c === ',') {
-                addedDecimals = true;
-                if (startCounting && countNumbers < 3) {
-                    return 'invalid';
-                }
-            } else {
-                if (startCounting) {
-                    countNumbers++;
-                    if (countNumbers === 3) {
-                        startCounting = false;
-                        countNumbers = 0;
-                    }
-                }
-            }
-        }
-        return null;
-    } else {
-        return 'invalid';
-    }
 }

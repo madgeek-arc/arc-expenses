@@ -17,48 +17,11 @@ import {containerStart} from '@angular/core/src/render3/instructions';
 export class RequestStageComponent implements OnInit {
   errorMessage: string;
   successMessage: string;
+  showSpinner: boolean;
 
   requestId: string;
   currentRequest: Request;
   canEdit: boolean = false;
-
-  testDelegate: Delegate = {
-    email: 'asdf@gmail.com',
-    firstname: 'Firstname',
-    lastname: 'Lastname',
-    hidden: false
-  };
-
-    stage3aTest: Stage3a = {
-        organizationDirector: this.testDelegate,
-        date: '',
-        approved: true,
-        comment: '',
-        attachment: null,
-    };
-
-  stage3Test: Stage3 = {
-    operator: this.testDelegate,
-    date: '27/04/2018',
-    analiftheiYpoxrewsi: true,
-    fundsAvailable: true,
-    approved: false,
-    comment: '',
-    attachment: null,
-  };
-
-    stage2Test: Stage2 = {
-        scientificCoordinator: this.testDelegate,
-        date: '22/4/2018',
-        approved: true,
-        comment: 'comment comment comment',
-        attachment: null
-    };
-
-    exampleStageDesc: StageDescription = {
-      delegateField: 'delegateFieldName',
-      stageFields: [analiftheiYpoxrewsiDesc, checkLegalityDesc, checkRegularityDesc]
-  };
 
   constructor(private route: ActivatedRoute,
               private requestService: ManageRequestsService,
@@ -66,10 +29,10 @@ export class RequestStageComponent implements OnInit {
 
   ngOnInit() {
     this.getCurrentRequest();
-    /*this.getIfUserCanEditRequest();*/
   }
 
   getCurrentRequest() {
+    this.showSpinner = true;
     this.requestId = this.route.snapshot.paramMap.get('id');
 
     /*call api to get request info or throw errorMessage*/
@@ -79,41 +42,13 @@ export class RequestStageComponent implements OnInit {
             },
         error => {
             console.log(error);
-            this.errorMessage = '';
+            this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την ανάκτηση του αιτήματος.';
+            this.showSpinner = false;
+        },
+        () => {
+            this.getIfUserCanEditRequest();
         }
     );
-/*
-    this.currentRequest = new Request();
-    this.currentRequest.id = '3';
-    this.currentRequest.project = new Project();
-    this.currentRequest.project.name = '5';
-    this.currentRequest.project.institute = new Institute();
-    this.currentRequest.project.institute.name = 'ILSP';
-    this.currentRequest.requester = new Requester();
-    this.currentRequest.requester.firstname = 'First';
-    this.currentRequest.requester.lastname = 'Requester';
-    this.currentRequest.requesterPosition = 'requester position';
-    this.currentRequest.stage1 = new Stage1();
-    this.currentRequest.stage1.requestDate = '25/4/2018';
-    this.currentRequest.stage1.subject = 'request subject';
-    this.currentRequest.stage1.supplier = 'supplier name';
-    this.currentRequest.stage1.supplierSelectionMethod = 'selection method';
-    this.currentRequest.stage1.amountInEuros = 232.23;
-    this.currentRequest.stage1.attachment = new Attachment();
-    this.currentRequest.stage1.attachment.filename = 'filename.txt';
-    this.currentRequest.stage = '3a';
-    this.currentRequest.status = 'pending';
-    this.currentRequest.stage2 = this.stage2Test;
-    this.currentRequest.stage3 = this.stage3Test;
-    this.currentRequest.stage3a = this.stage3aTest;
-    this.currentRequest.stage3b = new Stage3b();
-    this.currentRequest.stage4 = new Stage4();
-    this.currentRequest.stage5 = new Stage5();
-    this.currentRequest.stage6 = new Stage6();
-    this.currentRequest.stage7 = new Stage7();
-    this.currentRequest.stage8 = new Stage8();
-    this.currentRequest.stage9 = new Stage9();
-    this.currentRequest.stage10 = new Stage10();*/
   }
 
   getSubmittedStage(newStage: any) {
@@ -161,21 +96,37 @@ export class RequestStageComponent implements OnInit {
   }
 
   getIfUserCanEditRequest() {
-      this.requestService.userCanEditRequest(this.authService.getUserEmail()).subscribe(
+      this.requestService.isEditable(this.currentRequest, this.authService.getUserEmail()).subscribe(
           res => this.canEdit = res,
           error => {
               console.log(error);
               this.canEdit = false;
+              this.showSpinner = false;
+              this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την ανάκτηση του αιτήματος.';
+          },
+          () => {
+              this.showSpinner = false;
+              console.log('this.canEdit is ', this.canEdit);
           }
       );
   }
 
   submitRequest() {
+      this.showSpinner = true;
+      this.errorMessage = '';
+      this.successMessage = '';
+
       /*update this.currentRequest*/
       this.requestService.updateRequest(this.currentRequest, this.authService.getUserEmail()).subscribe(
           res => console.log(`add Request responded: ${res}`),
-          error => console.log(error),
-          () => this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν επιτυχώς'
+          error => {
+              console.log(error);
+              this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών.';
+          },
+          () => {
+              this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
+              this.showSpinner = false;
+          }
       );
   }
 
@@ -194,7 +145,7 @@ export class RequestStageComponent implements OnInit {
           } else {
               return false;
           }*/
-          return true;
+          return this.canEdit;
       } else {
           if (this.currentRequest.stage !== '3a' && this.currentRequest.stage !== '3b') {
               if ( stageNumber[1] === '3a' || stageNumber[1] === '3b' ) {
