@@ -19,14 +19,19 @@ export class SignUpComponent implements OnInit {
   lastnameLatin: string;
   userEmail: string;
 
-  constructor(private fb: FormBuilder, private authService: AuthenticationService, private router: Router) {
-  }
+  constructor(private fb: FormBuilder, private authService: AuthenticationService, private router: Router) {}
 
   ngOnInit() {
-      if (this.authService.getUserFirstName()) {
+      /* load page only if firstname or lastname doesn't exist */
+      if (this.authService.getUserFirstName() && this.authService.getUserLastName()) {
           this.router.navigate(['/home']);
       }
-      this.createForm();
+      /* load page only if the user has logged in via aai */
+      if (this.authService.getUserEmail()) {
+          this.createForm();
+      } else {
+          this.router.navigate(['/home']);
+      }
   }
 
   createForm () {

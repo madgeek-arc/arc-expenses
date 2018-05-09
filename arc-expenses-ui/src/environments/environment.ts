@@ -4,5 +4,8 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-  production: false
+    production: false,
+    API_ENDPOINT: 'https://aleka.athenarc.gr/arc-expenses-service',
+    HOME_URL: 'https://aleka.athenarc.gr:4200/home',
+    FAQ_ENDPOINT: ''
 };

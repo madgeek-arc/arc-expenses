@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, isDevMode, OnInit} from '@angular/core';
 import {NavigationEnd, Router} from '@angular/router';
 import { AuthenticationService } from './services/authentication.service';
 
@@ -18,6 +18,11 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+      if (isDevMode()) {
+          console.log('In development mode!');
+      } else {
+          console.log('In production mode!');
+      }
       this.router.events.subscribe((evt) => {
           if (!(evt instanceof NavigationEnd)) {
               return;

@@ -3,7 +3,6 @@ import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
 import {AuthenticationService} from './authentication.service';
 import { getCookie } from '../domain/cookieUtils';
-import {tempBaseUrl} from '../domain/tempAPI';
 
 @Injectable ()
 export class AuthGuardService implements CanActivate {
@@ -21,8 +20,7 @@ export class AuthGuardService implements CanActivate {
         /*sessionStorage.setItem('state.location', state.url);*/
 
         // Navigate to the home page page
-        /*this.router.navigate(['home']);*/
-        window.location.href = tempBaseUrl;
+        this.router.navigate(['/home']);
 
         return false;
     }
