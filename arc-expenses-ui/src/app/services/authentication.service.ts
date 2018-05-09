@@ -219,7 +219,7 @@ export class AuthenticationService {
     }
 
     public getUserFirstName() {
-        if (this.isLoggedIn) {
+        if (this.isLoggedIn && (sessionStorage.getItem('firstname') !== 'null')) {
             return sessionStorage.getItem('firstname');
         } else {
             return '';
@@ -228,7 +228,7 @@ export class AuthenticationService {
     }
 
     public getUserLastName() {
-        if (this.isLoggedIn) {
+        if (this.isLoggedIn && (sessionStorage.getItem('lastname') !== 'null')) {
             return sessionStorage.getItem('lastname');
         } else {
             return '';
