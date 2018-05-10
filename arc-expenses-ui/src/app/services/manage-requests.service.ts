@@ -8,8 +8,8 @@ import { Observable } from 'rxjs/Observable';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
-import { tempApiUrl } from '../domain/tempAPI';
 import { Paging } from '../domain/extraClasses';
+import {environment} from '../../environments/environment';
 
 const headerOptions = {
     headers : new HttpHeaders().set('Content-Type', 'application/json').set('Accept', 'application/json'),
@@ -21,7 +21,7 @@ const headerOptions = {
 @Injectable()
 export class ManageRequestsService {
 
-    apiUrl = `${tempApiUrl}/request/`;
+    apiUrl = environment.API_ENDPOINT + '/request/';
 
     constructor(private http: HttpClient) {}
 

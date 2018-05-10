@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { deleteCookie, getCookie } from '../domain/cookieUtils';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
-import {tempApiUrl, tempBaseUrl, tempLoginApi} from '../domain/tempAPI';
 import { User } from '../domain/extraClasses';
 import {catchError, tap} from 'rxjs/operators';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
+import {environment} from '../../environments/environment';
 
 const headerOptions = {
     headers : new HttpHeaders().set('Content-Type', 'application/json').set('Accept', 'application/json'),
@@ -19,9 +19,9 @@ export class AuthenticationService {
                 private router: Router,
                 private http: HttpClient) {}
 
-    private apiUrl: string = tempApiUrl;
-    private loginUrl: string = tempLoginApi;
-    private baseUrl: string = tempBaseUrl;
+    private apiUrl: string = environment.API_ENDPOINT;
+    private loginUrl: string = environment.API_ENDPOINT + '/user/idp_login';
+    private baseUrl: string = environment.HOME_URL;
 
 
     // store the URL so we can redirect after logging in

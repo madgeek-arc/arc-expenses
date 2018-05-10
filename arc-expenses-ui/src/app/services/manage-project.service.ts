@@ -4,7 +4,7 @@ import {catchError} from 'rxjs/operators';
 import {Observable} from 'rxjs/Observable';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
-import {tempApiUrl} from '../domain/tempAPI';
+import {environment} from '../../environments/environment';
 
 const headerOptions = {
     headers : new HttpHeaders().set('Content-Type', 'application/json').set('Accept', 'application/json'),
@@ -14,7 +14,7 @@ const headerOptions = {
 @Injectable()
 export class ManageProjectService {
 
-    apiUrl = `${tempApiUrl}/project/`;
+    apiUrl = environment.API_ENDPOINT + '/project/';
 
     constructor(private http: HttpClient) {}
 
