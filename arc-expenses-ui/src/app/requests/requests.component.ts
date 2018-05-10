@@ -29,6 +29,7 @@ export class RequestsComponent implements OnInit {
   itemsPerPage: number;
   order: string;
   orderField: string;
+  totalPages: number;
 
   states = ['Σε εξέλιξη', 'Απορρίφθηκε', 'Εγκρίθηκε'];
   stages = [ { 1: 'stage1' }, { 2: 'stage2' }, { 3: 'stage3' }, { 4: 'stage3a' }, { 5: 'stage3b' }, { 6: 'stage4' }, { 7: 'stage5' },
@@ -52,6 +53,7 @@ export class RequestsComponent implements OnInit {
       this.itemsPerPage = 10;
       this.order = '';
       this.orderField = '';
+      this.totalPages = 0;
 
       this.getListOfRequests();
   }
@@ -76,7 +78,9 @@ export class RequestsComponent implements OnInit {
 
                     this.listOfRequests = this.searchResults.results;
                     console.log(`searchAllRequests sent me ${this.listOfRequests.length} requests`);
+                    console.log(`total requests are ${this.searchResults.total}`);
                     console.log(this.listOfRequests);
+                    this.totalPages = Math.ceil(this.searchResults.total / this.itemsPerPage);
                 }
             }
         },
@@ -149,7 +153,7 @@ export class RequestsComponent implements OnInit {
   }
 
   goToNextPage() {
-      if (this.currentPage + 1 < this.searchResults.total) {
+      if ( (this.currentPage + 1) < this.totalPages) {
           this.currentPage++;
           this.getListOfRequests();
       }

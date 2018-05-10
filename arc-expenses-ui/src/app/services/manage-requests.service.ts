@@ -65,13 +65,14 @@ export class ManageRequestsService {
 
     searchAllRequests(keyword: string, from: string, quantity: string,
                       order: string, orderField: string, email: string): Observable<Paging<Request>> {
-        let url = `${this.apiUrl}getAll?email=${encodeURIComponent(email)}`;
+        let url = `${this.apiUrl}getAll?email=${encodeURIComponent(email)}&keyword=${keyword}`;
+        url += `&from=${from}&quantity=${quantity}&order=${order}&orderField=${orderField}`;
 
-        if (keyword) { url += `&keyword=${keyword}`; }
+        /*if (keyword) { url += `&keyword=${keyword}`; }
         if (from) { url += `&from=${from}`; }
         if (quantity) { url += `&quantity=${quantity}`; }
         if (order) { url += `&order=${order}`; }
-        if (orderField) { url += `&orderField=${orderField}`; }
+        if (orderField) { url += `&orderField=${orderField}`; }*/
 
         console.log(`calling ${url}`);
         return this.http.get<Paging<Request>>(url, headerOptions).pipe(

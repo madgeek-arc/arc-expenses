@@ -84,6 +84,7 @@ export class AuthenticationService {
                         /*sessionStorage.removeItem('role');*/
                         deleteCookie('arc_currentUser');
                         this.isLoggedIn = false;
+                        this.router.navigate(['/home']);
                     }
                 );
             }, 1000 * 60 * 5);
@@ -210,7 +211,7 @@ export class AuthenticationService {
     }
 
     public getUserId() {
-        if (this.isLoggedIn) {
+        if (this.isLoggedIn && (sessionStorage.getItem('userid') !== 'null')) {
             return sessionStorage.getItem('userid');
         } else {
             return '';
@@ -237,7 +238,7 @@ export class AuthenticationService {
     }
 
     public getUserFirstNameInLatin() {
-        if (this.isLoggedIn) {
+        if (this.isLoggedIn && (sessionStorage.getItem('firstnameLatin') !== 'null')) {
             return sessionStorage.getItem('firstnameLatin');
         } else {
             return '';
@@ -246,7 +247,7 @@ export class AuthenticationService {
     }
 
     public getUserLastNameInLatin() {
-        if (this.isLoggedIn) {
+        if (this.isLoggedIn && (sessionStorage.getItem('lastnameLatin') !== 'null')) {
             return sessionStorage.getItem('lastnameLatin');
         } else {
             return '';
@@ -255,7 +256,7 @@ export class AuthenticationService {
     }
 
     public getUserEmail() {
-        if (this.isLoggedIn) {
+        if (this.isLoggedIn && (sessionStorage.getItem('email') !== 'null')) {
             return sessionStorage.getItem('email');
         } else {
             return '';

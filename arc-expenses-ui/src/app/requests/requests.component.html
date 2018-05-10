@@ -34,14 +34,14 @@
                         <div class="uk-overlay-default uk-position-cover"></div>
                         <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
                     </div>
-                    <div *ngIf="searchResults && !showSpinner">
+                    <div *ngIf="searchResults">
                         <div class="uk-grid page-controls">
                             <div class="uk-margin-bottom ">
                                 <div class="show-options uk-inline">
                                     <div class="filterLabel">Κατάσταση:</div>
                                     <div class="inlineBlock">
                                         <select class="form-control" (change)="chooseState($event)">
-                                            <option value="">όλα</option>
+                                            <option value="" selected>όλα</option>
                                             <option *ngFor="let state of states; let st_index = index" value="{{ st_index }}">{{state}}</option>
                                         </select>
                                     </div>
@@ -52,7 +52,7 @@
                                     <div class="filterLabel">Αιτήσεις ανά σελίδα:</div>
                                     <div class="inlineBlock">
                                         <select id="req-pagesize" class="form-control" (change)="getItemsPerPage($event)">
-                                            <option value="10">10</option>
+                                            <option value="10" selected>10</option>
                                             <option value="25">25</option>
                                             <option value="50">50</option>
                                             <option value="100">100</option>
@@ -78,7 +78,7 @@
                                         </li>
 
                                         <li class="uk-margin-auto-left">
-                                            <div class="resultsPageLabel" style="all: unset; font-size: small">page {{ currentPage+1 }} of {{ searchResults.total }}</div>
+                                            <div class="resultsPageLabel" style="all: unset; font-size: small">page {{ currentPage+1 }} of {{ totalPages }}</div>
                                         </li>
 
                                         <li class="uk-margin-auto-left">
@@ -99,7 +99,7 @@
                                     <table class="uk-table uk-table-hover uk-table-divider">
                                         <thead>
                                             <tr>
-                                                <th>Αριθμός Πρωτοκόλλου</th>
+                                                <th>Αρ.Πρωτοκόλλου</th>
                                                 <th><a (click)="sortBy('project')" title="Ταξινόμηση με βάση τον τίτλο του έργου">
                                                     Πρόγραμμα&nbsp;
                                                     <span *ngIf="orderField && (orderField === 'project')"
@@ -114,13 +114,13 @@
                                                           [innerHtml]="getOrderSign()"></span>
                                                     </a>
                                                 </th>
-                                                <th><a (click)="sortBy('stage')" title="Ταξινόμηση με βάση το στάδιο">
+                                                <th><a (click)="sortBy('stage')" title="Ταξινόμηση με βάση το στάδιο" class="uk-margin-right">
                                                     Στάδιο&nbsp;
                                                     <span *ngIf="orderField && (orderField === 'stage')"
                                                           [innerHtml]="getOrderSign()"></span>
                                                     </a>
                                                 </th>
-                                                <th>Κατάσταση</th>
+                                                <th><span class="uk-margin-right">Κατάσταση</span></th>
                                             </tr>
                                             <tr *ngIf="noRequests">
                                                 <td colspan="7" class="uk-alert uk-width-1-1">{{noRequests}}</td>
@@ -156,7 +156,7 @@
                                         </li>
 
                                         <li class="uk-margin-auto-left">
-                                            <div class="resultsPageLabel" style="all: unset; font-size: small">page {{ currentPage+1 }} of {{ searchResults.total }}</div>
+                                            <div class="resultsPageLabel" style="all: unset; font-size: small">page {{ currentPage+1 }} of {{ totalPages }}</div>
                                         </li>
 
                                         <li class="uk-margin-auto-left">

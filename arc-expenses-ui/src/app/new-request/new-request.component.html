@@ -29,7 +29,7 @@
                   <div class="uk-overlay-default uk-position-cover"></div>
                   <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
                 </div>
-                <div *ngIf="!showSpinner && newRequestForm && currentUser && projects" [formGroup]="newRequestForm" class="uk-form-horizontal">
+                <div *ngIf="newRequestForm && currentUser && projects" [formGroup]="newRequestForm" class="uk-form-horizontal">
                   <fieldset data-uk-margin>
                     <legend>Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>
                     <div class="uk-margin">
@@ -47,10 +47,9 @@
                           <div class="uk-width-1-2@s">
                             <select class="uk-select" id="request-position" formControlName="position">
                               <option value="">-- επιλέξτε θέση στον φορέα --</option>
-                              <option value="pos1">Θέση 1</option>
-                              <option value="pos2">Θέση 2</option>
-                              <option value="pos3">Θέση 3</option>
-                              <option value="pos4">Θέση 4</option>
+                              <option value="Ερευνητής-ΕΛΕ">Ερευνητής-ΕΛΕ</option>
+                              <option value="Συνεργαζόμενος Ερευνητής">Συνεργαζόμενος Ερευνητής</option>
+                              <option value="Διοικητικό Προσωπικό">Διοικητικό Προσωπικό</option>
                             </select>
                           </div>
                         </div>
@@ -146,11 +145,11 @@
                           </div>
                           <div *ngIf="newRequestForm.get('ammount').invalid && newRequestForm.get('ammount').touched && newRequestForm.get('ammount').dirty"
                                class="uk-comment-body uk-text-small uk-text-danger">
-                            Ο αριθμός που εισάγατε δεν είναι έγκυρος.
+                            Ο αριθμός δεν είναι έγκυρος.
                           </div>
                           <div *ngIf="newRequestForm.get('ammount').valid && newRequestForm.get('ammount').touched && newRequestForm.get('ammount').dirty"
                                class="uk-comment-body uk-text-small uk-text-muted">
-                            Το ποσό που εισάγατε είναι: {{ requestedAmmount | currency: 'EUR': 'symbol-narrow' }}
+                            Το ποσό είναι: {{ requestedAmmount | currency: 'EUR': 'symbol-narrow' }}
                           </div>
                         </div>
                       </div>
