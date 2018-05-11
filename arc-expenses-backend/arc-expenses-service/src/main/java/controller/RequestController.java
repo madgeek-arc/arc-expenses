@@ -1,15 +1,13 @@
 package controller;
 
 import config.SAMLAuthentication;
-import eu.openminted.registry.core.controllers.SearchController;
-import eu.openminted.registry.core.domain.Browsing;
-import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
+import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.SearchService;
 import gr.athenarc.domain.Request;
-import gr.athenarc.domain.User;
 import io.swagger.annotations.Api;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import service.PolicyCheckerService;
 import service.RequestServiceImpl;
 
-import javax.xml.ws.Response;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/request")
@@ -49,41 +45,14 @@ public class RequestController {
     }
 
     @RequestMapping(value =  "/getAll", method = RequestMethod.GET)
-    public Paging<Request> getAll(@RequestParam(value = "from",required=false) String from,
-                         @RequestParam(value = "quantity",required=false) String quantity,
-                         @RequestParam(value = "order",required=false) String orderD,
-                         @RequestParam(value = "orderField",required=false) String orderF,
+    public Paging<Request> getAll(@RequestParam(value = "from",required=false,defaultValue = "0") String from,
+                         @RequestParam(value = "quantity",required=false,defaultValue = "10") String quantity,
+                         @RequestParam(value = "searchField") String searchField,
+                         @RequestParam(value = "order",required=false,defaultValue = "ASC") String orderType,
+                         @RequestParam(value = "orderField") String orderField,
                          @RequestParam(value = "email") String email) {
 
-
-
-        return searchService.cqlQuery(requestService.createQuery(email),"request",Integer.parseInt(quantity),Integer.parseInt(from));
-
-       /* FacetFilter filter = new FacetFilter();
-        filter.setResourceType("request");
-        filter.setKeyword(keyword != null ? keyword : "");
-        filter.setFrom(from != null ? Integer.parseInt(from) : 0);
-        filter.setQuantity(quantity != null ? Integer.parseInt(quantity) : 10);
-
-        Map<String,Object> sort = new HashMap<>();
-        Map<String,Object> order = new HashMap<>();
-
-        String orderDirection = orderD != null ? orderD : "asc";
-        String orderField = orderF != null ? orderF : null;
-
-        if (orderField != null) {
-            order.put("order",orderDirection);
-            sort.put(orderField, order);
-            filter.setOrderBy(sort);
-        }
-//        searchFilter.setFilter(null);
-        Browsing<Request> browsing = requestService.getAll(filter);
-        browsing.setResults(policyCheckerService.searchFilter(browsing.getResults(),email));
-        return browsing;*/
-
-
-
-
+        return requestService.criteriaSearch(from,quantity,searchField,orderType,orderField,email);
 
     }
 
@@ -108,12 +77,13 @@ public class RequestController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    ResponseEntity<Boolean> isEditable(@RequestBody Request request) {
-        SAMLAuthentication authentication = (SAMLAuthentication) SecurityContextHolder.getContext().getAuthentication();
+    ResponseEntity<Boolean> isEditable(@RequestBody Request request,
+                                       @RequestParam("email") String email) {
 
-        if(policyCheckerService.updateFilter(request,authentication.getEmail()))
+
+        if(policyCheckerService.updateFilter(request,email))
             return new ResponseEntity<>( true, HttpStatus.OK);
-        return new ResponseEntity<>( false, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>( false, HttpStatus.OK);
     }
 
 

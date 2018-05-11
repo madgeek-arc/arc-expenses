@@ -6,6 +6,7 @@ import gr.athenarc.domain.Organization;
 import gr.athenarc.domain.POY;
 import gr.athenarc.domain.Project;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -22,6 +23,9 @@ public class BulkImportService {
 
     private String path = "/home/panagiotis/Desktop/uploadFiles/";
 
+    @Value("${bulkImport.operation}")
+    private String bulkImportOperation;
+
     @Autowired
     OrganizationServiceImpl organizationService;
     @Autowired
@@ -30,12 +34,13 @@ public class BulkImportService {
     ProjectServiceImpl projectService;
 
 
-//    @PostConstruct
+    @PostConstruct
     public void init() throws Exception {
-        initializeOrganizations();
-        initializeInstitutes();
-        initializeProjects();
-
+        if(Boolean.parseBoolean(bulkImportOperation)){
+            initializeOrganizations();
+            initializeInstitutes();
+            initializeProjects();
+        }
     }
 
     private void initializeOrganizations() throws IOException {
@@ -45,8 +50,8 @@ public class BulkImportService {
         line = reader.readNext();
         while ((line = reader.readNext()) != null) {
             Organization organization = new Organization();
-            organization.setId(line[0]);
-            organization.setName(line[1]);
+            organization.setId(line[0].trim());
+            organization.setName(line[1].trim());
             organization.setPOY(parserPOY(line[2]));
             organization.setDirector(parserPOY(line[3]));
             organization.setDioikitikoSumvoulio(parserPOY(line[4]));
@@ -58,9 +63,9 @@ public class BulkImportService {
 
         POY poy = new POY();
         String details[] = s.split(";");
-        poy.setEmail(details[1]);
-        poy.setFirstname((details[0].split(" "))[0]);
-        poy.setLastname((details[0].split(" "))[1]);
+        poy.setEmail(details[1].trim());
+        poy.setFirstname((details[0].split(" "))[0].trim());
+        poy.setLastname((details[0].split(" "))[1].trim());
         return poy;
 
     }
@@ -72,9 +77,9 @@ public class BulkImportService {
         line = reader.readNext();
         while ((line = reader.readNext()) != null) {
             Institute institute = new Institute();
-            institute.setId(line[0]);
-            institute.setName(line[1]);
-            institute.setOrganization(organizationService.getByField("organization_name",line[2]));
+            institute.setId(line[0].trim());
+            institute.setName(line[1].trim());
+            institute.setOrganization(organizationService.getByField("organization_name",line[2].trim()));
             institute.setDirector(parserPOY(line[3]));
             institute.setAccountingRegistration(parserPOY(line[4]));
             institute.setAccountingPayment(parserPOY(line[5]));
@@ -104,15 +109,15 @@ public class BulkImportService {
         line = reader.readNext();
         while ((line = reader.readNext()) != null) {
             Project project = new Project();
-            project.setId(line[0]);
-            project.setName(line[1]);
-            project.setAcronym(line[2]);
-            project.setInstitute(instituteService.get(line[3]));
+            project.setId(line[0].trim());
+            project.setName(line[1].trim());
+            project.setAcronym(line[2].trim());
+            project.setInstitute(instituteService.get(line[3].trim()));
             project.setParentProject(null);
             project.setScientificCoordinator(parserPOY(line[5]));
             project.setOperator(parserOperator(line[6]));
-            project.setStartDate(line[7]);
-            project.setEndDate(line[8]);
+            project.setStartDate(line[7].trim());
+            project.setEndDate(line[8].trim());
             projectService.add(project);
         }
     }
