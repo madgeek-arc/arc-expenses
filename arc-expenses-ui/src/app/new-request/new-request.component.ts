@@ -106,52 +106,56 @@ export class NewRequestComponent implements OnInit {
 
     submitRequest() {
         console.log(this.newRequestForm);
-        if (this.newRequestForm.valid) {
-            this.request = new Request();
-            this.request.id = '';
-            this.request.project = this.chosenProject;
-            this.request.requester = this.currentUser;
-            this.request.requesterPosition = this.newRequestForm.get('position').value;
-            this.request.stage1 = new Stage1();
-            this.request.stage1.requestDate = this.datePipe.transform(Date.now(), 'dd/MM/yyyy');
-            this.request.stage1.subject = this.newRequestForm.get('requestText').value;
-            this.request.stage1.supplier = this.newRequestForm.get('supplier').value;
-            this.request.stage1.supplierSelectionMethod = this.newRequestForm.get('supplierSelectionMethod').value;
-            this.request.stage1.amountInEuros = +this.newRequestForm.get('ammount').value;
-            if (this.uploadedFile) {
-                this.request.stage1.attachment = new Attachment();
-                this.request.stage1.attachment.filename = this.uploadedFile.name;
-                this.request.stage1.attachment.mimetype = this.uploadedFile.type;
-                this.request.stage1.attachment.size = this.uploadedFile.size;
-                this.request.stage1.attachment.url = '';
-            }
-            this.request.stage = '2';
-            this.request.status = 'pending';
-            this.request.stage2 = new Stage2();
-            this.request.stage3 = new Stage3();
-            this.request.stage3a = new Stage3a();
-            this.request.stage3b = new Stage3b();
-            this.request.stage4 = new Stage4();
-            this.request.stage5 = new Stage5();
-            this.request.stage6 = new Stage6();
-            this.request.stage7 = new Stage7();
-            this.request.stage8 = new Stage8();
-            this.request.stage9 = new Stage9();
-            this.request.stage10 = new Stage10();
-
-            this.showSpinner = true;
-            this.errorMessage = '';
-            this.requestService.addRequest(this.request).subscribe (
-                res => {this.request = res; console.log(res); },
-                error => {
-                    console.log(error); this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την υποβολή της φόρμας';
-                    this.showSpinner = false;
-                },
-                () => {
-                    this.router.navigate(['/requests']);
-                    this.showSpinner = false;
+        if (this.newRequestForm.valid ) {
+            if ( (+this.newRequestForm.get('ammount').value < 2500) || this.uploadedFile) {
+                this.request = new Request();
+                this.request.id = '';
+                this.request.project = this.chosenProject;
+                this.request.requester = this.currentUser;
+                this.request.requesterPosition = this.newRequestForm.get('position').value;
+                this.request.stage1 = new Stage1();
+                this.request.stage1.requestDate = this.datePipe.transform(Date.now(), 'dd/MM/yyyy');
+                this.request.stage1.subject = this.newRequestForm.get('requestText').value;
+                this.request.stage1.supplier = this.newRequestForm.get('supplier').value;
+                this.request.stage1.supplierSelectionMethod = this.newRequestForm.get('supplierSelectionMethod').value;
+                this.request.stage1.amountInEuros = +this.newRequestForm.get('ammount').value;
+                if (this.uploadedFile) {
+                    this.request.stage1.attachment = new Attachment();
+                    this.request.stage1.attachment.filename = this.uploadedFile.name;
+                    this.request.stage1.attachment.mimetype = this.uploadedFile.type;
+                    this.request.stage1.attachment.size = this.uploadedFile.size;
+                    this.request.stage1.attachment.url = '';
                 }
-            );
+                this.request.stage = '2';
+                this.request.status = 'pending';
+                this.request.stage2 = new Stage2();
+                this.request.stage3 = new Stage3();
+                this.request.stage3a = new Stage3a();
+                this.request.stage3b = new Stage3b();
+                this.request.stage4 = new Stage4();
+                this.request.stage5 = new Stage5();
+                this.request.stage6 = new Stage6();
+                this.request.stage7 = new Stage7();
+                this.request.stage8 = new Stage8();
+                this.request.stage9 = new Stage9();
+                this.request.stage10 = new Stage10();
+
+                this.showSpinner = true;
+                this.errorMessage = '';
+                this.requestService.addRequest(this.request).subscribe (
+                    res => {this.request = res; console.log(res); },
+                    error => {
+                        console.log(error); this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την υποβολή της φόρμας';
+                        this.showSpinner = false;
+                    },
+                    () => {
+                        this.router.navigate(['/requests']);
+                        this.showSpinner = false;
+                    }
+                );
+            } else {
+                this.errorMessage = 'Για αιτήματα άνω των 2.500 € η επισύναψη των αντίστοιχων εγγράφων είναι υποχρεωτική.';
+            }
 
         } else {
             this.errorMessage = 'Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά';

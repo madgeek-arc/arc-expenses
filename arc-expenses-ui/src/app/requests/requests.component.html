@@ -22,9 +22,9 @@
             <div class=" uk-width-expand@m">
 
                 <div class="uk-form-horizontal uk-margin-large">
-                    <div class="uk-width-1-2 uk-align-center uk-margin-top">
+                    <div [formGroup]="keywordField" class="uk-width-1-2 uk-align-center uk-margin-top">
                         <input class="uk-input uk-width-2-3 uk-search-field"
-                               placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο" (blur)="getSearchTerm($event)">
+                               placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο" formControlName="keyword">
                         <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="getSearchResults()">Αναζήτηση</button>
                     </div>
                 </div>
@@ -41,8 +41,17 @@
                                     <div class="filterLabel">Κατάσταση:</div>
                                     <div class="inlineBlock">
                                         <select class="form-control" (change)="chooseState($event)">
-                                            <option value="" selected>όλα</option>
-                                            <option *ngFor="let state of states; let st_index = index" value="{{ st_index }}">{{state}}</option>
+                                            <option *ngFor="let state of states" value="{{ state }}">{{stateNames[state]}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-margin-bottom ">
+                                <div class="show-options uk-inline">
+                                    <div class="filterLabel">Στάδιο:</div>
+                                    <div class="inlineBlock">
+                                        <select class="form-control" (change)="chooseStage($event)">
+                                            <option *ngFor="let stage of stages" value="{{ stage }}">{{ stage }}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -78,7 +87,7 @@
                                         </li>
 
                                         <li class="uk-margin-auto-left">
-                                            <div class="resultsPageLabel" style="all: unset; font-size: small">page {{ currentPage+1 }} of {{ totalPages }}</div>
+                                            <div class="resultsPageLabel" style="all: unset; font-size: small">page {{ (totalPages > 0) ? currentPage+1 : 0 }} of {{ totalPages }}</div>
                                         </li>
 
                                         <li class="uk-margin-auto-left">
@@ -100,13 +109,18 @@
                                         <thead>
                                             <tr>
                                                 <th>Αρ.Πρωτοκόλλου</th>
-                                                <th><a (click)="sortBy('project')" title="Ταξινόμηση με βάση τον τίτλο του έργου">
+                                                <th><a (click)="sortBy('request_project')" title="Ταξινόμηση με βάση τον τίτλο του έργου">
                                                     Πρόγραμμα&nbsp;
-                                                    <span *ngIf="orderField && (orderField === 'project')"
+                                                    <span *ngIf="orderField && (orderField === 'request_project')"
                                                           [innerHtml]="getOrderSign()"></span>
                                                     </a>
                                                 </th>
-                                                <th>Ινστιτούτο/Μονάδα</th>
+                                                <th><a (click)="sortBy('request_institute')" title="Ταξινόμηση με βάση το όνομα του Ινστιτούτου" class="uk-margin-large-right">
+                                                    Ινστιτούτο/Μονάδα
+                                                    <span *ngIf="orderField && (orderField === 'request_institute')"
+                                                          [innerHtml]="getOrderSign()"></span>
+                                                </a></th>
+
                                                 <th>Αιτών</th>
                                                 <th><a (click)="sortBy('creation_date')" title="Ταξινόμηση με βάση την ημερομηνία υποβολής του αιτήματος">
                                                     Ημ/νια&nbsp;
@@ -114,9 +128,9 @@
                                                           [innerHtml]="getOrderSign()"></span>
                                                     </a>
                                                 </th>
-                                                <th><a (click)="sortBy('stage')" title="Ταξινόμηση με βάση το στάδιο" class="uk-margin-right">
+                                                <th><a (click)="sortBy('request_stage')" title="Ταξινόμηση με βάση το στάδιο" class="uk-margin-right">
                                                     Στάδιο&nbsp;
-                                                    <span *ngIf="orderField && (orderField === 'stage')"
+                                                    <span *ngIf="orderField && (orderField === 'request_stage')"
                                                           [innerHtml]="getOrderSign()"></span>
                                                     </a>
                                                 </th>
@@ -156,7 +170,7 @@
                                         </li>
 
                                         <li class="uk-margin-auto-left">
-                                            <div class="resultsPageLabel" style="all: unset; font-size: small">page {{ currentPage+1 }} of {{ totalPages }}</div>
+                                            <div class="resultsPageLabel" style="all: unset; font-size: small">page {{ (totalPages > 0) ? currentPage+1 : 0 }} of {{ totalPages }}</div>
                                         </li>
 
                                         <li class="uk-margin-auto-left">

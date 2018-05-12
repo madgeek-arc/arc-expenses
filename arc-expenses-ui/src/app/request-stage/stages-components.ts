@@ -5,8 +5,8 @@ import {
     Stage6, Stage7, Stage8, Stage9, Stage10
 } from '../domain/operation';
 import {
-    commentDesc, Stage10Desc, Stage2Desc, Stage3aDesc, Stage3bDesc, Stage3Desc, Stage4Desc, Stage5Desc, Stage6Desc,
-    Stage7Desc, Stage8Desc, Stage9Desc, StageDescription, StageFieldDescription
+    commentDesc, Stage10Desc, Stage2Desc, Stage5aDesc, Stage5bDesc, Stage3Desc, Stage4Desc, Stage5Desc, Stage6Desc,
+    Stage7Desc, Stage8Desc, Stage9Desc, StageDescription, StageFieldDescription, Stage12Desc
 } from '../domain/stageDescriptions';
 import {DatePipe} from '@angular/common';
 import {AuthenticationService} from '../services/authentication.service';
@@ -147,10 +147,12 @@ export class StageComponent implements OnInit {
 export class Stage2Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.stageTitle = 'Stage 2';
+        this.stageTitle = 'Έγκριση επιστημονικού υπευθύνου';
         this.delegatePositionInParagraph = 'από τον επιστημονικό υπεύθυνο';
         super.ngOnInit();
         this.stageDescription = Stage2Desc;
+        this.stageExtraFieldsList = ['isNecessary', 'isAdvisable'];
+        this.createExtraFields();
     }
 
 }
@@ -163,40 +165,12 @@ export class Stage2Component extends StageComponent implements OnInit {
 export class Stage3Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.stageTitle = 'Stage 3';
+        this.stageTitle = 'Έλεγχος χειριστή έργου';
         this.delegatePositionInParagraph = 'από τον χειριστή του προγράμματος';
         super.ngOnInit();
         this.stageDescription = Stage3Desc;
         this.stageExtraFieldsList = ['analiftheiYpoxrewsi', 'fundsAvailable'];
         this.createExtraFields();
-    }
-}
-
-@Component ({
-    selector: 'stage3a-component',
-    templateUrl: './stages-components.html'
-})
-export class Stage3aComponent extends StageComponent implements OnInit {
-
-    ngOnInit () {
-        this.stageTitle = 'Stage 3a';
-        this.delegatePositionInParagraph = 'από τον διευθυντή του Οργανισμού';
-        super.ngOnInit();
-        this.stageDescription = Stage3aDesc;
-    }
-}
-
-@Component ({
-    selector: 'stage3b-component',
-    templateUrl: './stages-components.html'
-})
-export class Stage3bComponent extends StageComponent implements OnInit {
-
-    ngOnInit () {
-        this.stageTitle = 'Stage 3b';
-        this.delegatePositionInParagraph = 'από το Διοικητικό Συμβούλιο';
-        super.ngOnInit();
-        this.stageDescription = Stage3bDesc;
     }
 }
 
@@ -207,7 +181,7 @@ export class Stage3bComponent extends StageComponent implements OnInit {
 export class Stage4Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.stageTitle = 'Stage 4';
+        this.stageTitle = 'Βεβαίωση Π.Ο.Υ';
         this.delegatePositionInParagraph = '';
         super.ngOnInit();
         this.stageDescription = Stage4Desc;
@@ -223,10 +197,39 @@ export class Stage4Component extends StageComponent implements OnInit {
 export class Stage5Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.stageTitle = 'Stage 5';
+        this.stageTitle = 'Έγκριση Διευθυντή/Υπεύθυνου Μονάδας';
         this.delegatePositionInParagraph = 'από τον διευθυντή του Ινστιτούτου';
         super.ngOnInit();
         this.stageDescription = Stage5Desc;
+    }
+}
+
+
+@Component ({
+    selector: 'stage5a-component',
+    templateUrl: './stages-components.html'
+})
+export class Stage3aComponent extends StageComponent implements OnInit {
+
+    ngOnInit () {
+        this.stageTitle = 'Έγκριση Γενικού Διευθυντή';
+        this.delegatePositionInParagraph = 'από τον διευθυντή του Οργανισμού';
+        super.ngOnInit();
+        this.stageDescription = Stage5aDesc;
+    }
+}
+
+@Component ({
+    selector: 'stage5b-component',
+    templateUrl: './stages-components.html'
+})
+export class Stage3bComponent extends StageComponent implements OnInit {
+
+    ngOnInit () {
+        this.stageTitle = 'Έγκριση Διοικητικού Συμβουλίου';
+        this.delegatePositionInParagraph = 'από το Διοικητικό Συμβούλιο';
+        super.ngOnInit();
+        this.stageDescription = Stage5bDesc;
     }
 }
 
@@ -237,7 +240,7 @@ export class Stage5Component extends StageComponent implements OnInit {
 export class Stage6Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.stageTitle = 'Stage 6';
+        this.stageTitle = 'Ανάρτηση στην Διαύγεια';
         this.delegatePositionInParagraph = 'από την ΔΙΑΥΓΕΙΑ';
         super.ngOnInit();
         this.stageDescription = Stage6Desc;
@@ -252,7 +255,7 @@ export class Stage6Component extends StageComponent implements OnInit {
 export class Stage7Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.stageTitle = 'Stage 7';
+        this.stageTitle = 'Καταχώρηση συνοδευτικού υλικού';
         this.delegatePositionInParagraph = 'από τον διευθυντή λογιστηρίου';
         super.ngOnInit();
         this.stageDescription = Stage7Desc;
@@ -268,7 +271,7 @@ export class Stage7Component extends StageComponent implements OnInit {
 export class Stage8Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.stageTitle = 'Stage 8';
+        this.stageTitle = 'Έλεγχος από ομάδα ελέγχου';
         this.delegatePositionInParagraph = '';
         super.ngOnInit();
         this.stageDescription = Stage8Desc;
@@ -284,7 +287,7 @@ export class Stage8Component extends StageComponent implements OnInit {
 export class Stage9Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.stageTitle = 'Stage 9';
+        this.stageTitle = 'Έλεγχος από Π.Ο.Υ';
         this.delegatePositionInParagraph = '';
         super.ngOnInit();
         this.stageDescription = Stage9Desc;
@@ -298,9 +301,40 @@ export class Stage9Component extends StageComponent implements OnInit {
 export class Stage10Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.stageTitle = 'Stage 10';
+        this.stageTitle = 'Λογιστική καταχώρηση';
         this.delegatePositionInParagraph = '';
         super.ngOnInit();
         this.stageDescription = Stage10Desc;
+        this.stageExtraFieldsList = ['checkRegularity', 'checkLegality'];
+        this.createExtraFields();
+    }
+}
+
+@Component ({
+    selector: 'stage11-component',
+    templateUrl: './stages-components.html'
+})
+export class Stage11Desc extends StageComponent implements OnInit {
+
+    ngOnInit () {
+        this.stageTitle = 'Ανάρτηση εξόφλησης στη Διαύγεια';
+        this.delegatePositionInParagraph = '';
+        super.ngOnInit();
+        this.stageDescription = Stage11Desc;
+
+    }
+}
+
+@Component ({
+    selector: 'stage12-component',
+    templateUrl: './stages-components.html'
+})
+export class Stage12Component extends StageComponent implements OnInit {
+
+    ngOnInit () {
+        this.stageTitle = 'Ανάρτηση εξόφλησης στη Διαύγεια';
+        this.delegatePositionInParagraph = '';
+        super.ngOnInit();
+        this.stageDescription = Stage12Desc;
     }
 }

@@ -32,37 +32,55 @@ export const analiftheiYpoxrewsiDesc = {
 };
 
 export const checkRegularityDesc = {
-  label: 'Έγινε έλεγχος ορθότητας;',
+  label: 'Έγινε έλεγχος κανονικότητας;',
   type: 'checkbox',
   description: '',
   required: true
 };
 
 export const checkLegalityDesc = {
-  label: 'Έγινε νομικός έλεγχος;',
+  label: 'Έγινε έλεγχος νομιμότητας;',
   type: 'checkbox',
+  description: '',
+  required: true
+};
+
+export const isNecessaryDesc = {
+  label: 'Έγινε έλεγχος αναγκαιότητας;',
+  type: 'checkbox',
+  description: '',
+  required: true
+};
+
+export const isAdvisableDesc = {
+  label: 'Έγινε έλεγχος σκοπιμότητας;',
+  type: 'checkbox',
+  description: '',
+  required: true
+};
+
+export const accountingCodeDesc = {
+  label: 'Κωδικός λογιστικής',
+  type: 'text',
+  description: '',
+  required: true
+};
+
+export const accountingDescriptionDesc = {
+  label: 'Περιγραφή',
+  type: 'textarea',
   description: '',
   required: true
 };
 
 export const Stage2Desc = {
   delegateField: 'scientificCoordinator',
-  stageFields: []
+  stageFields: [isNecessaryDesc, isAdvisableDesc]
 };
 
 export const Stage3Desc = {
   delegateField: 'operator',
   stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc]
-};
-
-export const Stage3aDesc = {
-  delegateField: 'organizationDirector',
-  stageFields: []
-};
-
-export const Stage3bDesc = {
-  delegateField: 'dioikitikoSumvoulio',
-  stageFields: []
 };
 
 export const Stage4Desc = {
@@ -75,27 +93,47 @@ export const Stage5Desc = {
   stageFields: []
 };
 
+export const Stage5aDesc = {
+    delegateField: 'organizationDirector',
+    stageFields: []
+};
+
+export const Stage5bDesc = {
+    delegateField: 'dioikitikoSumvoulio',
+    stageFields: []
+};
+
 export const Stage6Desc = {
   delegateField: 'organizationDiaugeia',
   stageFields: []
 };
 
 export const Stage7Desc = {
+    delegateField: 'operator',
+    stageFields: []
+};
+
+export const Stage8Desc = {
   delegateField: 'accountingDirector',
   stageFields: [checkRegularityDesc, checkLegalityDesc]
 };
 
-export const Stage8Desc = {
+export const Stage9Desc = {
   delegateField: 'POY',
   stageFields: [checkRegularityDesc, checkLegalityDesc]
 };
 
-export const Stage9Desc = {
+export const Stage10Desc = {
   delegateField: 'accountingRegistration',
-  stageFields: []
+  stageFields: [accountingCodeDesc, accountingDescriptionDesc]
 };
 
-export const Stage10Desc = {
+export const Stage11Desc = {
+    delegateField: 'organizationDiaugeia',
+    stageFields: []
+};
+
+export const Stage12Desc = {
   delegateField: 'accountingPayment',
   stageFields: []
 };
