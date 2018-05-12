@@ -18,19 +18,27 @@
             <span class="uk-text-bold uk-margin-small-right">Σχόλια: </span>
             <span> {{ currentStage['comment'] }} </span>
         </div>
-        <div><a class="uk-link uk-width-1-1@l uk-margin-small-top" (click)="linkToFile()">
-            Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a></div>
+        <div *ngIf="currentStage['attachment'] && currentStage['attachment']['url']">
+            <a class="uk-link uk-width-1-1@l uk-margin-small-top" (click)="linkToFile()">
+                Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία
+            </a>
+        </div>
     </div>
-    <div *ngIf="!wasSubmitted" [formGroup]="stageForm" class="uk-form-controls">
+    <div *ngIf="!wasSubmitted && stageForm" [formGroup]="stageForm" class="uk-form-controls">
         <h5>{{ stageTitle }}</h5>
 
+        <div *ngIf="stageFormError" class="uk-alert uk-alert-warning">{{ stageFormError }}</div>
         <!--INPUTS FOR EXTRA FIELDS-->
         <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
-            <app-stage-form *ngIf="desc.type !== 'textarea'" [description]="desc">
-                <input formControlName="{{stageExtraFieldsList[controlIndex]}}" class="uk-form-controls uk-checkbox" type="{{ desc.type }}">
-            </app-stage-form>
-            <app-stage-form *ngIf="desc.type === 'textarea'" [description]="desc">
-                <textarea formControlName="{{stageExtraFieldsList[controlIndex]}}" class="uk-form-controls uk-textarea" rows="2"></textarea>
+            <app-stage-form [description]="desc">
+                <div *ngIf="desc.type !== 'textarea'">
+                    <input formControlName="{{stageExtraFieldsList[controlIndex]}}"
+                           class="uk-form-controls" type="{{ desc.type }}">
+                </div>
+                <div *ngIf="desc.type === 'textarea'">
+                    <textarea formControlName="{{stageExtraFieldsList[controlIndex]}}"
+                              class="uk-form-controls uk-textarea" rows="2"></textarea>
+                </div>
             </app-stage-form>
         </div>
 
@@ -43,13 +51,20 @@
         <app-stage-form-upload-file (emitFile)="getAttachmentInput($event)"></app-stage-form-upload-file>
 
         <!--BUTTONS-->
-        <div *ngIf="stageTitle != 'Stage 6'">
-            <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
+        <div *ngIf="stageDescription.id !== '6' && stageDescription.id !== '11'">
+            <button *ngIf="stageFormDefinition.id !== '5'"
+                    class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
+
+            <button *ngIf="stageFormDefinition.id === '5' && willShowButtonTo5a"
+                    class="uk-button uk-button-primary" (click)="forwardRequest('5a')">Προώθηση προς τον Γενικό Διευθυντή</button>
+            <button *ngIf="stageFormDefinition.id === '5' && willShowButtonTo5b"
+                    class="uk-button uk-button-primary" (click)="forwardRequest('5b')">Προώθηση προς το Διοικητικό Συμβούλιο</button>
+
             <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>
         </div>
-        <div *ngIf="stageTitle == 'Stage 6'">
-            <button class="uk-button uk-button-primary" (click)="submitForm()">Υποβολή</button>
+        <div *ngIf="stageDescription.id === '6' || stageDescription.id === '11'">
+            <button class="uk-button uk-button-primary" (click)="submitForm()">Προώθηση αιτήματος</button>
         </div>
-        <div><span class="uk-text-small">Ημερομηνία κατάθεσης: {{ getCurrentDateString() }}</span></div>
+        <div><span class="uk-text-small">Ημερομηνία αλλαγής: {{ getCurrentDateString() }}</span></div>
     </div>
 </div>

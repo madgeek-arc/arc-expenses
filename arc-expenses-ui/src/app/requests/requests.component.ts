@@ -6,6 +6,7 @@ import { Paging } from '../domain/extraClasses';
 import {Router} from '@angular/router';
 import {isNull} from 'util';
 import {FormBuilder, FormGroup} from '@angular/forms';
+import { stagesMap } from '../domain/stageDescriptions';
 
 @Component({
     selector: 'app-requests',
@@ -29,7 +30,8 @@ export class RequestsComponent implements OnInit {
 
   stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', rejected: 'Έχουν απορριφθεί', accepted: 'Έχουν εγκριθεί'};
   states = ['all', 'accepted', 'pending', 'rejected'];
-  stages = ['2', '3', '3a', '3b', '4', '5', '6', '7', '8', '9', '10'];
+  stages = ['2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12'];
+  stagesMap = stagesMap;
 
   searchResults: Paging<Request>;
 

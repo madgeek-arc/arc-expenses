@@ -51,7 +51,7 @@
                                     <div class="filterLabel">Στάδιο:</div>
                                     <div class="inlineBlock">
                                         <select class="form-control" (change)="chooseStage($event)">
-                                            <option *ngFor="let stage of stages" value="{{ stage }}">{{ stage }}</option>
+                                            <option *ngFor="let stage of stages" value="{{ stage }}">{{ stagesMap[stage] }}</option>
                                         </select>
                                     </div>
                                 </div>

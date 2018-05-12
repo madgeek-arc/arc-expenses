@@ -1,13 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import {analiftheiYpoxrewsiDesc, checkLegalityDesc, checkRegularityDesc, StageDescription} from '../domain/stageDescriptions';
-import {
-    Request, Institute, Delegate, Stage1, Stage2, Stage3, Requester, Project, Attachment,
-    Stage3a, Stage3b, Stage4, Stage5, Stage6, Stage7, Stage8, Stage9, Stage10
-} from '../domain/operation';
-import {ActivatedRoute} from '@angular/router';
+import { stagesMap } from '../domain/stageDescriptions';
+import { Request } from '../domain/operation';
+import { ActivatedRoute } from '@angular/router';
 import { ManageRequestsService } from '../services/manage-requests.service';
-import {AuthenticationService} from '../services/authentication.service';
-import {containerStart} from '@angular/core/src/render3/instructions';
+import { AuthenticationService } from '../services/authentication.service';
+import { isNull } from 'util';
 
 @Component({
   selector: 'app-request-stage',
@@ -22,6 +19,10 @@ export class RequestStageComponent implements OnInit {
   requestId: string;
   currentRequest: Request;
   canEdit: boolean = false;
+  nextStage: string;
+
+  stages = ['2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12'];
+  stagesMap = stagesMap;
 
   constructor(private route: ActivatedRoute,
               private requestService: ManageRequestsService,
@@ -51,24 +52,44 @@ export class RequestStageComponent implements OnInit {
     );
   }
 
+  getIfUserCanEditRequest() {
+      this.requestService.isEditable(this.currentRequest, this.authService.getUserEmail()).subscribe(
+          res => this.canEdit = res,
+          error => {
+              console.log(error);
+              this.canEdit = false;
+              this.showSpinner = false;
+              this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την ανάκτηση του αιτήματος.';
+          },
+          () => {
+              this.showSpinner = false;
+              console.log('this.canEdit is ', this.canEdit);
+          }
+      );
+  }
+
+  getNextStage(nextStage: string) {
+    this.nextStage = nextStage;
+  }
+
   getSubmittedStage(newStage: any) {
       console.log(`got ${JSON.stringify(newStage, null, 1)}`);
       const currentStageName = 'stage' + this.currentRequest.stage;
       console.log(`submitting as ${currentStageName}`);
       this.currentRequest[currentStageName] = newStage;
       if (newStage['approved']) {
-          if (this.currentRequest.stage === '10' ) {
+          if (this.currentRequest.stage === '12' ) {
               this.currentRequest.status = 'accepted';
           } else {
               this.currentRequest.status = 'pending';
           }
-      } else if (this.currentRequest.stage === '6') {
+      } else if (this.currentRequest.stage === '6' || this.currentRequest.stage === '11') {
           this.currentRequest.status = 'pending';
       } else {
           this.currentRequest.status = 'rejected';
       }
 
-      if (this.currentRequest.status !== 'rejected') {
+      /*if (this.currentRequest.status !== 'rejected') {
           if (this.currentRequest.stage !== '3' &&
               this.currentRequest.stage !== '3a' &&
               this.currentRequest.stage !== '3b' &&
@@ -89,26 +110,11 @@ export class RequestStageComponent implements OnInit {
               } else {
                   this.currentRequest.stage = '4';
               }
-          }
-      }
+          }*/
+      this.currentRequest.stage = this.nextStage;
+      /*}*/
 
       this.submitRequest();
-  }
-
-  getIfUserCanEditRequest() {
-      this.requestService.isEditable(this.currentRequest, this.authService.getUserEmail()).subscribe(
-          res => this.canEdit = res,
-          error => {
-              console.log(error);
-              this.canEdit = false;
-              this.showSpinner = false;
-              this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την ανάκτηση του αιτήματος.';
-          },
-          () => {
-              this.showSpinner = false;
-              console.log('this.canEdit is ', this.canEdit);
-          }
-      );
   }
 
   submitRequest() {
@@ -135,7 +141,15 @@ export class RequestStageComponent implements OnInit {
       if ( (stageNumber[1] === this.currentRequest.stage) ) {
           return this.canEdit;
       } else {
-          if (this.currentRequest.stage !== '3a' && this.currentRequest.stage !== '3b') {
+          for ( const id of this.stages ) {
+              if ( id === this.currentRequest.stage ) {
+                  return false;
+              }
+              if ( id === stageField ) {
+                  return ( !isNull(this.currentRequest[`stage${stageField}`].date) );
+              }
+          }
+          /*if (this.currentRequest.stage !== '3a' && this.currentRequest.stage !== '3b') {
               if ( stageNumber[1] === '3a' || stageNumber[1] === '3b' ) {
                   return ( (+this.currentRequest.stage > 3) && this.currentRequest[stageField].date );
               } else {
@@ -155,7 +169,7 @@ export class RequestStageComponent implements OnInit {
                       return ( +stageNumber[1] <=  3 );
                   }
               }
-          }
+          }*/
       }
   }
 

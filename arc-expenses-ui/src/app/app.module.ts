@@ -16,9 +16,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { StageFormComponent, StageFormUploadFileComponent } from './shared/stage-form/stage-form.component';
 import { RequestStageComponent } from './request-stage/request-stage.component';
 import {
-    Stage2Component, Stage3Component, Stage3aComponent, StageComponent,
-    Stage3bComponent, Stage4Component, Stage5Component, Stage6Component, Stage7Component, Stage8Component,
-    Stage9Component, Stage10Component
+    Stage2Component, Stage3Component, StageComponent, Stage4Component, Stage5Component,
+    Stage6Component, Stage7Component, Stage8Component, Stage9Component, Stage10Component, Stage11Component,
+    Stage12Component, Stage5aComponent, Stage5bComponent
 } from './request-stage/stages-components';
 import { ManageRequestsService } from './services/manage-requests.service';
 import {AuthenticationService} from './services/authentication.service';
@@ -49,15 +49,17 @@ registerLocaleData(localeEL);
     StageComponent,
     Stage2Component,
     Stage3Component,
-    Stage3aComponent,
-    Stage3bComponent,
     Stage4Component,
     Stage5Component,
+    Stage5aComponent,
+    Stage5bComponent,
     Stage6Component,
     Stage7Component,
     Stage8Component,
     Stage9Component,
     Stage10Component,
+    Stage11Component,
+    Stage12Component,
     FilterByTerm
   ],
   imports: [

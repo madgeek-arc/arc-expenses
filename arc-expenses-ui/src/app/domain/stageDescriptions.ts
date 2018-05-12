@@ -1,3 +1,5 @@
+/* the descriptions are used for dynamically loading request update forms and viewing results per stage */
+
 export class StageFieldDescription {
   label: string;
   type: string;
@@ -6,8 +8,9 @@ export class StageFieldDescription {
 }
 
 export class StageDescription {
-  stageFields: StageFieldDescription [];
-  delegateField: string;
+    id: string;
+    stageFields: StageFieldDescription [];
+    delegateField: string;
 }
 
 export const commentDesc = {
@@ -74,66 +77,97 @@ export const accountingDescriptionDesc = {
 };
 
 export const Stage2Desc = {
-  delegateField: 'scientificCoordinator',
-  stageFields: [isNecessaryDesc, isAdvisableDesc]
+    id: '2',
+    delegateField: 'scientificCoordinator',
+    stageFields: [isNecessaryDesc, isAdvisableDesc]
 };
 
 export const Stage3Desc = {
-  delegateField: 'operator',
-  stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc]
+    id: '3',
+    delegateField: 'operator',
+    stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc]
 };
 
 export const Stage4Desc = {
-  delegateField: 'POY',
-  stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc]
+    id: '4',
+    delegateField: 'POY',
+    stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc]
 };
 
 export const Stage5Desc = {
-  delegateField: 'instituteDirector',
-  stageFields: []
+    id: '5',
+    delegateField: 'instituteDirector',
+    stageFields: []
 };
 
 export const Stage5aDesc = {
+    id: '5a',
     delegateField: 'organizationDirector',
     stageFields: []
 };
 
 export const Stage5bDesc = {
+    id: '5b',
     delegateField: 'dioikitikoSumvoulio',
     stageFields: []
 };
 
 export const Stage6Desc = {
-  delegateField: 'organizationDiaugeia',
-  stageFields: []
+    id: '6',
+    delegateField: 'organizationDiaugeia',
+    stageFields: []
 };
 
 export const Stage7Desc = {
+    id: '7',
     delegateField: 'operator',
     stageFields: []
 };
 
 export const Stage8Desc = {
-  delegateField: 'accountingDirector',
-  stageFields: [checkRegularityDesc, checkLegalityDesc]
+    id: '8',
+    delegateField: 'accountingDirector',
+    stageFields: [checkRegularityDesc, checkLegalityDesc]
 };
 
 export const Stage9Desc = {
-  delegateField: 'POY',
-  stageFields: [checkRegularityDesc, checkLegalityDesc]
+    id: '9',
+    delegateField: 'POY',
+    stageFields: [checkRegularityDesc, checkLegalityDesc]
 };
 
 export const Stage10Desc = {
-  delegateField: 'accountingRegistration',
-  stageFields: [accountingCodeDesc, accountingDescriptionDesc]
+    id: '10',
+    delegateField: 'accountingRegistration',
+    stageFields: [accountingCodeDesc, accountingDescriptionDesc]
 };
 
 export const Stage11Desc = {
+    id: '11',
     delegateField: 'organizationDiaugeia',
     stageFields: []
 };
 
 export const Stage12Desc = {
-  delegateField: 'accountingPayment',
-  stageFields: []
+    id: '12',
+    delegateField: 'accountingPayment',
+    stageFields: []
+};
+
+
+/* will be used everytime a stage title is needed */
+export const stagesMap = {
+    '2': 'Έγκριση επιστημονικού υπευθύνου',
+    '3': 'Υποβολή αιτήματος',
+    '4': 'Βεβαίωση Π.Ο.Υ',
+    '5': 'Έγκριση Διευθυντή/Υπεύθυνου Μονάδας',
+    '5a': 'Έγκριση Γενικού Διευθυντή',
+    '5b': 'Έγκριση Διοικητικού Συμβουλίου',
+    '6': 'Ανάρτηση στην Διαύγεια',
+    '7': 'Καταχώρηση συνοδευτικού υλικού',
+    '8': 'Έλεγχος από ομάδα ελέγχου',
+    '9': 'Έλεγχος από Π.Ο.Υ',
+    '10': 'Λογιστική καταχώρηση',
+    '11': 'Ανάρτηση εξόφλησης στη Διαύγεια',
+    '12': 'Οικονομική διεκπεραίωση'
 };

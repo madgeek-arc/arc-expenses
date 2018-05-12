@@ -1,12 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {
-    Attachment, Delegate, Institute, Organization, POY, Project, Request, Requester, Stage1, Stage2, Stage3a, Stage10, Stage3b, Stage4,
-    Stage5, Stage6,
-    Stage7,
-    Stage8,
-    Stage9, Stage3
-} from '../domain/operation';
+import { FormBuilder, FormGroup, Validators} from '@angular/forms';
+import { Attachment, Project, Request, Requester, Stage1, Stage2, Stage5a, Stage10, Stage5b, Stage4,
+         Stage5, Stage6, Stage7, Stage8, Stage9, Stage3, Stage11, Stage12 } from '../domain/operation';
 import {ManageRequestsService} from '../services/manage-requests.service';
 import {Router} from '@angular/router';
 import {AuthenticationService} from '../services/authentication.service';
@@ -130,15 +125,17 @@ export class NewRequestComponent implements OnInit {
                 this.request.status = 'pending';
                 this.request.stage2 = new Stage2();
                 this.request.stage3 = new Stage3();
-                this.request.stage3a = new Stage3a();
-                this.request.stage3b = new Stage3b();
                 this.request.stage4 = new Stage4();
                 this.request.stage5 = new Stage5();
+                this.request.stage5a = new Stage5a();
+                this.request.stage5b = new Stage5b();
                 this.request.stage6 = new Stage6();
                 this.request.stage7 = new Stage7();
                 this.request.stage8 = new Stage8();
                 this.request.stage9 = new Stage9();
                 this.request.stage10 = new Stage10();
+                this.request.stage11 = new Stage11();
+                this.request.stage12 = new Stage12();
 
                 this.showSpinner = true;
                 this.errorMessage = '';
