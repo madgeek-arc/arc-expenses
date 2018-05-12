@@ -169,6 +169,8 @@
       "properties": {
         "scientificCoordinator": { "$ref": "#/definitions/person"},
         "date": { "type": "string"},
+        "checkFeasibility":{"type":"boolean"},
+        "checkNecessity":{"type":"boolean"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
@@ -181,26 +183,6 @@
         "date": { "type": "string"},
         "analiftheiYpoxrewsi": { "type": "boolean"},
         "fundsAvailable": { "type": "boolean"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage3a": {
-      "type": "object",
-      "properties": {
-        "date": { "type": "string"},
-        "organizationDirector": { "$ref": "#/definitions/person"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage3b": {
-      "type": "object",
-      "properties": {
-        "date": { "type": "string"},
-        "dioikitikoSumvoulio": { "$ref": "#/definitions/person"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
@@ -228,6 +210,26 @@
         "attachment": { "$ref": "#/definitions/attachment" }
       }
     },
+    "stage5a": {
+      "type": "object",
+      "properties": {
+        "date": { "type": "string"},
+        "organizationDirector": { "$ref": "#/definitions/person"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stage5b": {
+      "type": "object",
+      "properties": {
+        "date": { "type": "string"},
+        "dioikitikoSumvoulio": { "$ref": "#/definitions/person"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
     "stage6": {
       "type": "object",
       "properties": {
@@ -240,10 +242,8 @@
     "stage7": {
       "type": "object",
       "properties": {
-        "accountingDirector": { "$ref": "#/definitions/person"},
+        "operator": { "$ref": "#/definitions/person"},
         "date": { "type": "string"},
-        "checkRegularity": { "type": "boolean"},
-        "checkLegality": { "type": "boolean"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
@@ -252,7 +252,7 @@
     "stage8": {
       "type": "object",
       "properties": {
-        "POY": { "$ref": "#/definitions/person"},
+        "accountingDirector": { "$ref": "#/definitions/person"},
         "date": { "type": "string"},
         "checkRegularity": { "type": "boolean"},
         "checkLegality": { "type": "boolean"},
@@ -264,14 +264,28 @@
     "stage9": {
       "type": "object",
       "properties": {
-        "accountingRegistration": { "$ref": "#/definitions/person"},
+        "POY": { "$ref": "#/definitions/person"},
         "date": { "type": "string"},
+        "checkRegularity": { "type": "boolean"},
+        "checkLegality": { "type": "boolean"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
       }
     },
     "stage10": {
+      "type": "object",
+      "properties": {
+        "accountingRegistration": { "$ref": "#/definitions/person"},
+        "date": { "type": "string"},
+        "accountCode": { "type": "string"},
+        "accountDescription": { "type": "string"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stage11": {
       "type": "object",
       "properties": {
         "accountingPayment": { "$ref": "#/definitions/person"},
