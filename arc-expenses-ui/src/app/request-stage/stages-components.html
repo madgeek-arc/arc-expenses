@@ -11,7 +11,7 @@
         <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
             <app-stage-form [description]="desc">
                 <input class="uk-form-controls uk-checkbox"
-                       type="checkbox" [checked]="currentStage[ stageExtraFieldsList[controlIndex] ]" disabled>
+                       type="{{desc.type}}" [checked]="currentStage[ stageExtraFieldsList[controlIndex] ]" disabled>
             </app-stage-form>
         </div>
         <div *ngIf="currentStage['comment']">
@@ -26,8 +26,11 @@
 
         <!--INPUTS FOR EXTRA FIELDS-->
         <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
-            <app-stage-form [description]="desc">
-                <input formControlName="{{stageExtraFieldsList[controlIndex]}}" class="uk-form-controls uk-checkbox" type="checkbox">
+            <app-stage-form *ngIf="desc.type !== 'textarea'" [description]="desc">
+                <input formControlName="{{stageExtraFieldsList[controlIndex]}}" class="uk-form-controls uk-checkbox" type="{{ desc.type }}">
+            </app-stage-form>
+            <app-stage-form *ngIf="desc.type === 'textarea'" [description]="desc">
+                <textarea formControlName="{{stageExtraFieldsList[controlIndex]}}" class="uk-form-controls uk-textarea" rows="2"></textarea>
             </app-stage-form>
         </div>
 

@@ -62,15 +62,17 @@ export class Request {
     stage1: Stage1;
     stage2: Stage2;
     stage3: Stage3;
-    stage3a: Stage3a;
-    stage3b: Stage3b;
     stage4: Stage4;
     stage5: Stage5;
+    stage5a: Stage5a;
+    stage5b: Stage5b;
     stage6: Stage6;
     stage7: Stage7;
     stage8: Stage8;
     stage9: Stage9;
     stage10: Stage10;
+    stage11: Stage11;
+    stage12: Stage12;
 }
 
 export class Requester {
@@ -91,18 +93,12 @@ export class Stage1 {
     attachment: Attachment;
 }
 
-export class Stage10 {
-    accountingPayment: Delegate;
-    date: string;
-    approved: boolean;
-    comment: string;
-    attachment: Attachment;
-}
-
 export class Stage2 {
     scientificCoordinator: Delegate;
     date: string;
     approved: boolean;
+    isNecessary: boolean;
+    isAdvisable: boolean;
     comment: string;
     attachment: Attachment;
 }
@@ -112,22 +108,6 @@ export class Stage3 {
     date: string;
     analiftheiYpoxrewsi: boolean;
     fundsAvailable: boolean;
-    approved: boolean;
-    comment: string;
-    attachment: Attachment;
-}
-
-export class Stage3a {
-    date: string;
-    organizationDirector: Delegate;
-    approved: boolean;
-    comment: string;
-    attachment: Attachment;
-}
-
-export class Stage3b {
-    date: string;
-    dioikitikoSumvoulio: Delegate;
     approved: boolean;
     comment: string;
     attachment: Attachment;
@@ -151,6 +131,22 @@ export class Stage5 {
     attachment: Attachment;
 }
 
+export class Stage5a {
+    date: string;
+    organizationDirector: Delegate;
+    approved: boolean;
+    comment: string;
+    attachment: Attachment;
+}
+
+export class Stage5b {
+    date: string;
+    dioikitikoSumvoulio: Delegate;
+    approved: boolean;
+    comment: string;
+    attachment: Attachment;
+}
+
 export class Stage6 {
     organizationDiaugeia: Delegate;
     date: string;
@@ -159,6 +155,14 @@ export class Stage6 {
 }
 
 export class Stage7 {
+    operator: Delegate;
+    date: string;
+    approved: boolean;
+    comment: string;
+    attachment: Attachment;
+}
+
+export class Stage8 {
     accountingDirector: Delegate;
     date: string;
     checkRegularity: boolean;
@@ -168,7 +172,7 @@ export class Stage7 {
     attachment: Attachment;
 }
 
-export class Stage8 {
+export class Stage9 {
     POY: Delegate;
     date: string;
     checkRegularity: boolean;
@@ -178,8 +182,25 @@ export class Stage8 {
     attachment: Attachment;
 }
 
-export class Stage9 {
+export class Stage10 {
     accountingRegistration: Delegate;
+    date: string;
+    approved: boolean;
+    accountingCode: string;
+    accountingDescription: string;
+    comment: string;
+    attachment: Attachment;
+}
+
+export class Stage11 {
+    organizationDiaugeia: Delegate;
+    date: string;
+    comment: string;
+    attachment: Attachment;
+}
+
+export class Stage12 {
+    accountingPayment: Delegate;
     date: string;
     approved: boolean;
     comment: string;

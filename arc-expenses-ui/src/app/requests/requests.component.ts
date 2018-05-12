@@ -5,6 +5,7 @@ import { AuthenticationService } from '../services/authentication.service';
 import { Paging } from '../domain/extraClasses';
 import {Router} from '@angular/router';
 import {isNull} from 'util';
+import {FormBuilder, FormGroup} from '@angular/forms';
 
 @Component({
     selector: 'app-requests',
@@ -19,11 +20,6 @@ export class RequestsComponent implements OnInit {
 
   title = 'Υπάρχοντα Αιτήματα';
 
-  symbols = ['', '&#9662;', '&#9652;'];
-  categories = ['Α/Α', 'Πρόγραμμα', 'Ινστιτούτο/Μονάδα', 'Αιτών', 'Ημ/νια', 'Στάδιο', 'Ποσό', 'Κατάσταση'];
-  catSymbols = [this.symbols[0], this.symbols[0], this.symbols[0], this.symbols[0], this.symbols[0], this.symbols[0],
-      this.symbols[0], this.symbols[0]];
-
   searchTerm: string;
   currentPage: number;
   itemsPerPage: number;
@@ -31,28 +27,30 @@ export class RequestsComponent implements OnInit {
   orderField: string;
   totalPages: number;
 
-  states = ['Σε εξέλιξη', 'Απορρίφθηκε', 'Εγκρίθηκε'];
-  stages = [ { 1: 'stage1' }, { 2: 'stage2' }, { 3: 'stage3' }, { 4: 'stage3a' }, { 5: 'stage3b' }, { 6: 'stage4' }, { 7: 'stage5' },
-             { 8: 'stage6' }, { 9: 'stage7' }, { 10: 'stage8' }, { 11: 'stage9' }, { 12: 'stage10' }];
-  stageTitles = ['1', '2', '3', '3a', '3b', '4', '5', '6', '7', '8', '9', '10'];
+  stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', rejected: 'Έχουν απορριφθεί', accepted: 'Έχουν εγκριθεί'};
+  states = ['all', 'accepted', 'pending', 'rejected'];
+  stages = ['2', '3', '3a', '3b', '4', '5', '6', '7', '8', '9', '10'];
 
   searchResults: Paging<Request>;
 
   listOfRequests: Request [] = [];
 
+  keywordField: FormGroup;
+
   constructor(private requestService: ManageRequestsService,
-              private authService: AuthenticationService, private router: Router) {}
+              private authService: AuthenticationService, private router: Router, private fb: FormBuilder) {}
 
   ngOnInit(){
       this.initializeParams();
   }
 
   initializeParams() {
-      this.searchTerm = '';
+      this.keywordField = this.fb.group({ keyword: [''] });
+      this.searchTerm = 'all';
       this.currentPage = 0;
       this.itemsPerPage = 10;
-      this.order = '';
-      this.orderField = '';
+      this.order = 'ASC';
+      this.orderField = 'creation_date';
       this.totalPages = 0;
 
       this.getListOfRequests();
@@ -62,6 +60,7 @@ export class RequestsComponent implements OnInit {
   getListOfRequests() {
     this.noRequests = '';
     this.errorMessage = '';
+    this.listOfRequests = [];
     this.showSpinner = true;
     this.requestService.searchAllRequests(this.searchTerm,
                                           this.currentPage.toString(),
@@ -90,7 +89,7 @@ export class RequestsComponent implements OnInit {
             this.showSpinner = false;
         },
         () => {
-            this.searchTerm = '';
+            // this.searchTerm = 'all';
             this.showSpinner = false;
             if (this.listOfRequests.length === 0) {
                 this.noRequests = 'Δεν βρέθηκαν σχετικά αιτήματα.';
@@ -99,46 +98,26 @@ export class RequestsComponent implements OnInit {
     );
   }
 
-  /*sortBy(category: number) {
-    if (this.catSymbols[category] === this.symbols[0]) {
-      // console.log(this.catSymbols); // DEBUG
-      // this.catSymbols.forEach(x => x = this.symbols[0]);
-      for (let i = 0; i < this.catSymbols.length; i++) {
-        this.catSymbols[i] = this.symbols[0];
-      }
-        this.catSymbols[category] = this.symbols[1];
-      // TODO: call sort asc
-
-    } else if (this.catSymbols[category] === this.symbols[1]) {
-      this.catSymbols[category] = this.symbols[2];
-      // TODO: call sort desc
-
-    } else if (this.catSymbols[category] === this.symbols[2]) {
-      this.catSymbols[category] = this.symbols[1];
-      // TODO: call sort asc
-    }
-  }*/
-
   sortBy (category: string) {
       if (this.orderField && this.orderField === category) {
           this.toggleOrder();
       } else {
-          this.order = 'asc';
+          this.order = 'ASC';
           this.orderField = category;
       }
       this.getListOfRequests();
   }
 
   toggleOrder() {
-      if (this.order === 'asc') {
-          this.order = 'desc';
+      if (this.order === 'ASC') {
+          this.order = 'DESC';
       } else {
-          this.order = 'asc';
+          this.order = 'ASC';
       }
   }
 
   getOrderSign() {
-      if (this.order === 'asc') {
+      if (this.order === 'ASC') {
           return '&#9652;';
       } else {
           return '&#9662;';
@@ -164,33 +143,30 @@ export class RequestsComponent implements OnInit {
     this.getListOfRequests();
   }
 
-    getSearchTerm (event: any) {
+    chooseStage(event: any) {
       this.searchTerm = event.target.value;
+      console.log(`this.searchTerm is ${this.searchTerm}`);
+      this.keywordField.get('keyword').setValue('');
+      this.getListOfRequests();
     }
 
     chooseState(event: any) {
-      const val = event.target.value;
-      if (val === 0) {
-          this.searchTerm = 'pending';
-      } else if ( val === 1 ) {
-          this.searchTerm = 'approved';
-      } else {
-          this.searchTerm = 'declined';
-      }
+      this.searchTerm = event.target.value;
+      console.log(`this.searchTerm is ${this.searchTerm}`);
+      this.keywordField.get('keyword').setValue('');
       this.getListOfRequests();
     }
 
     getSearchResults() {
-      if (this.searchTerm) {
-          console.log('this.searchTerm is', this.searchTerm);
-          this.getListOfRequests();
-      }
+      this.searchTerm = this.keywordField.get('keyword').value;
+      console.log('this.searchTerm is', this.searchTerm);
+      this.getListOfRequests();
     }
 
     getStatusAsString( status: string ) {
       if (status === 'pending') {
           return 'σε εξέλιξη';
-      } else if (status === 'approved') {
+      } else if (status === 'accepted') {
           return 'εγκρίθηκε';
       } else {
           return 'απορρίφθηκε';

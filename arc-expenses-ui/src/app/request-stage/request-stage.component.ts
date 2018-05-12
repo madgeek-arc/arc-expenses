@@ -58,17 +58,17 @@ export class RequestStageComponent implements OnInit {
       this.currentRequest[currentStageName] = newStage;
       if (newStage['approved']) {
           if (this.currentRequest.stage === '10' ) {
-              this.currentRequest.status = 'approved';
+              this.currentRequest.status = 'accepted';
           } else {
               this.currentRequest.status = 'pending';
           }
       } else if (this.currentRequest.stage === '6') {
           this.currentRequest.status = 'pending';
       } else {
-          this.currentRequest.status = 'declined';
+          this.currentRequest.status = 'rejected';
       }
 
-      if (this.currentRequest.status !== 'declined') {
+      if (this.currentRequest.status !== 'rejected') {
           if (this.currentRequest.stage !== '3' &&
               this.currentRequest.stage !== '3a' &&
               this.currentRequest.stage !== '3b' &&
@@ -133,18 +133,6 @@ export class RequestStageComponent implements OnInit {
     willShowStage (stageField: string) {
       const stageNumber = stageField.split('stage');
       if ( (stageNumber[1] === this.currentRequest.stage) ) {
-          /*if ( this.currentRequest.status !== 'declined' ) {
-              /!*return this.requestService.userCanEditRequest(this.authService.getUserEmail()).subscribe(
-                  res => this.canEdit = res,
-                  error => {
-                      console.log(error);
-                      this.canEdit = false;
-                  }
-              );*!/
-              return true;
-          } else {
-              return false;
-          }*/
           return this.canEdit;
       } else {
           if (this.currentRequest.stage !== '3a' && this.currentRequest.stage !== '3b') {
