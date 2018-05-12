@@ -113,7 +113,7 @@ public class BulkImportService {
             project.setName(line[1].trim());
             project.setAcronym(line[2].trim());
             project.setInstitute(instituteService.get(line[3].trim()));
-            project.setParentProject(null);
+            project.setParentProject(line[4].trim());
             project.setScientificCoordinator(parserPOY(line[5]));
             project.setOperator(parserOperator(line[6]));
             project.setStartDate(line[7].trim());
