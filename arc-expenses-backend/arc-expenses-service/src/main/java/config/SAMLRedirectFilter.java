@@ -1,5 +1,6 @@
 package config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -12,12 +13,16 @@ import java.io.IOException;
 @Component
 public class SAMLRedirectFilter extends GenericFilterBean {
 
+
+    @Value("${redirect.url}")
+    private String redirect_url;
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        response.sendRedirect("https://aleka.athenarc.gr:4200/sign-up");
+        response.sendRedirect(redirect_url);
         return;
 //        chain.doFilter(request,response);
     }

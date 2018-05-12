@@ -80,7 +80,7 @@
         "name": { "type": "string" },
         "acronym": { "type": "string" },
         "institute": { "$ref": "#/definitions/institute" },
-        "parentProject": { "$ref": "#/definitions/project" },
+        "parentProject":  { "type": "string" },
         "scientificCoordinator": { "$ref": "#/definitions/personOfInterest" },
         "operator": {
           "type": "array",

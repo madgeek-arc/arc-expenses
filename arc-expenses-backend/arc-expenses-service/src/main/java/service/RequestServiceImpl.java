@@ -1,17 +1,16 @@
 package service;
 
 import eu.openminted.registry.core.domain.FacetFilter;
+import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Service("requestService")
@@ -79,9 +78,48 @@ public class RequestServiceImpl extends GenericService<Request> {
         return null;
     }
 
-    public String createQuery(String email) {
-        return "request_requester = " + email + " or " +
-                "request_project_operator = " + email + " or " +
-                "request_project_operator_delegates = " + email;
+    public String createWhereClause(String email, String searchField) {
+
+        String user_clause = "request_requester = " + email + " or " +
+                             "request_project_operator = " + email + " or " +
+                             "request_project_operator_delegates = " + email + " or " +
+                             "request_project_scientificCoordinator = " + email + " or " +
+                             "request_project_scientificCoordinator_delegate =  " + email + " or "+
+                             "request_organization_POY = " + email + " or " +
+                             "request_organization_POY_delegate =  " + email+ " or "+
+                             "request_organization_director = " + email + " or " +
+                             "request_organization_director_delegate =  " + email;
+
+        String status_clause = "";
+        if(searchField.equals("all")){
+            status_clause += " request_status = pending or request_status = rejected or request_status = accepted";
+        }else
+            status_clause += " request_status = " + searchField;
+
+
+        return user_clause + " and " + status_clause;
+
+
+    }
+
+
+    public Paging<Request> criteriaSearch(String from, String quantity,String searchField, String orderType,
+                                          String orderField, String email) {
+
+        Paging<Resource> rs = searchService.cqlQuery(this.createWhereClause(email,searchField),"request",
+                Integer.parseInt(quantity),Integer.parseInt(from),
+                orderField, SortOrder.valueOf(orderType));
+
+
+        List<Request> resultSet = new ArrayList<>();
+        for(Resource resource:rs.getResults()) {
+            try {
+                resultSet.add(parserPool.deserialize(resource,typeParameterClass).get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+        return new Paging<>(rs.getTotal(),rs.getFrom(),rs.getTo(),resultSet,rs.getOccurrences());
+
     }
 }

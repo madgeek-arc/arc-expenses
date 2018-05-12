@@ -36,7 +36,8 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
             String id_field = String.format("%s_id", resourceType.getName());
             Resource resource = searchService.searchId(resourceType.getName(),
                     new SearchService.KeyValue(id_field,id));
-            return parserPool.deserialize(resource,typeParameterClass).get();
+            if(resource != null)
+                return parserPool.deserialize(resource,typeParameterClass).get();
         } catch (UnknownHostException | ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
