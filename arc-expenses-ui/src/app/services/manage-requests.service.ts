@@ -63,9 +63,9 @@ export class ManageRequestsService {
         );
     }
 
-    searchAllRequests(searchField: string, from: string, quantity: string,
+    searchAllRequests(searchField: string, status: string, from: string, quantity: string,
                       order: string, orderField: string, email: string): Observable<Paging<Request>> {
-        let url = `${this.apiUrl}getAll?from=${from}&quantity=${quantity}&searchField=${searchField}`;
+        let url = `${this.apiUrl}getAll?from=${from}&quantity=${quantity}&status=${status}&searchField=${searchField}`;
         url += `&order=${order}&orderField=${orderField}&email=${encodeURIComponent(email)}`;
 
         /*if (keyword) { url += `&keyword=${keyword}`; }

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import {FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import { Attachment, Delegate } from '../domain/operation';
 import {
     commentDesc, Stage10Desc, Stage2Desc, Stage5aDesc, Stage5bDesc, Stage3Desc, Stage4Desc, Stage5Desc, Stage6Desc,
@@ -121,7 +121,8 @@ export class StageComponent implements OnInit {
     areAllCheckBoxesTrue() {
         for ( let i = 0; i < this.stageExtraFieldsList.length; i++ ) {
             if (this.stageDescription.stageFields[i].type === 'checkbox' &&
-                !this.stageForm.get(this.stageExtraFieldsList[i]).value ) {
+                (!this.stageForm.get(this.stageExtraFieldsList[i]).value ||
+                (this.stageForm.get(this.stageExtraFieldsList[i]).value !== 'on') ) ) {
 
                 return false;
             }
@@ -131,6 +132,7 @@ export class StageComponent implements OnInit {
 
     forwardRequest( nextStage: string ) {
         this.nextStageId = nextStage;
+        console.log('nextStage is', this.nextStageId);
         /* show confirmation modal */
         this.submitForm();
     }
@@ -138,8 +140,15 @@ export class StageComponent implements OnInit {
     submitForm() {
         this.stageFormError = '';
         if (this.stageForm && this.stageForm.valid) {
-            if ( (this.stageDescription.id === '6' || this.stageDescription.id === '11') && ! this.uploadedFile ) {
-                this.stageFormError = 'Η επισύναψη εγγράφων είναι υποχρεωτική σε αυτό το στάδιο του αιτήματος';
+            if ( (this.stageDescription.id === '6' ||
+                  this.stageDescription.id === '7' ||
+                  this.stageDescription.id === '11') &&
+                !this.uploadedFile ) {
+
+                this.stageFormError = 'Η επισύναψη εγγράφων είναι υποχρεωτική.';
+            } else if (this.stageDescription.id === '10' &&
+                       (!this.stageForm.get('accountCode').value || !this.stageForm.get('accountDescription').value)) {
+                this.stageFormError = 'Παρακαλώ συμπληρώστε τα υποχρεωτικά πεδία.';
             } else {
                 if (!this.nextStageId) {
                     if ( this.stageDescription.id === '12' ) {
@@ -149,13 +158,18 @@ export class StageComponent implements OnInit {
                     } else {
                         this.nextStageId = '6';
                     }
+                    console.log('nextStage is', this.nextStageId);
                 }
                 this.emitNextStage.emit(this.nextStageId);
 
                 this.currentStage[this.stageDescription.delegateField] = this.createDelegate();
-                this.currentStage['date'] = this.getCurrentDateString();
-                for (const controlName of this.stageExtraFieldsList) {
-                    this.currentStage[controlName] = this.stageForm.get(controlName).value;
+                this.currentStage['date'] = Date.now().toString();
+                for ( let i = 0; i < this.stageExtraFieldsList.length; i++ ) {
+                    if (this.stageDescription.stageFields[i].type === 'checkbox') {
+                        this.currentStage[this.stageExtraFieldsList[i]] = (this.stageForm.get(this.stageExtraFieldsList[i]).value === 'on');
+                    } else {
+                        this.currentStage[this.stageExtraFieldsList[i]] = this.stageForm.get(this.stageExtraFieldsList[i]).value;
+                    }
                 }
                 this.currentStage['comment'] = this.stageForm.get('comment').value;
                 if (this.uploadedFile) {
@@ -208,7 +222,7 @@ export class Stage2Component extends StageComponent implements OnInit {
         this.delegatePositionInParagraph = 'από τον επιστημονικό υπεύθυνο';
         this.stageDescription = Stage2Desc;
         super.ngOnInit();
-        this.stageExtraFieldsList = ['isNecessary', 'isAdvisable'];
+        this.stageExtraFieldsList = ['checkNecessity', 'checkFeasibility'];
         this.createExtraFields();
     }
 
@@ -339,6 +353,8 @@ export class Stage9Component extends StageComponent implements OnInit {
         this.delegatePositionInParagraph = '';
         this.stageDescription = Stage9Desc;
         super.ngOnInit();
+        this.stageExtraFieldsList = ['checkRegularity', 'checkLegality'];
+        this.createExtraFields();
     }
 }
 
@@ -352,7 +368,7 @@ export class Stage10Component extends StageComponent implements OnInit {
         this.delegatePositionInParagraph = '';
         this.stageDescription = Stage10Desc;
         super.ngOnInit();
-        this.stageExtraFieldsList = ['checkRegularity', 'checkLegality'];
+        this.stageExtraFieldsList = ['accountCode', 'accountDescription'];
         this.createExtraFields();
     }
 }

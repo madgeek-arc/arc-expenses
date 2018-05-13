@@ -25,7 +25,7 @@ const appRoutes: Routes = [
   },
   {
     path: 'requests',
-    // canActivate: [AuthGuardService],
+    canActivate: [AuthGuardService],
     children: [
         { path: '', component: RequestsComponent },
         { path: 'request-stage/:id', component: RequestStageComponent }

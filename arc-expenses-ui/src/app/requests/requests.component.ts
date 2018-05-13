@@ -22,6 +22,7 @@ export class RequestsComponent implements OnInit {
   title = 'Υπάρχοντα Αιτήματα';
 
   searchTerm: string;
+  statusChoice: string;
   currentPage: number;
   itemsPerPage: number;
   order: string;
@@ -48,7 +49,8 @@ export class RequestsComponent implements OnInit {
 
   initializeParams() {
       this.keywordField = this.fb.group({ keyword: [''] });
-      this.searchTerm = 'all';
+      this.searchTerm = '';
+      this.statusChoice = 'all';
       this.currentPage = 0;
       this.itemsPerPage = 10;
       this.order = 'ASC';
@@ -65,6 +67,7 @@ export class RequestsComponent implements OnInit {
     this.listOfRequests = [];
     this.showSpinner = true;
     this.requestService.searchAllRequests(this.searchTerm,
+                                          this.statusChoice,
                                           this.currentPage.toString(),
                                           this.itemsPerPage.toString(),
                                           this.order,

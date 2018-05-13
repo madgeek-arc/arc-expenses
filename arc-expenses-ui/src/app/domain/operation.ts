@@ -97,8 +97,8 @@ export class Stage2 {
     scientificCoordinator: Delegate;
     date: string;
     approved: boolean;
-    isNecessary: boolean;
-    isAdvisable: boolean;
+    checkNecessity: boolean;
+    checkFeasibility: boolean;
     comment: string;
     attachment: Attachment;
 }
@@ -186,8 +186,8 @@ export class Stage10 {
     accountingRegistration: Delegate;
     date: string;
     approved: boolean;
-    accountingCode: string;
-    accountingDescription: string;
+    accountCode: string;
+    accountDescription: string;
     comment: string;
     attachment: Attachment;
 }

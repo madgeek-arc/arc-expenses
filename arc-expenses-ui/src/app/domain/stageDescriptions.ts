@@ -48,29 +48,29 @@ export const checkLegalityDesc = {
   required: true
 };
 
-export const isNecessaryDesc = {
+export const checkNecessityDesc = {
   label: 'Έγινε έλεγχος αναγκαιότητας;',
   type: 'checkbox',
   description: '',
   required: true
 };
 
-export const isAdvisableDesc = {
+export const checkFeasibilityDesc = {
   label: 'Έγινε έλεγχος σκοπιμότητας;',
   type: 'checkbox',
   description: '',
   required: true
 };
 
-export const accountingCodeDesc = {
-  label: 'Κωδικός λογιστικής',
+export const accountCodeDesc = {
+  label: 'Κωδικός λογιστικής (*)',
   type: 'text',
   description: '',
   required: true
 };
 
-export const accountingDescriptionDesc = {
-  label: 'Περιγραφή',
+export const accountDescriptionDesc = {
+  label: 'Περιγραφή (*)',
   type: 'textarea',
   description: '',
   required: true
@@ -79,7 +79,7 @@ export const accountingDescriptionDesc = {
 export const Stage2Desc = {
     id: '2',
     delegateField: 'scientificCoordinator',
-    stageFields: [isNecessaryDesc, isAdvisableDesc]
+    stageFields: [checkNecessityDesc, checkFeasibilityDesc]
 };
 
 export const Stage3Desc = {
@@ -139,7 +139,7 @@ export const Stage9Desc = {
 export const Stage10Desc = {
     id: '10',
     delegateField: 'accountingRegistration',
-    stageFields: [accountingCodeDesc, accountingDescriptionDesc]
+    stageFields: [accountCodeDesc, accountDescriptionDesc]
 };
 
 export const Stage11Desc = {

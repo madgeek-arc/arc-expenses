@@ -42,7 +42,7 @@
                   </div>
                   <div class="uk-width-1-2@l">
                     <span class="uk-text-bold uk-margin-small-right">Ημερομηνία υποβολής: </span>
-                    <span>{{ currentRequest.stage1.requestDate }}</span>
+                    <span>{{ currentRequest.stage1.requestDate | date : 'dd-MM-yyyy' }}</span>
                   </div>
                   <div class="uk-width-1-2@l">
                     <span class="uk-text-bold uk-margin-small-right">Πρόγραμμα: </span>

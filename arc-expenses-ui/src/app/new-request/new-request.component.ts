@@ -8,6 +8,8 @@ import {AuthenticationService} from '../services/authentication.service';
 import {DatePipe} from '@angular/common';
 import {ManageProjectService} from '../services/manage-project.service';
 
+declare const UIkit: any;
+
 @Component({
     selector: 'app-new-request',
     templateUrl: './new-request.component.html',
@@ -109,7 +111,8 @@ export class NewRequestComponent implements OnInit {
                 this.request.requester = this.currentUser;
                 this.request.requesterPosition = this.newRequestForm.get('position').value;
                 this.request.stage1 = new Stage1();
-                this.request.stage1.requestDate = this.datePipe.transform(Date.now(), 'dd/MM/yyyy');
+                /*this.request.stage1.requestDate = this.datePipe.transform(Date.now(), 'dd/MM/yyyy');*/
+                this.request.stage1.requestDate = Date.now().toString();
                 this.request.stage1.subject = this.newRequestForm.get('requestText').value;
                 this.request.stage1.supplier = this.newRequestForm.get('supplier').value;
                 this.request.stage1.supplierSelectionMethod = this.newRequestForm.get('supplierSelectionMethod').value;
@@ -151,12 +154,15 @@ export class NewRequestComponent implements OnInit {
                     }
                 );
             } else {
-                this.errorMessage = 'Για αιτήματα άνω των 2.500 € η επισύναψη των αντίστοιχων εγγράφων είναι υποχρεωτική.';
+                UIkit.modal.alert('Για αιτήματα άνω των 2.500 € η επισύναψη εγγράφων είναι υποχρεωτική.');
             }
 
         } else {
             this.errorMessage = 'Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά';
         }
+        /*SHOW MODAL TEST*/
+        /*console.log('opening modal');
+        UIkit.modal('#my-id').show();*/
     }
 
     getProject() {

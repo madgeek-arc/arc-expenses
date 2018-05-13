@@ -70,6 +70,7 @@ export class RequestStageComponent implements OnInit {
 
   getNextStage(nextStage: string) {
     this.nextStage = nextStage;
+    console.log('nextStage is', this.nextStage);
   }
 
   getSubmittedStage(newStage: any) {
@@ -124,9 +125,10 @@ export class RequestStageComponent implements OnInit {
 
       /*update this.currentRequest*/
       this.requestService.updateRequest(this.currentRequest, this.authService.getUserEmail()).subscribe(
-          res => console.log(`add Request responded: ${res}`),
+          res => console.log(`update Request responded: ${res.id}, status=${res.status}`),
           error => {
               console.log(error);
+              this.errorMessage = '';
               this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών.';
           },
           () => {
@@ -138,15 +140,16 @@ export class RequestStageComponent implements OnInit {
 
     willShowStage (stageField: string) {
       const stageNumber = stageField.split('stage');
-      if ( (stageNumber[1] === this.currentRequest.stage) ) {
-          return this.canEdit;
+      if ( (stageField === this.currentRequest.stage) ) {
+          /*return this.canEdit;*/
+          return true;
       } else {
           for ( const id of this.stages ) {
               if ( id === this.currentRequest.stage ) {
                   return false;
               }
               if ( id === stageField ) {
-                  return ( !isNull(this.currentRequest[`stage${stageField}`].date) );
+                  return ( this.currentRequest[`stage${stageField}`] && this.currentRequest[`stage${stageField}`].date );
               }
           }
           /*if (this.currentRequest.stage !== '3a' && this.currentRequest.stage !== '3b') {

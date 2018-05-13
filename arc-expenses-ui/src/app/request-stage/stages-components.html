@@ -6,19 +6,29 @@
             {{ wasApproved ? 'Εγκρίθηκε' : 'Απορρίφθηκε' }}
             {{ delegatePositionInParagraph }}
             ({{ currentStage[stageDescription.delegateField]['firstname'] }}
-            {{ currentStage[stageDescription.delegateField]['lastname'] }}), την {{ currentStage['date'] }}
+            {{ currentStage[stageDescription.delegateField]['lastname'] }}), την {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
         </div>
         <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
             <app-stage-form [description]="desc">
-                <input class="uk-form-controls uk-checkbox"
-                       type="{{desc.type}}" [checked]="currentStage[ stageExtraFieldsList[controlIndex] ]" disabled>
+                <div *ngIf="desc.type === 'checkbox'">
+                    <input class="uk-form-controls uk-checkbox"
+                           type="checkbox" [checked]="currentStage[ stageExtraFieldsList[controlIndex] ]" disabled>
+                </div>
+                <div *ngIf="desc.type === 'text'">
+                    <input value="{{currentStage[ stageExtraFieldsList[controlIndex] ]}}" disabled
+                           class="uk-form-controls uk-input" type="text">
+                </div>
+                <div *ngIf="desc.type === 'textarea'">
+                    <textarea value="{{currentStage[ stageExtraFieldsList[controlIndex] ]}}" disabled
+                              class="uk-form-controls uk-textarea" rows="2"></textarea>
+                </div>
             </app-stage-form>
         </div>
         <div *ngIf="currentStage['comment']">
             <span class="uk-text-bold uk-margin-small-right">Σχόλια: </span>
             <span> {{ currentStage['comment'] }} </span>
         </div>
-        <div *ngIf="currentStage['attachment'] && currentStage['attachment']['url']">
+        <div *ngIf="currentStage['attachment']">
             <a class="uk-link uk-width-1-1@l uk-margin-small-top" (click)="linkToFile()">
                 Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία
             </a>
@@ -31,9 +41,13 @@
         <!--INPUTS FOR EXTRA FIELDS-->
         <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
             <app-stage-form [description]="desc">
-                <div *ngIf="desc.type !== 'textarea'">
+                <div *ngIf="desc.type === 'checkbox'">
                     <input formControlName="{{stageExtraFieldsList[controlIndex]}}"
-                           class="uk-form-controls" type="{{ desc.type }}">
+                           class="uk-form-controls uk-checkbox" type="checkbox">
+                </div>
+                <div *ngIf="desc.type === 'text'">
+                    <input formControlName="{{stageExtraFieldsList[controlIndex]}}"
+                           class="uk-form-controls uk-input" type="text">
                 </div>
                 <div *ngIf="desc.type === 'textarea'">
                     <textarea formControlName="{{stageExtraFieldsList[controlIndex]}}"
@@ -52,12 +66,12 @@
 
         <!--BUTTONS-->
         <div *ngIf="stageDescription.id !== '6' && stageDescription.id !== '11'">
-            <button *ngIf="stageFormDefinition.id !== '5'"
+            <button *ngIf="stageDescription.id !== '5'"
                     class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
 
-            <button *ngIf="stageFormDefinition.id === '5' && willShowButtonTo5a"
+            <button *ngIf="stageDescription.id === '5' && willShowButtonTo5a"
                     class="uk-button uk-button-primary" (click)="forwardRequest('5a')">Προώθηση προς τον Γενικό Διευθυντή</button>
-            <button *ngIf="stageFormDefinition.id === '5' && willShowButtonTo5b"
+            <button *ngIf="stageDescription.id === '5' && willShowButtonTo5b"
                     class="uk-button uk-button-primary" (click)="forwardRequest('5b')">Προώθηση προς το Διοικητικό Συμβούλιο</button>
 
             <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>
@@ -65,6 +79,6 @@
         <div *ngIf="stageDescription.id === '6' || stageDescription.id === '11'">
             <button class="uk-button uk-button-primary" (click)="submitForm()">Προώθηση αιτήματος</button>
         </div>
-        <div><span class="uk-text-small">Ημερομηνία αλλαγής: {{ getCurrentDateString() }}</span></div>
+        <div><span class="uk-text-small">Ημερομηνία: {{ getCurrentDateString() }}</span></div>
     </div>
 </div>
