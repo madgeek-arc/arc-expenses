@@ -139,6 +139,9 @@ export class StageComponent implements OnInit {
         }
         if (showModal) {
             UIkit.modal('#nextStage').show();
+        } else {
+            this.currentStage['approved'] = true;
+            this.submitForm();
         }
     }
 
