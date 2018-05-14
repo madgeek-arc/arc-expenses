@@ -6,7 +6,7 @@
             {{ wasApproved ? 'Εγκρίθηκε' : 'Απορρίφθηκε' }}
             {{ delegatePositionInParagraph }}
             ({{ currentStage[stageDescription.delegateField]['firstname'] }}
-            {{ currentStage[stageDescription.delegateField]['lastname'] }}), την {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
+            {{ currentStage[stageDescription.delegateField]['lastname'] }}) την {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
         </div>
         <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
             <app-stage-form [description]="desc">
@@ -66,13 +66,13 @@
 
         <!--BUTTONS-->
         <div *ngIf="stageDescription.id !== '6' && stageDescription.id !== '11'">
-            <button *ngIf="stageDescription.id !== '5'"
+            <button *ngIf="stageDescription !== '5'"
                     class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
 
             <button *ngIf="stageDescription.id === '5' && willShowButtonTo5a"
-                    class="uk-button uk-button-primary" (click)="forwardRequest('5a')">Προώθηση προς τον Γενικό Διευθυντή</button>
+                    class="uk-button uk-button-primary" (click)="forwardRequest('5a', willShowButtonTo5b)">Προωθείται προς τον Γενικό Διευθυντή</button>
             <button *ngIf="stageDescription.id === '5' && willShowButtonTo5b"
-                    class="uk-button uk-button-primary" (click)="forwardRequest('5b')">Προώθηση προς το Διοικητικό Συμβούλιο</button>
+                    class="uk-button uk-button-primary" (click)="forwardRequest('5b', willShowButtonTo5a)">Προωθείται προς το Διοικητικό Συμβούλιο</button>
 
             <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>
         </div>
@@ -80,5 +80,16 @@
             <button class="uk-button uk-button-primary" (click)="submitForm()">Προώθηση αιτήματος</button>
         </div>
         <div><span class="uk-text-small">Ημερομηνία: {{ getCurrentDateString() }}</span></div>
+
+        <!--MODAL EXAMPLE-->
+        <div id="nextStage" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <h4 class="uk-modal-title">Προώθηση αιτήματος</h4>
+                <div class="uk-modal-body">Το αίτημα θα σταλεί {{ nextStageDelegate }}</div>
+                <button class="uk-button uk-button-primary" type="button" (click)="onConfirm($event)">Επιβεβαίωση</button>
+                <button class="uk-button uk-button-primary uk-modal-close" type="button">Άκυρο</button>
+            </div>
+        </div>
     </div>
 </div>
+

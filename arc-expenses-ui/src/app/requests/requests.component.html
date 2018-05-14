@@ -146,8 +146,9 @@
                                                 <td>{{ req.project.acronym }}</td>
                                                 <td>{{ req.project.institute.name }}</td>
                                                 <td>{{ req.requester.firstname }} {{ req.requester.lastname }}</td>
-                                                <td>{{ req.stage1.requestDate }}</td>
-                                                <td>{{ req.stage }}</td>
+                                                <td>{{ req.stage1.requestDate | date : 'dd-MM-yyyy' }}</td>
+                                                <!--<td>{{ req.stage }}</td>-->
+                                                <td>{{ stagesMap[req.stage] }}</td>
                                                 <td>{{ getStatusAsString(req.status) }}</td>
                                             </tr>
                                         </thead>

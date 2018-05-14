@@ -26,6 +26,7 @@ export class StageComponent implements OnInit {
     @Output() emitNextStage: EventEmitter<string> = new EventEmitter<string>();
 
     nextStageId: string; /* will hold the id of the next stage */
+    nextStageDelegate: string; /* in stage5 verbal expression of the user's choice for the next step */
 
     /* input variable that controls if the current stage template should be displayed  */
     @Input() showStage: boolean;
@@ -120,9 +121,7 @@ export class StageComponent implements OnInit {
 
     areAllCheckBoxesTrue() {
         for ( let i = 0; i < this.stageExtraFieldsList.length; i++ ) {
-            if (this.stageDescription.stageFields[i].type === 'checkbox' &&
-                (!this.stageForm.get(this.stageExtraFieldsList[i]).value ||
-                (this.stageForm.get(this.stageExtraFieldsList[i]).value !== 'on') ) ) {
+            if (this.stageDescription.stageFields[i].type === 'checkbox' && !this.stageForm.get(this.stageExtraFieldsList[i]).value ) {
 
                 return false;
             }
@@ -130,10 +129,26 @@ export class StageComponent implements OnInit {
         return true;
     }
 
-    forwardRequest( nextStage: string ) {
+    forwardRequest( nextStage: string, showModal: boolean ) {
         this.nextStageId = nextStage;
         console.log('nextStage is', this.nextStageId);
-        /* show confirmation modal */
+        if (nextStage === '5a') {
+            this.nextStageDelegate = 'στον Γενικό Διευθυντή';
+        } else {
+            this.nextStageDelegate = 'στο Διοικητικό Συμβούλιο';
+        }
+        if (showModal) {
+            UIkit.modal('#nextStage').show();
+        }
+    }
+
+    getNextStageDelegate() {
+        return this.nextStageDelegate;
+    }
+
+    onConfirm(event: any) {
+        UIkit.modal('#nextStage').hide();
+        this.currentStage['approved'] = true;
         this.submitForm();
     }
 
@@ -141,8 +156,9 @@ export class StageComponent implements OnInit {
         this.stageFormError = '';
         if (this.stageForm && this.stageForm.valid) {
             if ( (this.stageDescription.id === '6' ||
-                  this.stageDescription.id === '7' ||
-                  this.stageDescription.id === '11') &&
+                  this.stageDescription.id === '11' ||
+                  (this.stageDescription.id === '7' &&
+                   this.currentStage['approved']) ) &&
                 !this.uploadedFile ) {
 
                 this.stageFormError = 'Η επισύναψη εγγράφων είναι υποχρεωτική.';
@@ -164,12 +180,8 @@ export class StageComponent implements OnInit {
 
                 this.currentStage[this.stageDescription.delegateField] = this.createDelegate();
                 this.currentStage['date'] = Date.now().toString();
-                for ( let i = 0; i < this.stageExtraFieldsList.length; i++ ) {
-                    if (this.stageDescription.stageFields[i].type === 'checkbox') {
-                        this.currentStage[this.stageExtraFieldsList[i]] = (this.stageForm.get(this.stageExtraFieldsList[i]).value === 'on');
-                    } else {
-                        this.currentStage[this.stageExtraFieldsList[i]] = this.stageForm.get(this.stageExtraFieldsList[i]).value;
-                    }
+                for ( const stageField of this.stageExtraFieldsList ) {
+                    this.currentStage[stageField] = this.stageForm.get(stageField).value;
                 }
                 this.currentStage['comment'] = this.stageForm.get('comment').value;
                 if (this.uploadedFile) {

@@ -88,8 +88,10 @@
                 </div>
                 <div *ngIf="currentRequest.stage5">
                   <stage5-component [showStage]="willShowStage('5')" [currentStage]="currentRequest.stage5"
-                                    [willShowButtonTo5a]="currentRequest.stage1.amountInEuros <= 20000"
-                                    [willShowButtonTo5b]="currentRequest.stage1.amountInEuros > 10000"
+                                    [willShowButtonTo5a]="currentRequest.stage1.amountInEuros > 10000 &&
+                                                          currentRequest.stage1.amountInEuros <= 20000"
+                                    [willShowButtonTo5b]="currentRequest.stage1.amountInEuros > 10000 &&
+                                                          currentRequest.stage1.amountInEuros <= 20000"
                                     (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage5-component>
                 </div>
                 <div *ngIf="currentRequest.stage5a">

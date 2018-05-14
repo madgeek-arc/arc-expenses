@@ -20,8 +20,6 @@ export class TopMenuComponent implements OnInit {
     if (!this.isUserLoggedIn()) {
         this.authService.loginWithState();
         /*this.loggedIn = true;*/
-    } else {
-      this.logout();
     }
   }
 

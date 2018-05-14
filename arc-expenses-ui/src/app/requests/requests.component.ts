@@ -23,15 +23,16 @@ export class RequestsComponent implements OnInit {
 
   searchTerm: string;
   statusChoice: string;
+  stageChoice: string;
   currentPage: number;
   itemsPerPage: number;
   order: string;
   orderField: string;
   totalPages: number;
 
-  stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', rejected: 'Έχουν απορριφθεί', accepted: 'Έχουν εγκριθεί'};
+  stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Εγκριθέντα'};
   states = ['all', 'accepted', 'pending', 'rejected'];
-  stages = ['2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12'];
+  stages = ['all', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12'];
   stagesMap = stagesMap;
 
   searchResults: Paging<Request>;
@@ -51,6 +52,7 @@ export class RequestsComponent implements OnInit {
       this.keywordField = this.fb.group({ keyword: [''] });
       this.searchTerm = '';
       this.statusChoice = 'all';
+      this.stageChoice = 'all';
       this.currentPage = 0;
       this.itemsPerPage = 10;
       this.order = 'ASC';
@@ -68,6 +70,7 @@ export class RequestsComponent implements OnInit {
     this.showSpinner = true;
     this.requestService.searchAllRequests(this.searchTerm,
                                           this.statusChoice,
+                                          this.stageChoice,
                                           this.currentPage.toString(),
                                           this.itemsPerPage.toString(),
                                           this.order,
@@ -92,6 +95,7 @@ export class RequestsComponent implements OnInit {
             console.log(error);
             this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την φόρτωση των αιτημάτων';
             this.showSpinner = false;
+            this.totalPages = 0;
         },
         () => {
             // this.searchTerm = 'all';
@@ -149,16 +153,18 @@ export class RequestsComponent implements OnInit {
   }
 
     chooseStage(event: any) {
-      this.searchTerm = event.target.value;
-      console.log(`this.searchTerm is ${this.searchTerm}`);
+      this.stageChoice = event.target.value;
+      console.log(`this.stageChoice is ${this.stageChoice}`);
       this.keywordField.get('keyword').setValue('');
+      this.searchTerm = '';
       this.getListOfRequests();
     }
 
     chooseState(event: any) {
-      this.searchTerm = event.target.value;
-      console.log(`this.searchTerm is ${this.searchTerm}`);
+      this.statusChoice = event.target.value;
+      console.log(`this.statusChoice is ${this.statusChoice}`);
       this.keywordField.get('keyword').setValue('');
+      this.searchTerm = '';
       this.getListOfRequests();
     }
 

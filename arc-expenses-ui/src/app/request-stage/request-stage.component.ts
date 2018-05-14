@@ -35,6 +35,7 @@ export class RequestStageComponent implements OnInit {
   getCurrentRequest() {
     this.showSpinner = true;
     this.requestId = this.route.snapshot.paramMap.get('id');
+    this.errorMessage = '';
 
     /*call api to get request info or throw errorMessage*/
     this.requestService.getRequestById(this.requestId, this.authService.getUserEmail()).subscribe(
@@ -53,6 +54,7 @@ export class RequestStageComponent implements OnInit {
   }
 
   getIfUserCanEditRequest() {
+      this.errorMessage = '';
       this.requestService.isEditable(this.currentRequest, this.authService.getUserEmail()).subscribe(
           res => this.canEdit = res,
           error => {
@@ -128,7 +130,7 @@ export class RequestStageComponent implements OnInit {
           res => console.log(`update Request responded: ${res.id}, status=${res.status}`),
           error => {
               console.log(error);
-              this.errorMessage = '';
+              this.showSpinner = false;
               this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών.';
           },
           () => {
