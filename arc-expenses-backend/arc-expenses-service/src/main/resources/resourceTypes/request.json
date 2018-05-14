@@ -22,7 +22,7 @@
     },
     {
       "name": "request_institute",
-      "path": "$.institute.id",
+      "path": "$.project.institute.name",
       "type": "java.lang.String"
     },
     {
