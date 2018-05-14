@@ -88,22 +88,22 @@ public class RequestServiceImpl extends GenericService<Request> {
 
 
         user_clause += " ( request_requester = " + email + " or " +
-                             "request_project_operator =  "+ email + " or " +
-                             "request_project_operator_delegates = " + email + " or " +
-                             "request_project_scientificCoordinator = " + email + " or " +
-                             "request_project_scientificCoordinator_delegate =  " + email + " or "+
-                             "request_organization_POY = " + email + " or " +
-                             "request_organization_POY_delegate =  " + email+ " or "+
-                             "request_institute_accountingRegistration = " + email + " or " +
-                             "request_institute_diaugeia = " + email + " or " +
-                             "request_institute_accountingPayment = " + email + " or " +
-                             "request_institute_accountingDirector = " + email + " or " +
-                             "request_institute_accountingDirector_delegate =  " + email +
-                             "request_institute_accountingRegistration_delegate =  " + email +
-                             "request_institute_accountingPayment_delegate =  " + email +
-                             "request_institute_diaugeia_delegate =  " + email +
-                             "request_organization_director = " + email + " or " +
-                             "request_organization_director_delegate =  " + email + " ) ";
+                             " request_project_operator =  "+ email + " or " +
+                             " request_project_operator_delegates = " + email + " or " +
+                             " request_project_scientificCoordinator = " + email + " or " +
+                             " request_project_scientificCoordinator_delegate =  " + email + " or "+
+                             " request_organization_POY = " + email + " or " +
+                             " request_organization_POY_delegate =  " + email+ " or "+
+                             " request_institute_accountingRegistration = " + email + " or " +
+                             " request_institute_diaugeia = " + email + " or " +
+                             " request_institute_accountingPayment = " + email + " or " +
+                             " request_institute_accountingDirector = " + email + " or " +
+                             " request_institute_accountingDirector_delegate =  " + email + " or " +
+                             " request_institute_accountingRegistration_delegate =  " + email +" or " +
+                             " request_institute_accountingPayment_delegate =  " + email +" or " +
+                             " request_institute_diaugeia_delegate =  " + email +" or " +
+                             " request_organization_director = " + email + " or " +
+                             " request_organization_director_delegate =  " + email + " ) ";
         whereClause += user_clause;
 
         if(!status.equals("all"))
