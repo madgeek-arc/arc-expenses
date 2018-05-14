@@ -66,13 +66,14 @@
 
         <!--BUTTONS-->
         <div *ngIf="stageDescription.id !== '6' && stageDescription.id !== '11'">
-            <button *ngIf="stageDescription !== '5'"
+            <button *ngIf="!willShowButtonTo5a && !willShowButtonTo5b"
                     class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
 
-            <button *ngIf="stageDescription.id === '5' && willShowButtonTo5a"
-                    class="uk-button uk-button-primary" (click)="forwardRequest('5a', willShowButtonTo5b)">Προωθείται προς τον Γενικό Διευθυντή</button>
-            <button *ngIf="stageDescription.id === '5' && willShowButtonTo5b"
-                    class="uk-button uk-button-primary" (click)="forwardRequest('5b', willShowButtonTo5a)">Προωθείται προς το Διοικητικό Συμβούλιο</button>
+            <button *ngIf="willShowButtonTo5a"
+                    class="uk-button uk-button-primary" (click)="forwardRequest('5a', true)">Προωθείται προς τον Γενικό Διευθυντή</button>
+            <button *ngIf="willShowButtonTo5b"
+                    class="uk-button uk-button-primary" (click)="forwardRequest('5b', willShowButtonTo5a)">
+                {{ willShowButtonTo5a ? 'Προωθείται προς το Διοικητικό Συμβούλιο': 'Εγκρίνεται' }}</button>
 
             <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>
         </div>
@@ -84,8 +85,8 @@
         <!--MODAL EXAMPLE-->
         <div id="nextStage" uk-modal>
             <div class="uk-modal-dialog uk-modal-body">
-                <h4 class="uk-modal-title">Προώθηση αιτήματος</h4>
-                <div class="uk-modal-body">Το αίτημα θα σταλεί {{ nextStageDelegate }}</div>
+                <h4 class="uk-modal-title uk-h4">Προώθηση αιτήματος</h4>
+                <div class="uk-modal-body">Το αίτημα θα σταλεί προς έγκριση {{ nextStageDelegate }}</div>
                 <button class="uk-button uk-button-primary" type="button" (click)="onConfirm($event)">Επιβεβαίωση</button>
                 <button class="uk-button uk-button-primary uk-modal-close" type="button">Άκυρο</button>
             </div>
