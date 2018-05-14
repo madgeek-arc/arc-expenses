@@ -78,50 +78,59 @@ public class RequestServiceImpl extends GenericService<Request> {
         return null;
     }
 
-    public String createWhereClause(String email, String status,String searchField) {
+    public String createWhereClause(String email, String status,String searchField,String stage) {
 
         String whereClause = "";
         String status_clause = "";
         String search_clause = "";
         String user_clause = "";
+        String stage_clause = "";
 
 
-        user_clause += "request_requester = " + email + " or " +
-                             "request_project_operator = " + email + " or " +
+        user_clause += " ( request_requester = " + email + " or " +
+                             "request_project_operator =  "+ email + " or " +
                              "request_project_operator_delegates = " + email + " or " +
                              "request_project_scientificCoordinator = " + email + " or " +
                              "request_project_scientificCoordinator_delegate =  " + email + " or "+
                              "request_organization_POY = " + email + " or " +
                              "request_organization_POY_delegate =  " + email+ " or "+
+                             "request_institute_accountingRegistration = " + email + " or " +
+                             "request_institute_diaugeia = " + email + " or " +
+                             "request_institute_accountingPayment = " + email + " or " +
+                             "request_institute_accountingDirector = " + email + " or " +
+                             "request_institute_accountingDirector_delegate =  " + email +
+                             "request_institute_accountingRegistration_delegate =  " + email +
+                             "request_institute_accountingPayment_delegate =  " + email +
+                             "request_institute_diaugeia_delegate =  " + email +
                              "request_organization_director = " + email + " or " +
-                             "request_organization_director_delegate =  " + email;
-
+                             "request_organization_director_delegate =  " + email + " ) ";
         whereClause += user_clause;
 
-        if(status.equals("all"))
-            status_clause += " request_status = pending or request_status = rejected or request_status = accepted";
-        else
-            status_clause += " request_status = " + status;
-
+        if(!status.equals("all"))
+            status_clause += " and  (   request_status = " + status + " ) ";
         whereClause+=status_clause;
 
-        if(!searchField.equals("")){
-            search_clause+="   ";
-        }
+        if(!stage.equals("all"))
+            stage_clause += " and (  request_stage = " + stage + " ) ";
 
+        whereClause+=stage_clause;
 
+        if(!searchField.equals(""))
+            search_clause+= " and searchableArea = " + searchField;
+        whereClause += search_clause;
+
+        
         return whereClause;
-
-
     }
 
 
     public Paging<Request> criteriaSearch(String from, String quantity,
                                           String status, String searchField,
-                                          String orderType, String orderField, String email) {
+                                          String stage,String orderType,
+                                          String orderField, String email) {
 
         Paging<Resource> rs = searchService.cqlQuery(
-                this.createWhereClause(email,status,searchField),"request",
+                this.createWhereClause(email,status,searchField,stage),"request",
                 Integer.parseInt(quantity),Integer.parseInt(from),
                 orderField, SortOrder.valueOf(orderType));
 

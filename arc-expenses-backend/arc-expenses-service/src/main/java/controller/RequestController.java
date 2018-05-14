@@ -49,11 +49,12 @@ public class RequestController {
                          @RequestParam(value = "quantity",required=false,defaultValue = "10") String quantity,
                          @RequestParam(value = "status") String status,
                          @RequestParam(value = "searchField") String searchField,
+                         @RequestParam(value = "stage") String stage,
                          @RequestParam(value = "order",required=false,defaultValue = "ASC") String orderType,
                          @RequestParam(value = "orderField") String orderField,
                          @RequestParam(value = "email") String email) {
 
-        return requestService.criteriaSearch(from,quantity,status,searchField,orderType,orderField,email);
+        return requestService.criteriaSearch(from,quantity,status,searchField,stage,orderType,orderField,email);
 
     }
 
