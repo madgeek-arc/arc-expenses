@@ -20,8 +20,6 @@ export class TopMenuComponent implements OnInit {
     if (!this.isUserLoggedIn()) {
         this.authService.loginWithState();
         /*this.loggedIn = true;*/
-    } else {
-      this.logout();
     }
   }
 
@@ -35,7 +33,7 @@ export class TopMenuComponent implements OnInit {
   }
 
   getUserName() {
-    return this.authService.getUserFirstNameInLatin() + ' ' + this.authService.getUserLastNameInLatin();
+    return this.authService.getUserFirstName() + ' ' + this.authService.getUserLastName();
   }
 
 }

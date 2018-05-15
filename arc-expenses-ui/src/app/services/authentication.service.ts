@@ -170,6 +170,8 @@ export class AuthenticationService {
                     }
                 }
             }
+        } else {
+            this.router.navigate(['/home']);
         }
     }
 

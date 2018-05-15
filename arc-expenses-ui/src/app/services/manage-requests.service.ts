@@ -57,22 +57,16 @@ export class ManageRequestsService {
     isEditable(req: Request, email: string): Observable<boolean> {
         const url = `${this.apiUrl}isEditable?email=${encodeURIComponent(email)}`;
         console.log(`calling ${url}`);
-        //console.log(`sending ${JSON.stringify(req)}`);
+        // console.log(`sending ${JSON.stringify(req)}`);
         return this.http.post<boolean>(url, JSON.stringify(req), headerOptions).pipe(
             catchError(this.handleError)
         );
     }
 
-    searchAllRequests(keyword: string, from: string, quantity: string,
+    searchAllRequests(searchField: string, status: string, stage: string, from: string, quantity: string,
                       order: string, orderField: string, email: string): Observable<Paging<Request>> {
-        let url = `${this.apiUrl}getAll?email=${encodeURIComponent(email)}&keyword=${keyword}`;
-        url += `&from=${from}&quantity=${quantity}&order=${order}&orderField=${orderField}`;
-
-        /*if (keyword) { url += `&keyword=${keyword}`; }
-        if (from) { url += `&from=${from}`; }
-        if (quantity) { url += `&quantity=${quantity}`; }
-        if (order) { url += `&order=${order}`; }
-        if (orderField) { url += `&orderField=${orderField}`; }*/
+        let url = `${this.apiUrl}getAll?from=${from}&quantity=${quantity}&status=${status}&stage=${stage}`;
+        url += `&order=${order}&orderField=${orderField}&email=${encodeURIComponent(email)}&searchField=${searchField}`;
 
         console.log(`calling ${url}`);
         return this.http.get<Paging<Request>>(url, headerOptions).pipe(

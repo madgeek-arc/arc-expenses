@@ -31,10 +31,10 @@
                 </div>
                 <div class="uk-navbar-right">
                     <ul class="uk-navbar-nav">
-                        <li class="uk-parent">
+                        <li class="uk-parent uk-inline">
                             <!--<a class="loginLink uk-margin-right" [routerLink]="['sign-up']" routerLinkActive="uk-active">Είσοδος-->
-                            <a class="loginLink" (click)="login()" routerLinkActive="uk-active">
-                                <span *ngIf="!isUserLoggedIn()" class="uk-margin-right">Είσοδος</span>
+                            <a class="loginLink uk-link" routerLinkActive="uk-active">
+                                <a *ngIf="!isUserLoggedIn()" class="uk-margin-right uk-link" (click)="login()">Είσοδος</a>
                                 <span *ngIf="isUserLoggedIn()" class="uk-margin-right">{{ getUserName() }}</span>
                                 <span class="uk-margin-small-right uk-icon">
                                     <svg height="20" ratio="1" viewBox="0 0 20 20" width="20"
@@ -46,6 +46,11 @@
                                     </svg>
                                 </span>
                             </a>
+                            <div *ngIf="isUserLoggedIn()" uk-dropdown>
+                                <ul class="uk-nav uk-dropdown-nav">
+                                    <li><a (click)="logout()" class="uk-text-primary">Έξοδος</a></li>
+                                </ul>
+                            </div>
                         </li>
                     </ul>
                 </div>
