@@ -31,8 +31,6 @@ public class JavaMailer {
 
 
     private Properties properties;
-    private long tokenExpires;
-
     private static Logger logger = LogManager.getLogger(JavaMailer.class);
 
 
