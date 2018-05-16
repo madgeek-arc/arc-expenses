@@ -1,6 +1,9 @@
 package controller;
 
 import config.SAMLAuthentication;
+import eu.openminted.registry.core.domain.Browsing;
+import eu.openminted.registry.core.domain.FacetFilter;
+import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.User;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,10 +65,29 @@ public class UserController {
     @RequestMapping(value =  "/idp_login", method = RequestMethod.GET)
     public void idpLogin() {}
 
-    @RequestMapping(value =  "/update", method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value =  "/update", method = RequestMethod.PUT,consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public User update(@RequestBody User user) {
+        try {
+            return userService.update(user, user.getEmail(), "email");
+        } catch (ResourceNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    // TODO: remove method
+    @RequestMapping(value =  "/add", method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public User add(@RequestBody User user) {
         return userService.add(user);
+    }
+
+    // TODO: remove method
+    @RequestMapping(value =  "/show/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Browsing<User> showUsers() {
+        return userService.getAll(new FacetFilter());
     }
 
 }
