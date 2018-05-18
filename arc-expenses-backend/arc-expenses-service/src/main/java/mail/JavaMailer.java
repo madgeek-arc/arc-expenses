@@ -44,7 +44,7 @@ public class JavaMailer {
     }
 
     public void sendEmail(String to, String subject, String text) {
-        Session session = Session.getInstance(properties);
+        Session session =Session.getInstance(properties);
 
         try {
             MimeMessage msg = new MimeMessage(session);

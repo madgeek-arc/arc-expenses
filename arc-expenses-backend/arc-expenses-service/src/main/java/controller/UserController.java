@@ -65,15 +65,10 @@ public class UserController {
     @RequestMapping(value =  "/idp_login", method = RequestMethod.GET)
     public void idpLogin() {}
 
-    @RequestMapping(value =  "/update", method = RequestMethod.PUT,consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value =  "/update", method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public User update(@RequestBody User user) {
-        try {
-            return userService.update(user, user.getEmail(), "email");
-        } catch (ResourceNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return userService.add(user);
     }
 
 
