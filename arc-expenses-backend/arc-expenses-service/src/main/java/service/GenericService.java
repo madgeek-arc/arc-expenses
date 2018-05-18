@@ -109,4 +109,20 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
         return null;
     }
 
+
+    public T update(T t,String id, String fieldAsId) throws ResourceNotFoundException {
+        String serialized = null;
+        try {
+            serialized = parserPool.serialize(t, ParserService.ParserServiceTypes.JSON).get();
+            Resource existing = searchService.searchId(resourceType.getName(),
+                    new SearchService.KeyValue(String.format("%s_"+fieldAsId, resourceType.getName()),id));
+            existing.setPayload(serialized);
+            resourceService.updateResource(existing);
+            return t;
+        } catch (InterruptedException | ExecutionException | UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

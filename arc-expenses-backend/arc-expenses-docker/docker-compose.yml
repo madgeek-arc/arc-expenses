@@ -1,21 +1,49 @@
-version: "2"
+version: "3.1"
 
 services:
-#  tomcat:
-#    container_name: tomcat
-#    build: ../arc-expenses-service
-#    links:
-#      - db
+  tomcat:
+    container_name: tomcat
+    build: ../arc-expenses-service
+    ports:
+      - "8009:8009"
+    links:
+      - db
 #      - elastic
-#      - jms
-#    ports:
-#      - "8080:8080"
-#      - "8009:8009"
-#    networks:
-#      - esnet
-#    env_file:
-#      - secret.env
-#    restart: unless-stopped
+      - jms
+#      - apache_shibboleth_sp
+      - centOS
+    networks:
+      - arcnet
+    secrets:
+      - source: db_file
+    restart: unless-stopped
+
+#  apache_shibboleth_sp:
+#      container_name: apache_shibboleth
+#      build:
+#        context: registry-apache-shibboleth
+#      secrets:
+#        - source: sp_key
+#      ports:
+#        - "443:443"
+#        - "80:80"
+#      networks:
+#        - arcnet
+#      restart: unless-stopped
+
+
+  centOS:
+    build: centOS
+    container_name: centOS
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - arcnet
+#    volumes:
+#    - /users.php:/var/www/simplesamlphp/config/simplesamlphp/authsources.php
+
+
   db:
     container_name: postgres
     build: registry-postgres
@@ -24,7 +52,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - esnet
+      - arcnet
     restart: unless-stopped
   jms:
     container_name: jms
@@ -32,7 +60,7 @@ services:
     ports:
       - "61616:61616"
     networks:
-      - esnet
+      - arcnet
     restart: unless-stopped
 #  elastic:
 #    container_name: elastic
@@ -96,5 +124,11 @@ volumes:
     driver: local
 
 networks:
-  esnet:
+  arcnet:
     driver: bridge
+
+secrets:
+  sp_key:
+    file: ./secret/sp-key.pem
+  db_file:
+    file: ./secret/secret.env

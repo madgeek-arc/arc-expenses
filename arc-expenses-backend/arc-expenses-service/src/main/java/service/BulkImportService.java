@@ -60,7 +60,6 @@ public class BulkImportService {
     }
 
     private POY parserPOY(String s) {
-
         POY poy = new POY();
         String details[] = s.split(";");
         poy.setEmail(details[1].trim());
@@ -115,14 +114,14 @@ public class BulkImportService {
             project.setInstitute(instituteService.get(line[3].trim()));
             project.setParentProject(line[4].trim());
             project.setScientificCoordinator(parserPOY(line[5]));
-            project.setOperator(parserOperator(line[6]));
+            project.setOperator(parser(line[6]));
             project.setStartDate(line[7].trim());
             project.setEndDate(line[8].trim());
             projectService.add(project);
         }
     }
 
-    private List<POY> parserOperator(String s) {
+    private List<POY> parser(String s) {
 
         String op[] = s.split(",");
         List<POY> operators = new ArrayList<>();

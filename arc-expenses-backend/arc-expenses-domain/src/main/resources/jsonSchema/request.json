@@ -205,6 +205,7 @@
       "properties": {
         "instituteDirector": { "$ref": "#/definitions/person"},
         "date": { "type": "string"},
+        "nextStage": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
