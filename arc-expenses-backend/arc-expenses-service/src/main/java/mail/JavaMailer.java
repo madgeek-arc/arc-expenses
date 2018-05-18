@@ -44,12 +44,13 @@ public class JavaMailer {
     }
 
     public void sendEmail(String to, String subject, String text) {
-        Session session =Session.getInstance(properties);
+        Session session = Session.getInstance(properties);
 
         try {
             MimeMessage msg = new MimeMessage(session);
             msg.setFrom(username);
-            msg.setRecipients(Message.RecipientType.TO, to);
+//            msg.setRecipients(Message.RecipientType.TO, to);
+            msg.setRecipients(Message.RecipientType.TO, username);
             msg.setSubject(subject);
             msg.setSentDate(new Date());
             msg.setText(text);
