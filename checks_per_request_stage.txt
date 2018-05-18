@@ -3,6 +3,7 @@ CHECKS MADE DURING THE PROCEDURE
 ---------------------------------------
 Stage 1 - Initial Request submission
 - If the requested amount is over 2500 adding an attachement is required.
+- If the supplier was not chosen by direct asignment, adding an attachement is required.
 
 General rule
 In order to continue with the approval of any stage, all conditions must be met (all checkboxes must be true).
