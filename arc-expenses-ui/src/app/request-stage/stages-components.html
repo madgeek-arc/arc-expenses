@@ -4,9 +4,9 @@
         <h5>{{ stageTitle }}</h5>
         <div>
             {{ wasApproved ? 'Εγκρίθηκε' : 'Απορρίφθηκε' }}
-            {{ delegatePositionInParagraph }}
-            ({{ currentStage[stageDescription.delegateField]['firstname'] }}
-            {{ currentStage[stageDescription.delegateField]['lastname'] }}) την {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
+             {{ delegatePositionInParagraph }}
+             ({{ getDelegateName() }})
+             την {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
         </div>
         <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
             <app-stage-form [description]="desc">

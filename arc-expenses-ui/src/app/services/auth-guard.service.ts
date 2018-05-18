@@ -20,7 +20,9 @@ export class AuthGuardService implements CanActivate {
         /*sessionStorage.setItem('state.location', state.url);*/
 
         // Navigate to the home page page
-        this.router.navigate(['/home']);
+        // this.router.navigate(['/home']);
+        console.log('in authGuard -> going to login!');
+        this.authenticationService.loginWithState();
 
         return false;
     }

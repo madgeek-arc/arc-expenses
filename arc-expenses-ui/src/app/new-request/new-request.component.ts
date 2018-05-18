@@ -7,6 +7,7 @@ import {Router} from '@angular/router';
 import {AuthenticationService} from '../services/authentication.service';
 import {DatePipe} from '@angular/common';
 import {ManageProjectService} from '../services/manage-project.service';
+import {isUndefined} from 'util';
 
 declare const UIkit: any;
 
@@ -104,7 +105,12 @@ export class NewRequestComponent implements OnInit {
     submitRequest() {
         console.log(this.newRequestForm);
         if (this.newRequestForm.valid ) {
-            if ( (+this.newRequestForm.get('ammount').value < 2500) || this.uploadedFile) {
+            if ( (+this.newRequestForm.get('ammount').value > 2500) && isUndefined(this.uploadedFile) ) {
+                UIkit.modal.alert('Για αιτήματα άνω των 2.500 € η επισύναψη εγγράφων είναι υποχρεωτική.');
+            } else if ( ( this.newRequestForm.get('supplierSelectionMethod').value !== 'Απ\' ευθείας ανάθεση' ) &&
+                          isUndefined(this.uploadedFile)  ) {
+                UIkit.modal.alert('Για αναθέσεις μέσω διαγωνισμού ή έρευνας αγοράς η επισύναψη εγγράφων είναι υποχρεωτική.');
+            } else {
                 this.request = new Request();
                 this.request.id = '';
                 this.request.project = this.chosenProject;
@@ -153,16 +159,11 @@ export class NewRequestComponent implements OnInit {
                         this.showSpinner = false;
                     }
                 );
-            } else {
-                UIkit.modal.alert('Για αιτήματα άνω των 2.500 € η επισύναψη εγγράφων είναι υποχρεωτική.');
             }
 
         } else {
             this.errorMessage = 'Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά';
         }
-        /*SHOW MODAL TEST*/
-        /*console.log('opening modal');
-        UIkit.modal('#my-id').show();*/
     }
 
     getProject() {

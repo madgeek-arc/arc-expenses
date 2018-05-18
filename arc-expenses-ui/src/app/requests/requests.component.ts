@@ -30,7 +30,7 @@ export class RequestsComponent implements OnInit {
   orderField: string;
   totalPages: number;
 
-  stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Εγκριθέντα'};
+  stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
   states = ['all', 'accepted', 'pending', 'rejected'];
   stages = ['all', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12'];
   stagesMap = stagesMap;
@@ -178,7 +178,7 @@ export class RequestsComponent implements OnInit {
       if (status === 'pending') {
           return 'σε εξέλιξη';
       } else if (status === 'accepted') {
-          return 'εγκρίθηκε';
+          return 'ολοκληρωθηκε';
       } else {
           return 'απορρίφθηκε';
       }

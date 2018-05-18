@@ -91,31 +91,7 @@ export class RequestStageComponent implements OnInit {
       } else {
           this.currentRequest.status = 'rejected';
       }
-
-      /*if (this.currentRequest.status !== 'rejected') {
-          if (this.currentRequest.stage !== '3' &&
-              this.currentRequest.stage !== '3a' &&
-              this.currentRequest.stage !== '3b' &&
-              this.currentRequest.stage !== '10') {
-
-              this.currentRequest.stage = (+this.currentRequest.stage + 1).toString();
-          } else {
-              if (this.currentRequest.stage === '10') {
-                  this.currentRequest.stage = '10';
-              } else if (this.currentRequest.stage === '3') {
-                  if (this.currentRequest.stage1.amountInEuros < 10000) {
-                      this.currentRequest.stage = '4';
-                  } else if (this.currentRequest.stage1.amountInEuros >= 10000 && this.currentRequest.stage1.amountInEuros < 20000) {
-                      this.currentRequest.stage = '3a';
-                  } else {
-                      this.currentRequest.stage = '3b';
-                  }
-              } else {
-                  this.currentRequest.stage = '4';
-              }
-          }*/
       this.currentRequest.stage = this.nextStage;
-      /*}*/
 
       this.submitRequest();
   }
