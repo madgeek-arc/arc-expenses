@@ -6,12 +6,13 @@ services:
     build: ../arc-expenses-service
     ports:
       - "8009:8009"
+      - "8180:8180"
     links:
       - db
 #      - elastic
       - jms
 #      - apache_shibboleth_sp
-      - centOS
+      - arc_proxy_shibboleth
     networks:
       - arcnet
     secrets:
@@ -31,18 +32,92 @@ services:
 #        - arcnet
 #      restart: unless-stopped
 
+  arc_proxy_shibboleth:
+      container_name: arc_proxy_shibboleth
+      build:
+        context: arc_proxy_shibboleth
+      secrets:
+        - source: sp_key
+      ports:
+        - "443:443"
+        - "80:80"
+      networks:
+        - arcnet
+      restart: unless-stopped
 
-  centOS:
-    build: centOS
-    container_name: centOS
+
+  idp:
+      build: idp
+      container_name: idp
+      depends_on:
+      - ldap
+      environment:
+       - JETTY_MAX_HEAP=64m
+       - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
+       - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
+      expose:
+       - "4443"
+      networks:
+       - arcnet
+      secrets:
+       - source: idp_backchannel
+       - source: idp_browser
+       - source: idp_encryption
+       - source: idp_signing
+       - source: idp_sealer
+
+  ldap:
+    image: osixia/openldap:1.2.1
+    container_name: ldap
+    environment:
+      LDAP_LOG_LEVEL: "256"
+      LDAP_ORGANISATION: "Example Inc."
+      LDAP_DOMAIN: "example.org"
+      LDAP_BASE_DN: ""
+      LDAP_ADMIN_PASSWORD: "admin"
+      LDAP_CONFIG_PASSWORD: "config"
+      LDAP_READONLY_USER: "false"
+      #LDAP_READONLY_USER_USERNAME: "readonly"
+      #LDAP_READONLY_USER_PASSWORD: "readonly"
+      LDAP_RFC2307BIS_SCHEMA: "false"
+      LDAP_BACKEND: "mdb"
+      LDAP_TLS: "true"
+      LDAP_TLS_CRT_FILENAME: "ldap.crt"
+      LDAP_TLS_KEY_FILENAME: "ldap.key"
+      LDAP_TLS_CA_CRT_FILENAME: "ca.crt"
+      LDAP_TLS_ENFORCE: "false"
+      LDAP_TLS_CIPHER_SUITE: "SECURE256:-VERS-SSL3.0"
+      LDAP_TLS_PROTOCOL_MIN: "3.1"
+      LDAP_TLS_VERIFY_CLIENT: "demand"
+      LDAP_REPLICATION: "false"
+      #LDAP_REPLICATION_CONFIG_SYNCPROV: "binddn="cn=admin,cn=config" bindmethod=simple credentials=$LDAP_CONFIG_PASSWORD searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical"
+      #LDAP_REPLICATION_DB_SYNCPROV: "binddn="cn=admin,$LDAP_BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical"
+      #LDAP_REPLICATION_HOSTS: "#PYTHON2BASH:['ldap://ldap.example.org','ldap://ldap2.example.org']"
+      KEEP_EXISTING_CONFIG: "false"
+      LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
+      LDAP_SSL_HELPER_PREFIX: "ldap"
+    tty: true
+    stdin_open: true
+    volumes:
+      - /var/lib/ldap
+      - /etc/ldap/slapd.d
+      - /container/service/slapd/assets/certs/
     ports:
-      - "80:80"
-      - "443:443"
-    networks:
-      - arcnet
-#    volumes:
-#    - /users.php:/var/www/simplesamlphp/config/simplesamlphp/authsources.php
+      - "389:389"
+      - "636:636"
+    domainname: "example.org" # important: same as hostname
+    hostname: "example.org"
 
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    container_name: phpldapadmin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: "ldap"
+      PHPLDAPADMIN_HTTPS: "false"
+    ports:
+      - "8080:80"
+    depends_on:
+      - ldap
 
   db:
     container_name: postgres
@@ -128,7 +203,19 @@ networks:
     driver: bridge
 
 secrets:
+  idp_backchannel:
+    file: ./secret/idp-backchannel.p12
+  idp_browser:
+    file: ./secret/idp-browser.p12
+  idp_encryption:
+    file: ./secret/idp-encryption.key
+  idp_signing:
+    file: ./secret/idp-signing.key
+  idp_sealer:
+    file: ./secret/sealer.jks
   sp_key:
     file: ./secret/sp-key.pem
   db_file:
     file: ./secret/secret.env
+  ssp_key:
+    file: ./secret/server.pem

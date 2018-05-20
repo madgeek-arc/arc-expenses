@@ -35,7 +35,8 @@ public class SAMLBasicFilter extends GenericFilterBean{
             SecurityContextHolder.getContext().setAuthentication(samlAuthentication);
         }
 
-        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
+//        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
+        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_uid"));
 
         int expireSec = -1;
         sessionCookie.setMaxAge(expireSec);
