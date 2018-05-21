@@ -42,7 +42,7 @@ public class StageMessages {
         else if (prevStage.equals("2") && nextStage.equals("3")) {
             firstname = request.getStage2().getScientificCoordinator().getFirstname();
             lastname = request.getStage2().getScientificCoordinator().getLastname();
-            userEmail.setText("Το αίτημά σας ελέγχθηκε από τον υπεύθυνο: " + firstname + " " + lastname;
+            userEmail.setText("Το αίτημά σας ελέγχθηκε από τον υπεύθυνο: " + firstname + " " + lastname);
 
             POIEmail.setText("Εγκρίθηκε το αίτημα με κωδικό " + request.getId() + " από τον/την " +
                     firstname + " " + lastname);
