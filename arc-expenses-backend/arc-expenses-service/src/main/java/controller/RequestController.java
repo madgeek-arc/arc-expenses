@@ -83,9 +83,9 @@ public class RequestController {
                                        @RequestParam("email") String email) {
 
 
-        if(policyCheckerService.updateFilter(request,email))
+        //if(policyCheckerService.updateFilter(request,email))
             return new ResponseEntity<>( true, HttpStatus.OK);
-        return new ResponseEntity<>( false, HttpStatus.OK);
+        //return new ResponseEntity<>( false, HttpStatus.OK);
     }
 
 

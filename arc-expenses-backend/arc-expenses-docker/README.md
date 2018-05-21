@@ -1,4 +1,4 @@
-# eic-docker
+# arc-expenses-docker
 
 #required 
 1. docker
@@ -15,5 +15,5 @@
 `docker-compose down` stops and deletes the containers.
 
 #info
-For development purposes this project assumes that the eic-registry `Dockerfile` is located in `../eic-registry`.
-For production the latest war file from jenkins is going to be fetched.
+For development purposes this project assumes that shibboleth sp-idp and apache runs locally but service/registry are deployed on another machine (marilyn)
+For production the latest war file from jenkins is going to be fetched. Also, local idp and ldap db will not be used.
