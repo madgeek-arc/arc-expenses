@@ -93,7 +93,7 @@
                     <execution>
                         <id>json schema to java</id>
                         <configuration>
-                            <sourceDirectory>${basedir}/src/main/resources/jsonSchema</sourceDirectory>
+                            <sourceDirectory>${basedir}/src/main/resources/jsonSchema/request.json</sourceDirectory>
                             <!--<sourceDirectory>${basedir}/src/main/resources/jsonSchema/request.json</sourceDirectory>-->
                             <targetPackage>${project.groupId}.domain</targetPackage>
                             <outputDirectory>target/generated-sources/jsonSchema</outputDirectory>

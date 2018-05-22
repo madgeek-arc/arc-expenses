@@ -3,7 +3,7 @@ package service;
 import au.com.bytecode.opencsv.CSVReader;
 import gr.athenarc.domain.Institute;
 import gr.athenarc.domain.Organization;
-import gr.athenarc.domain.POY;
+import gr.athenarc.domain.POI;
 import gr.athenarc.domain.Project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,20 +52,20 @@ public class BulkImportService {
             Organization organization = new Organization();
             organization.setId(line[0].trim());
             organization.setName(line[1].trim());
-            organization.setPOY(parserPOY(line[2]));
+            organization.setPOI(parserPOY(line[2]));
             organization.setDirector(parserPOY(line[3]));
             organization.setDioikitikoSumvoulio(parserPOY(line[4]));
             organizationService.add(organization);
         }
     }
 
-    private POY parserPOY(String s) {
-        POY poy = new POY();
+    private POI parserPOY(String s) {
+        POI POI = new POI();
         String details[] = s.split(";");
-        poy.setEmail(details[1].trim());
-        poy.setFirstname((details[0].split(" "))[0].trim());
-        poy.setLastname((details[0].split(" "))[1].trim());
-        return poy;
+        POI.setEmail(details[1].trim());
+        POI.setFirstname((details[0].split(" "))[0].trim());
+        POI.setLastname((details[0].split(" "))[1].trim());
+        return POI;
 
     }
 
@@ -121,10 +121,10 @@ public class BulkImportService {
         }
     }
 
-    private List<POY> parser(String s) {
+    private List<POI> parser(String s) {
 
         String op[] = s.split(",");
-        List<POY> operators = new ArrayList<>();
+        List<POI> operators = new ArrayList<>();
 
         for(String operator:op)
             operators.add(parserPOY(operator));
