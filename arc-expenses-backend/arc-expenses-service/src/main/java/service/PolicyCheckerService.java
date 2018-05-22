@@ -130,10 +130,10 @@ public class PolicyCheckerService {
     }
 
     private Boolean isOrganizationDiaugeia(Request request, String email) {
-        return request.getStage6().getOrganizationDiaugeia().getEmail().equals(email);
+        return request.getStage6().getUser().getEmail().equals(email);
     }
 
     private Boolean isMemberOfAB(Request request, String email) {
-        return request.getStage5b().getDioikitikoSumvoulio().getEmail().equals(email);
+        return request.getStage5b().getUser().getEmail().equals(email);
     }
 }

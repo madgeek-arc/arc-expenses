@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui" xmlns:mdrpi="urn:oasis:names:tc:SAML:metadata:rpi" Name="http://www.grnet.gr/aai" ID="_20180411T034802Z" xsi:schemaLocation="urn:oasis:names:tc:SAML:2.0:metadata saml-schema-metadata-2.0.xsd urn:mace:shibboleth:metadata:1.0 shibboleth-metadata-1.0.xsd http://www.w3.org/2000/09/xmldsig# xmldsig-core-schema.xsd">
+<ds:Signature>
+  <ds:SignedInfo>
+      <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"/>
+      <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+      <ds:Reference URI="#_20180411T034802Z">
+	      <ds:Transforms>
+		 <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+		 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"/>
+	     </ds:Transforms>
+	     <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+	     <ds:DigestValue>p8vVjkhPpFJW+GTs+tPmFgVc3wc=</ds:DigestValue>
+     </ds:Reference>
+     </ds:SignedInfo>																							
+     <ds:SignatureValue>
+	    YL+XFaRKs+Zfsl9gP3ib5mt7DgPIKlhAyWkkvfvwhKg3LncKPrn5MIBnH5LipKb7
+	    GilH/jZ3b0asHrc5BTkcQYoMCd78Hkle7TayHRC4rpRtn7mZxmSDDti8NiT2Gj+P
+	    wTlNZKQLdvUwvjyoCR6KLFud+DlT0kP9/OPgwgBvIQAasOohXrFLLRNUxgeOYgIE 
+	    JLwxst4PAvzqEaIXdWX0gCL3m9Jdz0VV6ax5XIT/cyJ9IP+9p7OiYqi4jIe0GYny
+	    DJQAI8RbwnX9AmPj2yJNA6cAuGTlsYSRcwXQ4KrJZmUW7Y8ZCWl40EA/M6dedQX7
+	    mjmMcH1abkpPKhd6memPSg==</ds:SignatureValue>																				<ds:KeyInfo>																									              <ds:X509Data>
+		    <ds:X509Certificate>
+			MIIEDDCCAvSgAwIBAgIJAKjVXzCsWTHYMA0GCSqGSIb3DQEBCwUAMIGaMQswCQYD
+			VQQGEwJHUjEuMCwGA1UEChMlR3JlZWsgUmVzZWFyY2ggYW5kIFRlY2hub2xvZ3kg
+			TmV0d29yazEWMBQGA1UECxMNVGVjaG5pY2FsL05PQzEiMCAGA1UEAxMZR1JORVQg
+			QUFJIE1ldGFkYXRhIFNpZ25lcjEfMB0GCSqGSIb3DQEJARYQYWFpQG5vYy5ncm5l
+			dC5ncjAeFw0xNjAyMDQxMzAzMzlaFw0yNjAyMDExMzAzMzlaMIGaMQswCQYDVQQG
+			EwJHUjEuMCwGA1UEChMlR3JlZWsgUmVzZWFyY2ggYW5kIFRlY2hub2xvZ3kgTmV0
+			d29yazEWMBQGA1UECxMNVGVjaG5pY2FsL05PQzEiMCAGA1UEAxMZR1JORVQgQUFJ
+			IE1ldGFkYXRhIFNpZ25lcjEfMB0GCSqGSIb3DQEJARYQYWFpQG5vYy5ncm5ldC5n
+			cjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAME/ou6iZdZMOAg8+r7q
+			MpRWaeGZawCbPGiYVCYGFv+TxiRiG2VY8GeXQYeerUPl/UXRHlZndJ19SVxqqtWK
+			qz7XyPv0t5FAwg2NJH6lKgqfpe293RRWZHG9YF+topPjJt9ITCB6H6HqU9mtnPbZ
+			yqT+1LI0L9fDGTgV0PyFQ0YbXyVAsR7BhyV56LsnINmDH4tGiPxdCpQgp6GjUCLg
+			ggR84P3OSZtsdv44I3Lg8n6iv96ncIni7ymlKB0v/oulXReb1/3T172wHEZyZwY1
+			3qDBCd46yDIv3pw/IGG+5eVxvuXQ9J5CzuQ2qxSu4Q87bWawmrXvRuqWsPUt3F0n
+			/ucCAwEAAaNTMFEwHQYDVR0OBBYEFOD7DtHXlzZfzA3dDt7/tNsRmnihMB8GA1Ud
+			IwQYMBaAFOD7DtHXlzZfzA3dDt7/tNsRmnihMA8GA1UdEwEB/wQFMAMBAf8wDQYJ
+			KoZIhvcNAQELBQADggEBADpyC/+4k8rP9WvdeZEp9ivaRRN9X8QtwpR3S2GgbqzL
+			g+6TCfWR2Bha0RMwE3zzKcTZg9n0kjPb3/74pat7+2/89X/jQ4sG9jCNoMzi54UW
+			PrfokDgmmyUVJtOBWQbPwQEw5qm9PC20l1lLJH3HOXPdga20H8QSSdY4NWqsB07C
+			KscjSXdXx/Alr3pu7pfFM6YZh2hQZP/x4l4YlRuRs2cMN0dDIAtcqgiImPbZa+dg
+			NAtA3PK9jAvanOasyEcf64oXQeOJolpG1Hg/YJkzCCEcrP0eZmR8FRERdiDcEXFT
+			8pC2fWbYZkbtnnTmeJU6slDy5dO/s4Qq9TuYZWrKs7A=
+	      </ds:X509Certificate>
+	    </ds:X509Data>
+    </ds:KeyInfo>
+ </ds:Signature>
+
+
+
+
+   <EntityDescriptor entityID="https://login.athena-innovation.gr/idp/shibboleth">
+        <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+            <Extensions>
+                <shibmd:Scope xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" regexp="false">athenarc.gr</shibmd:Scope>
+                <shibmd:Scope xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" regexp="false">athena-innovation.gr</shibmd:Scope>
+                <shibmd:Scope xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" regexp="false">imis.athena-innovation.gr</shibmd:Scope>
+                <shibmd:Scope xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" regexp="false">ilsp.athena-innovation.gr</shibmd:Scope>
+                <shibmd:Scope xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" regexp="false">ceti.athena-innovation.gr</shibmd:Scope>
+                <shibmd:Scope xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" regexp="false">isi.athena-innovation.gr</shibmd:Scope>
+                <mdui:UIInfo xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
+                    <mdui:DisplayName xml:lang="en">Athena - Research and Innovation Center</mdui:DisplayName>
+                    <mdui:DisplayName xml:lang="el">Αθηνά - Ερευνητικό Κέντρο Καινοτομίας</mdui:DisplayName>
+                    <mdui:InformationURL xml:lang="en">http://www.athenarc.gr/en.html</mdui:InformationURL>
+                    <mdui:InformationURL xml:lang="el">http://www.athenarc.gr/el.html</mdui:InformationURL>
+                    <mdui:Logo height="55" width="205">https://idp.athenarc.gr/images/athena-logo_205x55.png</mdui:Logo>
+                </mdui:UIInfo>
+                <mdui:DiscoHints xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
+                    <mdui:DomainHint>athenarc.gr</mdui:DomainHint>
+                    <mdui:DomainHint>athena-innovation.gr</mdui:DomainHint>
+                    <mdui:DomainHint>imis.athena-innovation.gr</mdui:DomainHint>
+                    <mdui:DomainHint>ilsp.gr</mdui:DomainHint>
+                    <mdui:DomainHint>ceti.gr</mdui:DomainHint>
+                    <mdui:DomainHint>isi.gr</mdui:DomainHint>
+                    <mdui:IPHint>195.251.63.0/24</mdui:IPHint>
+                    <mdui:IPHint>195.251.3.0/24</mdui:IPHint>
+                    <mdui:IPHint>195.251.58.0/24</mdui:IPHint>
+                    <mdui:IPHint>194.177.192.0/24</mdui:IPHint>
+                    <mdui:IPHint>194.177.217.0/24</mdui:IPHint>
+                    <mdui:IPHint>2001:648:2600::/48</mdui:IPHint>
+                    <mdui:GeolocationHint>geo:38.0365046,23.802512</mdui:GeolocationHint>
+                </mdui:DiscoHints>
+            </Extensions>
+            <KeyDescriptor use="signing">
+                <ds:KeyInfo>
+                    <ds:X509Data>
+                        <ds:X509Certificate>
+                            MIIDJzCCAg+gAwIBAgIJALOmifOZ8gGSMA0GCSqGSIb3DQEBCwUAMBoxGDAWBgNV
+                            BAMMD2lkcC5hdGhlbmFyYy5ncjAeFw0xNzAyMjEyMjMxNTZaFw0yMjAyMjAyMjMx
+                            NTZaMBoxGDAWBgNVBAMMD2lkcC5hdGhlbmFyYy5ncjCCASIwDQYJKoZIhvcNAQEB
+                            BQADggEPADCCAQoCggEBAKBLsJyLoep4eTgpBPoaKxQp/WXuW193EbVyFFQ+IfUN
+                            dMg3kb67Z8V5HccYPP2haFNDMYbnAdyUQRdTmWnfpHqtV7TiRyNTD96xyZXkWYoE
+                            qoAd+CJdecdmObQStX/HEOrI9fDoZrFmRjMXsQXXr9OJYhXpoGIFl3uOmPzrOOPB
+                            R49Ng5LqIaCTR0I6mW1cnsIcmWUR8b0Roi3EaGC4XgLuxH20HEoPmmq7VZMU+Jak
+                            OrK04FIAlHAJmc8gN73epfsZmvx9EmsscDLW7pu9IeYB5I5X2TCRRdj2IyzKfztf
+                            c+Qk9zBRTMnUTrl0D2po5DTqnuaEKEHSeNc0iAISz/MCAwEAAaNwMG4wHQYDVR0O
+                            BBYEFJBfEDuqspW3BuEDqNl9Mm03iPa9ME0GA1UdEQRGMESCD2lkcC5hdGhlbmFy
+                            Yy5ncoYxaHR0cHM6Ly9sb2dpbi5hdGhlbmEtaW5ub3ZhdGlvbi5nci9pZHAvc2hp
+                            YmJvbGV0aDANBgkqhkiG9w0BAQsFAAOCAQEAf4QHWAYkZaOPSK7WiWXh91UtL36Z
+                            /cYHq6nX7AdR018b1ODWH9wTz9s0kJX73+KrFBsDBqwZ2ppSwd1dsKmzcbIEuQcK
+                            QxYf8qyi6uyhTqLi+Lcqt3xx5IcSx7bmbOFh5I+I68D3Y812whc36olMqMJfWyDK
+                            PSmuYwsUygA1nCmjAk+4ASitzA4AGiHo67GN7mrsHfJ/5d/jIPTV3s7K/xTFyize
+                            gabAcK8x0ILMyX9ugjg0RHW3idAUqTwJFb/HIoTr3/t/g0XQIi9nmOBxKQnCuj7/
+                            TiIbD174UihN/UEhLVOLTBSi+pGbAU9p/a+72IWFrppV1GItSuO9m8GlDA==
+                        </ds:X509Certificate>
+                    </ds:X509Data>
+                </ds:KeyInfo>
+            </KeyDescriptor>
+            <KeyDescriptor use="encryption">
+                <ds:KeyInfo>
+                    <ds:X509Data>
+                        <ds:X509Certificate>
+                            MIIDJzCCAg+gAwIBAgIJAIN3mIwBv7juMA0GCSqGSIb3DQEBCwUAMBoxGDAWBgNV
+                            BAMMD2lkcC5hdGhlbmFyYy5ncjAeFw0xNzAyMjEyMjMyMTRaFw0yMjAyMjAyMjMy
+                            MTRaMBoxGDAWBgNVBAMMD2lkcC5hdGhlbmFyYy5ncjCCASIwDQYJKoZIhvcNAQEB
+                            BQADggEPADCCAQoCggEBALD80DgC94pHYgvZGJv3DfkGhJgP5y8va8WzPP15mbaU
+                            Xt+gi1S7fyOV6Uoj7V+pCFvKAOtdqyTY6czCTGS0umK9q53s6g5YyfccwgH6Mbgz
+                            4P4zU5MGoa13UysrRaSZ4rPxcheDz4uDU8pQbPzYfn7pQxbwdKsfSs6T8LsUFnqe
+                            rd5xjS/RZQsVB5EExk744cnPLlOJwQZsbWIy9IK/9rSZBuGuXyZx3y0oLdMinNyZ
+                            4YIqbGoVDa173ebdVr2ZAivpBqxwSGcOe1zGGljStyfOq80RIQHs9kiqgNUJh0s5
+                            ihZ1hK8hDgNPU5bSy7e+jyNhdJFH6gi5QWX+nZOZ568CAwEAAaNwMG4wHQYDVR0O
+                            BBYEFJNC9CNnfuOvx0SU7MlxEx2HsaMcME0GA1UdEQRGMESCD2lkcC5hdGhlbmFy
+                            Yy5ncoYxaHR0cHM6Ly9sb2dpbi5hdGhlbmEtaW5ub3ZhdGlvbi5nci9pZHAvc2hp
+                            YmJvbGV0aDANBgkqhkiG9w0BAQsFAAOCAQEAAiU7NHdKkiOjirjusAhWNqPytN5X
+                            vqvLKgruYGiWoSNUTxMPIiBkjT6LoA9FoSBM1lR3CHFVIz6NEb+pL4BKSz2cV04D
+                            bQVCHDjMGV/i8IACql+vrsp1iwuIpCL/lKRi4F6q1TEvdII7/EQFSodGaquQVv3S
+                            LZlG7APssjwjeLHigtI1hKxYeqGRbC8pUNRyMq6WMiIWB4k4DcEqSFradwBZbeaI
+                            6erlSerB5ueXjYHv/QvzuhOwqNYXbhYnUINfwqCd3nMEGbK8PX4VkwmWA7EtLAp5
+                            ewTHFD00gJphYFcnY6tgWAGWidRfUna6MNVlgyBjTyIw/XI/jT37d9GoHQ==
+                        </ds:X509Certificate>
+                    </ds:X509Data>
+                </ds:KeyInfo>
+            </KeyDescriptor>
+            <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://idp.athenarc.gr/idp/profile/SAML2/Redirect/SLO"/>
+            <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://idp.athenarc.gr/idp/profile/SAML2/POST/SLO"/>
+            <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+            <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
+            <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://idp.athenarc.gr/idp/profile/SAML2/POST/SSO"/>
+            <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://idp.athenarc.gr/idp/profile/SAML2/Redirect/SSO"/>
+            <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://idp.athenarc.gr/idp/profile/SAML2/SOAP/ECP"/>
+        </IDPSSODescriptor>
+        <Organization>
+            <OrganizationName xml:lang="en">Athena - Research and Innovation Center in Information, Communication and Knowledge Technologies</OrganizationName>
+            <OrganizationName xml:lang="el">Αθηνά - Ερευνητικό Κέντρο Καινοτομίας στις Τεχνολογίες της Πληροφορίας, των Επικοινωνιών και της Γνώσης</OrganizationName>
+            <OrganizationDisplayName xml:lang="en">Athena - Research and Innovation Center</OrganizationDisplayName>
+            <OrganizationDisplayName xml:lang="el">Αθηνά - Ερευνητικό Κέντρο Καινοτομίας</OrganizationDisplayName>
+            <OrganizationURL xml:lang="en">http://www.athenarc.gr/</OrganizationURL>
+            <OrganizationURL xml:lang="el">http://www.athenarc.gr/</OrganizationURL>
+        </Organization>
+        <ContactPerson contactType="technical">
+            <Company>Research Center Athena - Institute for the Management of Information Systems</Company>
+            <EmailAddress>staff@imis.athena-innovation.gr</EmailAddress>
+        </ContactPerson>
+        <ContactPerson contactType="support">
+            <Company>Research Center Athena - Institute for the Management of Information Systems</Company>
+            <EmailAddress>staff@imis.athena-innovation.gr</EmailAddress>
+        </ContactPerson>
+    </EntityDescriptor>
+</EntitiesDescriptor>
+
