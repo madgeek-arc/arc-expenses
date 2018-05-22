@@ -60,7 +60,7 @@ public class StageMessages {
                             delegate.getEmail(), subject,
                             messageTemplates(firstname, lastname, request.getId(), UserType.POI,
                                     RequestState.ACCEPTED, null))));
-            
+
             // emails to all next POIs and their delegates - getOperator() returns a list of POIs
             request.getProject().getOperator()
                     .forEach(operator -> operator.getDelegates()
@@ -151,77 +151,103 @@ public class StageMessages {
                                     RequestState.ACCEPTED, null))));
         }
         // Stage 5 -> 5b // TODO check again
-//        else if (prevStage.equals("5") && nextStage.equals("5b")) {
-//            firstname = request.getStage5().getInstituteDirector().getFirstname();
-//            lastname = request.getStage5().getInstituteDirector().getLastname();
-//
-////            userEmail.setText("Το αίτημά σας ελέγχθηκε από τον υπεύθυνο: " + firstname + " " + lastname);
-//            userEmail = null;
-//
-//            POIEmail.setText(messageTemplates(firstname, lastname, request.getId(), UserType.POI));
-//            POIEmail.setRecipient(request.getStage5().getInstituteDirector().getEmail()); // FIXME
-//            request.getProject().getInstitute().getDirector().getDelegates()
-//                    .forEach(delegate -> emails.add(createMessage(delegate.getEmail(), subject,
-//                            messageTemplates(firstname, lastname, request.getId(), UserType.POI))));
-//
-//            nextPOIEmail.setText(messageTemplates(null, null, request.getId(), UserType.nextPOI));
-//            nextPOIEmail.setRecipient(
-//                    request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getEmail());
-//            request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getDelegates()
-//                    .forEach(delegate -> emails.add(createMessage(delegate.getEmail(), subject,
-//                            messageTemplates(null, null, request.getId(), UserType.nextPOI))));
-//        }
-//        // Stage 5/5a/5b -> 6
-//        else if (nextStage.equals("6")) {
-//            // Stage 5 -> 6 TODO check again
-//            if (prevStage.equals("5")) {
-//                firstname = request.getStage5().getInstituteDirector().getFirstname();
-//                lastname = request.getStage5().getInstituteDirector().getLastname();
-//
-////                userEmail.setText("Το αίτημά σας ελέγχθηκε από τον υπεύθυνο: " + firstname + " " + lastname);
-//                userEmail = null;
-//
-//                POIEmail.setText(messageTemplates(firstname, lastname, request.getId(), UserType.POI));
-//                POIEmail.setRecipient(request.getStage5().getInstituteDirector().getEmail()); // FIXME
-//                request.getProject().getInstitute().getDirector().getDelegates()
-//                        .forEach(delegate -> emails.add(createMessage(delegate.getEmail(), subject,
-//                                messageTemplates(firstname, lastname, request.getId(), UserType.POI))));
-//            }
-//            // Stage 5a -> 6 TODO check again
-//            else if (prevStage.equals("5a")) {
-//                firstname = request.getStage5a().getOrganizationDirector().getFirstname();
-//                lastname = request.getStage5a().getOrganizationDirector().getLastname();
-//
-////                userEmail.setText("Το αίτημά σας ελέγχθηκε από τον υπεύθυνο: " + firstname + " " + lastname);
-//                userEmail = null;
-//
-//                POIEmail.setText(messageTemplates(firstname, lastname, request.getId(), UserType.POI));
-//                POIEmail.setRecipient(request.getStage5a().getOrganizationDirector().getEmail()); // FIXME
-//                request.getProject().getInstitute().getOrganization().getDirector().getDelegates()
-//                        .forEach(delegate -> emails.add(createMessage(delegate.getEmail(), subject,
-//                                messageTemplates(firstname, lastname, request.getId(), UserType.POI))));
-//            }
-//            // Stage 5b -> 6 TODO check again
-//            else if (prevStage.equals("5b")) {
-//                firstname = request.getStage5b().getDioikitikoSumvoulio().getFirstname();
-//                lastname = request.getStage5b().getDioikitikoSumvoulio().getLastname();
-//
-////                userEmail.setText("Το αίτημά σας ελέγχθηκε από τον υπεύθυνο: " + firstname + " " + lastname);
-//                userEmail = null;
-//
-//                POIEmail.setText(messageTemplates(firstname, lastname, request.getId(), UserType.POI));
-//                POIEmail.setRecipient(request.getStage5b().getDioikitikoSumvoulio().getEmail()); // FIXME
-//                request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getDelegates()
-//                        .forEach(delegate -> emails.add(createMessage(delegate.getEmail(), subject,
-//                                messageTemplates(firstname, lastname, request.getId(), UserType.POI))));
-//            }
-//            nextPOIEmail.setText(messageTemplates(null, null, request.getId(), UserType.nextPOI));
-//            nextPOIEmail.setRecipient(request.getProject().getInstitute().getDiaugeia().getEmail());
-//            request.getProject().getInstitute().getDiaugeia().getDelegates()
-//                    .forEach(delegate -> emails.add(createMessage(
-//                            delegate.getEmail(), subject, messageTemplates(null, null,
-//                            request.getId(), UserType.nextPOI))));
-//        }
+        else if (prevStage.equals("5") && nextStage.equals("5b")) {
+            firstname = request.getStage5().getUser().getFirstname();
+            lastname = request.getStage5().getUser().getLastname();
+
+            // email report to POI
+            emails.add(createMessage(request.getProject().getInstitute().getDirector().getEmail(), subject,
+                    messageTemplates(firstname, lastname, request.getId(), UserType.POI,
+                            RequestState.ACCEPTED, null)));
+
+            // email report to all POI delegates
+            request.getProject().getInstitute().getDirector().getDelegates()
+                    .forEach(delegate -> emails.add(createMessage(
+                            delegate.getEmail(), subject,
+                            messageTemplates(firstname, lastname, request.getId(), UserType.POI,
+                                    RequestState.ACCEPTED, null))));
+
+            // email to next POI
+            emails.add(createMessage(
+                    request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getEmail(),
+                    subject, messageTemplates(null, null, request.getId(), UserType.nextPOI,
+                            RequestState.ACCEPTED, null)));
+
+            // email to next POI delegates
+            request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getDelegates()
+                    .forEach(delegate -> emails.add(createMessage(
+                            delegate.getEmail(), subject,
+                            messageTemplates(null, null, request.getId(), UserType.nextPOI,
+                                    RequestState.ACCEPTED, null))));
+        }
+        // Stage 5/5a/5b -> 6
+        else if (nextStage.equals("6")) {
+            // Stage 5 -> 6 TODO check again
+            if (prevStage.equals("5")) {
+                firstname = request.getStage5().getUser().getFirstname();
+                lastname = request.getStage5().getUser().getLastname();
+
+                // email report to POI
+                emails.add(createMessage(request.getProject().getInstitute().getDirector().getEmail(), subject,
+                        messageTemplates(firstname, lastname, request.getId(), UserType.POI,
+                                RequestState.ACCEPTED, null)));
+
+                // email report to all POI delegates
+                request.getProject().getInstitute().getDirector().getDelegates()
+                        .forEach(delegate -> emails.add(createMessage(
+                                delegate.getEmail(), subject,
+                                messageTemplates(firstname, lastname, request.getId(), UserType.POI,
+                                        RequestState.ACCEPTED, null))));
+            }
+            // Stage 5a -> 6 TODO check again
+            else if (prevStage.equals("5a")) {
+                firstname = request.getStage5a().getUser().getFirstname();
+                lastname = request.getStage5a().getUser().getLastname();
+
+                // email report to POI
+                emails.add(createMessage(
+                        request.getProject().getInstitute().getOrganization().getDirector().getEmail(), subject,
+                        messageTemplates(firstname, lastname, request.getId(), UserType.POI,
+                                RequestState.ACCEPTED, null)));
+
+                // email report to all POI delegates
+                request.getProject().getInstitute().getOrganization().getDirector().getDelegates()
+                        .forEach(delegate -> emails.add(createMessage(
+                                delegate.getEmail(), subject,
+                                messageTemplates(firstname, lastname, request.getId(), UserType.POI,
+                                        RequestState.ACCEPTED, null))));
+            }
+            // Stage 5b -> 6 TODO check again
+            else if (prevStage.equals("5b")) {
+                firstname = request.getStage5b().getUser().getFirstname();
+                lastname = request.getStage5b().getUser().getLastname();
+
+                // email report to POI
+                emails.add(createMessage(
+                        request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getEmail(),
+                        subject, messageTemplates(firstname, lastname, request.getId(), UserType.POI,
+                                RequestState.ACCEPTED, null)));
+
+                // email report to all POI delegates
+                request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getDelegates()
+                        .forEach(delegate -> emails.add(createMessage(
+                                delegate.getEmail(), subject,
+                                messageTemplates(firstname, lastname, request.getId(), UserType.POI,
+                                        RequestState.ACCEPTED, null))));
+            }
+            // email to next POI
+            emails.add(createMessage(
+                    request.getProject().getInstitute().getDiaugeia().getEmail(),
+                    subject, messageTemplates(null, null, request.getId(), UserType.nextPOI,
+                            RequestState.ACCEPTED, null)));
+
+            // email to next POI delegates
+            request.getProject().getInstitute().getDiaugeia().getDelegates()
+                    .forEach(delegate -> emails.add(createMessage(
+                            delegate.getEmail(), subject,
+                            messageTemplates(null, null, request.getId(), UserType.nextPOI,
+                                    RequestState.ACCEPTED, null))));
+        }
 //        // Stage 6 -> 7 // TODO ok
 //        else if (prevStage.equals("6") && nextStage.equals("7")) {
 //            firstname = request.getStage6().getOrganizationDiaugeia().getFirstname();
