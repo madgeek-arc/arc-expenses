@@ -163,7 +163,8 @@ export class StageComponent implements OnInit {
 
     submitForm() {
         this.stageFormError = '';
-        if (this.stageForm && this.stageForm.valid && this.delegateCanEdit() ) {
+        /*if (this.stageForm && this.stageForm.valid && this.delegateCanEdit() ) {*/
+        if (this.stageForm && this.stageForm.valid ) {
             if ( (this.stageDescription.id === '6' ||
                   this.stageDescription.id === '11' ||
                   (this.stageDescription.id === '7' &&
@@ -203,9 +204,9 @@ export class StageComponent implements OnInit {
                 this.checkIfApproved();
                 this.emitStage.emit(this.currentStage);
             }
-        } else {
-            UIkit.modal.alert('Φαίνεται ότι δεν έχετε δικαίωμα να εγκρίνεται ή να απορρίψετε αυτό το στάδιο.');
-        }
+        }/* else {
+            UIkit.modal.alert('Φαίνεται ότι δεν έχετε δικαίωμα να εγκρίνετε ή να απορρίψετε αυτό το στάδιο.');
+        }*/
     }
 
     delegateCanEdit() {
@@ -218,7 +219,8 @@ export class StageComponent implements OnInit {
         tempDelegate.email = this.authService.getUserEmail();
         tempDelegate.firstname = this.authService.getUserFirstName();
         tempDelegate.lastname = this.authService.getUserLastName();
-        tempDelegate.hidden = this.getIsDelegateHidden();
+        /*tempDelegate.hidden = this.getIsDelegateHidden();*/
+        tempDelegate.hidden = false;
         return tempDelegate;
     }
 
