@@ -10,12 +10,8 @@
 
     <context:property-placeholder location="classpath*:application.properties" />
     <context:annotation-config/>
-    <context:component-scan base-package="config"/>
-    <context:component-scan base-package="controller"/>
-    <context:component-scan base-package="service"/>
-    <context:component-scan base-package="utils"/>
-    <context:component-scan base-package="listener"/>
-    <context:component-scan base-package="mail"/>
+    <context:component-scan base-package="arc.expenses.*"/>
+
     <!--<context:component-scan base-package="org.springframework.security.saml"/>-->
     <context:component-scan base-package="eu.openminted.registry.core"/>
 
