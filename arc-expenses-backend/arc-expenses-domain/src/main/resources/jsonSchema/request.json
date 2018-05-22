@@ -2,8 +2,9 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
 
   "definitions": {
-    "person": {
+    "delegate": {
       "type": "object",
+      "description": "",
       "properties": {
         "email": { "type": "string" },
         "firstname": { "type": "string" },
@@ -24,7 +25,7 @@
         "lastname": { "type": "string" },
         "delegates": {
           "type": "array",
-          "items": { "$ref": "#/definitions/person" }
+          "items": { "$ref": "#/definitions/delegate" }
         }
       },
       "required": [
@@ -41,7 +42,9 @@
         "firstname": { "type": "string" },
         "lastname": { "type": "string" },
         "firstnameLatin": { "type": "string" },
-        "lastnameLatin": { "type": "string" }
+        "lastnameLatin": { "type": "string" },
+        "receiveEmails": { "type": "boolean" },
+        "immediateEmails": { "type": "boolean" }
       },
       "required": [
         "id",
@@ -132,29 +135,9 @@
   "title": "Request",
   "type": "object",
   "properties": {
-    "id": {
-      "description": "The unique identifier of the project.",
-      "title": "Input Corpus ID",
-      "type": "string"
-    },
-    "project": { "$ref": "#/definitions/project" },
-    "requester": { "$ref": "#/definitions/user" },
-    "requesterPosition": {
-      "description": "Position of the requester in the Institute.",
-      "title": "Requester position",
-      "type": "string"
-    },
-    "stage": {
-      "description": "Current stage of the request.",
-      "title": "Stage",
-      "type": "string"
-    },
-    "status": {
-      "title": "status",
-      "type" : "string"
-    },
     "stage1": {
       "type": "object",
+      "description": "stage: Request Submission",
       "properties": {
         "requestDate": { "type": "string" },
         "subject": { "type": "string" },
@@ -166,8 +149,9 @@
     },
     "stage2": {
       "type": "object",
+      "description": "stage: Scientific Coordinator's Approval",
       "properties": {
-        "scientificCoordinator": { "$ref": "#/definitions/person"},
+        "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
         "checkFeasibility":{"type":"boolean"},
         "checkNecessity":{"type":"boolean"},
@@ -178,11 +162,14 @@
     },
     "stage3": {
       "type": "object",
+      "description": "stage: Operator's Approval",
       "properties": {
-        "operator": { "$ref": "#/definitions/person"},
+        "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
         "analiftheiYpoxrewsi": { "type": "boolean"},
         "fundsAvailable": { "type": "boolean"},
+        "loan": {"type": "boolean"},
+        "loanSource": {"type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
@@ -190,8 +177,9 @@
     },
     "stage4": {
       "type": "object",
+      "description": "stage: Financial Officer's Approval",
       "properties": {
-        "POY": { "$ref": "#/definitions/person"},
+        "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
         "analiftheiYpoxrewsi": { "type": "boolean"},
         "fundsAvailable": { "type": "boolean"},
@@ -202,10 +190,10 @@
     },
     "stage5": {
       "type": "object",
+      "description": "stage: Institute Director's Approval",
       "properties": {
-        "instituteDirector": { "$ref": "#/definitions/person"},
+        "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
-        "nextStage": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
@@ -213,9 +201,10 @@
     },
     "stage5a": {
       "type": "object",
+      "description": "stage: Executive Officer's Approval",
       "properties": {
+        "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
-        "organizationDirector": { "$ref": "#/definitions/person"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
@@ -223,9 +212,10 @@
     },
     "stage5b": {
       "type": "object",
+      "description": "stage: Administrative Council",
       "properties": {
+        "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
-        "dioikitikoSumvoulio": { "$ref": "#/definitions/person"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
@@ -233,8 +223,9 @@
     },
     "stage6": {
       "type": "object",
+      "description": "stage: Diavgeia",
       "properties": {
-        "organizationDiaugeia": { "$ref": "#/definitions/person"},
+        "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
@@ -242,8 +233,9 @@
     },
     "stage7": {
       "type": "object",
+      "description": "stage: Paperwork Submission",
       "properties": {
-        "operator": { "$ref": "#/definitions/person"},
+        "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
@@ -252,8 +244,9 @@
     },
     "stage8": {
       "type": "object",
+      "description": "stage: Checking Team",
       "properties": {
-        "accountingDirector": { "$ref": "#/definitions/person"},
+        "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
         "checkRegularity": { "type": "boolean"},
         "checkLegality": { "type": "boolean"},
@@ -264,8 +257,9 @@
     },
     "stage9": {
       "type": "object",
+      "description": "stage: Financial Officer's Check",
       "properties": {
-        "POY": { "$ref": "#/definitions/person"},
+        "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
         "checkRegularity": { "type": "boolean"},
         "checkLegality": { "type": "boolean"},
@@ -276,8 +270,30 @@
     },
     "stage10": {
       "type": "object",
+      "description": "stage: Director's Check",
       "properties": {
-        "accountingRegistration": { "$ref": "#/definitions/person"},
+        "user": { "$ref": "#/definitions/user"},
+        "date": { "type": "string"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stage11": {
+      "type": "object",
+      "description": "stage: Diavgeia",
+      "properties": {
+        "user": { "$ref": "#/definitions/user"},
+        "date": { "type": "string"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stage12": {
+      "type": "object",
+      "description": "stage: Accounting Registration",
+      "properties": {
+        "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
         "accountCode": { "type": "string"},
         "accountDescription": { "type": "string"},
@@ -286,15 +302,42 @@
         "attachment": { "$ref": "#/definitions/attachment" }
       }
     },
-    "stage11": {
+    "stage13": {
       "type": "object",
+      "description": "stage: Accounting Payment",
       "properties": {
-        "accountingPayment": { "$ref": "#/definitions/person"},
+        "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
       }
+    },
+    "id": {
+      "description": "The unique identifier of the request.",
+      "title": "Request ID",
+      "type": "string"
+    },
+    "type": {
+      "description": "The type of the request.",
+      "type": "string"
+    },
+    "project": { "$ref": "#/definitions/project" },
+    "requester": { "$ref": "#/definitions/user" },
+    "requesterPosition": {
+      "description": "Position of the requester in the Institute.",
+      "title": "Requester Position",
+      "type": "string"
+    },
+    "stage": {
+      "description": "Next stage of the request.",
+      "title": "Next Stage",
+      "type": "string"
+    },
+    "status": {
+      "description": "The state of a request. accepted/rejected/pending",
+      "title": "Status",
+      "type" : "string"
     }
   }
 }

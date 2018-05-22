@@ -8,7 +8,9 @@
     "firstname": { "type": "string" },
     "lastname": { "type": "string" },
     "firstnameLatin": { "type": "string" },
-    "lastnameLatin": { "type": "string" }
+    "lastnameLatin": { "type": "string" },
+    "receiveEmails": { "type": "boolean" },
+    "immediateEmails": { "type": "boolean" }
   },
   "required": [
     "id",

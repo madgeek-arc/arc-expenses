@@ -46,8 +46,8 @@ public class StageMessages {
         }
         // Stage 2 -> 3 // TODO ok
         else if (prevStage.equals("2") && nextStage.equals("3")) {
-            firstname = request.getStage2().getScientificCoordinator().getFirstname();
-            lastname = request.getStage2().getScientificCoordinator().getLastname();
+            firstname = request.getStage2().getUser().getFirstname();
+            lastname = request.getStage2().getUser().getLastname();
 
             // email report to POI
             emails.add(createMessage(request.getProject().getScientificCoordinator().getEmail(), subject,
@@ -71,8 +71,8 @@ public class StageMessages {
         }
         // Stage 3 -> 4 // TODO ok
         else if (prevStage.equals("3") && nextStage.equals("4")) {
-            firstname = request.getStage3().getOperator().getFirstname();
-            lastname = request.getStage3().getOperator().getLastname();
+            firstname = request.getStage3().getUser().getFirstname();
+            lastname = request.getStage3().getUser().getLastname();
 
             // email report to all POIs and their delegates - getOperator() returns a list of POIs
             request.getProject().getOperator()
@@ -94,8 +94,8 @@ public class StageMessages {
         }
         // Stage 4 -> 5 // TODO ok
         else if (prevStage.equals("4") && nextStage.equals("5")) {
-            firstname = request.getStage4().getPOY().getFirstname();
-            lastname = request.getStage4().getPOY().getLastname();
+            firstname = request.getStage4().getUser().getFirstname();
+            lastname = request.getStage4().getUser().getLastname();
 
             // email report to POI
             emails.add(createMessage(request.getProject().getInstitute().getOrganization().getPOY().getEmail(), subject,
@@ -123,8 +123,8 @@ public class StageMessages {
         }
         // Stage 5 -> 5a // TODO check again
         else if (prevStage.equals("5") && nextStage.equals("5a")) {
-            firstname = request.getStage5().getInstituteDirector().getFirstname();
-            lastname = request.getStage5().getInstituteDirector().getLastname();
+            firstname = request.getStage5().getUser().getFirstname();
+            lastname = request.getStage5().getUser().getLastname();
 
             // email report to POI
             emails.add(createMessage(request.getProject().getInstitute().getDirector().getEmail(), subject,
