@@ -83,10 +83,10 @@ public class StageMessages {
                                             RequestState.ACCEPTED, null)))));
 
             // emails to next POI and delegates
-            emails.add(createMessage(request.getProject().getInstitute().getOrganization().getPOY().getEmail(),
+            emails.add(createMessage(request.getProject().getInstitute().getOrganization().getPOI().getEmail(),
                     subject, messageTemplates(null, null, request.getId(), UserType.nextPOI,
                             RequestState.ACCEPTED, null)));
-            request.getProject().getInstitute().getOrganization().getPOY().getDelegates()
+            request.getProject().getInstitute().getOrganization().getPOI().getDelegates()
                     .forEach(delegate -> emails.add(createMessage(
                             delegate.getEmail(), subject,
                             messageTemplates(null, null, request.getId(), UserType.nextPOI,
@@ -98,12 +98,12 @@ public class StageMessages {
             lastname = request.getStage4().getUser().getLastname();
 
             // email report to POI
-            emails.add(createMessage(request.getProject().getInstitute().getOrganization().getPOY().getEmail(), subject,
+            emails.add(createMessage(request.getProject().getInstitute().getOrganization().getPOI().getEmail(), subject,
                     messageTemplates(firstname, lastname, request.getId(), UserType.POI,
                             RequestState.ACCEPTED, null)));
 
             // email report to all POI delegates
-            request.getProject().getInstitute().getOrganization().getPOY().getDelegates()
+            request.getProject().getInstitute().getOrganization().getPOI().getDelegates()
                     .forEach(delegate -> emails.add(createMessage(
                             delegate.getEmail(), subject,
                             messageTemplates(firstname, lastname, request.getId(), UserType.POI,
@@ -284,23 +284,23 @@ public class StageMessages {
 //                            messageTemplates(firstname, lastname, request.getId(), UserType.POI))));
 //
 //            nextPOIEmail.setText(messageTemplates(null, null, request.getId(), UserType.nextPOI));
-//            nextPOIEmail.setRecipient(request.getProject().getInstitute().getOrganization().getPOY().getEmail());
-//            request.getProject().getInstitute().getOrganization().getPOY().getDelegates()
+//            nextPOIEmail.setRecipient(request.getProject().getInstitute().getOrganization().getPOI().getEmail());
+//            request.getProject().getInstitute().getOrganization().getPOI().getDelegates()
 //                    .forEach(delegate -> emails.add(createMessage(
 //                            delegate.getEmail(), subject, messageTemplates(null, null,
 //                                    request.getId(), UserType.nextPOI))));
 //        }
 //        // Stage 9 -> 10 // TODO ok
 //        else if (prevStage.equals("9") && nextStage.equals("10")) {
-//            firstname = request.getStage9().getPOY().getFirstname();
-//            lastname = request.getStage9().getPOY().getLastname();
+//            firstname = request.getStage9().getPOI().getFirstname();
+//            lastname = request.getStage9().getPOI().getLastname();
 //
 ////            userEmail.setText("Το αίτημά σας ελέγχθηκε από τον υπεύθυνο: " + firstname + " " + lastname);
 //            userEmail = null;
 //
 //            POIEmail.setText(messageTemplates(firstname, lastname, request.getId(), UserType.POI));
-//            POIEmail.setRecipient(request.getProject().getInstitute().getOrganization().getPOY().getEmail());
-//            request.getProject().getInstitute().getOrganization().getPOY().getDelegates()
+//            POIEmail.setRecipient(request.getProject().getInstitute().getOrganization().getPOI().getEmail());
+//            request.getProject().getInstitute().getOrganization().getPOI().getDelegates()
 //                    .forEach(delegate -> emails.add(createMessage(delegate.getEmail(), subject,
 //                            messageTemplates(firstname, lastname, request.getId(), UserType.POI))));
 //

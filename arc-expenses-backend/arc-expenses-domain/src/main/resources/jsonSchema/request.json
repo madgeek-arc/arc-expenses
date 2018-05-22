@@ -19,6 +19,7 @@
     },
     "personOfInterest": {
       "type": "object",
+      "title": "PersonOfInterest",
       "properties": {
         "email": { "type": "string" },
         "firstname": { "type": "string" },
@@ -58,7 +59,7 @@
       "properties": {
         "id": { "type": "string" },
         "name": { "type": "string" },
-        "POY": { "$ref": "#/definitions/personOfInterest" },
+        "POI": { "$ref": "#/definitions/personOfInterest" },
         "director": { "$ref": "#/definitions/personOfInterest" },
         "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" }
       },
@@ -295,8 +296,6 @@
       "properties": {
         "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
-        "accountCode": { "type": "string"},
-        "accountDescription": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
