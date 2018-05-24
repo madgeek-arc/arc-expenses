@@ -48,6 +48,7 @@
                             </a>
                             <div *ngIf="isUserLoggedIn()" uk-dropdown>
                                 <ul class="uk-nav uk-dropdown-nav">
+                                    <li><a [routerLink]="['/sign-up']" class="uk-text-primary">Στοιχεία χρήστη</a></li>
                                     <li><a (click)="logout()" class="uk-text-primary">Έξοδος</a></li>
                                 </ul>
                             </div>

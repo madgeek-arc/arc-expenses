@@ -5,49 +5,62 @@
 </div>
 
       <div class="uk-container uk-container-expand uk-margin-medium-bottom uk-margin-medium-top">
-          <div *ngIf="!signUpForm || showSpinner" class="uk-inline">
+          <div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">
             <div class="uk-overlay-default uk-position-cover"></div>
-            <div uk-spinner="ratio: 2" class="uk-overlay uk-position-center uk-dark"></div>
+            <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
           </div>
           <div *ngIf="signUpForm && !showSpinner" class=" uk-width-1-2@m uk-align-center">
 
             <form [formGroup]="signUpForm" class="uk-form-horizontal uk-margin-large uk-align-center">
               <div *ngIf="errorMessage" class="uk-alert uk-alert-warning">{{errorMessage}}</div>
-              <fieldset data-uk-margin>
+              <div data-uk-margin>
                 <div class="uk-legend uk-text-small" style="text-align: center" >Τα παρακάτω στοιχεία θα χρησιμοποιηθούν από το σύστημα:</div>
                 <table class="uk-table uk-table-striped">
                   <tbody>
                     <tr>
                       <td style="padding: 0 10px">
-                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" for="user-fill-name">Όνομα (στα ελληνικά)</label>
+                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" for="user-fill-name">Όνομα (στα ελληνικά) (*)</label>
                         <input class="uk-width-1-1" style="margin: 2px" type="text" id="user-fill-name" formControlName="name">
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 0 10px">
-                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" for="user-fill-surname">Επώνυμο (στα ελληνικά)</label>
+                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" for="user-fill-surname">Επώνυμο (στα ελληνικά) (*)</label>
                         <input class="uk-width-1-1" style="margin: 2px" type="text" id="user-fill-surname" formControlName="surname">
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 0">
                         <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="padding-left: 10px" for="user-name">Name</label>
-                        <input class="uk-search-input uk-width-1-1 uk-disabled" style="padding-left: 10px" type="text" id="user-name"
-                               [value]="getFirstNameInLatin()" formControlName="nameLatin">
+                        <input class="uk-search-input uk-width-1-1 uk-disabled" style="padding-left: 10px" type="text" id="user-name" formControlName="nameLatin">
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 0">
                         <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="padding-left: 10px" for="user-surname">Surname</label>
-                        <input class="uk-search-input uk-width-1-1 uk-disabled" style="padding-left: 10px" type="text" id="user-surname"
-                               [value]="getLastNameInLatin()" formControlName="surnameLatin">
+                        <input class="uk-search-input uk-width-1-1 uk-disabled" style="padding-left: 10px" type="text" id="user-surname" formControlName="surnameLatin">
                       </td>
                     </tr>
                     <tr>
                       <td style="padding: 0">
                         <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="padding-left: 10px" for="user-email">e-mail</label>
-                        <input class="uk-search-input uk-width-1-1 uk-disabled" style="padding-left: 10px" type="text" id="user-email"
-                               [value]="getUserEmail()" formControlName="email">
+                        <input class="uk-search-input uk-width-1-1 uk-disabled" style="padding-left: 10px" type="text" id="user-email" formControlName="email">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 0 10px">
+                        <label class="" for="user-fill-receiveEmails">
+                          Επιθυμώ να ενημερώνομαι μέσω ηλεκτρονικού ταχυδρομείου για την εξέλιξη των αιτημάτων που με αφορούν
+                        </label>
+                        <input class="uk-checkbox uk-align-right" style="margin: 2px" type="checkbox" id="user-fill-receiveEmails" formControlName="receiveEmails" (change)="toggleImmediateEmailsDisable()">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 0 10px">
+                        <label class="" for="user-fill-immediateEmails">
+                          Επιθυμείτε να ενημερώνεστε άμεσα για κάθε εξέλιξη στα αιτήματα που σας αφορούν;
+                        </label>
+                        <input class="uk-checkbox uk-align-right" style="margin: 2px" type="checkbox" id="user-fill-immediateEmails" formControlName="immediateEmails">
                       </td>
                     </tr>
                   </tbody>
@@ -55,18 +68,16 @@
                     <div class="uk-form-controls">
                       <div class="uk-width-1-1 uk-grid">
                         <div>
-
-                          <button class="uk-button" (click)="updateUser()" type="submit" style="width: 200px">Υποβολή</button>
-
+                          <button class="uk-button" (click)="updateUser()" type="submit" style="width: 200px">Αποθήκευση</button>
                         </div>
                         <div>
-                          <button class="uk-button" (click)="continueToHome()" style="width: 200px" hidden>Συνέχεια</button>
+                          <button class="uk-button" (click)="continueToHome()" style="width: 200px" title="Επιστροφή στην αρχική σελίδα">Επιστροφή</button>
                         </div>
                       </div>
                     </div>
                   </div>
                 </table>
-              </fieldset>
+              </div>
 
             </form>
         </div>

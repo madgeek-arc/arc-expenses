@@ -23,7 +23,16 @@
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
-              <div>
+              <div *ngIf="!requestType">
+                <label>Επιλέξτε τύπο αιτήματος:</label>
+                <select (change)="onChooseRequestType($event)">
+                  <option value="">----</option>
+                  <option value="regular">{{ reqTypes['regular'] }}</option>
+                  <option value="trip">{{ reqTypes['trip'] }}</option>
+                  <option value="contract">{{ reqTypes['contract'] }}</option>
+                </select>
+              </div>
+              <div *ngIf="requestType">
                 <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
                 <div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">
                   <div class="uk-overlay-default uk-position-cover"></div>
@@ -108,7 +117,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="uk-margin">
+                    <div *ngIf="requestType !== 'trip'" class="uk-margin">
                       <label class="uk-form-label" for="request-supplier">Προμηθευτής <span class="uk-text-danger">(*)</span></label>
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">
@@ -119,7 +128,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="uk-margin">
+                    <div *ngIf="requestType !== 'trip'" class="uk-margin">
                       <label class="uk-form-label" for="request-ssm">Τρόπος επιλογής προμηθευτή <span class="uk-text-danger">(*)</span></label>
                       <div class="uk-form-controls">
                         <select [ngClass]="{'uk-disabled': programSelected==false}" class="uk-select" id="request-ssm" formControlName="supplierSelectionMethod" name="ssm">

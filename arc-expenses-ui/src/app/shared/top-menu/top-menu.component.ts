@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {AuthenticationService} from '../../services/authentication.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-top-menu',
@@ -10,7 +11,7 @@ export class TopMenuComponent implements OnInit {
 
   loggedIn: boolean = false;
 
-  constructor(private authService: AuthenticationService) { }
+  constructor(private authService: AuthenticationService, private router: Router) { }
 
   ngOnInit() {
     this.isUserLoggedIn();
@@ -33,6 +34,9 @@ export class TopMenuComponent implements OnInit {
   }
 
   getUserName() {
+    if ( this.authService.getIsUserLoggedIn() && (!this.authService.getUserFirstName() || !this.authService.getUserLastName()) ) {
+        this.router.navigate(['/sign-up']);
+    }
     return this.authService.getUserFirstName() + ' ' + this.authService.getUserLastName();
   }
 

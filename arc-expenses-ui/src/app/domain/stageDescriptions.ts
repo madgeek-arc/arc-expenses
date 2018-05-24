@@ -76,6 +76,20 @@ export const accountDescriptionDesc = {
   required: true
 };
 
+export  const loanDesc = {
+    label: 'Έγινε δανεισμός',
+    type: 'checkbox',
+    description: '',
+    required: true
+};
+
+export  const loanSourceDesc = {
+    label: 'Από',
+    type: 'text',
+    description: '',
+    required: true
+};
+
 export const Stage2Desc = {
     id: '2',
     delegateField: 'scientificCoordinator',
@@ -85,12 +99,12 @@ export const Stage2Desc = {
 export const Stage3Desc = {
     id: '3',
     delegateField: 'operator',
-    stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc]
+    stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc, loanDesc, loanSourceDesc]
 };
 
 export const Stage4Desc = {
     id: '4',
-    delegateField: 'POY',
+    delegateField: 'POI',
     stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc]
 };
 
@@ -132,14 +146,14 @@ export const Stage8Desc = {
 
 export const Stage9Desc = {
     id: '9',
-    delegateField: 'POY',
+    delegateField: 'POI',
     stageFields: [checkRegularityDesc, checkLegalityDesc]
 };
 
 export const Stage10Desc = {
     id: '10',
-    delegateField: 'accountingRegistration',
-    stageFields: [accountCodeDesc, accountDescriptionDesc]
+    delegateField: 'organizationDirector',
+    stageFields: []
 };
 
 export const Stage11Desc = {
@@ -150,6 +164,12 @@ export const Stage11Desc = {
 
 export const Stage12Desc = {
     id: '12',
+    delegateField: 'accountingRegistration',
+    stageFields: []
+};
+
+export const Stage13Desc = {
+    id: '13',
     delegateField: 'accountingPayment',
     stageFields: []
 };

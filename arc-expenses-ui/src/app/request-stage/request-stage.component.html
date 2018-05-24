@@ -3,7 +3,7 @@
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
       <div class="uk-width-1-1@m uk-first-column">
 
-        <h1 class="uk-h3 uk-heading-bullet uk-padding-small">Αίτημα {{requestId}}</h1>
+        <h1 class="uk-h3 uk-heading-bullet uk-padding-small">Αίτημα {{requestId}} <span *ngIf="currentRequest">[{{ reqTypes[currentRequest.type] }}]</span></h1>
 
         <!-- TOP HELP CONTENT -->
         <help-content #topHelperContent [position]="'top'"
@@ -75,59 +75,84 @@
                 </div>
 
                 <div *ngIf="currentRequest.stage2">
-                  <stage2-component [showStage]="willShowStage('2')" [currentStage]="currentRequest.stage2" [currentProject]="currentRequest.project"
-                                    (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage2-component>
+                  <stage2-component [showStage]="true"
+                                    [currentStage]="currentRequest.stage2" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage2-component>
                 </div>
+
+                <div *ngIf="isSimpleUser">
+                  Το αίτημά σας {{ stateNames[currentRequest.status] }}
+                </div>
+
                 <div *ngIf="currentRequest.stage3">
-                  <stage3-component [showStage]="willShowStage('3')" [currentStage]="currentRequest.stage3" [currentProject]="currentRequest.project"
-                                    (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage3-component>
+                  <stage3-component [showStage]="willShowStage('3')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('3')"
+                                    [currentStage]="currentRequest.stage3" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage3-component>
                 </div>
                 <div *ngIf="currentRequest.stage4">
-                  <stage4-component [showStage]="willShowStage('4')" [currentStage]="currentRequest.stage4" [currentProject]="currentRequest.project"
-                                    (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage4-component>
+                  <stage4-component [showStage]="willShowStage('4')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('4')"
+                                    [currentStage]="currentRequest.stage4" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage4-component>
                 </div>
-                <div *ngIf="currentRequest.stage5">
+
+                <!-- NOT USED ANYMORE -- MAYBE WE'LL RESTORE IT AT SOME POINT -->
+                <!--<div *ngIf="currentRequest.stage5">
                   <stage5-component [showStage]="willShowStage('5')" [currentStage]="currentRequest.stage5" [currentProject]="currentRequest.project"
                                     [willShowButtonTo5a]="currentRequest.stage1.amountInEuros > 10000 &&
                                                           currentRequest.stage1.amountInEuros <= 20000"
                                     [willShowButtonTo5b]="currentRequest.stage1.amountInEuros > 10000"
                                     (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage5-component>
-                </div>
+                </div>-->
+
                 <div *ngIf="currentRequest.stage5a">
-                  <stage5a-component [showStage]="willShowStage('5a')" [currentStage]="currentRequest.stage5a" [currentProject]="currentRequest.project"
-                                     (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage5a-component>
+                  <stage5a-component [showStage]="willShowStage('5a')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('5a')"
+                                     [currentStage]="currentRequest.stage5a" [currentProject]="currentRequest.project"
+                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage5a-component>
                 </div>
                 <div *ngIf="currentRequest.stage5b">
-                  <stage5b-component [showStage]="willShowStage('5b')" [currentStage]="currentRequest.stage5b" [currentProject]="currentRequest.project"
-                                     (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage5b-component>
+                  <stage5b-component [showStage]="willShowStage('5b')"[hasReturnedToPrevious]="checkIfHasReturnedToPrevious('5b')"
+                                     [currentStage]="currentRequest.stage5b" [currentProject]="currentRequest.project"
+                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage5b-component>
                 </div>
                 <div *ngIf="currentRequest.stage6">
-                  <stage6-component [showStage]="willShowStage('6')" [currentStage]="currentRequest.stage6" [currentProject]="currentRequest.project"
-                                    (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage6-component>
+                  <stage6-component [showStage]="willShowStage('6')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('6')"
+                                    [currentStage]="currentRequest.stage6" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage6-component>
                 </div>
                 <div *ngIf="currentRequest.stage7">
-                  <stage7-component [showStage]="willShowStage('7')" [currentStage]="currentRequest.stage7" [currentProject]="currentRequest.project"
-                                    (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage7-component>
+                  <stage7-component [showStage]="willShowStage('7')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('7')"
+                                    [currentStage]="currentRequest.stage7" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage7-component>
                 </div>
                 <div *ngIf="currentRequest.stage8">
-                  <stage8-component [showStage]="willShowStage('8')" [currentStage]="currentRequest.stage8" [currentProject]="currentRequest.project"
-                                    (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage8-component>
+                  <stage8-component [showStage]="willShowStage('8')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('8')"
+                                    [currentStage]="currentRequest.stage8" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage8-component>
                 </div>
                 <div *ngIf="currentRequest.stage9">
-                  <stage9-component [showStage]="willShowStage('9')" [currentStage]="currentRequest.stage9" [currentProject]="currentRequest.project"
-                                    (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage9-component>
+                  <stage9-component [showStage]="willShowStage('9')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('9')"
+                                    [currentStage]="currentRequest.stage9" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage9-component>
                 </div>
                 <div *ngIf="currentRequest.stage10">
-                  <stage10-component [showStage]="willShowStage('10')" [currentStage]="currentRequest.stage10" [currentProject]="currentRequest.project"
-                                     (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage10-component>
+                  <stage10-component [showStage]="willShowStage('10')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('10')"
+                                     [currentStage]="currentRequest.stage10" [currentProject]="currentRequest.project"
+                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage10-component>
                 </div>
                 <div *ngIf="currentRequest.stage11">
-                  <stage11-component [showStage]="willShowStage('11')" [currentStage]="currentRequest.stage11" [currentProject]="currentRequest.project"
-                                     (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage11-component>
+                  <stage11-component [showStage]="willShowStage('11')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('11')"
+                                     [currentStage]="currentRequest.stage11" [currentProject]="currentRequest.project"
+                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage11-component>
                 </div>
                 <div *ngIf="currentRequest.stage12">
-                  <stage12-component [showStage]="willShowStage('12')" [currentStage]="currentRequest.stage12" [currentProject]="currentRequest.project"
-                                     (emitStage)="getSubmittedStage($event)" (emitNextStage)="getNextStage($event)"></stage12-component>
+                  <stage12-component [showStage]="willShowStage('12')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('12')"
+                                     [currentStage]="currentRequest.stage12" [currentProject]="currentRequest.project"
+                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage12-component>
+                </div>
+                <div *ngIf="currentRequest.stage13">
+                  <stage13-component [showStage]="willShowStage('13')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('13')"
+                                     [currentStage]="currentRequest.stage13" [currentProject]="currentRequest.project"
+                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage13-component>
                 </div>
 
               </div>

@@ -46,7 +46,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="uk-margin-bottom ">
+                            <div *ngIf="!isSimpleUser" class="uk-margin-bottom ">
                                 <div class="show-options uk-inline">
                                     <div class="filterLabel">Στάδιο:</div>
                                     <div class="inlineBlock">
@@ -109,6 +109,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Αρ.Πρωτοκόλλου</th>
+                                                <th>Είδος</th>
                                                 <th><a (click)="sortBy('request_project')" title="Ταξινόμηση με βάση τον τίτλο του έργου">
                                                     Πρόγραμμα&nbsp;
                                                     <span *ngIf="orderField && (orderField === 'request_project')"
@@ -128,7 +129,7 @@
                                                           [innerHtml]="getOrderSign()"></span>
                                                     </a>
                                                 </th>
-                                                <th><a (click)="sortBy('request_stage')" title="Ταξινόμηση με βάση το στάδιο" class="uk-margin-right">
+                                                <th *ngIf="!isSimpleUser"><a (click)="sortBy('request_stage')" title="Ταξινόμηση με βάση το στάδιο" class="uk-margin-right">
                                                     Στάδιο&nbsp;
                                                     <span *ngIf="orderField && (orderField === 'request_stage')"
                                                           [innerHtml]="getOrderSign()"></span>
@@ -143,12 +144,12 @@
                                                 [routerLink]="['request-stage', req.id]"
                                                 title="Μετάβαση στην σελίδα του αιτήματος">
                                                 <td>{{ req.id }}</td>
+                                                <td>{{ reqTypes[req.type] }}</td>
                                                 <td>{{ req.project.acronym }}</td>
                                                 <td>{{ req.project.institute.name }}</td>
                                                 <td>{{ req.requester.firstname }} {{ req.requester.lastname }}</td>
                                                 <td>{{ req.stage1.requestDate | date : 'dd-MM-yyyy' }}</td>
-                                                <!--<td>{{ req.stage }}</td>-->
-                                                <td>{{ stagesMap[req.stage] }}</td>
+                                                <td *ngIf="!isSimpleUser" >{{ stagesMap[req.stage] }}</td>
                                                 <td>{{ getStatusAsString(req.status) }}</td>
                                             </tr>
                                         </thead>
