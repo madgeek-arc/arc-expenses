@@ -19,7 +19,9 @@ export class RequestsComponent implements OnInit {
   showSpinner: boolean;
   noRequests: string;
 
-  title = 'Υπάρχοντα Αιτήματα';
+  isSimpleUser: boolean;
+
+  title: string;
 
   searchTerm: string;
   statusChoice: string;
@@ -34,6 +36,7 @@ export class RequestsComponent implements OnInit {
   states = ['all', 'accepted', 'pending', 'rejected'];
   stages = ['all', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12'];
   stagesMap = stagesMap;
+  reqTypes = { regular: 'Πρωτογενές Αίτημα', trip: 'Ταξίδι', contract: 'Σύμβαση' };
 
   searchResults: Paging<Request>;
 
@@ -46,6 +49,8 @@ export class RequestsComponent implements OnInit {
 
   ngOnInit(){
       this.initializeParams();
+      this.title = 'Υπάρχοντα Αιτήματα';
+      this.isSimpleUser = (this.authService.getUserRole() === 'user');
   }
 
   initializeParams() {
@@ -153,11 +158,13 @@ export class RequestsComponent implements OnInit {
   }
 
     chooseStage(event: any) {
-      this.stageChoice = event.target.value;
-      console.log(`this.stageChoice is ${this.stageChoice}`);
-      this.keywordField.get('keyword').setValue('');
-      this.searchTerm = '';
-      this.getListOfRequests();
+      if ( !this.isSimpleUser ) {
+          this.stageChoice = event.target.value;
+          console.log(`this.stageChoice is ${this.stageChoice}`);
+          this.keywordField.get('keyword').setValue('');
+          this.searchTerm = '';
+          this.getListOfRequests();
+      }
     }
 
     chooseState(event: any) {

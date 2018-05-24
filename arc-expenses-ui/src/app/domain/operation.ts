@@ -1,10 +1,10 @@
-// Generated using typescript-generator version 2.1.406 on 2018-04-24 15:14:12.
+// Generated using typescript-generator version 2.1.406 on 2018-05-22 15:50:40.
 
 export class Attachment {
     filename: string;
     mimetype: string;
     size: number;
-    url: any;
+    url: string;
 }
 
 export class Delegate {
@@ -18,22 +18,22 @@ export class Institute {
     id: string;
     name: string;
     organization: Organization;
-    director: POY;
-    accountingRegistration: POY;
-    accountingPayment: POY;
-    accountingDirector: POY;
-    diaugeia: POY;
+    director: POI;
+    accountingRegistration: POI;
+    accountingPayment: POI;
+    accountingDirector: POI;
+    diaugeia: POI;
 }
 
 export class Organization {
     id: string;
     name: string;
-    POY: POY;
-    director: POY;
-    dioikitikoSumvoulio: POY;
+    POI: POI;
+    director: POI;
+    dioikitikoSumvoulio: POI;
 }
 
-export class POY {
+export class POI {
     email: string;
     firstname: string;
     lastname: string;
@@ -45,20 +45,14 @@ export class Project {
     name: string;
     acronym: string;
     institute: Institute;
-/*    parentProject: Project;*/
-    scientificCoordinator: POY;
-    operator: POY[];
+    parentProject: string;
+    scientificCoordinator: POI;
+    operator: POI[];
     startDate: string;
     endDate: string;
 }
 
 export class Request {
-    id: string;
-    project: Project;
-    requester: Requester;
-    requesterPosition: string;
-    stage: string;
-    status: any;
     stage1: Stage1;
     stage2: Stage2;
     stage3: Stage3;
@@ -73,15 +67,14 @@ export class Request {
     stage10: Stage10;
     stage11: Stage11;
     stage12: Stage12;
-}
-
-export class Requester {
+    stage13: Stage13;
     id: string;
-    email: string;
-    firstname: string;
-    lastname: string;
-    firstnameLatin: string;
-    lastnameLatin: string;
+    type: string;
+    project: Project;
+    requester: User;
+    requesterPosition: string;
+    stage: string;
+    status: string;
 }
 
 export class Stage1 {
@@ -94,27 +87,29 @@ export class Stage1 {
 }
 
 export class Stage2 {
-    scientificCoordinator: Delegate;
+    user: User;
     date: string;
-    approved: boolean;
-    checkNecessity: boolean;
     checkFeasibility: boolean;
+    checkNecessity: boolean;
+    approved: boolean;
     comment: string;
     attachment: Attachment;
 }
 
 export class Stage3 {
-    operator: Delegate;
+    user: User;
     date: string;
     analiftheiYpoxrewsi: boolean;
     fundsAvailable: boolean;
+    loan: boolean;
+    loanSource: string;
     approved: boolean;
     comment: string;
     attachment: Attachment;
 }
 
 export class Stage4 {
-    POY: Delegate;
+    user: User;
     date: string;
     analiftheiYpoxrewsi: boolean;
     fundsAvailable: boolean;
@@ -124,7 +119,7 @@ export class Stage4 {
 }
 
 export class Stage5 {
-    instituteDirector: Delegate;
+    user: User;
     date: string;
     approved: boolean;
     comment: string;
@@ -132,30 +127,30 @@ export class Stage5 {
 }
 
 export class Stage5a {
+    user: User;
     date: string;
-    organizationDirector: Delegate;
     approved: boolean;
     comment: string;
     attachment: Attachment;
 }
 
 export class Stage5b {
+    user: User;
     date: string;
-    dioikitikoSumvoulio: Delegate;
     approved: boolean;
     comment: string;
     attachment: Attachment;
 }
 
 export class Stage6 {
-    organizationDiaugeia: Delegate;
+    user: User;
     date: string;
     comment: string;
     attachment: Attachment;
 }
 
 export class Stage7 {
-    operator: Delegate;
+    user: User;
     date: string;
     approved: boolean;
     comment: string;
@@ -163,7 +158,7 @@ export class Stage7 {
 }
 
 export class Stage8 {
-    accountingDirector: Delegate;
+    user: User;
     date: string;
     checkRegularity: boolean;
     checkLegality: boolean;
@@ -173,7 +168,7 @@ export class Stage8 {
 }
 
 export class Stage9 {
-    POY: Delegate;
+    user: User;
     date: string;
     checkRegularity: boolean;
     checkLegality: boolean;
@@ -183,26 +178,43 @@ export class Stage9 {
 }
 
 export class Stage10 {
-    accountingRegistration: Delegate;
+    user: User;
     date: string;
     approved: boolean;
-    accountCode: string;
-    accountDescription: string;
     comment: string;
     attachment: Attachment;
 }
 
 export class Stage11 {
-    organizationDiaugeia: Delegate;
+    user: User;
     date: string;
     comment: string;
     attachment: Attachment;
 }
 
 export class Stage12 {
-    accountingPayment: Delegate;
+    user: User;
     date: string;
     approved: boolean;
     comment: string;
     attachment: Attachment;
+}
+
+export class Stage13 {
+    user: User;
+    date: string;
+    approved: boolean;
+    comment: string;
+    attachment: Attachment;
+}
+
+export class User {
+    id: string;
+    email: string;
+    firstname: string;
+    lastname: string;
+    firstnameLatin: string;
+    lastnameLatin: string;
+    receiveEmails: boolean;
+    immediateEmails: boolean;
 }

@@ -28,15 +28,6 @@ export class SearchResults<T> {
 }
 
 /* other extra classes */
-export class User {
-    email: string;
-    firstname: string;
-    firstnameLatin: string;
-    id: string;
-    lastname: string;
-    lastnameLatin: string;
-}
-
 export class Occurences {
     values: any;
 }

@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators} from '@angular/forms';
-import { Attachment, Project, Request, Requester, Stage1, Stage2, Stage5a, Stage10, Stage5b, Stage4,
-         Stage5, Stage6, Stage7, Stage8, Stage9, Stage3, Stage11, Stage12 } from '../domain/operation';
+import {
+    Attachment, Project, Request, Stage1, Stage2, Stage5a, Stage10, Stage5b, Stage4,
+    Stage5, Stage6, Stage7, Stage8, Stage9, Stage3, Stage11, Stage12, User
+} from '../domain/operation';
 import {ManageRequestsService} from '../services/manage-requests.service';
 import {Router} from '@angular/router';
 import {AuthenticationService} from '../services/authentication.service';
@@ -21,7 +23,10 @@ export class NewRequestComponent implements OnInit {
     errorMessage: string;
     showSpinner: boolean;
 
-    currentUser: Requester;
+    requestType: string;
+    reqTypes = { regular: 'Πρωτογενές Αίτημα', trip: 'Ταξίδι', contract: 'Σύμβαση' };
+
+    currentUser: User;
 
     newRequestForm: FormGroup;
 
@@ -40,7 +45,7 @@ export class NewRequestComponent implements OnInit {
 
     programSelected = false;
 
-    title = 'Πρωτογενές Αίτημα & Έγκριση Δαπάνης';
+    title = 'Δημιουργία νέου αιτήματος';
 
     datePipe = new DatePipe('el');
 
@@ -54,11 +59,10 @@ export class NewRequestComponent implements OnInit {
     ngOnInit() {
         this.getUserInfo();
         this.getProjects();
-        this.createForm();
     }
 
     getUserInfo() {
-        this.currentUser = new Requester();
+        this.currentUser = new User();
         this.currentUser.id = this.authService.getUserId();
         this.currentUser.email = this.authService.getUserEmail();
         this.currentUser.firstname = this.authService.getUserFirstName();
@@ -84,6 +88,14 @@ export class NewRequestComponent implements OnInit {
         );
     }
 
+    onChooseRequestType(event: any) {
+        if (event.target.value) {
+            this.requestType = event.target.value;
+            this.title = this.reqTypes[this.requestType];
+            this.createForm();
+        }
+    }
+
     createForm() {
         this.newRequestForm = this.fb.group({
             name: [''],
@@ -91,8 +103,8 @@ export class NewRequestComponent implements OnInit {
             institute: [''],
             position: ['', Validators.required],
             requestText: ['', Validators.required],
-            supplier: ['', Validators.required],
-            supplierSelectionMethod: ['', Validators.required],
+            supplier: [''],
+            supplierSelectionMethod: [''],
             ammount: ['', [Validators.required, Validators.min(0), Validators.pattern('^\\d+(\\.\\d{1,2})?$')] ],
             director: ['']
         });
@@ -107,12 +119,17 @@ export class NewRequestComponent implements OnInit {
         if (this.newRequestForm.valid ) {
             if ( (+this.newRequestForm.get('ammount').value > 2500) && isUndefined(this.uploadedFile) ) {
                 UIkit.modal.alert('Για αιτήματα άνω των 2.500 € η επισύναψη εγγράφων είναι υποχρεωτική.');
+            } else if ( ( this.requestType !== 'trip' ) &&
+                        !this.newRequestForm.get('supplier').value &&
+                        !this.newRequestForm.get('supplierSelectionMethod').value  ) {
+                UIkit.modal.alert('Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.');
             } else if ( ( this.newRequestForm.get('supplierSelectionMethod').value !== 'Απ\' ευθείας ανάθεση' ) &&
                           isUndefined(this.uploadedFile)  ) {
                 UIkit.modal.alert('Για αναθέσεις μέσω διαγωνισμού ή έρευνας αγοράς η επισύναψη εγγράφων είναι υποχρεωτική.');
             } else {
                 this.request = new Request();
                 this.request.id = '';
+                this.request.type = this.requestType;
                 this.request.project = this.chosenProject;
                 this.request.requester = this.currentUser;
                 this.request.requesterPosition = this.newRequestForm.get('position').value;

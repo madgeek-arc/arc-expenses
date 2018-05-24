@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { stagesMap } from '../domain/stageDescriptions';
 import { Request } from '../domain/operation';
 import { ActivatedRoute } from '@angular/router';
 import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { isNull } from 'util';
 
 @Component({
   selector: 'app-request-stage',
@@ -16,13 +14,14 @@ export class RequestStageComponent implements OnInit {
   successMessage: string;
   showSpinner: boolean;
 
+  isSimpleUser: boolean;
   requestId: string;
   currentRequest: Request;
   canEdit: boolean = false;
-  nextStage: string;
-
-  stages = ['2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12'];
-  stagesMap = stagesMap;
+  goBackOneStage: boolean;
+  stages = ['2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
+  stateNames = { pending: 'βρίσκεται σε εξέλιξη', rejected: 'έχει απορριφθεί', accepted: 'έχει ολοκληρωθεί'};
+  reqTypes = { regular: 'Πρωτογενές Αίτημα', trip: 'Ταξίδι', contract: 'Σύμβαση' };
 
   constructor(private route: ActivatedRoute,
               private requestService: ManageRequestsService,
@@ -30,6 +29,7 @@ export class RequestStageComponent implements OnInit {
 
   ngOnInit() {
     this.getCurrentRequest();
+    this.isSimpleUser = (this.authService.getUserRole() === 'user');
   }
 
   getCurrentRequest() {
@@ -70,9 +70,50 @@ export class RequestStageComponent implements OnInit {
       );
   }
 
-  getNextStage(nextStage: string) {
-    this.nextStage = nextStage;
-    console.log('nextStage is', this.nextStage);
+  getRequestToGoBack(event: any) {
+      this.goBackOneStage = true;
+  }
+
+  getNextStage(stage: string) {
+      let newStage: string;
+      if ( stage !== '13' && this.currentRequest.status !== 'rejected' ) {
+          if (stage === '4') {
+              newStage = '5a';
+          } else if (stage === '5a') {
+            if (this.currentRequest.stage1.amountInEuros > 20000) {
+                newStage = '5b';
+            } else {
+                newStage = '6';
+            }
+        } else if (stage === '5b') {
+            newStage = '6';
+        } else {
+            newStage = (+stage + 1).toString();
+        }
+      }
+      console.log('next stage is', newStage);
+      return newStage;
+  }
+
+  getPreviousStage(stage: string) {
+      let newStage: string;
+      if ( stage !== '2' ) {
+        if (stage === '5a') {
+            newStage = '4';
+        } else if (stage === '5b') {
+              newStage = '5a';
+        } else if (stage === '6') {
+            if (this.currentRequest.stage1.amountInEuros > 20000) {
+                newStage = '5b';
+            } else {
+                newStage = '5a';
+            }
+        } else {
+            newStage = (+stage - 1).toString();
+        }
+      }
+      console.log('previous stage is', newStage);
+      return newStage;
   }
 
   getSubmittedStage(newStage: any) {
@@ -91,7 +132,11 @@ export class RequestStageComponent implements OnInit {
       } else {
           this.currentRequest.status = 'rejected';
       }
-      this.currentRequest.stage = this.nextStage;
+      if (this.goBackOneStage) {
+          this.currentRequest.stage = this.getPreviousStage(this.currentRequest.stage);
+      } else {
+          this.currentRequest.stage = this.getNextStage(this.currentRequest.stage);
+      }
 
       this.submitRequest();
   }
@@ -116,42 +161,30 @@ export class RequestStageComponent implements OnInit {
       );
   }
 
-    willShowStage (stageField: string) {
-      const stageNumber = stageField.split('stage');
-      if ( (stageField === this.currentRequest.stage) ) {
-          /*return this.canEdit;*/
-          return true;
-      } else {
-          for ( const id of this.stages ) {
-              if ( id === this.currentRequest.stage ) {
-                  return false;
-              }
-              if ( id === stageField ) {
-                  return ( this.currentRequest[`stage${stageField}`] && this.currentRequest[`stage${stageField}`].date );
-              }
-          }
-          /*if (this.currentRequest.stage !== '3a' && this.currentRequest.stage !== '3b') {
-              if ( stageNumber[1] === '3a' || stageNumber[1] === '3b' ) {
-                  return ( (+this.currentRequest.stage > 3) && this.currentRequest[stageField].date );
+  willShowStage (stageField: string) {
+      if (!this.isSimpleUser) {
+          if ((stageField === this.currentRequest.stage)) {
+              if (this.authService.getUserRole() === 'admin') {
+                  return true;
               } else {
-                  return ( +stageNumber[1] <  +this.currentRequest.stage );
+                  return this.canEdit;
+                  /* RESTORE THIS TO RESTORE CHECK USER'S PERMISSION TO EDIT !!! */
+                  /*return true;*/
               }
           } else {
-              if (this.currentRequest.stage === '3a') {
-                  if (stageNumber[1] === '3b' ) {
-                      return false;
-                  } else {
-                      return ( +stageNumber[1] <=  3 );
-                  }
-              } else {
-                  if (stageNumber[1] === '3a' ) {
-                      return false;
-                  } else {
-                      return ( +stageNumber[1] <=  3 );
+              for (const id of this.stages) {
+                  if (id === stageField) {
+                      return ( this.currentRequest[`stage${stageField}`] && this.currentRequest[`stage${stageField}`].date );
                   }
               }
-          }*/
+          }
       }
+  }
+
+  checkIfHasReturnedToPrevious(stage: string) {
+      const nextStage = this.getNextStage(stage);
+      const stageField = 'stage' + nextStage;
+      return (this.currentRequest[stageField] && this.currentRequest[stageField].date !== '');
   }
 
 }

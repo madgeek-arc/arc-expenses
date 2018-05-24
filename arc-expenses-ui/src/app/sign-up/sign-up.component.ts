@@ -22,12 +22,12 @@ export class SignUpComponent implements OnInit {
   constructor(private fb: FormBuilder, private authService: AuthenticationService, private router: Router) {}
 
   ngOnInit() {
-      /* load page only if the user has logged in via aai */
+      /* load page only if the user is logged in */
       if (this.authService.getUserEmail()) {
           /* load page only if firstname or lastname doesn't exist */
-          if (this.authService.getUserFirstName() && this.authService.getUserLastName()) {
+          /*if (this.authService.getUserFirstName() && this.authService.getUserLastName()) {
               this.router.navigate(['/home']);
-          }
+          }*/
           this.createForm();
       } else {
           this.router.navigate(['/home']);
@@ -41,18 +41,48 @@ export class SignUpComponent implements OnInit {
           surname: ['', Validators.required],
           nameLatin: '',
           surnameLatin: '',
-          email:  ''
+          email: '',
+          receiveEmails: [''],
+          immediateEmails: ['']
       });
+      this.addUserInfoToForm();
+      /*this.signUpForm.get('nameLatin').disable();
+      this.signUpForm.get('surnameLatin').disable();
+      this.signUpForm.get('email').disable();*/
+  }
+
+    addUserInfoToForm () {
+      this.signUpForm.get('name').setValue(this.authService.getUserFirstName());
+      this.signUpForm.get('surname').setValue(this.authService.getUserLastName());
+      this.signUpForm.get('nameLatin').setValue(this.authService.getUserFirstNameInLatin());
+      this.signUpForm.get('surnameLatin').setValue(this.authService.getUserLastNameInLatin());
+      this.signUpForm.get('email').setValue(this.authService.getUserEmail());
+      this.signUpForm.get('receiveEmails').setValue(this.authService.getUserReceiveEmails());
+      this.signUpForm.get('immediateEmails').setValue(this.authService.getUserImmediateEmails());
+
       this.signUpForm.get('nameLatin').disable();
       this.signUpForm.get('surnameLatin').disable();
       this.signUpForm.get('email').disable();
-  }
+      this.toggleImmediateEmailsDisable();
+    }
 
-  updateUser() {
+    toggleImmediateEmailsDisable() {
+      if (this.signUpForm.get('receiveEmails').value) {
+          this.signUpForm.get('immediateEmails').enable();
+      } else {
+          this.signUpForm.get('immediateEmails').setValue(false);
+          this.signUpForm.get('immediateEmails').disable();
+      }
+    }
+
+    updateUser() {
       this.errorMessage = '';
       this.showSpinner = true;
       if (this.signUpForm.valid) {
-          this.authService.updateUserInfo(this.signUpForm.get('name').value, this.signUpForm.get('surname').value ).subscribe(
+          this.authService.updateUserInfo(this.signUpForm.get('name').value,
+                                          this.signUpForm.get('surname').value,
+                                          this.signUpForm.get('receiveEmails').value,
+                                          this.signUpForm.get('immediateEmails').value ).subscribe(
               user => console.log(`updateUser responded: ${user}`),
               error => {
                   this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών';
@@ -60,16 +90,21 @@ export class SignUpComponent implements OnInit {
               },
               () => {
                   this.router.navigate(['/home']);
-                  this.showSpinner = false;
               }
           );
       } else {
-          this.errorMessage = 'Παρακαλώ συμπληρώστε τα στοιχεία σας.';
+          this.errorMessage = 'Είναι απαραίτητο να συμπληρώσετε το όνομα και το επίθετό σας στα ελληνικά.';
+          this.showSpinner = false;
       }
   }
 
   continueToHome() {
-      this.router.navigate(['/home']);
+      this.errorMessage = '';
+      if ( this.authService.getUserFirstName() && this.authService.getUserLastName() ) {
+          this.router.navigate(['/home']);
+      } else {
+          this.errorMessage = 'Είναι απαραίτητο να αποθηκεύσετε το όνομα και το επίθετό σας στα ελληνικά.';
+      }
   }
 
   getFirstNameInLatin() {

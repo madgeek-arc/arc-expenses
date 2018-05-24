@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { deleteCookie, getCookie } from '../domain/cookieUtils';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
-import { User } from '../domain/extraClasses';
+import { User } from '../domain/operation';
 import {catchError, tap} from 'rxjs/operators';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
 import {environment} from '../../environments/environment';
@@ -29,15 +29,7 @@ export class AuthenticationService {
 
     private _storage: Storage = sessionStorage;
 
-
     isLoggedIn: boolean = false;
-    userId: string;
-    userEmail: string;
-    userFirstName: string;
-    userLastName: string;
-    userFirstNameInLatin: string;
-    userLastNameInLatin: string;
-    userRole: string;
 
     public loginWithState() {
         console.log(`logging in with state. Current url is: ${this.router.url}`);
@@ -54,7 +46,9 @@ export class AuthenticationService {
         sessionStorage.removeItem('laststname');
         sessionStorage.removeItem('firstnameLatin');
         sessionStorage.removeItem('lastnameLatin');
-        /*sessionStorage.removeItem('role');*/
+        sessionStorage.removeItem('receiveEmails');
+        sessionStorage.removeItem('immediateEmails');
+        sessionStorage.removeItem('role');
         this.isLoggedIn = false;
 
         /*console.log('logging out, going to:');
@@ -81,7 +75,9 @@ export class AuthenticationService {
                         sessionStorage.removeItem('laststname');
                         sessionStorage.removeItem('firstnameLatin');
                         sessionStorage.removeItem('lastnameLatin');
-                        /*sessionStorage.removeItem('role');*/
+                        sessionStorage.removeItem('receiveEmails');
+                        sessionStorage.removeItem('immediateEmails');
+                        sessionStorage.removeItem('role');
                         deleteCookie('arc_currentUser');
                         this.isLoggedIn = false;
                         this.router.navigate(['/home']);
@@ -99,7 +95,9 @@ export class AuthenticationService {
                         sessionStorage.setItem('lastname', userInfo['lastname']);
                         sessionStorage.setItem('firstnameLatin', userInfo['firstnameLatin']);
                         sessionStorage.setItem('lastnameLatin', userInfo['lastnameLatin']);
-                        /*sessionStorage.setItem('role', userInfo['role']);*/
+                        sessionStorage.setItem('receiveEmails', userInfo['receiveEmails']);
+                        sessionStorage.setItem('immediateEmails', userInfo['immediateEmails']);
+                        sessionStorage.setItem('role', userInfo['role']);
                     },
                     error => {
                         console.log('login error!');
@@ -110,7 +108,9 @@ export class AuthenticationService {
                         sessionStorage.removeItem('laststname');
                         sessionStorage.removeItem('firstnameLatin');
                         sessionStorage.removeItem('lastnameLatin');
-                        /*sessionStorage.removeItem('role');*/
+                        sessionStorage.removeItem('receiveEmails');
+                        sessionStorage.removeItem('immediateEmails');
+                        sessionStorage.removeItem('role');
                         deleteCookie('arc_currentUser');
                         this.isLoggedIn = false;
                         this.router.navigate(['/home']);
@@ -127,7 +127,7 @@ export class AuthenticationService {
                             sessionStorage.removeItem('state.location');
                             console.log(`logged in - returning to state: ${state}`);
                         }
-                        if (!sessionStorage.getItem('firstname') ||
+                        /*if (!sessionStorage.getItem('firstname') ||
                             !sessionStorage.getItem('firstname') ||
                             (sessionStorage.getItem('firstname') === 'null') ||
                             (sessionStorage.getItem('lastname') === 'null') ) {
@@ -141,7 +141,8 @@ export class AuthenticationService {
                             } else {
                                 this.router.navigate(['/home']);
                             }
-                        }
+                        }*/
+                        this.router.navigate(['/sign-up']);
                     }
                 );
             } else {
@@ -153,46 +154,52 @@ export class AuthenticationService {
                 if ( sessionStorage.getItem('state.location') ) {
                     const state = sessionStorage.getItem('state.location');
                     sessionStorage.removeItem('state.location');
-                    console.log(`tried to login - returning to state: ${state}`);
-                    if (!sessionStorage.getItem('firstname') ||
+                    console.log(`received state: ${state}, going to signup`);
+                    this.router.navigate(['/sign-up']);
+                    /*if (!sessionStorage.getItem('firstname') ||
                         !sessionStorage.getItem('firstname') ||
                         (sessionStorage.getItem('firstname') === 'null') ||
                         (sessionStorage.getItem('lastname') === 'null') ) {
                         this.router.navigate(['/sign-up']);
                     } else {
-                        if (this.redirectUrl) {
+                        /!*if (this.redirectUrl) {
                             this.router.navigate([this.redirectUrl]);
                         } else if (state && state !== '/sign-up') {
                             this.router.navigate([state]);
                         } else {
                             this.router.navigate(['/home']);
-                        }
-                    }
+                        }*!/
+                        this.router.navigate([state]);
+                    }*/
                 }
+                this.router.navigate(['/home']);
             }
         } else {
+            let state: string;
+            if ( sessionStorage.getItem('state.location') ) {
+                state = sessionStorage.getItem('state.location');
+                sessionStorage.removeItem('state.location');
+                console.log(`logged in - returning to state: ${state}`);
+                this.router.navigate([state]);
+            }
             this.router.navigate(['/home']);
         }
     }
 
-    updateUserInfo(firstname: string, lastname: string) {
-        /*const url = `${this.apiUrl}/user/update?id=${sessionStorage.getItem('userid')}` +
-            `&email=${sessionStorage.getItem('email')}` +
-            `&firstname=${firstname}` +
-            `&lastname=${lastname}` +
-            `&firstnameLatin=${sessionStorage.getItem('firstnameLatin')}` +
-            `&lastnameLatin=${sessionStorage.getItem('lastnameLatin')}`;*/
+    updateUserInfo(firstname: string, lastname: string, receiveEmails: boolean, immediateEmails: boolean) {
 
         const url = `${this.apiUrl}/user/update`;
         console.log(`calling ${url}`);
 
-        const updatedUser = {
+        const updatedUser: User = {
             email: sessionStorage.getItem('email'),
             firstname: firstname,
             firstnameLatin: sessionStorage.getItem('firstnameLatin'),
             id: sessionStorage.getItem('userid'),
             lastname: lastname,
-            lastnameLatin: sessionStorage.getItem('lastnameLatin')
+            lastnameLatin: sessionStorage.getItem('lastnameLatin'),
+            receiveEmails: receiveEmails,
+            immediateEmails: immediateEmails
         };
 
         console.log(`sending: ${JSON.stringify(updatedUser)}`);
@@ -202,6 +209,8 @@ export class AuthenticationService {
                 if (userInfo) {
                     sessionStorage.setItem('firstname', userInfo['firstname']);
                     sessionStorage.setItem('lastname', userInfo['lastname']);
+                    sessionStorage.setItem('receiveEmails', userInfo['receiveEmails']);
+                    sessionStorage.setItem('immediateEmails', userInfo['immediateEmails']);
                 }
             }),
             catchError(this.handleError)
@@ -218,7 +227,6 @@ export class AuthenticationService {
         } else {
             return '';
         }
-        /*return this.userId;*/
     }
 
     public getUserFirstName() {
@@ -227,7 +235,6 @@ export class AuthenticationService {
         } else {
             return '';
         }
-        /*return this.userFirstName;*/
     }
 
     public getUserLastName() {
@@ -236,7 +243,6 @@ export class AuthenticationService {
         } else {
             return '';
         }
-        /*return this.userLastName;*/
     }
 
     public getUserFirstNameInLatin() {
@@ -245,7 +251,6 @@ export class AuthenticationService {
         } else {
             return '';
         }
-        /*return this.userFirstnameLatin;*/
     }
 
     public getUserLastNameInLatin() {
@@ -254,7 +259,6 @@ export class AuthenticationService {
         } else {
             return '';
         }
-        /*return this.userLastnameLatin;*/
     }
 
     public getUserEmail() {
@@ -263,7 +267,18 @@ export class AuthenticationService {
         } else {
             return '';
         }
-        /*return this.userEmail;*/
+    }
+
+    public getUserReceiveEmails() {
+        return (this.isLoggedIn &&
+                (sessionStorage.getItem('receiveEmails') &&
+                 sessionStorage.getItem('receiveEmails') === 'true'));
+    }
+
+    public getUserImmediateEmails() {
+        return (this.isLoggedIn &&
+            (sessionStorage.getItem('immediateEmails') &&
+                sessionStorage.getItem('immediateEmails') === 'true'));
     }
 
     public getUserRole() {
@@ -272,7 +287,6 @@ export class AuthenticationService {
         } else {
             return '';
         }
-        /*return this.userRole;*/
     }
 
 
