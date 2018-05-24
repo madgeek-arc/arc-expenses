@@ -51,8 +51,8 @@ export class AuthenticationService {
         sessionStorage.removeItem('role');
         this.isLoggedIn = false;
 
-        /*console.log('logging out, going to:');
-        console.log(`https://aai.openaire.eu/proxy/saml2/idp/SingleLogoutService.php?ReturnTo=${this.baseUrl}`);
+        console.log('logging out, going /home');
+        /*console.log(`https://aai.openaire.eu/proxy/saml2/idp/SingleLogoutService.php?ReturnTo=${this.baseUrl}`);
         window.location.href = `https://aai.openaire.eu/proxy/saml2/idp/SingleLogoutService.php?ReturnTo=${this.baseUrl}`;*/
         this.router.navigate(['/home']);
     }
@@ -88,7 +88,7 @@ export class AuthenticationService {
                 console.log(`session.email wasn't found --> logging in via repo-service!`);
                 this.http.get(this.apiUrl + '/user/getUserInfo', headerOptions).subscribe(
                     userInfo => {
-                        console.log(userInfo);
+                        console.log(JSON.stringify(userInfo, null, 1));
                         sessionStorage.setItem('userid', userInfo['uid']);
                         sessionStorage.setItem('email', userInfo['email']);
                         sessionStorage.setItem('firstname', userInfo['firstname']);
@@ -121,69 +121,38 @@ export class AuthenticationService {
                             `${sessionStorage.getItem('lastname')}, ` +
                             `${sessionStorage.getItem('email')}`);
 
-                        let state: string;
                         if ( sessionStorage.getItem('state.location') ) {
-                            state = sessionStorage.getItem('state.location');
+                            const stateLoc = sessionStorage.getItem('state.location');
                             sessionStorage.removeItem('state.location');
-                            console.log(`logged in - returning to state: ${state}`);
+                            console.log(`logged in - returning to state: ${stateLoc}`);
                         }
-                        /*if (!sessionStorage.getItem('firstname') ||
-                            !sessionStorage.getItem('firstname') ||
-                            (sessionStorage.getItem('firstname') === 'null') ||
-                            (sessionStorage.getItem('lastname') === 'null') ) {
-                            console.log('going to sign-up');
-                            this.router.navigate(['/sign-up']);
-                        } else {
-                            if (this.redirectUrl) {
-                                this.router.navigate([this.redirectUrl]);
-                            } else if (state && state !== '/sign-up') {
-                                this.router.navigate([state]);
-                            } else {
-                                this.router.navigate(['/home']);
-                            }
-                        }*/
                         this.router.navigate(['/sign-up']);
                     }
                 );
             } else {
-                this.isLoggedIn = true;
-                console.log(`the current user is: ${sessionStorage.getItem('firstname')} ` +
-                    `${sessionStorage.getItem('lastname')}, ` +
-                    `${sessionStorage.getItem('email')}`);
-
-                if ( sessionStorage.getItem('state.location') ) {
-                    const state = sessionStorage.getItem('state.location');
-                    sessionStorage.removeItem('state.location');
-                    console.log(`received state: ${state}, going to signup`);
-                    this.router.navigate(['/sign-up']);
-                    /*if (!sessionStorage.getItem('firstname') ||
-                        !sessionStorage.getItem('firstname') ||
-                        (sessionStorage.getItem('firstname') === 'null') ||
-                        (sessionStorage.getItem('lastname') === 'null') ) {
-                        this.router.navigate(['/sign-up']);
-                    } else {
-                        /!*if (this.redirectUrl) {
-                            this.router.navigate([this.redirectUrl]);
-                        } else if (state && state !== '/sign-up') {
-                            this.router.navigate([state]);
-                        } else {
-                            this.router.navigate(['/home']);
-                        }*!/
-                        this.router.navigate([state]);
-                    }*/
+                if (!this.isLoggedIn) {
+                    sessionStorage.removeItem('userid');
+                    sessionStorage.removeItem('email');
+                    sessionStorage.removeItem('firstname');
+                    sessionStorage.removeItem('laststname');
+                    sessionStorage.removeItem('firstnameLatin');
+                    sessionStorage.removeItem('lastnameLatin');
+                    sessionStorage.removeItem('receiveEmails');
+                    sessionStorage.removeItem('immediateEmails');
+                    sessionStorage.removeItem('role');
+                    deleteCookie('arc_currentUser');
                 }
-                this.router.navigate(['/home']);
             }
-        } else {
-            let state: string;
-            if ( sessionStorage.getItem('state.location') ) {
-                state = sessionStorage.getItem('state.location');
-                sessionStorage.removeItem('state.location');
-                console.log(`logged in - returning to state: ${state}`);
-                this.router.navigate([state]);
-            }
-            this.router.navigate(['/home']);
         }
+
+        let state: string;
+        if ( sessionStorage.getItem('state.location') ) {
+            state = sessionStorage.getItem('state.location');
+            sessionStorage.removeItem('state.location');
+            console.log(`cleared session - returning to state: ${state}`);
+            this.router.navigate([state]);
+        }
+        this.router.navigate(['/home']);
     }
 
     updateUserInfo(firstname: string, lastname: string, receiveEmails: boolean, immediateEmails: boolean) {

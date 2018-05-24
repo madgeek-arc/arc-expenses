@@ -23,7 +23,7 @@ export class SignUpComponent implements OnInit {
 
   ngOnInit() {
       /* load page only if the user is logged in */
-      if (this.authService.getUserEmail()) {
+      if (this.authService.getIsUserLoggedIn()) {
           /* load page only if firstname or lastname doesn't exist */
           /*if (this.authService.getUserFirstName() && this.authService.getUserLastName()) {
               this.router.navigate(['/home']);

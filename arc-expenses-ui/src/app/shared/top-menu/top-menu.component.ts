@@ -20,13 +20,11 @@ export class TopMenuComponent implements OnInit {
   login() {
     if (!this.isUserLoggedIn()) {
         this.authService.loginWithState();
-        /*this.loggedIn = true;*/
     }
   }
 
   logout() {
     this.authService.logout();
-    /*this.loggedIn = false;*/
   }
 
   isUserLoggedIn() {
@@ -34,9 +32,6 @@ export class TopMenuComponent implements OnInit {
   }
 
   getUserName() {
-    if ( this.authService.getIsUserLoggedIn() && (!this.authService.getUserFirstName() || !this.authService.getUserLastName()) ) {
-        this.router.navigate(['/sign-up']);
-    }
     return this.authService.getUserFirstName() + ' ' + this.authService.getUserLastName();
   }
 
