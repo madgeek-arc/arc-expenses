@@ -13,6 +13,104 @@
       "type": "java.lang.String",
       "primaryKey":false,
       "multivalued":false
+    },
+    {
+      "multivalued": true,
+      "primaryKey":false,
+      "name": "project_operator",
+      "path": "$.operator[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "primaryKey":false,
+      "name": "project_operator_delegate",
+      "path": "$.operator[*].delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "name": "project_scientificCoordinator",
+      "path": "$.scientificCoordinator.email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "name": "project_organization_POI",
+      "path": "$.institute.organization.POI.email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "multivalued": true,
+      "name": "project_organization_POI_delegate",
+      "path": "$.institute.organization.POI.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "name": "project_organization_director",
+      "path": "$.institute.organization.director.email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "multivalued": true,
+      "name": "project_organization_director_delegate",
+      "path": "$.institute.organization.director.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "name": "project_institute_accountingRegistration",
+      "path": "$.institute.accountingRegistration.email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "multivalued": true,
+      "name": "project_institute_accountingRegistration_delegate",
+      "path": "$.institute.accountingRegistration.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "name": "project_institute_accountingPayment",
+      "path": "$.institute.accountingPayment.email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "multivalued": true,
+      "name": "project_institute_accountingPayment_delegate",
+      "path": "$.institute.accountingPayment.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "name": "project_institute_accountingDirector",
+      "path": "$.institute.accountingDirector.email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "multivalued": true,
+      "name": "project_institute_accountingDirector_delegate",
+      "path": "$.institute.accountingDirector.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "name": "project_institute_diaugeia",
+      "path": "$.institute.diaugeia.email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "multivalued": true,
+      "name": "project_institute_diaugeia_delegate",
+      "path": "$.institute.diaugeia.delegates[*].email",
+      "type": "java.lang.String"
     }
   ],
   "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",

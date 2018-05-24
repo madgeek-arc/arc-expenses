@@ -91,7 +91,6 @@ public class RequestServiceImpl extends GenericService<Request> {
                              " request_project_operator =  "+ email + " or " +
                              " request_project_operator_delegates = " + email + " or " +
                              " request_project_scientificCoordinator = " + email + " or " +
-                             " request_project_scientificCoordinator_delegate =  " + email + " or "+
                              " request_organization_POY = " + email + " or " +
                              " request_organization_POY_delegate =  " + email+ " or "+
                              " request_institute_accountingRegistration = " + email + " or " +

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import arc.expenses.service.UserServiceImpl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -54,10 +55,8 @@ public class UserController {
             LOGGER.fatal(e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-//        List<String> roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-//        body.put("role",roles);
-
+        String role = userService.getRole(authentication.getEmail());
+        body.put("role",role);
         return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
