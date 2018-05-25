@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {
     Attachment, Project, Request, Stage1, Stage2, Stage5a, Stage10, Stage5b, Stage4,
-    Stage5, Stage6, Stage7, Stage8, Stage9, Stage3, Stage11, Stage12, User
+    Stage5, Stage6, Stage7, Stage8, Stage9, Stage3, Stage11, Stage12, Stage13, User
 } from '../domain/operation';
 import {ManageRequestsService} from '../services/manage-requests.service';
 import {Router} from '@angular/router';
@@ -123,7 +123,8 @@ export class NewRequestComponent implements OnInit {
                         !this.newRequestForm.get('supplier').value &&
                         !this.newRequestForm.get('supplierSelectionMethod').value  ) {
                 UIkit.modal.alert('Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.');
-            } else if ( ( this.newRequestForm.get('supplierSelectionMethod').value !== 'Απ\' ευθείας ανάθεση' ) &&
+            } else if ( (( this.newRequestForm.get('supplierSelectionMethod').value !== 'Απ\' ευθείας ανάθεση' ) &&
+                         ( this.requestType !== 'trip' )) &&
                           isUndefined(this.uploadedFile)  ) {
                 UIkit.modal.alert('Για αναθέσεις μέσω διαγωνισμού ή έρευνας αγοράς η επισύναψη εγγράφων είναι υποχρεωτική.');
             } else {
@@ -162,6 +163,7 @@ export class NewRequestComponent implements OnInit {
                 this.request.stage10 = new Stage10();
                 this.request.stage11 = new Stage11();
                 this.request.stage12 = new Stage12();
+                this.request.stage13 = new Stage13();
 
                 this.showSpinner = true;
                 this.errorMessage = '';

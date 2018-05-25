@@ -69,6 +69,7 @@ export class AuthenticationService {
                         this.isLoggedIn = true;
                     },
                     () => {
+                        console.log(`Something went wrong -- I'm logging out!`);
                         sessionStorage.removeItem('userid');
                         sessionStorage.removeItem('email');
                         sessionStorage.removeItem('firstname');
@@ -98,6 +99,7 @@ export class AuthenticationService {
                         sessionStorage.setItem('receiveEmails', userInfo['receiveEmails']);
                         sessionStorage.setItem('immediateEmails', userInfo['immediateEmails']);
                         sessionStorage.setItem('role', userInfo['role']);
+                        /*sessionStorage.setItem('role', 'ROLE_ADMIN');*/
                     },
                     error => {
                         console.log('login error!');
@@ -130,21 +132,8 @@ export class AuthenticationService {
                     }
                 );
             } else {
-                if (!this.isLoggedIn) {
-                    sessionStorage.removeItem('userid');
-                    sessionStorage.removeItem('email');
-                    sessionStorage.removeItem('firstname');
-                    sessionStorage.removeItem('laststname');
-                    sessionStorage.removeItem('firstnameLatin');
-                    sessionStorage.removeItem('lastnameLatin');
-                    sessionStorage.removeItem('receiveEmails');
-                    sessionStorage.removeItem('immediateEmails');
-                    sessionStorage.removeItem('role');
-                    deleteCookie('arc_currentUser');
-                }
+                this.isLoggedIn = true;
             }
-        } else {
-            this.isLoggedIn = false;
         }
         let state: string;
         if ( sessionStorage.getItem('state.location') ) {
@@ -153,7 +142,7 @@ export class AuthenticationService {
             console.log(`cleared session - returning to state: ${state}`);
             this.router.navigate([state]);
         }
-        this.router.navigate(['/home']);
+        //this.router.navigate(['/home']);
     }
 
     updateUserInfo(firstname: string, lastname: string, receiveEmails: boolean, immediateEmails: boolean) {

@@ -34,7 +34,7 @@ export class RequestsComponent implements OnInit {
 
   stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
   states = ['all', 'accepted', 'pending', 'rejected'];
-  stages = ['all', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12'];
+  stages = ['all', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
   stagesMap = stagesMap;
   reqTypes = { regular: 'Πρωτογενές Αίτημα', trip: 'Ταξίδι', contract: 'Σύμβαση' };
 
@@ -50,7 +50,7 @@ export class RequestsComponent implements OnInit {
   ngOnInit(){
       this.initializeParams();
       this.title = 'Υπάρχοντα Αιτήματα';
-      this.isSimpleUser = (this.authService.getUserRole() === 'user');
+      this.isSimpleUser = (this.authService.getUserRole() === 'ROLE_USER');
   }
 
   initializeParams() {

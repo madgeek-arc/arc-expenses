@@ -9,6 +9,7 @@ import {
 import {DatePipe} from '@angular/common';
 import {AuthenticationService} from '../services/authentication.service';
 import {Router} from '@angular/router';
+import { isNullOrUndefined, isUndefined } from 'util';
 
 declare const UIkit: any;
 
@@ -38,7 +39,7 @@ export class StageComponent implements OnInit {
     @Input() showStage: boolean;
 
     /* input variable that controls if in this stage the user chose to return the request back to the previous stage */
-    @Input() hasReturnedToPrevious: boolean;
+    @Input() hasReturnedToPrevious: number;
 
     /* if true, the results of the stage will be shown
      * otherwise a form will be shown so that the user can update the request */
@@ -57,7 +58,7 @@ export class StageComponent implements OnInit {
 
     /*additional form controls will be added dynamically according to the stage*/
     stageFormDefinition = {
-        comment: ['']
+        comment: ''
     };
     uploadedFile: File;
 
@@ -76,21 +77,29 @@ export class StageComponent implements OnInit {
     constructor(private fb: FormBuilder, private authService: AuthenticationService, private router: Router) {}
 
     ngOnInit() {
+        /*console.log(`showStage ${this.stageDescription.id} is ${this.showStage}`);*/
         this.checkIfSubmitted();
         this.checkIfApproved();
         this.stageTitle = stagesMap[this.stageDescription.id];
     }
 
     checkIfSubmitted() {
-        this.wasSubmitted = ( this.currentStage && this.currentStage.date && !this.hasReturnedToPrevious );
-        if (!this.wasSubmitted) {
+        console.log(`hasReturned is ${this.hasReturnedToPrevious}`);
+        this.wasSubmitted = ( (!isNullOrUndefined(this.currentStage) &&
+                              !isNullOrUndefined(this.currentStage.date)) &&
+                              (this.hasReturnedToPrevious !== 1) );
+        if ( !this.wasSubmitted && (this.hasReturnedToPrevious !== 2) && ( this.authService.getUserRole() !== 'ROLE_USER' )) {
             this.stageForm = this.fb.group(this.stageFormDefinition);
+            if ( !isNullOrUndefined(this.currentStage['comment']) ) {
+                this.stageForm.get('comment').setValue(this.currentStage['comment']);
+            }
         }
+        /*console.log(`in stage ${this.stageDescription.id}, wasSubmitted is ${this.wasSubmitted}`);*/
     }
 
     checkIfApproved() {
         if (this.currentStage) {
-            if (this.hasReturnedToPrevious) {
+            if (this.hasReturnedToPrevious === 2) {
                 this.wasApproved = 'Επεστράφη στο προηγούμενο στάδιο';
             } else {
                 if ( this.currentStage['approved'] ||
@@ -106,7 +115,11 @@ export class StageComponent implements OnInit {
     }
 
     findCurrentPOI(poiList: POI[]) {
-        return poiList.filter(x => x.email === this.authService.getUserEmail())[0];
+        if (this.authService.getUserRole() === 'ROLE_ADMIN') {
+            return poiList[0];
+        } else {
+            return poiList.filter(x => x.email === this.authService.getUserEmail())[0];
+        }
     }
 
     linkToFile() {
@@ -121,15 +134,14 @@ export class StageComponent implements OnInit {
             for (const newControl of this.stageExtraFieldsList) {
                 this.stageForm.addControl(newControl, new FormControl());
             }
-            if (this.hasReturnedToPrevious) {
-                this.addStageInfoToForm();
-            }
+            this.addStageInfoToForm();
         }
     }
 
     addStageInfoToForm() {
-        if (this.currentStage && this.currentStage.date) {
-            this.stageForm.get('comment').setValue(this.currentStage.comment);
+        if (!isNullOrUndefined(this.currentStage) &&
+            !isNullOrUndefined(this.currentStage.date)) {
+
             for (const newControl of this.stageExtraFieldsList) {
                 this.stageForm.get(newControl).setValue(this.currentStage[newControl]);
             }
@@ -204,8 +216,8 @@ export class StageComponent implements OnInit {
 
     submitForm() {
         this.stageFormError = '';
-        /*if (this.stageForm && this.stageForm.valid && this.delegateCanEdit() ) {*/
-        if (this.stageForm && this.stageForm.valid ) {
+        if (this.stageForm && this.stageForm.valid && this.delegateCanEdit() ) {
+        /*if (this.stageForm && this.stageForm.valid ) {*/
             if ( (this.stageDescription.id === '6' ||
                   this.stageDescription.id === '11' ||
                   (this.stageDescription.id === '7' &&
@@ -248,31 +260,40 @@ export class StageComponent implements OnInit {
     }
 
     delegateCanEdit() {
-        return (this.currentPOI.email === this.authService.getUserEmail()) ||
-               (this.currentPOI.delegates.some(x => x.email === this.authService.getUserEmail()));
+        return ( (this.authService.getUserRole() === 'ROLE_ADMIN') ||
+                 (this.currentPOI.email === this.authService.getUserEmail()) ||
+                 this.currentPOI.delegates.some(x => x.email === this.authService.getUserEmail()) );
     }
 
     createUser(): User {
         const tempUser: User = new User();
-        tempUser.email = this.authService.getUserEmail();
-        tempUser.firstname = this.authService.getUserFirstName();
-        tempUser.lastname = this.authService.getUserLastName();
+        if (this.authService.getUserRole() === 'ROLE_ADMIN') {
+            tempUser.id = this.authService.getUserId();
+            tempUser.email = this.currentPOI.email;
+            tempUser.firstname = this.currentPOI.firstname;
+            tempUser.lastname = this.currentPOI.lastname;
+        } else {
+            tempUser.id = this.authService.getUserId();
+            tempUser.email = this.authService.getUserEmail();
+            tempUser.firstname = this.authService.getUserFirstName();
+            tempUser.lastname = this.authService.getUserLastName();
+        }
         return tempUser;
     }
 
     getIsDelegateHidden() {
-        if (this.currentPOI.email === this.authService.getUserEmail()) {
+        if (this.currentPOI.email === this.currentStage['user']['email']) {
             return false;
         } else {
-            return this.currentPOI.delegates.filter(x => x.email === this.authService.getUserEmail())[0].hidden;
+            return this.currentPOI.delegates.filter(x => x.email === this.currentStage['user']['email'])[0].hidden;
         }
     }
 
     getDelegateName() {
-        if ( !this.getIsDelegateHidden() ) {
-            return this.currentStage['user']['firstname'] + ' ' + this.currentStage['user']['lastname'];
-        } else {
+        if ( this.getIsDelegateHidden() ) {
             return this.currentPOI.firstname + ' ' + this.currentPOI.lastname;
+        } else {
+            return this.currentStage['user']['firstname'] + ' ' + this.currentStage['user']['lastname'];
         }
     }
 

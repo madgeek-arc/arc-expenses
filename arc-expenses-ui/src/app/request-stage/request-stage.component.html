@@ -3,7 +3,9 @@
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
       <div class="uk-width-1-1@m uk-first-column">
 
-        <h1 class="uk-h3 uk-heading-bullet uk-padding-small">Αίτημα {{requestId}} <span *ngIf="currentRequest">[{{ reqTypes[currentRequest.type] }}]</span></h1>
+        <h1 class="uk-h3 uk-heading-bullet uk-padding-small">
+          Αίτημα {{requestId}}
+          <span *ngIf="currentRequest" class="uk-text-small">[{{ reqTypes[currentRequest.type] }}]</span></h1>
 
         <!-- TOP HELP CONTENT -->
         <help-content #topHelperContent [position]="'top'"
@@ -56,11 +58,11 @@
                     <div class="uk-text-bold">Θέμα:</div>
                     <div class="uk-text-justify uk-margin-small-bottom">{{ currentRequest.stage1.subject }}</div>
                   </div>
-                  <div class="uk-width-1-2@l">
+                  <div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">
                     <span class="uk-text-bold uk-margin-small-right">Προμηθευτής: </span>
                     <span>{{ currentRequest.stage1.supplier }}</span>
                   </div>
-                  <div class="uk-width-1-2@l">
+                  <div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">
                     <span class="uk-text-bold uk-margin-small-right">Κριτήριο επιλογής: </span>
                     <span>{{ currentRequest.stage1.supplierSelectionMethod }}</span>
                   </div>
@@ -75,12 +77,12 @@
                 </div>
 
                 <div *ngIf="currentRequest.stage2">
-                  <stage2-component [showStage]="true"
+                  <stage2-component [showStage]="true" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('2')"
                                     [currentStage]="currentRequest.stage2" [currentProject]="currentRequest.project"
                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage2-component>
                 </div>
 
-                <div *ngIf="isSimpleUser">
+                <div *ngIf="isSimpleUser" class="uk-alert uk-alert-primary uk-text-center uk-margin-top">
                   Το αίτημά σας {{ stateNames[currentRequest.status] }}
                 </div>
 

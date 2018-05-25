@@ -3,6 +3,7 @@ import { Request } from '../domain/operation';
 import { ActivatedRoute } from '@angular/router';
 import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
+import { isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'app-request-stage',
@@ -29,7 +30,8 @@ export class RequestStageComponent implements OnInit {
 
   ngOnInit() {
     this.getCurrentRequest();
-    this.isSimpleUser = (this.authService.getUserRole() === 'user');
+    this.isSimpleUser = (this.authService.getUserRole() === 'ROLE_USER');
+    console.log(`current user role is: ${this.authService.getUserRole()}`);
   }
 
   getCurrentRequest() {
@@ -75,45 +77,43 @@ export class RequestStageComponent implements OnInit {
   }
 
   getNextStage(stage: string) {
-      let newStage: string;
       if ( stage !== '13' && this.currentRequest.status !== 'rejected' ) {
           if (stage === '4') {
-              newStage = '5a';
+              return '5a';
           } else if (stage === '5a') {
             if (this.currentRequest.stage1.amountInEuros > 20000) {
-                newStage = '5b';
+                return '5b';
             } else {
-                newStage = '6';
+                return '6';
             }
-        } else if (stage === '5b') {
-            newStage = '6';
-        } else {
-            newStage = (+stage + 1).toString();
+          } else if (stage === '5b') {
+              return '6';
+          } else {
+              return (+stage + 1).toString();
         }
       }
-      console.log('next stage is', newStage);
-      return newStage;
+      /*console.log('next stage is', newStage);*/
+      return this.currentRequest.stage;
   }
 
   getPreviousStage(stage: string) {
-      let newStage: string;
       if ( stage !== '2' ) {
         if (stage === '5a') {
-            newStage = '4';
+            return '4';
         } else if (stage === '5b') {
-              newStage = '5a';
+            return '5a';
         } else if (stage === '6') {
             if (this.currentRequest.stage1.amountInEuros > 20000) {
-                newStage = '5b';
+                return '5b';
             } else {
-                newStage = '5a';
+                return '5a';
             }
         } else {
-            newStage = (+stage - 1).toString();
+            return (+stage - 1).toString();
         }
       }
-      console.log('previous stage is', newStage);
-      return newStage;
+      /*console.log('previous stage is', newStage);*/
+      return this.currentRequest.stage;
   }
 
   getSubmittedStage(newStage: any) {
@@ -122,22 +122,23 @@ export class RequestStageComponent implements OnInit {
       console.log(`submitting as ${currentStageName}`);
       this.currentRequest[currentStageName] = newStage;
       if (newStage['approved']) {
-          if (this.currentRequest.stage === '12' ) {
+          if (this.currentRequest.stage === '13' ) {
               this.currentRequest.status = 'accepted';
           } else {
               this.currentRequest.status = 'pending';
           }
-      } else if (this.currentRequest.stage === '6' || this.currentRequest.stage === '11') {
+      } else if (this.currentRequest.stage === '6' || this.currentRequest.stage === '11' || (this.goBackOneStage === true) ) {
           this.currentRequest.status = 'pending';
       } else {
           this.currentRequest.status = 'rejected';
       }
-      if (this.goBackOneStage) {
+      if (this.goBackOneStage === true) {
           this.currentRequest.stage = this.getPreviousStage(this.currentRequest.stage);
       } else {
           this.currentRequest.stage = this.getNextStage(this.currentRequest.stage);
       }
-
+      this.goBackOneStage = false;
+      console.log('submitted status:', this.currentRequest.status);
       this.submitRequest();
   }
 
@@ -148,7 +149,7 @@ export class RequestStageComponent implements OnInit {
 
       /*update this.currentRequest*/
       this.requestService.updateRequest(this.currentRequest, this.authService.getUserEmail()).subscribe(
-          res => console.log(`update Request responded: ${res.id}, status=${res.status}`),
+          res => console.log(`update Request responded: ${res.id}, status=${res.status}, stage=${res.stage}`),
           error => {
               console.log(error);
               this.showSpinner = false;
@@ -164,27 +165,56 @@ export class RequestStageComponent implements OnInit {
   willShowStage (stageField: string) {
       if (!this.isSimpleUser) {
           if ((stageField === this.currentRequest.stage)) {
-              if (this.authService.getUserRole() === 'admin') {
+              if ( this.authService.getUserRole() === 'ROLE_ADMIN' ) {
                   return true;
               } else {
                   return this.canEdit;
-                  /* RESTORE THIS TO RESTORE CHECK USER'S PERMISSION TO EDIT !!! */
-                  /*return true;*/
               }
           } else {
-              for (const id of this.stages) {
-                  if (id === stageField) {
-                      return ( this.currentRequest[`stage${stageField}`] && this.currentRequest[`stage${stageField}`].date );
-                  }
-              }
+              /*console.log('BOOM!');*/
+              return (!isNullOrUndefined(this.currentRequest[`stage${stageField}`]) &&
+                      !isNullOrUndefined(this.currentRequest[`stage${stageField}`].date) );
           }
+      } else {
+          return false;
       }
   }
 
   checkIfHasReturnedToPrevious(stage: string) {
-      const nextStage = this.getNextStage(stage);
-      const stageField = 'stage' + nextStage;
-      return (this.currentRequest[stageField] && this.currentRequest[stageField].date !== '');
+      if ( (this.currentRequest.stage === stage) ) {
+          /*if (stage === '13' || stage === '2' ||
+              ( (this.currentRequest.status === 'rejected') ||
+                  (this.currentRequest.status === 'accepted') ) ) {
+
+              return 0;
+          } else {
+              const nextStage = this.getNextStage(stage);
+              const stageField = `stage${nextStage}`;
+              console.log(`nextStage is ${stageField} and this is its date: ${this.currentRequest[stageField].date}`);
+              if (!(isNullOrUndefined(this.currentRequest[stageField])) &&
+                  !(isNullOrUndefined(this.currentRequest[stageField].date)) ) {
+                  console.log('sending 1');
+                  return 1;
+              } else {
+                  return 0;
+              }
+          }*/
+          if ( ( (this.currentRequest.status === 'rejected') ||
+                  (this.currentRequest.status === 'accepted') ) ) {
+              return 0;
+          } else {
+              return 1;
+          }
+      } else {
+          for ( const st of this.stages ) {
+              if ( st === stage ) {
+                  return 0;
+              }
+              if ( st === this.currentRequest.stage ) {
+                  return 2;
+              }
+          }
+      }
   }
 
 }
