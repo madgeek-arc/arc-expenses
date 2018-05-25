@@ -36,12 +36,13 @@ public class UserServiceImpl extends GenericService<User> {
             connection = dataSource.getConnection();
             statement = connection.prepareStatement(query);
 
-            for(int i = 1;i<16;i++)
+            //for(int i = 1;i<16;i++)
+            for(int i = 1;i<9;i++)
                 statement.setString(i,email);
 
             ResultSet rs = statement.executeQuery();
             while(rs.next())
-                if(rs.getInt(0) > 0)
+                if(Integer.parseInt(rs.getString("count")) > 0)
                     return "ROLE_EXECUTIVE";
                 else
                     return "ROLE_USER";
@@ -67,21 +68,21 @@ public class UserServiceImpl extends GenericService<User> {
     private String createQuery() {
 
         return "select count(*) from project_view " +
-                " where project_operator = ? or " +
-                " project_operator_delegates = ? or " +
+                " where ? = ANY( project_operator ) or " +
+               // " project_operator_delegates = ? or " +
                 " project_scientificCoordinator = ? or " +
-                " organization_POI = ? or " +
-                " organization_POI_delegate =  ? or " +
-                " institute_accountingRegistration = ? or " +
-                " institute_diaugeia = ? or " +
-                " institute_accountingPayment = ? or " +
-                " institute_accountingDirector = ? or " +
-                " institute_accountingDirector_delegate = ? or " +
-                " institute_accountingRegistration_delegate =  ? or " +
-                " institute_accountingPayment_delegate = ? or " +
-                " institute_diaugeia_delegate =  ? or " +
-                " organization_director = ? or " +
-                " organization_director_delegate = ? ";
+                " project_organization_POI  = ? or " +
+              //  " organization_POI_delegate =  ? or " +
+                " project_institute_accountingRegistration   = ? or " +
+                " project_institute_diaugeia  = ? or " +
+                " project_institute_accountingPayment  = ? or " +
+                " project_institute_accountingDirector  = ? or " +
+              //  " project_institute_accountingDirector_delegate = ? or " +
+              //  " project_institute_accountingRegistration_delegate =  ? or " +
+              //  " project_institute_accountingPayment_delegate = ? or " +
+              //  " project_institute_diaugeia_delegate =  ? or " +
+                " project_organization_director  = ? "; //or " +
+              //  " project_organization_director_delegate = ? ";
 
     }
 }

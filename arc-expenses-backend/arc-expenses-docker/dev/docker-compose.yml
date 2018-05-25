@@ -104,16 +104,16 @@ services:
 #    depends_on:
 #      - ldap
 
-  db:
-    container_name: postgres
-    build: registry-postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - arcnet
-    restart: unless-stopped
+#  db:
+#    container_name: postgres
+#    build: registry-postgres
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - pgdata:/var/lib/postgresql/data
+#    networks:
+#      - arcnet
+#    restart: unless-stopped
   jms:
     container_name: jms
     image: rmohr/activemq:5.14.0-alpine
