@@ -47,7 +47,7 @@ export class RequestsComponent implements OnInit {
   constructor(private requestService: ManageRequestsService,
               private authService: AuthenticationService, private router: Router, private fb: FormBuilder) {}
 
-  ngOnInit(){
+  ngOnInit() {
       this.initializeParams();
       this.title = 'Υπάρχοντα Αιτήματα';
       this.isSimpleUser = (this.authService.getUserRole() === 'ROLE_USER');

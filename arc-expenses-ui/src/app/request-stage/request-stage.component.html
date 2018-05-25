@@ -77,7 +77,7 @@
                 </div>
 
                 <div *ngIf="currentRequest.stage2">
-                  <stage2-component [showStage]="true" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('2')"
+                  <stage2-component [showStage]="willShowStage('2')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('2')"
                                     [currentStage]="currentRequest.stage2" [currentProject]="currentRequest.project"
                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage2-component>
                 </div>

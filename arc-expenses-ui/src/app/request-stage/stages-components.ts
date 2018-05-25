@@ -89,9 +89,13 @@ export class StageComponent implements OnInit {
                               !isNullOrUndefined(this.currentStage.date)) &&
                               (this.hasReturnedToPrevious !== 1) );
         if ( !this.wasSubmitted && (this.hasReturnedToPrevious !== 2) && ( this.authService.getUserRole() !== 'ROLE_USER' )) {
-            this.stageForm = this.fb.group(this.stageFormDefinition);
-            if ( !isNullOrUndefined(this.currentStage['comment']) ) {
-                this.stageForm.get('comment').setValue(this.currentStage['comment']);
+            if (!this.showStage) {
+                this.wasSubmitted = true;
+            } else {
+                this.stageForm = this.fb.group(this.stageFormDefinition);
+                if ( !isNullOrUndefined(this.currentStage['comment']) ) {
+                    this.stageForm.get('comment').setValue(this.currentStage['comment']);
+                }
             }
         }
         /*console.log(`in stage ${this.stageDescription.id}, wasSubmitted is ${this.wasSubmitted}`);*/

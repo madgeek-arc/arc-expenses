@@ -25,9 +25,9 @@ export class SignUpComponent implements OnInit {
       /* load page only if the user is logged in */
       if (this.authService.getUserEmail()) {
           /* load page only if firstname or lastname doesn't exist */
-          if (this.authService.getUserFirstName() && this.authService.getUserLastName()) {
+          /*if (this.authService.getUserFirstName() && this.authService.getUserLastName()) {
               this.router.navigate(['/home']);
-          }
+          }*/
           this.createForm();
       } else {
           this.router.navigate(['/home']);

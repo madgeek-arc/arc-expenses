@@ -74,6 +74,7 @@ export class NewRequestComponent implements OnInit {
 
     getProjects() {
         this.showSpinner = true;
+        this.projects = [];
         this.projectService.getAllProjectsNames().subscribe(
             projects => {
                 this.projects = projects;
