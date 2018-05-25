@@ -47,7 +47,7 @@
       "required": [
         "id",
         "name",
-        "POY",
+        "POI",
         "director",
         "dioikitikoSumvoulio"
       ]

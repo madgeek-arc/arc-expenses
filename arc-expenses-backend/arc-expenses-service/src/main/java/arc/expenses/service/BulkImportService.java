@@ -80,9 +80,10 @@ public class BulkImportService {
             institute.setName(line[1].trim());
             institute.setOrganization(organizationService.getByField("organization_name",line[2].trim()));
             institute.setDirector(parserPOY(line[3]));
-            institute.setAccountingRegistration(parserPOY(line[4]));
-            institute.setAccountingPayment(parserPOY(line[5]));
-            institute.setAccountingDirector(parserPOY(line[6]));
+            //TODO update schema
+            institute.setAccountingRegistration(parser(line[4]).get(0));
+            institute.setAccountingPayment(parser(line[5]).get(0));
+            institute.setAccountingDirector(parser(line[6]).get(0));
             institute.setDiaugeia(parserPOY(line[7]));
             instituteService.add(institute);
         }
