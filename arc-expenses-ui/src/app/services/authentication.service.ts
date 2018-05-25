@@ -85,7 +85,7 @@ export class AuthenticationService {
                 );
             }, 1000 * 60 * 5);
             if (!sessionStorage.getItem('email')) {
-                console.log(`session.email wasn't found --> logging in via repo-service!`);
+                console.log(`session.email wasn't found --> logging in via arc-service!`);
                 this.http.get(this.apiUrl + '/user/getUserInfo', headerOptions).subscribe(
                     userInfo => {
                         console.log(JSON.stringify(userInfo, null, 1));
@@ -143,8 +143,9 @@ export class AuthenticationService {
                     deleteCookie('arc_currentUser');
                 }
             }
+        } else {
+            this.isLoggedIn = false;
         }
-
         let state: string;
         if ( sessionStorage.getItem('state.location') ) {
             state = sessionStorage.getItem('state.location');
