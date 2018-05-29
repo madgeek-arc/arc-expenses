@@ -71,8 +71,7 @@
                     <span>{{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>
                   </div>
                   <div *ngIf="currentRequest.stage1.attachment" class="uk-width-1-1@l uk-margin-small-top">
-                    <a class="uk-link" href="{{ currentRequest.stage1.attachment.url }}">
-                    Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a>
+                    <a class="uk-link" (click)="linkToFile()">Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a>
                   </div>
                 </div>
 

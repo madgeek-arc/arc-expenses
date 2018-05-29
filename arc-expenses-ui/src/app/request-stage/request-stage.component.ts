@@ -217,4 +217,13 @@ export class RequestStageComponent implements OnInit {
       }
   }
 
+
+    linkToFile() {
+        if (this.currentRequest.stage1.attachment && this.currentRequest.stage1.attachment.url ) {
+            window.open(this.currentRequest.stage1.attachment.url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
+        }
+    }
+
+
+
 }
