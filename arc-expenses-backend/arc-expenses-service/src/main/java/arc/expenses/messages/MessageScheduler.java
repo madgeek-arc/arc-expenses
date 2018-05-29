@@ -24,7 +24,7 @@ public class MessageScheduler {
             Map<User, List<EmailMessage>> queue = new HashMap<>();
         }
         for (EmailMessage email: emails) {
-            User user = userService.get(email.getRecipient();
+            User user = userService.get(email.getRecipient());
             if (queue.containsKey(user)) {
                 messages = queue.get(user);
                 messages.add(email);
