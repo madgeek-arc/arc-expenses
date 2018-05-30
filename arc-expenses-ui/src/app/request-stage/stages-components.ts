@@ -321,7 +321,8 @@ export class StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage2-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage2Component extends StageComponent implements OnInit {
 
@@ -339,7 +340,8 @@ export class Stage2Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage3-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage3Component extends StageComponent implements OnInit {
 
@@ -355,7 +357,8 @@ export class Stage3Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage4-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage4Component extends StageComponent implements OnInit {
 
@@ -372,7 +375,8 @@ export class Stage4Component extends StageComponent implements OnInit {
 /* NOT USED ANYMORE  -- MAYBE WE'LL RESTORE IT AT SOME POINT */
 @Component ({
     selector: 'stage5-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage5Component extends StageComponent implements OnInit {
     @Input() willShowButtonTo5a: boolean;
@@ -389,7 +393,8 @@ export class Stage5Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage5a-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage5aComponent extends StageComponent implements OnInit {
 
@@ -403,7 +408,8 @@ export class Stage5aComponent extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage5b-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage5bComponent extends StageComponent implements OnInit {
 
@@ -417,7 +423,8 @@ export class Stage5bComponent extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage6-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage6Component extends StageComponent implements OnInit {
 
@@ -432,7 +439,8 @@ export class Stage6Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage7-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage7Component extends StageComponent implements OnInit {
 
@@ -446,7 +454,8 @@ export class Stage7Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage8-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage8Component extends StageComponent implements OnInit {
 
@@ -462,7 +471,8 @@ export class Stage8Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage9-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage9Component extends StageComponent implements OnInit {
 
@@ -478,7 +488,8 @@ export class Stage9Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage10-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage10Component extends StageComponent implements OnInit {
 
@@ -492,7 +503,8 @@ export class Stage10Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage11-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage11Component extends StageComponent implements OnInit {
 
@@ -506,7 +518,8 @@ export class Stage11Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage12-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage12Component extends StageComponent implements OnInit {
 
@@ -521,7 +534,8 @@ export class Stage12Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage13-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-components.html',
+    styleUrls: ['./stages-components.scss']
 })
 export class Stage13Component extends StageComponent implements OnInit {
 

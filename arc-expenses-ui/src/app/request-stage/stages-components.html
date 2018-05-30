@@ -34,7 +34,7 @@
             </a>
         </div>
     </div>
-    <div *ngIf="!wasSubmitted && stageForm" [formGroup]="stageForm" class="uk-form-controls">
+    <div *ngIf="!wasSubmitted && stageForm" [formGroup]="stageForm" class="uk-form-controls stageForm">
         <h5>{{ stageTitle }}</h5>
 
         <div *ngIf="stageFormError" class="uk-alert uk-alert-error">{{ stageFormError }}</div>
