@@ -16,13 +16,13 @@
                             <a href="#">Νέο Αίτημα</a>
                             <div class="uk-navbar-dropdown">
                                 <ul class="uk-nav uk-navbar-dropdown-nav">
-                                    <li class="uk-active">
+                                    <li>
                                         <a [routerLink]="['new-request','regular']">Πρωτογενές Αίτημα</a>
                                     </li>
-                                    <li class="uk-active">
+                                    <li>
                                         <a [routerLink]="['new-request','trip']">Ταξίδι</a>
                                     </li>
-                                    <li class="uk-active">
+                                    <li>
                                         <a [routerLink]="['new-request','contract']">Σύμβαση</a>
                                     </li>
                                 </ul>
@@ -59,15 +59,14 @@
                             </a>
                             <div *ngIf="isUserLoggedIn()" uk-dropdown>
                                 <ul class="uk-nav uk-dropdown-nav">
-                                    <li><a [routerLink]="['/sign-up']" class="uk-text-primary">Στοιχεία χρήστη</a></li>
-                                    <li><a (click)="logout()" class="uk-text-primary">Έξοδος</a></li>
+                                    <li><a [routerLink]="['/sign-up']">Στοιχεία χρήστη</a></li>
+                                    <li><a (click)="logout()">Έξοδος</a></li>
                                 </ul>
                             </div>
                         </li>
                     </ul>
                 </div>
             </nav>
-            <hr class="uk-hr uk-margin-remove uk-padding-remove">
         </div>
     </div>
     <!--<div class="uk-sticky-placeholder" style="height: 80px; margin: 0px;" hidden="hidden"></div>-->
@@ -87,7 +86,6 @@
                 <a routerLink="/home" class="uk-navbar-item navbar-brand-athena uk-logo"></a>
             </div>
         </nav>
-        <hr class="uk-hr uk-margin-remove uk-padding-remove">
     </div>
     <div id="tm-mobile" uk-offcanvas="" mode="slide" overlay="" class="uk-offcanvas">
         <div class="uk-offcanvas-bar">
