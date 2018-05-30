@@ -23,15 +23,15 @@
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
-              <div *ngIf="!requestType">
+              <!--<div *ngIf="!requestType">
                 <label>Επιλέξτε τύπο αιτήματος:</label>
                 <select (change)="onChooseRequestType($event)">
-                  <option value="">----</option>
+                  <option value="">&#45;&#45;&#45;&#45;</option>
                   <option value="regular">{{ reqTypes['regular'] }}</option>
                   <option value="trip">{{ reqTypes['trip'] }}</option>
                   <option value="contract">{{ reqTypes['contract'] }}</option>
                 </select>
-              </div>
+              </div>-->
               <div *ngIf="requestType">
                 <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
                 <div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">
@@ -111,27 +111,27 @@
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">
                           <div class="uk-width-1-1@s">
-                              <textarea [ngClass]="{'uk-disabled': programSelected==false}" class="uk-form-help-block uk-text-small uk-width-1-1 uk-height-small" id="request-text"
+                              <textarea class="uk-form-help-block uk-text-small uk-width-1-1 uk-height-small" id="request-text"
                                         formControlName="requestText"></textarea>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div *ngIf="requestType !== 'trip'" class="uk-margin">
+                    <div *ngIf="checkIfTrip()" class="uk-margin">
                       <label class="uk-form-label" for="request-supplier">Προμηθευτής <span class="uk-text-danger">(*)</span></label>
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">
                           <div class="uk-width-1-1@s">
-                            <input [ngClass]="{'uk-disabled': programSelected==false}" class="uk-input" type="text" placeholder="" id="request-supplier"
+                            <input class="uk-input" type="text" placeholder="" id="request-supplier"
                                    formControlName="supplier">
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div *ngIf="requestType !== 'trip'" class="uk-margin">
+                    <div *ngIf="checkIfTrip()" class="uk-margin">
                       <label class="uk-form-label" for="request-ssm">Τρόπος επιλογής προμηθευτή <span class="uk-text-danger">(*)</span></label>
                       <div class="uk-form-controls">
-                        <select [ngClass]="{'uk-disabled': programSelected==false}" class="uk-select" id="request-ssm" formControlName="supplierSelectionMethod" name="ssm">
+                        <select class="uk-select" id="request-ssm" formControlName="supplierSelectionMethod" name="ssm">
                           <option value="">-- επιλέξτε τρόπο --</option>
                           <option *ngFor="let sel of selMethods" value="{{sel}}">{{sel}}</option>
                         </select>

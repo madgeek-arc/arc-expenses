@@ -73,10 +73,11 @@ export class RequestsComponent implements OnInit {
     this.errorMessage = '';
     this.listOfRequests = [];
     this.showSpinner = true;
+    const currentOffset = this.currentPage * this.itemsPerPage;
     this.requestService.searchAllRequests(this.searchTerm,
                                           this.statusChoice,
                                           this.stageChoice,
-                                          this.currentPage.toString(),
+                                          currentOffset.toString(),
                                           this.itemsPerPage.toString(),
                                           this.order,
                                           this.orderField,

@@ -5,7 +5,7 @@ import {
     Stage5, Stage6, Stage7, Stage8, Stage9, Stage3, Stage11, Stage12, Stage13, User
 } from '../domain/operation';
 import {ManageRequestsService} from '../services/manage-requests.service';
-import {Router} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {AuthenticationService} from '../services/authentication.service';
 import {DatePipe} from '@angular/common';
 import {ManageProjectService} from '../services/manage-project.service';
@@ -53,7 +53,8 @@ export class NewRequestComponent implements OnInit {
                 private requestService: ManageRequestsService,
                 private projectService: ManageProjectService,
                 private authService: AuthenticationService,
-                private router: Router) {}
+                private router: Router,
+                private route: ActivatedRoute) {}
 
 
     ngOnInit() {
@@ -70,6 +71,9 @@ export class NewRequestComponent implements OnInit {
         this.currentUser.firstnameLatin = this.authService.getUserFirstNameInLatin();
         this.currentUser.lastnameLatin = this.authService.getUserLastNameInLatin();
         console.log('this.currentUser is: ', this.currentUser);
+        this.requestType = this.route.snapshot.paramMap.get('type');
+        this.title = this.reqTypes[this.requestType];
+        this.createForm();
     }
 
     getProjects() {
@@ -237,6 +241,13 @@ export class NewRequestComponent implements OnInit {
     showAmmount() {
         this.requestedAmmount = this.newRequestForm.get('ammount').value.trim();
         this.newRequestForm.get('ammount').updateValueAndValidity();
+    }
+
+    checkIfTrip() {
+        this.requestType = this.route.snapshot.paramMap.get('type');
+        this.title = this.reqTypes[this.requestType];
+        this.createForm();
+        return (this.requestType !== 'trip');
     }
 
 }

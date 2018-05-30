@@ -13,9 +13,20 @@
                             </a>
                         </li>
                         <li class="uk-parent" [routerLinkActive]="['uk-active']">
-                            <a [routerLink]="['new-request']">
-                                Νέο Αίτημα
-                            </a>
+                            <a href="#">Νέο Αίτημα</a>
+                            <div class="uk-navbar-dropdown">
+                                <ul class="uk-nav uk-navbar-dropdown-nav">
+                                    <li class="uk-active">
+                                        <a [routerLink]="['new-request','regular']">Πρωτογενές Αίτημα</a>
+                                    </li>
+                                    <li class="uk-active">
+                                        <a [routerLink]="['new-request','trip']">Ταξίδι</a>
+                                    </li>
+                                    <li class="uk-active">
+                                        <a [routerLink]="['new-request','contract']">Σύμβαση</a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
                         <li class="uk-parent" [routerLinkActive]="['uk-active']">
                             <a [routerLink]="['requests']">
