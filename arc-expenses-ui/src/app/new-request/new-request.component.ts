@@ -246,7 +246,6 @@ export class NewRequestComponent implements OnInit {
     checkIfTrip() {
         this.requestType = this.route.snapshot.paramMap.get('type');
         this.title = this.reqTypes[this.requestType];
-        this.createForm();
         return (this.requestType !== 'trip');
     }
 
