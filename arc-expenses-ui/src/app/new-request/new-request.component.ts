@@ -170,6 +170,7 @@ export class NewRequestComponent implements OnInit {
                 this.request.stage12 = new Stage12();
                 this.request.stage13 = new Stage13();
 
+                window.scrollTo(0, 0);
                 this.showSpinner = true;
                 this.errorMessage = '';
                 this.requestService.addRequest(this.request).subscribe (

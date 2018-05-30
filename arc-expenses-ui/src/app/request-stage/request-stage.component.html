@@ -1,5 +1,6 @@
+<div *ngIf="showSpinner" class="whiteFilm"><i class="fa fa-spinner fa-spin fa-5x loader" aria-hidden="true"></i></div>
 <div class="uk-section-default uk-section uk-section-small uk-padding-remove-bottom" style="min-height: 325px">
-  <div class="uk-container">
+  <div class="uk-container uk-container-expand">
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
       <div class="uk-width-1-1@m uk-first-column">
 
@@ -12,7 +13,7 @@
                       [ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
         </help-content>
 
-        <div class="uk-container uk-margin-medium-top uk-margin-medium-bottom">
+        <div class="uk-container uk-container-expand uk-margin-medium-top uk-margin-medium-bottom">
           <div class="uk-grid">
 
             <!-- LEFT HELP CONTENT -->
@@ -24,10 +25,10 @@
             <div class=" uk-width-expand@m">
               <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
               <div *ngIf="successMessage" class="uk-alert uk-alert-success">{{ successMessage }}</div>
-              <div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">
-                <div class="uk-overlay-default uk-position-cover"></div>
-                <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
-              </div>
+              <!--<div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">-->
+                <!--<div class="uk-overlay-default uk-position-cover"></div>-->
+                <!--<div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>-->
+              <!--</div>-->
               <div *ngIf="!showSpinner &&
                           currentRequest &&
                           currentRequest.requester &&
