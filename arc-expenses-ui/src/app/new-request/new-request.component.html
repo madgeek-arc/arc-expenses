@@ -32,7 +32,7 @@
                   <option value="contract">{{ reqTypes['contract'] }}</option>
                 </select>
               </div>-->
-              <div *ngIf="requestType">
+              <div *ngIf="requestType && (requestType.length > 0)">
                 <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
                 <div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">
                   <div class="uk-overlay-default uk-position-cover"></div>
