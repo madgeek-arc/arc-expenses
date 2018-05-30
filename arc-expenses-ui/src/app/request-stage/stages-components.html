@@ -8,21 +8,52 @@
              ({{ getDelegateName() }})
              στις {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
         </div>
-        <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
-            <app-stage-form [description]="desc">
-                <div *ngIf="desc.type === 'checkbox'">
+        <div *ngIf="stageDescription.id !== '3'">
+            <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
+                <app-stage-form [description]="desc">
+                    <div *ngIf="desc.type === 'checkbox'">
+                        <input class="uk-form-controls uk-checkbox"
+                               type="checkbox" [checked]="currentStage[ stageExtraFieldsList[controlIndex] ]" disabled>
+                    </div>
+                    <div *ngIf="desc.type === 'text'">
+                        <input value="{{currentStage[ stageExtraFieldsList[controlIndex] ]}}" disabled
+                               class="uk-form-controls uk-input" type="text">
+                    </div>
+                    <div *ngIf="desc.type === 'textarea'">
+                        <textarea value="{{currentStage[ stageExtraFieldsList[controlIndex] ]}}" disabled
+                                  class="uk-form-controls uk-textarea" rows="2"></textarea>
+                    </div>
+                </app-stage-form>
+            </div>
+        </div>
+        <div *ngIf="stageDescription.id === '3'">
+            <div class="uk-grid uk-margin-small-top">
+                <label class="uk-width-1-3">Έχει αναληφθεί η υποχρέωση;</label>
+                <div class="uk-width-expand">
                     <input class="uk-form-controls uk-checkbox"
-                           type="checkbox" [checked]="currentStage[ stageExtraFieldsList[controlIndex] ]" disabled>
+                           type="checkbox" [checked]="currentStage['analiftheiYpoxrewsi']" disabled>
                 </div>
-                <div *ngIf="desc.type === 'text'">
-                    <input value="{{currentStage[ stageExtraFieldsList[controlIndex] ]}}" disabled
-                           class="uk-form-controls uk-input" type="text">
+            </div>
+            <div class="uk-grid uk-margin-small-top">
+                <label class="uk-width-1-3">Υπάρχει διαθέσιμη πίστωση;</label>
+                <div class="uk-width-expand">
+                    <input class="uk-form-controls uk-checkbox"
+                           type="checkbox" [checked]="currentStage['fundsAvailable']" disabled>
                 </div>
-                <div *ngIf="desc.type === 'textarea'">
-                    <textarea value="{{currentStage[ stageExtraFieldsList[controlIndex] ]}}" disabled
-                              class="uk-form-controls uk-textarea" rows="2"></textarea>
+            </div>
+            <div class="uk-grid uk-margin-small-top">
+                <label class="uk-width-1-3">Έγινε δανεισμός</label>
+                <div class="uk-width-expand">
+                    <input class="uk-form-controls uk-checkbox"
+                           type="checkbox" [checked]="currentStage['loan']" disabled>
                 </div>
-            </app-stage-form>
+            </div>
+            <div class="uk-grid uk-margin-small-top">
+                <label class="uk-width-1-3">Από</label>
+                <div class="uk-width-expand">
+                    <input value="{{currentStage['loanSource']}}" disabled class="uk-form-controls uk-input" type="text">
+                </div>
+            </div>
         </div>
         <div *ngIf="currentStage['comment']">
             <span class="uk-text-bold uk-margin-small-right">Σχόλια: </span>
@@ -39,21 +70,49 @@
 
         <div *ngIf="stageFormError" class="uk-alert uk-alert-error">{{ stageFormError }}</div>
         <!--INPUTS FOR EXTRA FIELDS-->
-        <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
-            <app-stage-form [description]="desc">
-                <div *ngIf="desc.type === 'checkbox'">
-                    <input formControlName="{{stageExtraFieldsList[controlIndex]}}"
-                           class="uk-form-controls uk-checkbox" type="checkbox">
+        <div *ngIf="stageDescription.id !== '3'">
+            <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
+                <app-stage-form [description]="desc">
+                    <div *ngIf="desc.type === 'checkbox'">
+                        <input formControlName="{{stageExtraFieldsList[controlIndex]}}"
+                               class="uk-form-controls uk-checkbox" type="checkbox">
+                    </div>
+                    <div *ngIf="desc.type === 'text'">
+                        <input formControlName="{{stageExtraFieldsList[controlIndex]}}"
+                               class="uk-form-controls uk-input" type="text">
+                    </div>
+                    <div *ngIf="desc.type === 'textarea'">
+                        <textarea formControlName="{{stageExtraFieldsList[controlIndex]}}"
+                                  class="uk-form-controls uk-textarea" rows="2"></textarea>
+                    </div>
+                </app-stage-form>
+            </div>
+        </div>
+        <div *ngIf="stageDescription.id === '3'">
+            <div class="uk-grid uk-margin-small-top">
+                <label class="uk-width-1-3">Έχει αναληφθεί η υποχρέωση;</label>
+                <div class="uk-width-expand">
+                    <input class="uk-form-controls uk-checkbox" type="checkbox" formControlName="analiftheiYpoxrewsi">
                 </div>
-                <div *ngIf="desc.type === 'text'">
-                    <input formControlName="{{stageExtraFieldsList[controlIndex]}}"
-                           class="uk-form-controls uk-input" type="text">
+            </div>
+            <div class="uk-grid uk-margin-small-top">
+                <label class="uk-width-1-3">Υπάρχει διαθέσιμη πίστωση;</label>
+                <div class="uk-width-expand">
+                    <input class="uk-form-controls uk-checkbox" type="checkbox" formControlName="fundsAvailable">
                 </div>
-                <div *ngIf="desc.type === 'textarea'">
-                    <textarea formControlName="{{stageExtraFieldsList[controlIndex]}}"
-                              class="uk-form-controls uk-textarea" rows="2"></textarea>
+            </div>
+            <div class="uk-grid uk-margin-small-top">
+                <label class="uk-width-1-3">Έγινε δανεισμός</label>
+                <div class="uk-width-expand">
+                    <input class="uk-form-controls uk-checkbox" type="checkbox" formControlName="loan">
                 </div>
-            </app-stage-form>
+            </div>
+            <div class="uk-grid uk-margin-small-top">
+                <label class="uk-width-1-3">Από</label>
+                <div class="uk-width-expand">
+                    <input formControlName="loanSource" class="uk-form-controls uk-input" type="text">
+                </div>
+            </div>
         </div>
 
         <!-- COMMENT FIELD -->

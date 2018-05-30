@@ -67,8 +67,8 @@ export class StageComponent implements OnInit {
     currentPOI: POI;
     stageDescription: StageDescription;  /*contains the name of the delegate field and the list of the extra fields descriptions*/
     stageExtraFieldsList: string[] = []; /*contains the names of the extra fields inside the current stage class*/
-                                         /*they will be used as formControlNames and also as a way
-                                           to access the corresponding properties of the Stage object*/
+    /*they will be used as formControlNames and also as a way
+      to access the corresponding properties of the Stage object*/
 
     commentFieldDesc: StageFieldDescription = commentDesc; /*a description for the comments field*/
 
@@ -86,8 +86,8 @@ export class StageComponent implements OnInit {
     checkIfSubmitted() {
         console.log(`hasReturned is ${this.hasReturnedToPrevious}`);
         this.wasSubmitted = ( (!isNullOrUndefined(this.currentStage) &&
-                              !isNullOrUndefined(this.currentStage.date)) &&
-                              (this.hasReturnedToPrevious !== 1) );
+            !isNullOrUndefined(this.currentStage.date)) &&
+            (this.hasReturnedToPrevious !== 1) );
         if ( !this.wasSubmitted && (this.hasReturnedToPrevious !== 2) && ( this.authService.getUserRole() !== 'ROLE_USER' )) {
             if (!this.showStage) {
                 this.wasSubmitted = true;
@@ -107,8 +107,8 @@ export class StageComponent implements OnInit {
                 this.wasApproved = 'Επεστράφη στο προηγούμενο στάδιο';
             } else {
                 if ( this.currentStage['approved'] ||
-                     ( this.stageDescription &&
-                      ( this.stageDescription.id === '6' || this.stageDescription.id === '11' ) ) ) {
+                    ( this.stageDescription &&
+                        ( this.stageDescription.id === '6' || this.stageDescription.id === '11' ) ) ) {
 
                     this.wasApproved = 'Εγκρίθηκε';
                 } else {
@@ -160,11 +160,12 @@ export class StageComponent implements OnInit {
     approveRequest( approved: boolean ) {
         this.currentStage['approved'] = approved;
         if (approved) {
-             if (this.areAllCheckBoxesTrue() ) {
-                 this.submitForm();
-             } else {
-                 this.stageFormError = 'Πρέπει να έχουν γίνει όλοι οι έλεγχοι για να προχωρήσει το αίτημα.';
-             }
+            if (this.areAllCheckBoxesTrue()) {
+
+                this.submitForm();
+            } else {
+                this.stageFormError = 'Πρέπει να έχουν γίνει όλοι οι έλεγχοι για να προχωρήσει το αίτημα.';
+            }
         } else {
             /*this.nextStageId = this.stageDescription.id;*/
             this.submitForm();
@@ -221,14 +222,19 @@ export class StageComponent implements OnInit {
     submitForm() {
         this.stageFormError = '';
         if (this.stageForm && this.stageForm.valid && this.delegateCanEdit() ) {
-        /*if (this.stageForm && this.stageForm.valid ) {*/
+            /*if (this.stageForm && this.stageForm.valid ) {*/
             if ( (this.stageDescription.id === '6' ||
-                  this.stageDescription.id === '11' ||
-                  (this.stageDescription.id === '7' &&
-                   this.currentStage['approved']) ) &&
+                    this.stageDescription.id === '11' ||
+                    (this.stageDescription.id === '7' &&
+                        this.currentStage['approved']) ) &&
                 !this.uploadedFile ) {
 
                 this.stageFormError = 'Η επισύναψη εγγράφων είναι υποχρεωτική.';
+            } else if ( (this.stageDescription.id === '3') &&
+                ( (!this.stageForm.get('analiftheiYpoxrewsi').value) ||
+                    ( !this.stageForm.get('fundsAvailable').value) ) ) {
+                this.stageFormError = 'Πρέπει να έχουν γίνει όλοι οι έλεγχοι για να προχωρήσει το αίτημα.';
+
             } else {
                 /* NOT USED ANYMORE - RESTORE IF STAGE 5 IS RESTORED */
                 /*if (!this.nextStageId) {
@@ -252,6 +258,12 @@ export class StageComponent implements OnInit {
                 if (this.uploadedFile) {
                     this.currentStage['attachment'] = this.createAttachment();
                 }
+                if (this.stageDescription.id === '3') {
+                    this.currentStage['analiftheiYpoxrewsi'] =  this.stageForm.get('analiftheiYpoxrewsi').value;
+                    this.currentStage['fundsAvailable'] = this.stageForm.get('fundsAvailable').value;
+                    this.currentStage['loan'] = this.stageForm.get('loan').value;
+                    this.currentStage['loanSource'] = this.stageForm.get('loanSource').value;
+                }
 
                 console.log(this.currentStage);
                 this.checkIfSubmitted();
@@ -265,8 +277,8 @@ export class StageComponent implements OnInit {
 
     delegateCanEdit() {
         return ( (this.authService.getUserRole() === 'ROLE_ADMIN') ||
-                 (this.currentPOI.email === this.authService.getUserEmail()) ||
-                 this.currentPOI.delegates.some(x => x.email === this.authService.getUserEmail()) );
+            (this.currentPOI.email === this.authService.getUserEmail()) ||
+            this.currentPOI.delegates.some(x => x.email === this.authService.getUserEmail()) );
     }
 
     createUser(): User {
@@ -321,8 +333,7 @@ export class StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage2-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage2Component extends StageComponent implements OnInit {
 
@@ -340,8 +351,7 @@ export class Stage2Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage3-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage3Component extends StageComponent implements OnInit {
 
@@ -350,15 +360,29 @@ export class Stage3Component extends StageComponent implements OnInit {
         this.stageDescription = Stage3Desc;
         this.currentPOI = this.findCurrentPOI(this.currentProject.operator);
         super.ngOnInit();
-        this.stageExtraFieldsList = ['analiftheiYpoxrewsi', 'fundsAvailable', 'loan', 'loanSource'];
-        this.createExtraFields();
+
+        if (this.stageForm) {
+            this.stageForm.addControl('analiftheiYpoxrewsi', new FormControl());
+            this.stageForm.addControl('fundsAvailable', new FormControl());
+            this.stageForm.addControl('loan', new FormControl());
+            this.stageForm.addControl('loanSource', new FormControl());
+
+            if (!isNullOrUndefined(this.currentStage) &&
+                !isNullOrUndefined(this.currentStage.date)) {
+
+                this.stageForm.get('analiftheiYpoxrewsi').setValue(this.currentStage['analiftheiYpoxrewsi']);
+                this.stageForm.get('fundsAvailable').setValue(this.currentStage['fundsAvailable']);
+                this.stageForm.get('loan').setValue(this.currentStage['loan']);
+                this.stageForm.get('loanSource').setValue(this.currentStage['loanSource']);
+            }
+
+        }
     }
 }
 
 @Component ({
     selector: 'stage4-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage4Component extends StageComponent implements OnInit {
 
@@ -375,8 +399,7 @@ export class Stage4Component extends StageComponent implements OnInit {
 /* NOT USED ANYMORE  -- MAYBE WE'LL RESTORE IT AT SOME POINT */
 @Component ({
     selector: 'stage5-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage5Component extends StageComponent implements OnInit {
     @Input() willShowButtonTo5a: boolean;
@@ -393,8 +416,7 @@ export class Stage5Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage5a-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage5aComponent extends StageComponent implements OnInit {
 
@@ -408,8 +430,7 @@ export class Stage5aComponent extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage5b-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage5bComponent extends StageComponent implements OnInit {
 
@@ -423,8 +444,7 @@ export class Stage5bComponent extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage6-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage6Component extends StageComponent implements OnInit {
 
@@ -439,8 +459,7 @@ export class Stage6Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage7-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage7Component extends StageComponent implements OnInit {
 
@@ -454,8 +473,7 @@ export class Stage7Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage8-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage8Component extends StageComponent implements OnInit {
 
@@ -471,8 +489,7 @@ export class Stage8Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage9-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage9Component extends StageComponent implements OnInit {
 
@@ -488,8 +505,7 @@ export class Stage9Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage10-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage10Component extends StageComponent implements OnInit {
 
@@ -503,8 +519,7 @@ export class Stage10Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage11-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage11Component extends StageComponent implements OnInit {
 
@@ -518,8 +533,7 @@ export class Stage11Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage12-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage12Component extends StageComponent implements OnInit {
 
@@ -534,8 +548,7 @@ export class Stage12Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage13-component',
-    templateUrl: './stages-components.html',
-    styleUrls: ['./stages-components.scss']
+    templateUrl: './stages-components.html'
 })
 export class Stage13Component extends StageComponent implements OnInit {
 
