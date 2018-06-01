@@ -19,8 +19,8 @@ export class RequestStageComponent implements OnInit {
   requestId: string;
   currentRequest: Request;
   canEdit: boolean = false;
-  goBackOneStage: boolean;
-  stages = ['2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
+  wentBackOneStage: boolean;
+  stages = ['1', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
   stateNames = { pending: 'βρίσκεται σε εξέλιξη', rejected: 'έχει απορριφθεί', accepted: 'έχει ολοκληρωθεί'};
   reqTypes = { regular: 'Πρωτογενές Αίτημα', trip: 'Ταξίδι', contract: 'Σύμβαση' };
 
@@ -73,7 +73,7 @@ export class RequestStageComponent implements OnInit {
   }
 
   getRequestToGoBack(event: any) {
-      this.goBackOneStage = true;
+      this.wentBackOneStage = true;
   }
 
   getNextStage(stage: string) {
@@ -90,14 +90,13 @@ export class RequestStageComponent implements OnInit {
               return '6';
           } else {
               return (+stage + 1).toString();
-        }
+          }
       }
       /*console.log('next stage is', newStage);*/
       return this.currentRequest.stage;
   }
 
   getPreviousStage(stage: string) {
-      if ( stage !== '2' ) {
         if (stage === '5a') {
             return '4';
         } else if (stage === '5b') {
@@ -111,9 +110,6 @@ export class RequestStageComponent implements OnInit {
         } else {
             return (+stage - 1).toString();
         }
-      }
-      /*console.log('previous stage is', newStage);*/
-      return this.currentRequest.stage;
   }
 
   getSubmittedStage(newStage: any) {
@@ -127,17 +123,17 @@ export class RequestStageComponent implements OnInit {
           } else {
               this.currentRequest.status = 'pending';
           }
-      } else if (this.currentRequest.stage === '6' || this.currentRequest.stage === '11' || (this.goBackOneStage === true) ) {
+      } else if (this.currentRequest.stage === '6' || this.currentRequest.stage === '11' || (this.wentBackOneStage === true) ) {
           this.currentRequest.status = 'pending';
       } else {
           this.currentRequest.status = 'rejected';
       }
-      if (this.goBackOneStage === true) {
+      if (this.wentBackOneStage === true) {
           this.currentRequest.stage = this.getPreviousStage(this.currentRequest.stage);
       } else {
           this.currentRequest.stage = this.getNextStage(this.currentRequest.stage);
       }
-      this.goBackOneStage = false;
+      this.wentBackOneStage = false;
       console.log('submitted status:', this.currentRequest.status);
       this.submitRequest();
   }
@@ -163,9 +159,9 @@ export class RequestStageComponent implements OnInit {
       );
   }
 
-  willShowStage (stageField: string) {
+  willShowStage (stage: string) {
       if (!this.isSimpleUser) {
-          if ((stageField === this.currentRequest.stage)) {
+          if ((stage === this.currentRequest.stage)) {
               if ( this.authService.getUserRole() === 'ROLE_ADMIN' ) {
                   return true;
               } else {
@@ -173,8 +169,8 @@ export class RequestStageComponent implements OnInit {
               }
           } else {
               /*console.log('BOOM!');*/
-              return (!isNullOrUndefined(this.currentRequest[`stage${stageField}`]) &&
-                      !isNullOrUndefined(this.currentRequest[`stage${stageField}`].date) );
+              return (!isNullOrUndefined(this.currentRequest[`stage${stage}`]) &&
+                      !isNullOrUndefined(this.currentRequest[`stage${stage}`].date) );
           }
       } else {
           return false;
@@ -182,35 +178,30 @@ export class RequestStageComponent implements OnInit {
   }
 
   checkIfHasReturnedToPrevious(stage: string) {
-      if ( (this.currentRequest.stage === stage) ) {
-          /*if (stage === '13' || stage === '2' ||
-              ( (this.currentRequest.status === 'rejected') ||
-                  (this.currentRequest.status === 'accepted') ) ) {
 
-              return 0;
-          } else {
-              const nextStage = this.getNextStage(stage);
-              const stageField = `stage${nextStage}`;
-              console.log(`nextStage is ${stageField} and this is its date: ${this.currentRequest[stageField].date}`);
-              if (!(isNullOrUndefined(this.currentRequest[stageField])) &&
-                  !(isNullOrUndefined(this.currentRequest[stageField].date)) ) {
-                  console.log('sending 1');
-                  return 1;
-              } else {
-                  return 0;
-              }
-          }*/
+      /* if stage is the pending stage */
+      if ( (this.currentRequest.stage === stage) ) {
+
+          /* if the request has been finalized return 0 */
           if ( ( (this.currentRequest.status === 'rejected') ||
                   (this.currentRequest.status === 'accepted') ) ) {
               return 0;
+
+          /* else return 1 */
           } else {
               return 1;
           }
       } else {
+
+          /* iterate the stages */
           for ( const st of this.stages ) {
+
+              /* if stage is before the pending stage return 0 */
               if ( st === stage ) {
                   return 0;
               }
+
+              /* if stage is after the pending stage return 2 */
               if ( st === this.currentRequest.stage ) {
                   return 2;
               }
@@ -218,13 +209,10 @@ export class RequestStageComponent implements OnInit {
       }
   }
 
-
-    linkToFile() {
-        if (this.currentRequest.stage1.attachment && this.currentRequest.stage1.attachment.url ) {
-            window.open(this.currentRequest.stage1.attachment.url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
-        }
-    }
-
-
+  linkToFile() {
+      if (this.currentRequest.stage1.attachment && this.currentRequest.stage1.attachment.url ) {
+          window.open(this.currentRequest.stage1.attachment.url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
+      }
+  }
 
 }

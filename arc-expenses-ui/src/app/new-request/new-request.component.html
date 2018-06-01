@@ -24,15 +24,6 @@
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
-              <!--<div *ngIf="!requestType">
-                <label>Επιλέξτε τύπο αιτήματος:</label>
-                <select (change)="onChooseRequestType($event)">
-                  <option value="">&#45;&#45;&#45;&#45;</option>
-                  <option value="regular">{{ reqTypes['regular'] }}</option>
-                  <option value="trip">{{ reqTypes['trip'] }}</option>
-                  <option value="contract">{{ reqTypes['contract'] }}</option>
-                </select>
-              </div>-->
               <div *ngIf="requestType && (requestType.length > 0)">
                 <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
                 <!--<div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">-->
@@ -50,10 +41,6 @@
                             <input class="uk-input" type="text" placeholder="Oνοματεπώνυμο" id="request-name"
                                    formControlName="name">
                           </div>
-                          <!--<div class="uk-width-1-2@s">
-                            <input class="uk-input" type="text" placeholder="θέση στον φορέα" id="request-position"
-                                   formControlName="position">
-                          </div>-->
                           <div class="uk-width-1-2@s">
                             <select class="uk-select" id="request-position" formControlName="position">
                               <option value="">-- επιλέξτε θέση στον φορέα --</option>
@@ -67,12 +54,6 @@
                     </div>
                     <div class="uk-margin">
                       <label class="uk-form-label" for="request-program">Επιλέξτε έργο <span>(*)</span></label>
-                        <!--<div class="uk-form-controls">
-                            <select class="uk-select" id="request-program" (change)="show($event)" formControlName="program" #prog>
-                                <option value="">&#45;&#45; επιλέξτε έργο &#45;&#45;</option>
-                                <option *ngFor="let project of projects" value="{{project}}">{{project}}</option>
-                            </select>
-                        </div>-->
                       <div class="uk-form-controls">
                         <input class="uk-input" type="text" id="request-program"
                                (keyup)="updateSearchTerm($event)"
@@ -139,12 +120,12 @@
                       </div>
                     </div>
                     <div class="uk-margin">
-                      <label class="uk-form-label" for="request-ammount">Ποσό (σε EUR) <span>(*)</span></label>
+                      <label class="uk-form-label" for="request-amount">Ποσό (σε EUR) <span>(*)</span></label>
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">
                           <div class="uk-width-small">
-                            <input class="uk-input" type="text" id="request-ammount"
-                                   formControlName="ammount" placeholder="0" (keyup)="showAmmount()" (focus)="newRequestForm.get('ammount').markAsUntouched()">
+                            <input class="uk-input" type="text" id="request-amount"
+                                   formControlName="amount" placeholder="0" (keyup)="showAmount()" (focus)="newRequestForm.get('amount').markAsUntouched()">
                             <!--<span *ngIf="group.get('lissn').invalid && group.get('lissn').touched && group.get('lissn').dirty"
                                   class="help-block inline uk-text-danger"
                                   style="margin-top: 0px; margin-bottom: 0px; padding-left: 10px;">Lissn needs to be of the form: "1111-1111"</span>
@@ -153,13 +134,13 @@
                           <div class="uk-comment-body uk-text-small uk-text-muted">
                             <i>Ο δεκαδικός αριθμός θα πρέπει να είναι της μορφής: <b>1111.11</b></i>
                           </div>
-                          <div *ngIf="newRequestForm.get('ammount').invalid && newRequestForm.get('ammount').touched && newRequestForm.get('ammount').dirty"
+                          <div *ngIf="newRequestForm.get('amount').invalid && newRequestForm.get('amount').touched && newRequestForm.get('amount').dirty"
                                class="uk-comment-body uk-text-small uk-text-danger">
                             Ο αριθμός δεν είναι έγκυρος.
                           </div>
-                          <div *ngIf="requestedAmmount"
+                          <div *ngIf="requestedAmount"
                                class="uk-comment-body uk-text-small uk-text-muted">
-                            Το ποσό είναι: {{ requestedAmmount | currency: 'EUR': 'symbol-narrow' }}
+                            Το ποσό είναι: {{ requestedAmount | currency: 'EUR': 'symbol-narrow' }}
                           </div>
                         </div>
                       </div>
@@ -209,156 +190,3 @@
     </div>
   </div>
 </div>
-
-<!--&lt;!&ndash;<div class="uk-section uk-section-default">&ndash;&gt;-->
-  <!--<div class="uk-container-expand" style="margin-top: 20px">-->
-    <!--<div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid>-->
-        <!--<div class="uk-width-1-1@m uk-first-column">-->
-          <!--&lt;!&ndash;<h1 class="uk-h3 uk-heading-bullet">Πρωτογενές Αίτημα & Έγκριση Δαπάνης</h1>&ndash;&gt;-->
-
-          <!--{{newRequestForm.value | json }} <br>-->
-          <!--{{newRequestForm.status }}-->
-          <!--<div class="uk-container uk-container-expand uk-margin-medium-bottom uk-margin-medium-top">-->
-            <!--<h1 class="uk-h3 uk-heading-bullet">Πρωτογενές Αίτημα & Έγκριση Δαπάνης</h1>-->
-
-            <!--<div class="uk-grid">-->
-              <!--&lt;!&ndash; MIDDLE &ndash;&gt;-->
-              <!--<div class=" uk-width-expand@m">-->
-
-                <!--<form [formGroup]="newRequestForm" class="uk-form-horizontal uk-margin-large">-->
-                  <!--<fieldset data-uk-margin>-->
-                    <!--<legend>Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>-->
-                    <!--<div class="uk-margin">-->
-                      <!--<label class="uk-form-label" for="request-name">Από</label>-->
-                      <!--<div class="uk-form-controls">-->
-                        <!--<div class="uk-grid uk-width-1-1">-->
-                          <!--<div class="uk-width-1-2@s">-->
-                            <!--<input class="uk-input" type="text" placeholder="Oνοματεπώνυμο" id="request-name" required-->
-                                   <!--formControlName="name" #spy2>-->
-                            <!--<br>TODO: remove this: {{spy2.className}}-->
-                          <!--</div>-->
-                          <!--<div class="uk-width-1-2@s">-->
-                            <!--<input class="uk-input" type="text" placeholder="θέση στον φορέα" id="request-position" required-->
-                                   <!--formControlName="position">-->
-                          <!--</div>-->
-                        <!--</div>-->
-                      <!--</div>-->
-                    <!--</div>-->
-                    <!--<div class="uk-margin">-->
-                      <!--<label class="uk-form-label" for="request-program">Επιλέξτε το πρόγραμμα</label>-->
-                      <!--<div class="uk-form-controls">-->
-                        <!--<select class="uk-select" id="request-program" (change)="show($event)" formControlName="program" #prog>-->
-                          <!--<option *ngFor="let program of programs" [value]="program">{{program}}</option>-->
-                        <!--</select>-->
-                      <!--</div>-->
-                    <!--</div>-->
-                    <!--&lt;!&ndash;<ng-container *ngIf="prog.value!=''">&ndash;&gt;-->
-                    <!--<ng-container *ngIf="programSelected">-->
-                      <!--<div class="uk-margin">-->
-                        <!--<label class="uk-form-label" for="request-institute">Ινστιτούτο / Μονάδα</label>-->
-                        <!--<div class="uk-form-controls">-->
-                          <!--<select class="uk-select" id="request-institute" formControlName="institute">-->
-                            <!--<option *ngFor="let institute of institutes" [value]="institute">{{institute}}</option>-->
-                          <!--</select>-->
-                        <!--</div>-->
-                      <!--</div>-->
-                      <!--<div class="uk-margin">-->
-                        <!--<label class="uk-form-label" for="request-to">Προς</label>-->
-                        <!--<div class="uk-form-controls">-->
-                          <!--<div class="uk-grid uk-width-1-1">-->
-                            <!--<div class="uk-width-1-2@s">-->
-                              <!--<input class="uk-input uk-disabled" type="text" id="request-to"-->
-                                     <!--formControlName="director">-->
-                            <!--</div>-->
-                          <!--</div>-->
-                        <!--</div>-->
-                      <!--</div>-->
-                      <!--<div class="uk-margin">-->
-                        <!--<label class="uk-form-label" for="request-text">Θέμα</label>-->
-                        <!--<div class="uk-form-controls">-->
-                          <!--<div class="uk-width-1-1">-->
-                            <!--<div class="uk-width-1-1@s">-->
-                              <!--<textarea class="uk-form-help-block uk-text-small uk-width-1-1 uk-height-small" id="request-text" required-->
-                                        <!--formControlName="requestText"></textarea>-->
-                            <!--</div>-->
-                          <!--</div>-->
-                        <!--</div>-->
-                      <!--</div>-->
-                      <!--<div class="uk-margin">-->
-                        <!--<label class="uk-form-label" for="request-supplier">Προμηθευτής</label>-->
-                        <!--<div class="uk-form-controls">-->
-                          <!--<div class="uk-width-1-1">-->
-                            <!--<div class="uk-width-1-2@s">-->
-                              <!--<input class="uk-input" type="text" placeholder="" id="request-supplier" required-->
-                                     <!--formControlName="supplier">-->
-                            <!--</div>-->
-                          <!--</div>-->
-                        <!--</div>-->
-                      <!--</div>-->
-                      <!--<div class="uk-margin">-->
-                        <!--<label class="uk-form-label" for="request-ssm">Τρόπος επιλογής προμηθευτή</label>-->
-                        <!--<div class="uk-form-controls">-->
-                          <!--<select class="uk-select" id="request-ssm" formControlName="supplierSelectionMethod" name="ssm">-->
-                            <!--<option *ngFor="let sel of selMethods" [value]="sel">{{sel}}</option>-->
-                          <!--</select>-->
-                        <!--</div>-->
-                      <!--</div>-->
-                      <!--<div class="uk-margin">-->
-                        <!--<label class="uk-form-label" for="request-ammount">Ποσό (σε EUR)</label>-->
-                        <!--<div class="uk-form-controls">-->
-                          <!--<div class="uk-width-1-1">-->
-                            <!--<div class="uk-width-1-2@s">-->
-                              <!--<input class="uk-input" type="text" id="request-ammount" required-->
-                                     <!--formControlName="ammount" #spy>-->
-                              <!--<br>TODO: remove this: {{spy.className}}-->
-                            <!--</div>-->
-                          <!--</div>-->
-                        <!--</div>-->
-                      <!--</div>-->
-
-                      <!--<div class="uk-margin">-->
-                        <!--<div class="uk-form-label">Επισύναψη αρχείου</div>-->
-                        <!--<div class="uk-form-controls uk-form-controls-text">-->
-
-                        <!--</div>-->
-                      <!--</div>-->
-
-                      <!--<div class="uk-margin-large-top">-->
-                        <!--<div class="uk-form-controls">-->
-                          <!--<div class="uk-width-1-1">-->
-                            <!--<div class="uk-width-1-2@s uk-align-left">-->
-
-                              <!--<button class="uk-button" (click)="submitRequest()" type="submit" style="width: 200px">Υποβολή</button>-->
-
-                            <!--</div>-->
-                          <!--</div>-->
-                        <!--</div>-->
-                      <!--</div>-->
-                    <!--</ng-container>-->
-                    <!--{{request | json}}-->
-                  <!--</fieldset>-->
-
-                <!--</form>-->
-              <!--</div>-->
-              <!--<div class="tm-sidebar uk-width-1-4@m helpBox">-->
-                <!--<div class="uk-card uk-card-body uk-card-secondary sidemenu">-->
-                  <!--<h3>Πληροφορίες / Βοήθεια</h3>-->
-                  <!--<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse neque enim,-->
-                    <!--blandit commodo aliquet id, varius ac lorem. Morbi pretium mauris at magna euismod,-->
-                    <!--eu malesuada nisi lobortis. Nunc faucibus leo pulvinar ipsum venenatis mattis. Pellentesque-->
-                    <!--placerat feugiat maximus. In at ornare leo, vitae gravida mi. Curabitur quis mi-->
-                    <!--tincidunt, molestie neque non, ullamcorper elit. Etiam a justo vitae arcu commodo pharetra.-->
-                    <!--Nulla quis dolor tellus. Proin massa nibh, euismod et fringilla vitae, finibus nec sapien.-->
-                    <!--Donec sit amet dignissim mi. Proin quis suscipit arcu. Nunc laoreet elit orci, sed eleifend-->
-                    <!--orci finibus at. Nam vulputate, sem ac efficitur scelerisque, dolor odio accumsan turpis,-->
-                    <!--vel gravida dolor ex vel augue. Donec eu libero aliquet, aliquet turpis eu, molestie dui.-->
-                    <!--Fusce varius tellus varius scelerisque molestie. Nullam efficitur tortor at ligula-->
-                    <!--bibendum dapibus.</p>-->
-                <!--</div>-->
-              <!--</div>-->
-            <!--</div>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--</div>-->
-  <!--</div>-->
-<!--&lt;!&ndash;</div>&ndash;&gt;-->

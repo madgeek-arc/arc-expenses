@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { StageFieldDescription } from '../../domain/stageDescriptions';
 import { Delegate } from '../../domain/operation';
+import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'app-stage-form',
@@ -41,7 +42,7 @@ export class StageFormComponent implements OnChanges {
         <input type="file" name="selectedFile" (change)="getInput($event)">
         <span class="uk-link">Επισυνάψτε το αρχείο σας ρίχνοντάς το εδώ ή πατώντας εδώ</span>
         <div><span class="uk-text-bold">Επιλεγμένο αρχείο: </span>
-            {{uploadedFile ? uploadedFile.name : "επιλέξτε αρχείο"}}
+            {{uploadedFilename}}
         </div>
     </div>
 </div>
@@ -51,23 +52,31 @@ export class StageFormUploadFileComponent implements OnInit {
 
   uploadedFile: File;
 
+  @Input() uploadedFilename: string = '';
+
   @Output() emitFile: EventEmitter<File> = new EventEmitter<File>();
 
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (isNullOrUndefined(this.uploadedFilename) || this.uploadedFilename.length === 0) {
+      this.uploadedFilename = 'επιλέξτε αρχείο';
+    }
+  }
 
   getDroppedFile(event: any) {
     event.preventDefault();
     console.log(event.dataTransfer.files[0]);
     /*run script to upload file*/
     this.uploadedFile = <File>event.dataTransfer.files[0];
+    this.uploadedFilename = this.uploadedFile.name;
     console.log('this.droppedFile is : ', this.uploadedFile);
     this.emitFile.emit(this.uploadedFile);
   }
 
   getInput(event: any) {
     this.uploadedFile = event.target.files[0];
+    this.uploadedFilename = this.uploadedFile.name;
     console.log('this.uploadedFile is : ', this.uploadedFile);
     this.emitFile.emit(this.uploadedFile);
   }

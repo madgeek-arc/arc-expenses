@@ -63,6 +63,22 @@ export class ManageRequestsService {
         );
     }
 
+    /*uploadResourceZip<T>(file : File, corpus : Blob, resourceType : string) : Observable<HttpEvent<T>> {
+
+        let formBody : FormData = new FormData();
+        formBody.append(resourceType,corpus);
+        formBody.append('file',file,file.name);
+        const req = new HttpRequest('POST', this._resourcesUrl + `${resourceType}/zipUpload`, formBody,{
+            reportProgress: true,
+            withCredentials: true
+        });
+        return this.httpClient.request(req).catch(this.handleError);
+
+        // return this.http.post(this._resourcesUrl + 'corpus/zipUpload',formBody,options)
+        //     .map(res => res.json() as T)
+        //     .catch(this.handleError);
+    }*/
+
     searchAllRequests(searchField: string, status: string, stage: string, from: string, quantity: string,
                       order: string, orderField: string, email: string): Observable<Paging<Request>> {
         let url = `${this.apiUrl}getAll?from=${from}&quantity=${quantity}&status=${status}&stage=${stage}`;

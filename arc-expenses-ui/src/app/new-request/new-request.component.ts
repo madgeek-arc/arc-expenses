@@ -32,7 +32,7 @@ export class NewRequestComponent implements OnInit {
 
     uploadedFile: File;
 
-    requestedAmmount: string;
+    requestedAmount: string;
     searchTerm: string = '';
 
     request: Request;
@@ -110,7 +110,7 @@ export class NewRequestComponent implements OnInit {
             requestText: ['', Validators.required],
             supplier: [''],
             supplierSelectionMethod: [''],
-            ammount: ['', [Validators.required, Validators.min(0), Validators.pattern('^\\d+(\\.\\d{1,2})?$')] ],
+            amount: ['', [Validators.required, Validators.min(0), Validators.pattern(/^\\d+(\\.\\d{1,2})?$/)] ],
             director: ['']
         });
         this.newRequestForm.get('name').setValue(`${this.currentUser.firstname} ${this.currentUser.lastname}`);
@@ -122,7 +122,7 @@ export class NewRequestComponent implements OnInit {
     submitRequest() {
         console.log(this.newRequestForm);
         if (this.newRequestForm.valid ) {
-            if ( (+this.newRequestForm.get('ammount').value > 2500) && isUndefined(this.uploadedFile) ) {
+            if ( (+this.newRequestForm.get('amount').value > 2500) && isUndefined(this.uploadedFile) ) {
                 UIkit.modal.alert('Για αιτήματα άνω των 2.500 € η επισύναψη εγγράφων είναι υποχρεωτική.');
             } else if ( ( this.requestType !== 'trip' ) &&
                         !this.newRequestForm.get('supplier').value &&
@@ -145,7 +145,7 @@ export class NewRequestComponent implements OnInit {
                 this.request.stage1.subject = this.newRequestForm.get('requestText').value;
                 this.request.stage1.supplier = this.newRequestForm.get('supplier').value;
                 this.request.stage1.supplierSelectionMethod = this.newRequestForm.get('supplierSelectionMethod').value;
-                this.request.stage1.amountInEuros = +this.newRequestForm.get('ammount').value;
+                this.request.stage1.amountInEuros = +this.newRequestForm.get('amount').value;
                 if (this.uploadedFile) {
                     this.request.stage1.attachment = new Attachment();
                     this.request.stage1.attachment.filename = this.uploadedFile.name;
@@ -158,9 +158,12 @@ export class NewRequestComponent implements OnInit {
                 this.request.stage2 = new Stage2();
                 this.request.stage3 = new Stage3();
                 this.request.stage4 = new Stage4();
-                this.request.stage5 = new Stage5();
+                // this.request.stage5 = new Stage5();
                 this.request.stage5a = new Stage5a();
-                this.request.stage5b = new Stage5b();
+
+                if ( this.request.stage1.amountInEuros > 20000 ) {
+                    this.request.stage5b = new Stage5b();
+                }
                 this.request.stage6 = new Stage6();
                 this.request.stage7 = new Stage7();
                 this.request.stage8 = new Stage8();
@@ -239,9 +242,9 @@ export class NewRequestComponent implements OnInit {
         this.uploadedFile = file;
     }
 
-    showAmmount() {
-        this.requestedAmmount = this.newRequestForm.get('ammount').value.trim();
-        this.newRequestForm.get('ammount').updateValueAndValidity();
+    showAmount() {
+        this.requestedAmount = this.newRequestForm.get('amount').value.trim();
+        this.newRequestForm.get('amount').updateValueAndValidity();
     }
 
     checkIfTrip() {

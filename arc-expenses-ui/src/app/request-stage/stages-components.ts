@@ -1,17 +1,15 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
-import {Attachment, User, POI, Project} from '../domain/operation';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Attachment, User, POI, Project } from '../domain/operation';
 import {
     commentDesc, Stage10Desc, Stage2Desc, Stage5aDesc, Stage5bDesc, Stage3Desc, Stage4Desc, Stage5Desc, Stage6Desc,
     Stage7Desc, Stage8Desc, Stage9Desc, StageDescription, StageFieldDescription, Stage12Desc, stagesMap, Stage11Desc,
     Stage13Desc
 } from '../domain/stageDescriptions';
-import {DatePipe} from '@angular/common';
-import {AuthenticationService} from '../services/authentication.service';
-import {Router} from '@angular/router';
+import { DatePipe } from '@angular/common';
+import { AuthenticationService } from '../services/authentication.service';
+import { Router } from '@angular/router';
 import { isNullOrUndefined, isUndefined } from 'util';
-
-declare const UIkit: any;
 
 @Component ({
     selector: 'stage-component',
@@ -27,13 +25,6 @@ export class StageComponent implements OnInit {
     /* output variable that sends back to the parent an alert that the user
      * chose to go back to the previous stage */
     @Output() emitGoBack: EventEmitter<any> = new EventEmitter<any>();
-
-    /* OUT OF USE */
-    /* sends the next stage id back to the parent component*/
-    /*@Output() emitNextStage: EventEmitter<string> = new EventEmitter<string>();*/
-
-    /*nextStageId: string;*/ /* will hold the id of the next stage */
-    /*nextStageDelegate: string;*/ /* in stage5 verbal expression of the user's choice for the next step */
 
     /* input variable that controls if the current stage template should be displayed */
     @Input() showStage: boolean;
@@ -56,25 +47,20 @@ export class StageComponent implements OnInit {
     stageForm: FormGroup;
     stageTitle: string;
 
-    /*additional form controls will be added dynamically according to the stage*/
-    stageFormDefinition = {
-        comment: ''
-    };
+    stageFormDefinition; /*will contain the form schema*/
     uploadedFile: File;
+    uploadedFilename: string = ''; /*a filename to send to the attachment wrapper*/
 
     @Input() currentStage: any;
     @Input() currentProject: Project;
     currentPOI: POI;
     stageDescription: StageDescription;  /*contains the name of the delegate field and the list of the extra fields descriptions*/
-    stageExtraFieldsList: string[] = []; /*contains the names of the extra fields inside the current stage class*/
-    /*they will be used as formControlNames and also as a way
-      to access the corresponding properties of the Stage object*/
 
     commentFieldDesc: StageFieldDescription = commentDesc; /*a description for the comments field*/
 
     datePipe = new DatePipe('el');
 
-    constructor(private fb: FormBuilder, private authService: AuthenticationService, private router: Router) {}
+    constructor(private fb: FormBuilder, private authService: AuthenticationService) {}
 
     ngOnInit() {
         /*console.log(`showStage ${this.stageDescription.id} is ${this.showStage}`);*/
@@ -84,7 +70,7 @@ export class StageComponent implements OnInit {
     }
 
     checkIfSubmitted() {
-        console.log(`hasReturned is ${this.hasReturnedToPrevious}`);
+        /*console.log(`hasReturned is ${this.hasReturnedToPrevious}`);*//*console.log(`hasReturned is ${this.hasReturnedToPrevious}`);*/
         this.wasSubmitted = ( (!isNullOrUndefined(this.currentStage) &&
             !isNullOrUndefined(this.currentStage.date)) &&
             (this.hasReturnedToPrevious !== 1) );
@@ -92,10 +78,20 @@ export class StageComponent implements OnInit {
             if (!this.showStage) {
                 this.wasSubmitted = true;
             } else {
-                this.stageForm = this.fb.group(this.stageFormDefinition);
-                if ( !isNullOrUndefined(this.currentStage['comment']) ) {
-                    this.stageForm.get('comment').setValue(this.currentStage['comment']);
+                /* set filename if exists */
+                if ( !isNullOrUndefined(this.currentStage['attachment']) ) {
+                    this.uploadedFilename = this.currentStage['attachment']['filename'];
                 }
+
+                /* create form */
+                this.stageForm = this.fb.group(this.stageFormDefinition);
+
+                /* fill the form if the values exist */
+                Object.keys(this.stageForm.controls).forEach(key => {
+                    if (!isNullOrUndefined(this.currentStage[key.toString()])) {
+                        this.stageForm.get(key).setValue(this.currentStage[key.toString()]);
+                    }
+                });
             }
         }
         /*console.log(`in stage ${this.stageDescription.id}, wasSubmitted is ${this.wasSubmitted}`);*/
@@ -132,88 +128,32 @@ export class StageComponent implements OnInit {
         }
     }
 
-    /*creates extra formControls according to the extra fields list*/
-    createExtraFields() {
-        if (this.stageForm) {
-            for (const newControl of this.stageExtraFieldsList) {
-                this.stageForm.addControl(newControl, new FormControl());
-            }
-            this.addStageInfoToForm();
-        }
-    }
-
-    addStageInfoToForm() {
-        if (!isNullOrUndefined(this.currentStage) &&
-            !isNullOrUndefined(this.currentStage.date)) {
-
-            for (const newControl of this.stageExtraFieldsList) {
-                this.stageForm.get(newControl).setValue(this.currentStage[newControl]);
-            }
-        }
-    }
-
     getAttachmentInput(newFile: File) {
         this.uploadedFile = newFile;
         console.log('this.uploadedFile is : ', this.uploadedFile);
     }
 
     approveRequest( approved: boolean ) {
+        if (!approved) {
+            Object.keys(this.stageForm.controls).forEach(key => {
+                this.stageForm.get(key).clearValidators();
+                this.stageForm.get(key).updateValueAndValidity();
+            });
+        }
         this.currentStage['approved'] = approved;
-        if (approved) {
-            if (this.areAllCheckBoxesTrue()) {
 
-                this.submitForm();
-            } else {
-                this.stageFormError = 'Πρέπει να έχουν γίνει όλοι οι έλεγχοι για να προχωρήσει το αίτημα.';
-            }
-        } else {
-            /*this.nextStageId = this.stageDescription.id;*/
-            this.submitForm();
-        }
-    }
-
-    areAllCheckBoxesTrue() {
-        for ( let i = 0; i < this.stageExtraFieldsList.length; i++ ) {
-            if (this.stageDescription.stageFields[i].type === 'checkbox' && !this.stageForm.get(this.stageExtraFieldsList[i]).value ) {
-
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /* NOT USED ANYMORE - RESTORE IF STAGE 5 IS RESTORED */
-    /*forwardRequest( nextStage: string, showModal: boolean ) {
-        this.nextStageId = nextStage;
-        console.log('nextStage is', this.nextStageId);
-        if (nextStage === '5a') {
-            this.nextStageDelegate = 'στον Γενικό Διευθυντή';
-        } else {
-            this.nextStageDelegate = 'στο Διοικητικό Συμβούλιο';
-        }
-        if (showModal) {
-            UIkit.modal('#nextStage').show();
-        } else {
-            this.currentStage['approved'] = true;
-            this.submitForm();
-        }
-    }
-
-    getNextStageDelegate() {
-        return this.nextStageDelegate;
-    }
-
-    onConfirm(event: any) {
-        UIkit.modal('#nextStage').hide();
-        this.currentStage['approved'] = true;
         this.submitForm();
-    }*/
+    }
 
     goBackOneStage() {
         this.stageFormError = '';
         if ( !this.stageForm.get('comment').value ) {
             this.stageFormError = 'Είναι υποχρεωτικό να γράψετε ένα σχόλιο για την επιλογή σας.';
         } else {
+            Object.keys(this.stageForm.controls).forEach(key => {
+                this.stageForm.get(key).clearValidators();
+                this.stageForm.get(key).updateValueAndValidity();
+            });
             this.emitGoBack.emit(true);
             this.submitForm();
         }
@@ -222,57 +162,32 @@ export class StageComponent implements OnInit {
     submitForm() {
         this.stageFormError = '';
         if (this.stageForm && this.stageForm.valid && this.delegateCanEdit() ) {
-            /*if (this.stageForm && this.stageForm.valid ) {*/
             if ( (this.stageDescription.id === '6' ||
-                    this.stageDescription.id === '11' ||
-                    (this.stageDescription.id === '7' &&
-                        this.currentStage['approved']) ) &&
-                !this.uploadedFile ) {
+                  this.stageDescription.id === '11' ||
+                  (this.stageDescription.id === '7' && this.currentStage['approved']) ) &&
+                 (isNullOrUndefined(this.uploadedFile) && isNullOrUndefined(this.currentStage['attachment'])) ) {
 
                 this.stageFormError = 'Η επισύναψη εγγράφων είναι υποχρεωτική.';
-            } else if ( (this.stageDescription.id === '3') &&
-                ( (!this.stageForm.get('analiftheiYpoxrewsi').value) ||
-                    ( !this.stageForm.get('fundsAvailable').value) ) ) {
-                this.stageFormError = 'Πρέπει να έχουν γίνει όλοι οι έλεγχοι για να προχωρήσει το αίτημα.';
-
             } else {
-                /* NOT USED ANYMORE - RESTORE IF STAGE 5 IS RESTORED */
-                /*if (!this.nextStageId) {
-                    if ( this.stageDescription.id === '13' ) {
-                        this.nextStageId = '13';
-                    } else if (this.stageDescription.id !== '5a' && this.stageDescription.id !== '5b') {
-                        this.nextStageId = (+this.stageDescription.id + 1).toString();
-                    } else {
-                        this.nextStageId = '6';
-                    }
-                    console.log('nextStage is', this.nextStageId);
-                }
-                this.emitNextStage.emit(this.nextStageId);*/
 
                 this.currentStage['user'] = this.createUser();
                 this.currentStage['date'] = Date.now().toString();
-                for ( const stageField of this.stageExtraFieldsList ) {
-                    this.currentStage[stageField] = this.stageForm.get(stageField).value;
-                }
-                this.currentStage['comment'] = this.stageForm.get('comment').value;
+                Object.keys(this.stageForm.controls).forEach(key => {
+                    this.currentStage[key.toString()] = this.stageForm.get(key).value;
+                });
+
                 if (this.uploadedFile) {
                     this.currentStage['attachment'] = this.createAttachment();
                 }
-                if (this.stageDescription.id === '3') {
-                    this.currentStage['analiftheiYpoxrewsi'] =  this.stageForm.get('analiftheiYpoxrewsi').value;
-                    this.currentStage['fundsAvailable'] = this.stageForm.get('fundsAvailable').value;
-                    this.currentStage['loan'] = this.stageForm.get('loan').value;
-                    this.currentStage['loanSource'] = this.stageForm.get('loanSource').value;
-                }
-
                 console.log(this.currentStage);
                 this.checkIfSubmitted();
                 this.checkIfApproved();
                 this.emitStage.emit(this.currentStage);
+
             }
-        }/* else {
-            UIkit.modal.alert('Φαίνεται ότι δεν έχετε δικαίωμα να εγκρίνετε ή να απορρίψετε αυτό το στάδιο.');
-        }*/
+        } else {
+            this.stageFormError = 'Πρέπει να έχουν γίνει όλοι οι έλεγχοι για να προχωρήσει το αίτημα.';
+        }
     }
 
     delegateCanEdit() {
@@ -333,17 +248,20 @@ export class StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage2-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage2.component.html'
 })
 export class Stage2Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = 'από τον επιστημονικό υπεύθυνο';
+        this.stageFormDefinition = {
+            comment: [''],
+            checkNecessity: ['', Validators.requiredTrue],
+            checkFeasibility: ['', Validators.requiredTrue]
+        };
+
         this.stageDescription = Stage2Desc;
         this.currentPOI = this.currentProject.scientificCoordinator;
         super.ngOnInit();
-        this.stageExtraFieldsList = ['checkNecessity', 'checkFeasibility'];
-        this.createExtraFields();
     }
 
 }
@@ -351,62 +269,73 @@ export class Stage2Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage3-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage3.component.html'
 })
 export class Stage3Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = 'από τον χειριστή του προγράμματος';
+        this.stageFormDefinition = {
+            comment: [''],
+            analiftheiYpoxrewsi: ['', Validators.requiredTrue],
+            fundsAvailable: ['', Validators.requiredTrue],
+            loan: [''],
+            loanSource: ['']
+        };
+
         this.stageDescription = Stage3Desc;
         this.currentPOI = this.findCurrentPOI(this.currentProject.operator);
+
         super.ngOnInit();
 
         if (this.stageForm) {
-            this.stageForm.addControl('analiftheiYpoxrewsi', new FormControl());
-            this.stageForm.addControl('fundsAvailable', new FormControl());
-            this.stageForm.addControl('loan', new FormControl());
-            this.stageForm.addControl('loanSource', new FormControl());
+            this.stageForm.get('loanSource').disable();
+        }
+    }
 
-            if (!isNullOrUndefined(this.currentStage) &&
-                !isNullOrUndefined(this.currentStage.date)) {
-
-                this.stageForm.get('analiftheiYpoxrewsi').setValue(this.currentStage['analiftheiYpoxrewsi']);
-                this.stageForm.get('fundsAvailable').setValue(this.currentStage['fundsAvailable']);
-                this.stageForm.get('loan').setValue(this.currentStage['loan']);
-                this.stageForm.get('loanSource').setValue(this.currentStage['loanSource']);
-            }
-
+    onLoanToggle (completedLoan: boolean) {
+        if (completedLoan && !isUndefined(this.stageForm) ) {
+            this.stageForm.get('loanSource').enable();
+            this.stageForm.get('loanSource').setValidators([Validators.required]);
+            this.stageForm.get('loanSource').updateValueAndValidity();
+        } else {
+            this.stageForm.get('loanSource').disable();
         }
     }
 }
 
 @Component ({
     selector: 'stage4-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage4.component.html'
 })
 export class Stage4Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = '';
+        this.stageFormDefinition = {
+            comment: [''],
+            analiftheiYpoxrewsi: ['', Validators.requiredTrue],
+            fundsAvailable: ['', Validators.requiredTrue],
+        };
+
         this.stageDescription = Stage4Desc;
         this.currentPOI = this.currentProject.institute.organization.POI;
         super.ngOnInit();
-        this.stageExtraFieldsList = ['analiftheiYpoxrewsi', 'fundsAvailable'];
-        this.createExtraFields();
     }
 }
 
 /* NOT USED ANYMORE  -- MAYBE WE'LL RESTORE IT AT SOME POINT */
 @Component ({
     selector: 'stage5-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage5.component.html'
 })
 export class Stage5Component extends StageComponent implements OnInit {
     @Input() willShowButtonTo5a: boolean;
     @Input() willShowButtonTo5b: boolean;
 
     ngOnInit () {
-        this.delegatePositionInParagraph = 'από τον Διευθυντή του Ινστιτούτου';
+        this.stageFormDefinition = {
+            comment: [''],
+        };
+
         this.stageDescription = Stage5Desc;
         this.currentPOI = this.currentProject.institute.director;
         super.ngOnInit();
@@ -416,12 +345,15 @@ export class Stage5Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage5a-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage5a.component.html'
 })
 export class Stage5aComponent extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = 'από τον Διατάκτη';
+        this.stageFormDefinition = {
+            comment: [''],
+        };
+
         this.stageDescription = Stage5aDesc;
         this.currentPOI = this.currentProject.institute.organization.director;
         super.ngOnInit();
@@ -430,12 +362,15 @@ export class Stage5aComponent extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage5b-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage5b.component.html'
 })
 export class Stage5bComponent extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = 'από το Διοικητικό Συμβούλιο';
+        this.stageFormDefinition = {
+            comment: [''],
+        };
+
         this.stageDescription = Stage5bDesc;
         this.currentPOI = this.currentProject.institute.organization.dioikitikoSumvoulio;
         super.ngOnInit();
@@ -444,12 +379,15 @@ export class Stage5bComponent extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage6-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage6.component.html'
 })
 export class Stage6Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = 'από την ΔΙΑΥΓΕΙΑ';
+        this.stageFormDefinition = {
+            comment: [''],
+        };
+
         this.stageDescription = Stage6Desc;
         this.currentPOI = this.currentProject.institute.diaugeia;
         super.ngOnInit();
@@ -459,12 +397,15 @@ export class Stage6Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage7-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage7.component.html'
 })
 export class Stage7Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = '';
+        this.stageFormDefinition = {
+            comment: [''],
+        };
+
         this.stageDescription = Stage7Desc;
         this.currentPOI = this.findCurrentPOI(this.currentProject.operator);
         super.ngOnInit();
@@ -473,44 +414,53 @@ export class Stage7Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage8-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage8.component.html'
 })
 export class Stage8Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = 'από τον Διευθυντή Λογιστηρίου';
+        this.stageFormDefinition = {
+            checkRegularity: ['', Validators.requiredTrue],
+            checkLegality: ['', Validators.requiredTrue],
+            comment: [''],
+        };
+
         this.stageDescription = Stage8Desc;
         this.currentPOI = this.currentProject.institute.accountingDirector;
         super.ngOnInit();
-        this.stageExtraFieldsList = ['checkRegularity', 'checkLegality'];
-        this.createExtraFields();
     }
 }
 
 @Component ({
     selector: 'stage9-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage9.component.html'
 })
 export class Stage9Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = '';
+        this.stageFormDefinition = {
+            checkRegularity: ['', Validators.requiredTrue],
+            checkLegality: ['', Validators.requiredTrue],
+            comment: [''],
+        };
+
         this.stageDescription = Stage9Desc;
         this.currentPOI = this.currentProject.institute.organization.POI;
         super.ngOnInit();
-        this.stageExtraFieldsList = ['checkRegularity', 'checkLegality'];
-        this.createExtraFields();
     }
 }
 
 @Component ({
     selector: 'stage10-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage10.component.html'
 })
 export class Stage10Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = 'από τον Διατάκτη';
+        this.stageFormDefinition = {
+            comment: [''],
+        };
+
         this.stageDescription = Stage10Desc;
         this.currentPOI = this.currentProject.institute.organization.director;
         super.ngOnInit();
@@ -519,12 +469,15 @@ export class Stage10Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage11-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage11.component.html'
 })
 export class Stage11Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = 'από την ΔΙΑΥΓΕΙΑ';
+        this.stageFormDefinition = {
+            comment: [''],
+        };
+
         this.stageDescription = Stage11Desc;
         this.currentPOI = this.currentProject.institute.diaugeia;
         super.ngOnInit();
@@ -533,12 +486,15 @@ export class Stage11Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage12-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage12.component.html'
 })
 export class Stage12Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = '';
+        this.stageFormDefinition = {
+            comment: [''],
+        };
+
         this.stageDescription = Stage12Desc;
         this.currentPOI = this.currentProject.institute.accountingRegistration;
         super.ngOnInit();
@@ -548,12 +504,15 @@ export class Stage12Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage13-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage13.component.html'
 })
 export class Stage13Component extends StageComponent implements OnInit {
 
     ngOnInit () {
-        this.delegatePositionInParagraph = '';
+        this.stageFormDefinition = {
+            comment: [''],
+        };
+
         this.stageDescription = Stage13Desc;
         this.currentPOI = this.currentProject.institute.accountingPayment;
         super.ngOnInit();
