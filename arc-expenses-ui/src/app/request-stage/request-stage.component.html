@@ -105,45 +105,13 @@
                     <!--<span>{{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>-->
                     <!--</div>-->
 
-                    <div *ngIf="currentRequest.stage1.attachment" class="uk-width-1-1@l uk-margin-small-top">
-                      <a class="uk-link" (click)="linkToFile()">Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a>
-                    </div>
-                  </div>
-                  <div class="uk-width-1-2@l">
-                    <span class="uk-text-bold uk-margin-small-right">Ημερομηνία υποβολής: </span>
-                    <span>{{ currentRequest.stage1.requestDate | date : 'dd-MM-yyyy' }}</span>
-                  </div>
-                  <div class="uk-width-1-2@l">
-                    <span class="uk-text-bold uk-margin-small-right">Πρόγραμμα: </span>
-                    <span>{{ currentRequest.project.name }}</span>
-                  </div>
-                  <div class="uk-width-1-2@l">
-                    <span class="uk-text-bold uk-margin-small-right">Ινστιτούτο: </span>
-                    <span>{{ currentRequest.project.institute.name }}</span>
-                  </div>
-                  <div class="uk-width-1-1@l">
-                    <div class="uk-text-bold">Θέμα:</div>
-                    <div class="uk-text-justify uk-margin-small-bottom">{{ currentRequest.stage1.subject }}</div>
-                  </div>
-                  <div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">
-                    <span class="uk-text-bold uk-margin-small-right">Προμηθευτής: </span>
-                    <span>{{ currentRequest.stage1.supplier }}</span>
-                  </div>
-                  <div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">
-                    <span class="uk-text-bold uk-margin-small-right">Κριτήριο επιλογής: </span>
-                    <span>{{ currentRequest.stage1.supplierSelectionMethod }}</span>
-                  </div>
-                  <div class="uk-width-1-2@l">
-                    <span class="uk-text-bold uk-margin-small-right">Ποσό: </span>
-                    <span>{{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>
-                  </div>
-                  <div *ngIf="currentRequest.stage1.attachment" class="uk-width-1-1@l uk-margin-small-top">
-                    <a class="uk-link" (click)="linkToFile()">Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a>
                   </div>
                 </div>
 
-                <div *ngIf="currentRequest.stage === '1'" class="submittedRequest">
-                  <div class="uk-margin-bottom uk-width-1-1 uk-grid">
+                <div *ngIf="(currentRequest.stage === '1') && updateStage1Form" class="submittedRequest">
+
+                  <div [formGroup]="updateStage1Form" class="uk-margin-bottom uk-width-1-1 uk-grid">
+
                     <div class="uk-width-1-2@l">
                       <span class="uk-text-bold uk-margin-small-right">Πρόγραμμα: </span>
                       <span>{{ currentRequest.project.acronym }} ({{currentRequest.project.institute.name}})</span>
@@ -160,16 +128,30 @@
                       </span>
                     </div>
 
+                    <div class="uk-width-1-1@l">
+                      <label class="uk-text-bold uk-margin-small-right">Θέμα:</label>
+                      <textarea formControlName="requestText"></textarea>
+                      <!--<span>{{ currentRequest.stage1.subject }}</span>-->
+                    </div>
 
                     <div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">
-                      <span class="uk-text-bold uk-margin-small-right">Προμηθευτής: </span>
-                      <span>{{ currentRequest.stage1.supplier }} ({{ currentRequest.stage1.supplierSelectionMethod }})</span>
+                      <label class="uk-text-bold uk-margin-small-right">Προμηθευτής: </label>
+                      <input class="uk-input" type="text" placeholder="" id="request-supplier"
+                             formControlName="supplier">
+                      <!--<span>{{ currentRequest.stage1.supplier }} ({{ currentRequest.stage1.supplierSelectionMethod }})</span>-->
                     </div>
-                    <div class="uk-width-1-2@l">
+                    <div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">
+                      <label class="uk-text-bold uk-margin-small-right">Τρόπος επιλογής προμηθευτή: </label>
+                      <select class="uk-select" id="request-ssm" formControlName="supplierSelectionMethod" name="ssm">
+                        <option value="">-- επιλέξτε τρόπο --</option>
+                        <option *ngFor="let sel of selMethods" value="{{sel}}">{{sel}}</option>
+                      </select>
+                    </div>
+                    <div class="uk-width-1-1@l">
                       <span class="uk-text-bold uk-margin-small-right">Ποσό: </span>
                       <input class="uk-input" type="text" id="request-amount"
                              formControlName="amount" placeholder="0" (keyup)="showAmount()" (focus)="updateStage1Form.get('amount').markAsUntouched()">
-                      <span>{{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>
+                      <!--<span>{{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>-->
                       <div class="uk-comment-body uk-text-small uk-text-muted">
                         <i>Ο δεκαδικός αριθμός θα πρέπει να είναι της μορφής: <b>1111.11</b></i>
                       </div>
@@ -182,11 +164,13 @@
                         Το ποσό είναι: {{ requestedAmount | currency: 'EUR': 'symbol-narrow' }}
                       </div>
                     </div>
-
                     <div class="uk-width-1-1@l">
-                      <label class="uk-text-bold uk-margin-small-right">Θέμα:</label>
-                      <textarea formControlName="requestText"></textarea>
-                      <!--<span>{{ currentRequest.stage1.subject }}</span>-->
+                      <div class="uk-form-controls uk-form-controls-text">
+                        <app-stage-form-upload-file [uploadedFilename]="stage1AttachmentName" (emitFile)="getUploadedFile($event)"></app-stage-form-upload-file>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-1\@l">
+                      <button class="uk-button uk-button-danger" (click)="updateStage1()">Υποβολή</button>
                     </div>
                   </div>
 

@@ -126,10 +126,6 @@
                           <div class="uk-width-small">
                             <input class="uk-input" type="text" id="request-amount"
                                    formControlName="amount" placeholder="0" (keyup)="showAmount()" (focus)="newRequestForm.get('amount').markAsUntouched()">
-                            <!--<span *ngIf="group.get('lissn').invalid && group.get('lissn').touched && group.get('lissn').dirty"
-                                  class="help-block inline uk-text-danger"
-                                  style="margin-top: 0px; margin-bottom: 0px; padding-left: 10px;">Lissn needs to be of the form: "1111-1111"</span>
-                            <input formControlName="lissn"class="form-control" type="text" (focus)="group.get('lissn').markAsUntouched()" (blur)="group.get('lissn').updateValueAndValidity()">-->
                           </div>
                           <div class="uk-comment-body uk-text-small uk-text-muted">
                             <i>Ο δεκαδικός αριθμός θα πρέπει να είναι της μορφής: <b>1111.11</b></i>

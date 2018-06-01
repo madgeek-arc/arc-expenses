@@ -181,6 +181,7 @@ export class AuthenticationService {
         return this.isLoggedIn;
     }
 
+    /* public get  userId() */
     public getUserId() {
         if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('userid')) && (sessionStorage.getItem('userid') !== 'null')) {
             return sessionStorage.getItem('userid');
