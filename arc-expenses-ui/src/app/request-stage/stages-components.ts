@@ -67,8 +67,8 @@ export class StageComponent implements OnInit {
     currentPOI: POI;
     stageDescription: StageDescription;  /*contains the name of the delegate field and the list of the extra fields descriptions*/
     stageExtraFieldsList: string[] = []; /*contains the names of the extra fields inside the current stage class*/
-                                         /*they will be used as formControlNames and also as a way
-                                           to access the corresponding properties of the Stage object*/
+    /*they will be used as formControlNames and also as a way
+      to access the corresponding properties of the Stage object*/
 
     commentFieldDesc: StageFieldDescription = commentDesc; /*a description for the comments field*/
 
@@ -86,8 +86,8 @@ export class StageComponent implements OnInit {
     checkIfSubmitted() {
         console.log(`hasReturned is ${this.hasReturnedToPrevious}`);
         this.wasSubmitted = ( (!isNullOrUndefined(this.currentStage) &&
-                              !isNullOrUndefined(this.currentStage.date)) &&
-                              (this.hasReturnedToPrevious !== 1) );
+            !isNullOrUndefined(this.currentStage.date)) &&
+            (this.hasReturnedToPrevious !== 1) );
         if ( !this.wasSubmitted && (this.hasReturnedToPrevious !== 2) && ( this.authService.getUserRole() !== 'ROLE_USER' )) {
             if (!this.showStage) {
                 this.wasSubmitted = true;
@@ -107,8 +107,8 @@ export class StageComponent implements OnInit {
                 this.wasApproved = 'Επεστράφη στο προηγούμενο στάδιο';
             } else {
                 if ( this.currentStage['approved'] ||
-                     ( this.stageDescription &&
-                      ( this.stageDescription.id === '6' || this.stageDescription.id === '11' ) ) ) {
+                    ( this.stageDescription &&
+                        ( this.stageDescription.id === '6' || this.stageDescription.id === '11' ) ) ) {
 
                     this.wasApproved = 'Εγκρίθηκε';
                 } else {
@@ -160,11 +160,12 @@ export class StageComponent implements OnInit {
     approveRequest( approved: boolean ) {
         this.currentStage['approved'] = approved;
         if (approved) {
-             if (this.areAllCheckBoxesTrue() ) {
-                 this.submitForm();
-             } else {
-                 this.stageFormError = 'Πρέπει να έχουν γίνει όλοι οι έλεγχοι για να προχωρήσει το αίτημα.';
-             }
+            if (this.areAllCheckBoxesTrue()) {
+
+                this.submitForm();
+            } else {
+                this.stageFormError = 'Πρέπει να έχουν γίνει όλοι οι έλεγχοι για να προχωρήσει το αίτημα.';
+            }
         } else {
             /*this.nextStageId = this.stageDescription.id;*/
             this.submitForm();
@@ -221,14 +222,19 @@ export class StageComponent implements OnInit {
     submitForm() {
         this.stageFormError = '';
         if (this.stageForm && this.stageForm.valid && this.delegateCanEdit() ) {
-        /*if (this.stageForm && this.stageForm.valid ) {*/
+            /*if (this.stageForm && this.stageForm.valid ) {*/
             if ( (this.stageDescription.id === '6' ||
-                  this.stageDescription.id === '11' ||
-                  (this.stageDescription.id === '7' &&
-                   this.currentStage['approved']) ) &&
+                    this.stageDescription.id === '11' ||
+                    (this.stageDescription.id === '7' &&
+                        this.currentStage['approved']) ) &&
                 !this.uploadedFile ) {
 
                 this.stageFormError = 'Η επισύναψη εγγράφων είναι υποχρεωτική.';
+            } else if ( (this.stageDescription.id === '3') &&
+                ( (!this.stageForm.get('analiftheiYpoxrewsi').value) ||
+                    ( !this.stageForm.get('fundsAvailable').value) ) ) {
+                this.stageFormError = 'Πρέπει να έχουν γίνει όλοι οι έλεγχοι για να προχωρήσει το αίτημα.';
+
             } else {
                 /* NOT USED ANYMORE - RESTORE IF STAGE 5 IS RESTORED */
                 /*if (!this.nextStageId) {
@@ -252,6 +258,12 @@ export class StageComponent implements OnInit {
                 if (this.uploadedFile) {
                     this.currentStage['attachment'] = this.createAttachment();
                 }
+                if (this.stageDescription.id === '3') {
+                    this.currentStage['analiftheiYpoxrewsi'] =  this.stageForm.get('analiftheiYpoxrewsi').value;
+                    this.currentStage['fundsAvailable'] = this.stageForm.get('fundsAvailable').value;
+                    this.currentStage['loan'] = this.stageForm.get('loan').value;
+                    this.currentStage['loanSource'] = this.stageForm.get('loanSource').value;
+                }
 
                 console.log(this.currentStage);
                 this.checkIfSubmitted();
@@ -265,8 +277,8 @@ export class StageComponent implements OnInit {
 
     delegateCanEdit() {
         return ( (this.authService.getUserRole() === 'ROLE_ADMIN') ||
-                 (this.currentPOI.email === this.authService.getUserEmail()) ||
-                 this.currentPOI.delegates.some(x => x.email === this.authService.getUserEmail()) );
+            (this.currentPOI.email === this.authService.getUserEmail()) ||
+            this.currentPOI.delegates.some(x => x.email === this.authService.getUserEmail()) );
     }
 
     createUser(): User {
@@ -348,8 +360,23 @@ export class Stage3Component extends StageComponent implements OnInit {
         this.stageDescription = Stage3Desc;
         this.currentPOI = this.findCurrentPOI(this.currentProject.operator);
         super.ngOnInit();
-        this.stageExtraFieldsList = ['analiftheiYpoxrewsi', 'fundsAvailable', 'loan', 'loanSource'];
-        this.createExtraFields();
+
+        if (this.stageForm) {
+            this.stageForm.addControl('analiftheiYpoxrewsi', new FormControl());
+            this.stageForm.addControl('fundsAvailable', new FormControl());
+            this.stageForm.addControl('loan', new FormControl());
+            this.stageForm.addControl('loanSource', new FormControl());
+
+            if (!isNullOrUndefined(this.currentStage) &&
+                !isNullOrUndefined(this.currentStage.date)) {
+
+                this.stageForm.get('analiftheiYpoxrewsi').setValue(this.currentStage['analiftheiYpoxrewsi']);
+                this.stageForm.get('fundsAvailable').setValue(this.currentStage['fundsAvailable']);
+                this.stageForm.get('loan').setValue(this.currentStage['loan']);
+                this.stageForm.get('loanSource').setValue(this.currentStage['loanSource']);
+            }
+
+        }
     }
 }
 

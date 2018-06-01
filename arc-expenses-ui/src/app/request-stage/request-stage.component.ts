@@ -143,6 +143,7 @@ export class RequestStageComponent implements OnInit {
   }
 
   submitRequest() {
+      window.scrollTo(0, 0);
       this.showSpinner = true;
       this.errorMessage = '';
       this.successMessage = '';

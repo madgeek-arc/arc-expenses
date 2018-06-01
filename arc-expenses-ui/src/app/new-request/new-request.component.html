@@ -1,5 +1,6 @@
+<div *ngIf="showSpinner" class="whiteFilm"><i class="fa fa-spinner fa-spin fa-5x loader" aria-hidden="true"></i></div>
 <div class="uk-section-default uk-section uk-section-small uk-padding-remove-bottom" style="min-height: 325px">
-  <div class="uk-container">
+  <div class="uk-container uk-container-expand">
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
       <div class="uk-width-1-1@m uk-first-column">
 
@@ -12,7 +13,7 @@
                       [ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
         </help-content>
 
-        <div class="uk-container uk-margin-medium-top uk-margin-medium-bottom">
+        <div class="uk-container uk-container-expand uk-margin-medium-top uk-margin-medium-bottom">
           <div class="uk-grid">
 
             <!-- LEFT HELP CONTENT -->
@@ -23,26 +24,26 @@
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
-              <div *ngIf="!requestType">
+              <!--<div *ngIf="!requestType">
                 <label>Επιλέξτε τύπο αιτήματος:</label>
                 <select (change)="onChooseRequestType($event)">
-                  <option value="">----</option>
+                  <option value="">&#45;&#45;&#45;&#45;</option>
                   <option value="regular">{{ reqTypes['regular'] }}</option>
                   <option value="trip">{{ reqTypes['trip'] }}</option>
                   <option value="contract">{{ reqTypes['contract'] }}</option>
                 </select>
-              </div>
-              <div *ngIf="requestType">
+              </div>-->
+              <div *ngIf="requestType && (requestType.length > 0)">
                 <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
-                <div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">
-                  <div class="uk-overlay-default uk-position-cover"></div>
-                  <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
-                </div>
+                <!--<div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">-->
+                  <!--<div class="uk-overlay-default uk-position-cover"></div>-->
+                  <!--<div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>-->
+                <!--</div>-->
                 <div *ngIf="newRequestForm && currentUser && projects" [formGroup]="newRequestForm" class="uk-form-horizontal">
                   <fieldset data-uk-margin>
-                    <legend>Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>
+                    <legend class="uk-margin-medium-bottom">Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>
                     <div class="uk-margin">
-                      <label class="uk-form-label" for="request-name">Από <span class="uk-text-danger">(*)</span></label>
+                      <label class="uk-form-label" for="request-name">Από <span>(*)</span></label>
                       <div class="uk-form-controls">
                         <div class="uk-grid uk-width-1-1">
                           <div class="uk-width-1-2@s">
@@ -65,7 +66,7 @@
                       </div>
                     </div>
                     <div class="uk-margin">
-                      <label class="uk-form-label" for="request-program">Επιλέξτε έργο <span class="uk-text-danger">(*)</span></label>
+                      <label class="uk-form-label" for="request-program">Επιλέξτε έργο <span>(*)</span></label>
                         <!--<div class="uk-form-controls">
                             <select class="uk-select" id="request-program" (change)="show($event)" formControlName="program" #prog>
                                 <option value="">&#45;&#45; επιλέξτε έργο &#45;&#45;</option>
@@ -77,7 +78,7 @@
                                (keyup)="updateSearchTerm($event)"
                                formControlName="program">
                         <div class="uk-comment-body uk-text-small uk-text-muted">
-                          Ξεκινήστε να γράφετε το όνομα του έργου και επιλέξτε το από την λίστα που θα εμφανιστεί.
+                          <i>Ξεκινήστε να γράφετε το όνομα του έργου και επιλέξτε το από την λίστα που θα εμφανιστεί.</i>
                         </div>
                         <div *ngIf="searchTerm && searchTerm.length > 2" class="uk-nav uk-padding-small uk-width-large uk-position-absolute" style="background-color: white">
                           <ul>
@@ -90,13 +91,13 @@
                     </div>
                     <!--<ng-container *ngIf="prog.value!=''">-->
                     <div class="uk-margin">
-                      <label class="uk-form-label" for="request-institute">Ινστιτούτο / Μονάδα <span class="uk-text-danger">(*)</span></label>
+                      <label class="uk-form-label" for="request-institute">Ινστιτούτο / Μονάδα <span>(*)</span></label>
                       <div class="uk-form-controls">
                         <input class="uk-input" id="request-institute" formControlName="institute" placeholder="Institute">
                       </div>
                     </div>
                     <div class="uk-margin">
-                      <label class="uk-form-label" for="request-to">Προς <span class="uk-text-danger">(*)</span></label>
+                      <label class="uk-form-label" for="request-to">Προς <span>(*)</span></label>
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">
                           <div class="uk-width-1-1@s">
@@ -107,38 +108,38 @@
                       </div>
                     </div>
                     <div class="uk-margin">
-                      <label class="uk-form-label" for="request-text">Θέμα <span class="uk-text-danger">(*)</span></label>
+                      <label class="uk-form-label" for="request-text">Θέμα <span>(*)</span></label>
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">
                           <div class="uk-width-1-1@s">
-                              <textarea [ngClass]="{'uk-disabled': programSelected==false}" class="uk-form-help-block uk-text-small uk-width-1-1 uk-height-small" id="request-text"
+                              <textarea class="uk-form-help-block uk-text-small uk-width-1-1 uk-height-small" id="request-text"
                                         formControlName="requestText"></textarea>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div *ngIf="requestType !== 'trip'" class="uk-margin">
-                      <label class="uk-form-label" for="request-supplier">Προμηθευτής <span class="uk-text-danger">(*)</span></label>
+                    <div *ngIf="checkIfTrip()" class="uk-margin">
+                      <label class="uk-form-label" for="request-supplier">Προμηθευτής <span>(*)</span></label>
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">
                           <div class="uk-width-1-1@s">
-                            <input [ngClass]="{'uk-disabled': programSelected==false}" class="uk-input" type="text" placeholder="" id="request-supplier"
+                            <input class="uk-input" type="text" placeholder="" id="request-supplier"
                                    formControlName="supplier">
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div *ngIf="requestType !== 'trip'" class="uk-margin">
-                      <label class="uk-form-label" for="request-ssm">Τρόπος επιλογής προμηθευτή <span class="uk-text-danger">(*)</span></label>
+                    <div *ngIf="checkIfTrip()" class="uk-margin">
+                      <label class="uk-form-label" for="request-ssm">Τρόπος επιλογής προμηθευτή <span>(*)</span></label>
                       <div class="uk-form-controls">
-                        <select [ngClass]="{'uk-disabled': programSelected==false}" class="uk-select" id="request-ssm" formControlName="supplierSelectionMethod" name="ssm">
+                        <select class="uk-select" id="request-ssm" formControlName="supplierSelectionMethod" name="ssm">
                           <option value="">-- επιλέξτε τρόπο --</option>
                           <option *ngFor="let sel of selMethods" value="{{sel}}">{{sel}}</option>
                         </select>
                       </div>
                     </div>
                     <div class="uk-margin">
-                      <label class="uk-form-label" for="request-ammount">Ποσό (σε EUR) <span class="uk-text-danger">(*)</span></label>
+                      <label class="uk-form-label" for="request-ammount">Ποσό (σε EUR) <span>(*)</span></label>
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">
                           <div class="uk-width-small">
@@ -150,7 +151,7 @@
                             <input formControlName="lissn"class="form-control" type="text" (focus)="group.get('lissn').markAsUntouched()" (blur)="group.get('lissn').updateValueAndValidity()">-->
                           </div>
                           <div class="uk-comment-body uk-text-small uk-text-muted">
-                            Ο δεκαδικός αριθμός θα πρέπει να είναι της μορφής: <b>1111.11</b>
+                            <i>Ο δεκαδικός αριθμός θα πρέπει να είναι της μορφής: <b>1111.11</b></i>
                           </div>
                           <div *ngIf="newRequestForm.get('ammount').invalid && newRequestForm.get('ammount').touched && newRequestForm.get('ammount').dirty"
                                class="uk-comment-body uk-text-small uk-text-danger">
@@ -170,12 +171,12 @@
                       </div>
                     </div>
 
-                    <div class="uk-margin-large-top">
+                    <div class="uk-margin-medium-top">
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">
                           <div class="uk-width-1-2@s uk-align-left">
 
-                            <button class="uk-button" (click)="submitRequest()" type="button" style="width: 200px">Υποβολή</button>
+                            <button class="uk-button uk-button-primary" (click)="submitRequest()" type="button" style="width: 200px">Υποβολή</button>
                             <!--<button uk-toggle="target: #my-id" type="button">Υποβολή</button>-->
 
                           </div>

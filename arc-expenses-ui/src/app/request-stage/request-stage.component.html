@@ -1,5 +1,6 @@
+<div *ngIf="showSpinner" class="whiteFilm"><i class="fa fa-spinner fa-spin fa-5x loader" aria-hidden="true"></i></div>
 <div class="uk-section-default uk-section uk-section-small uk-padding-remove-bottom" style="min-height: 325px">
-  <div class="uk-container">
+  <div class="uk-container uk-container-expand">
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
       <div class="uk-width-1-1@m uk-first-column">
 
@@ -12,7 +13,7 @@
                       [ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
         </help-content>
 
-        <div class="uk-container uk-margin-medium-top uk-margin-medium-bottom">
+        <div class="uk-container uk-container-expand uk-margin-medium-top uk-margin-medium-bottom">
           <div class="uk-grid">
 
             <!-- LEFT HELP CONTENT -->
@@ -24,23 +25,90 @@
             <div class=" uk-width-expand@m">
               <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
               <div *ngIf="successMessage" class="uk-alert uk-alert-success">{{ successMessage }}</div>
-              <div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">
-                <div class="uk-overlay-default uk-position-cover"></div>
-                <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
-              </div>
+              <!--<div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">-->
+                <!--<div class="uk-overlay-default uk-position-cover"></div>-->
+                <!--<div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>-->
+              <!--</div>-->
               <div *ngIf="!showSpinner &&
                           currentRequest &&
                           currentRequest.requester &&
                           currentRequest.project &&
                           currentRequest.stage1 &&
                           (canEdit === true || canEdit === false)">
-                <div class="uk-margin-bottom uk-width-1-1 uk-grid">
-                  <div class="uk-width-1-2@l">
-                    <span class="uk-text-bold uk-margin-small-right">Από: </span>
-                    <span>
+
+                <div class="submittedRequest">
+                  <div class="uk-margin-bottom uk-width-1-1 uk-grid">
+                    <div class="uk-width-1-2@l">
+                      <span class="uk-text-bold uk-margin-small-right">Πρόγραμμα: </span>
+                      <span>{{ currentRequest.project.acronym }} ({{currentRequest.project.institute.name}})</span>
+                    </div>
+                    <div class="uk-width-1-2@l">
+                      <span class="uk-text-bold uk-margin-small-right">Ημερομηνία υποβολής: </span>
+                      <span>{{ currentRequest.stage1.requestDate | date : 'dd-MM-yyyy' }}</span>
+                    </div>
+                    <div class="uk-width-1-1@l">
+                      <span class="uk-text-bold uk-margin-small-right">Από: </span>
+                      <span>
                       {{ currentRequest.requester.firstname }} {{ currentRequest.requester.lastname }}
                        ({{ currentRequest.requesterPosition }})
                     </span>
+                    </div>
+
+
+                    <div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">
+                      <span class="uk-text-bold uk-margin-small-right">Προμηθευτής: </span>
+                      <span>{{ currentRequest.stage1.supplier }} ({{ currentRequest.stage1.supplierSelectionMethod }})</span>
+                    </div>
+                    <div class="uk-width-1-2@l">
+                      <span class="uk-text-bold uk-margin-small-right">Ποσό: </span>
+                      <span>{{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>
+                    </div>
+
+                    <div class="uk-width-1-1@l">
+                      <span class="uk-text-bold uk-margin-small-right">Θέμα:</span>
+                      <span>{{ currentRequest.stage1.subject }}</span>
+                    </div>
+
+
+                    <!--<div class="uk-width-1-2@l">-->
+                      <!--<span class="uk-text-bold uk-margin-small-right">Από: </span>-->
+                      <!--<span>-->
+                      <!--{{ currentRequest.requester.firstname }} {{ currentRequest.requester.lastname }}-->
+                       <!--({{ currentRequest.requesterPosition }})-->
+                    <!--</span>-->
+                    <!--</div>-->
+                    <!--<div class="uk-width-1-2@l">-->
+                      <!--<span class="uk-text-bold uk-margin-small-right">Ημερομηνία υποβολής: </span>-->
+                      <!--<span>{{ currentRequest.stage1.requestDate | date : 'dd-MM-yyyy' }}</span>-->
+                    <!--</div>-->
+                    <!--<div class="uk-width-1-2@l">-->
+                      <!--<span class="uk-text-bold uk-margin-small-right">Πρόγραμμα: </span>-->
+                      <!--<span>{{ currentRequest.project.name }}</span>-->
+                    <!--</div>-->
+                    <!--<div class="uk-width-1-2@l">-->
+                      <!--<span class="uk-text-bold uk-margin-small-right">Ινστιτούτο: </span>-->
+                      <!--<span>{{ currentRequest.project.institute.name }}</span>-->
+                    <!--</div>-->
+                    <!--<div class="uk-width-1-1@l">-->
+                      <!--<div class="uk-text-bold">Θέμα:</div>-->
+                      <!--<div class="uk-text-justify uk-margin-small-bottom">{{ currentRequest.stage1.subject }}</div>-->
+                    <!--</div>-->
+                    <!--<div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">-->
+                      <!--<span class="uk-text-bold uk-margin-small-right">Προμηθευτής: </span>-->
+                      <!--<span>{{ currentRequest.stage1.supplier }}</span>-->
+                    <!--</div>-->
+                    <!--<div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">-->
+                      <!--<span class="uk-text-bold uk-margin-small-right">Κριτήριο επιλογής: </span>-->
+                      <!--<span>{{ currentRequest.stage1.supplierSelectionMethod }}</span>-->
+                    <!--</div>-->
+                    <!--<div class="uk-width-1-2@l">-->
+                      <!--<span class="uk-text-bold uk-margin-small-right">Ποσό: </span>-->
+                      <!--<span>{{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>-->
+                    <!--</div>-->
+                    <div *ngIf="currentRequest.stage1.attachment" class="uk-width-1-1@l uk-margin-small-top">
+                      <a class="uk-link" href="{{ currentRequest.stage1.attachment.url }}">
+                        Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a>
+                    </div>
                   </div>
                   <div class="uk-width-1-2@l">
                     <span class="uk-text-bold uk-margin-small-right">Ημερομηνία υποβολής: </span>
@@ -74,6 +142,7 @@
                     <a class="uk-link" (click)="linkToFile()">Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία</a>
                   </div>
                 </div>
+
 
                 <div *ngIf="currentRequest.stage2">
                   <stage2-component [showStage]="willShowStage('2')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('2')"

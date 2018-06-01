@@ -1,77 +1,107 @@
 <div class="uk-section-default">
   <div class="uk-container">
-    <div class="uk-align-center navbar-brand-athena uk-logo"></div>
+    <div class="uk-align-center">
+      <a [routerLink]="['home']" class="uk-navbar-center uk-navbar-item navbar-brand-athena uk-logo"></a>
+    </div>
   </div>
 </div>
 
-      <div class="uk-container uk-container-expand uk-margin-medium-bottom uk-margin-medium-top">
+      <div class="uk-container uk-margin-medium-bottom uk-margin-medium-top">
           <div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">
             <div class="uk-overlay-default uk-position-cover"></div>
             <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
           </div>
-          <div *ngIf="signUpForm && !showSpinner" class=" uk-width-1-2@m uk-align-center">
+          <div *ngIf="signUpForm && !showSpinner" class="uk-align-center">
 
             <form [formGroup]="signUpForm" class="uk-form-horizontal uk-margin-large uk-align-center">
-              <div *ngIf="errorMessage" class="uk-alert uk-alert-warning">{{errorMessage}}</div>
               <div data-uk-margin>
-                <div class="uk-legend uk-text-small" style="text-align: center" >Τα παρακάτω στοιχεία θα χρησιμοποιηθούν από το σύστημα:</div>
-                <table class="uk-table uk-table-striped">
+                <div class="" style="text-align: center; letter-spacing: 1.5px" >Τα παρακάτω στοιχεία θα χρησιμοποιηθούν από το σύστημα</div>
+                <div class="uk-text-meta" style="text-align: center;" >Παρακαλούμε συμπληρώστε όσα στοιχεία λείπουν</div>
+                <div *ngIf="errorMessage" class="uk-alert uk-alert-error uk-margin-medium-top">{{errorMessage}}</div>
+                <table class="uk-table uk-table-striped uk-margin-medium-top">
                   <tbody>
                     <tr>
-                      <td style="padding: 0 10px">
-                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" for="user-fill-name">Όνομα (στα ελληνικά) (*)</label>
-                        <input class="uk-width-1-1" style="margin: 2px" type="text" id="user-fill-name" formControlName="name">
+                      <td class="uk-grid">
+                        <div class="uk-width-1-3">
+                          <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" for="user-fill-name">Όνομα (στα ελληνικά) (*)</label>
+                        </div>
+                        <div class="uk-width-2-3">
+                          <input class="uk-input uk-width-5-6" style="margin: 2px" type="text" id="user-fill-name" formControlName="name">
+                        </div>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 0 10px">
-                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" for="user-fill-surname">Επώνυμο (στα ελληνικά) (*)</label>
-                        <input class="uk-width-1-1" style="margin: 2px" type="text" id="user-fill-surname" formControlName="surname">
+                      <td class="uk-grid">
+                        <div class="uk-width-1-3">
+                          <label class="uk-width-1-3 uk-form-label uk-margin-small-right uk-margin-auto-vertical" for="user-fill-surname">Επώνυμο (στα ελληνικά) (*)</label>
+                        </div>
+                        <div class="uk-width-2-3">
+                          <input class="uk-input uk-width-5-6" style="margin: 2px" type="text" id="user-fill-surname" formControlName="surname">
+                        </div>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 0">
-                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="padding-left: 10px" for="user-name">Name</label>
-                        <input class="uk-search-input uk-width-1-1 uk-disabled" style="padding-left: 10px" type="text" id="user-name" formControlName="nameLatin">
+                      <td class="uk-grid">
+                        <div class="uk-width-1-3">
+                          <label class="uk-width-1-3 uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="padding-left: 10px" for="user-name">Όνομα (με λατινικούς χαρακτήρες)</label>
+                        </div>
+                        <div class="uk-width-2-3">
+                          <input class="uk-input uk-width-5-6 uk-disabled" style="padding-left: 10px" type="text" id="user-name" formControlName="nameLatin">
+                        </div>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 0">
-                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="padding-left: 10px" for="user-surname">Surname</label>
-                        <input class="uk-search-input uk-width-1-1 uk-disabled" style="padding-left: 10px" type="text" id="user-surname" formControlName="surnameLatin">
+                      <td class="uk-grid">
+                        <div class="uk-width-1-3">
+                          <label class="uk-width-1-3 uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="padding-left: 10px" for="user-surname">Επώνυμο (με λατινικούς χαρακτήρες)</label>
+                        </div>
+                        <div class="uk-width-2-3">
+                          <input class="uk-input uk-width-5-6 uk-disabled" style="padding-left: 10px" type="text" id="user-surname" formControlName="surnameLatin">
+                        </div>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 0">
-                        <label class="uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="padding-left: 10px" for="user-email">e-mail</label>
-                        <input class="uk-search-input uk-width-1-1 uk-disabled" style="padding-left: 10px" type="text" id="user-email" formControlName="email">
+                      <td class="uk-grid">
+                        <div class="uk-width-1-3">
+                          <label class="uk-width-1-3 uk-form-label uk-margin-small-right uk-margin-auto-vertical" style="padding-left: 10px" for="user-email">Διεύθυνση ηλεκτρονικού ταχυδρομείου</label>
+                        </div>
+                        <div class="uk-width-2-3">
+                          <input class="uk-input uk-width-5-6 uk-disabled" style="padding-left: 10px" type="text" id="user-email" formControlName="email">
+                        </div>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 0 10px">
-                        <label class="" for="user-fill-receiveEmails">
+                      <td class="uk-grid">
+                        <div class="uk-width-1-3">
+                          <label class="uk-width-1-3 uk-form-label" for="user-fill-receiveEmails"></label>
+                        </div>
+                        <div class="uk-width-2-3">
+                          <input class="uk-checkbox" style="margin: 2px" type="checkbox" id="user-fill-receiveEmails"
+                                 formControlName="receiveEmails" (change)="toggleImmediateEmailsDisable()">
                           Επιθυμώ να ενημερώνομαι μέσω ηλεκτρονικού ταχυδρομείου για την εξέλιξη των αιτημάτων που με αφορούν
-                        </label>
-                        <input class="uk-checkbox uk-align-right" style="margin: 2px" type="checkbox" id="user-fill-receiveEmails" formControlName="receiveEmails" (change)="toggleImmediateEmailsDisable()">
+                        </div>
                       </td>
                     </tr>
                     <tr>
-                      <td style="padding: 0 10px">
-                        <label class="" for="user-fill-immediateEmails">
-                          Επιθυμείτε να ενημερώνεστε άμεσα για κάθε εξέλιξη στα αιτήματα που σας αφορούν;
-                        </label>
-                        <input class="uk-checkbox uk-align-right" style="margin: 2px" type="checkbox" id="user-fill-immediateEmails" formControlName="immediateEmails">
+                      <td class="uk-grid">
+                        <div class="uk-width-1-3">
+                          <label class="uk-width-1-3 uk-form-label" for="user-fill-receiveEmails"></label>
+                        </div>
+                        <div class="uk-width-2-3">
+                          <input class="uk-checkbox" style="margin: 2px" type="checkbox" id="user-fill-immediateEmails"
+                                 formControlName="immediateEmails">
+                          Επιθυμώ να ενημερώνομαι άμεσα για κάθε εξέλιξη στα αιτήματα που με αφορούν
+                        </div>
                       </td>
                     </tr>
                   </tbody>
-                  <div class="uk-margin-large-top">
-                    <div class="uk-form-controls">
+                  <div class="uk-margin-medium-top">
+                    <div class="">
                       <div class="uk-width-1-1 uk-grid">
-                        <div>
-                          <button class="uk-button" (click)="updateUser()" type="submit" style="width: 200px">Αποθήκευση</button>
+                        <div class="uk-width-1-3">
                         </div>
-                        <div>
-                          <button class="uk-button" (click)="continueToHome()" style="width: 200px" title="Επιστροφή στην αρχική σελίδα">Αρχική σελίδα</button>
+                        <div class="uk-width-2-3">
+                          <button class="uk-button uk-button-primary" (click)="updateUser()" type="submit" style="width: 200px">Αποθήκευση</button>
                         </div>
                       </div>
                     </div>

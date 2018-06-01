@@ -1,4 +1,4 @@
-@import url(https://fonts.googleapis.com/css?family=Montserrat:300,700);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,700);
 //@font-face {
 //  font-family:IcoMoon;
 //  src:url(../../../media/jui/fonts/IcoMoon.eot);
@@ -7,7 +7,8 @@
 //  font-style:normal
 //}
 
-$primary-color: #b7a088;
+//$primary-color: #b7a088;
+$primary-color: #2c318c;
 //$primary-color-hover:
 
 [data-icon]:before {
@@ -3970,7 +3971,7 @@ fieldset {
 
 }
 html {
-  font-family:Montserrat;
+  font-family:'Open Sans';
   font-size:15px;
   font-weight:400;
   line-height:26px;
