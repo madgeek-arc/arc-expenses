@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AuthenticationService} from '../services/authentication.service';
 import {Router} from '@angular/router';
+import { Attachment } from '../domain/operation';
 
 @Component({
   selector: 'app-sign-up',
@@ -18,6 +19,9 @@ export class SignUpComponent implements OnInit {
   firstnameLatin: string;
   lastnameLatin: string;
   userEmail: string;
+
+  uploadedFile: File;
+  userAttachment = new Attachment();
 
   constructor(private fb: FormBuilder, private authService: AuthenticationService, private router: Router) {}
 
@@ -75,14 +79,32 @@ export class SignUpComponent implements OnInit {
       }
     }
 
+    createAttachment(): Attachment {
+        const tempAttachment: Attachment = new Attachment();
+        if (this.uploadedFile) {
+            tempAttachment.filename = this.uploadedFile.name;
+            tempAttachment.mimetype = this.uploadedFile.type;
+            tempAttachment.size = this.uploadedFile.size;
+            tempAttachment.url = '';
+        }
+
+        return tempAttachment;
+    }
+
     updateUser() {
       this.errorMessage = '';
       this.showSpinner = true;
       if (this.signUpForm.valid) {
-          this.authService.updateUserInfo(this.signUpForm.get('name').value,
-                                          this.signUpForm.get('surname').value,
-                                          this.signUpForm.get('receiveEmails').value,
-                                          this.signUpForm.get('immediateEmails').value ).subscribe(
+          if (this.uploadedFile) {
+              // SEND IT SOMEWHERE AND UPDATE USER
+              this.userAttachment = this.createAttachment();
+          }
+
+          this.authService.updateUserInfo( this.signUpForm.get('name').value,
+                                           this.signUpForm.get('surname').value,
+                                           this.signUpForm.get('receiveEmails').value,
+                                           this.signUpForm.get('immediateEmails').value,
+                                           this.userAttachment ).subscribe(
               user => console.log(`updateUser responded: ${user}`),
               error => {
                   this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών';
@@ -96,7 +118,12 @@ export class SignUpComponent implements OnInit {
           this.errorMessage = 'Είναι απαραίτητο να συμπληρώσετε το όνομα και το επίθετό σας στα ελληνικά.';
           this.showSpinner = false;
       }
-  }
+    }
+
+
+    getUploadedFile(file: File) {
+        this.uploadedFile = file;
+    }
 
   continueToHome() {
       this.errorMessage = '';

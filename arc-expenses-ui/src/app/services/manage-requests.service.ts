@@ -90,6 +90,15 @@ export class ManageRequestsService {
         );
     }
 
+    sendContactFormToService(params: any): Observable<any> {
+        const url = ``;
+        console.log(`calling ${url}`);
+        console.log(`sending ${JSON.stringify(params)}`);
+
+        return this.http.post<any>(url, JSON.stringify(params), headerOptions)
+                            .pipe( catchError(this.handleError) );
+    }
+
     /*handleError function as provided by angular.io (copied on 27/4/2018)*/
     private handleError(error: HttpErrorResponse) {
         console.log(error);

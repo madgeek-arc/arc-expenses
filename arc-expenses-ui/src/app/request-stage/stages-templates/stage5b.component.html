@@ -23,6 +23,35 @@
 
         <div *ngIf="stageFormError" class="uk-alert uk-alert-error">{{ stageFormError }}</div>
 
+        <div *ngIf="oldSupplierAndAmount"
+             class="uk-grid uk-margin-small-top">
+
+            <label class="uk-width-1-3">Προμηθευτής (*)</label>
+            <div class="uk-width-expand">
+                <input class="uk-form-controls uk-input"
+                       type="text"
+                       value="{{ oldSupplierAndAmount[0] }}"
+                       (blur)="updateSupplier($event)">
+            </div>
+
+        </div>
+        <div *ngIf="oldSupplierAndAmount"
+             class="uk-grid uk-margin-small-top">
+
+            <label class="uk-width-1-3">Ποσό (σε EUR)</label>
+            <div class="uk-width-expand">
+                <input class="uk-form-controls uk-input"
+                       type="text"
+                       value="{{ oldSupplierAndAmount[1] }}"
+                       pattern="/^\\d+(\\.\\d{1,2})?$/"
+                       (blur)="updateAmount($event)">
+            </div>
+            <div class="uk-comment-body uk-text-small uk-text-muted">
+                Το ποσό είναι: {{ oldSupplierAndAmount[1] | currency: 'EUR': 'symbol-narrow' }}
+            </div>
+
+        </div>
+
         <!-- COMMENT FIELD -->
         <app-stage-form [description]="commentFieldDesc">
             <textarea formControlName="comment" class="uk-form-controls uk-textarea" rows="2"></textarea>
@@ -32,9 +61,9 @@
         <app-stage-form-upload-file [uploadedFilename]="uploadedFilename" (emitFile)="getAttachmentInput($event)"></app-stage-form-upload-file>
 
         <!--BUTTONS-->
-        <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
+        <button class="uk-button uk-button-primary" (click)="emitNewValues(true)">Εγκρίνεται</button>
 
-        <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>
+        <button class="uk-button uk-button-primary" (click)="emitNewValues(false)">Απορρίπτεται</button>
 
         <button class="uk-button uk-button-primary" (click)="goBackOneStage()">Επιστροφή στο προηγούμενο στάδιο</button>
 

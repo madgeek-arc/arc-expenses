@@ -29,8 +29,11 @@ export class RequestStageComponent implements OnInit {
     wentBackOneStage: boolean;
     stages = ['1', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
     stateNames = {pending: 'βρίσκεται σε εξέλιξη', rejected: 'έχει απορριφθεί', accepted: 'έχει ολοκληρωθεί'};
-    reqTypes = {regular: 'Πρωτογενές Αίτημα', trip: 'Ταξίδι', contract: 'Σύμβαση'};
+    reqTypes = {regular: 'Προμήθεια', trip: 'Ταξίδι', contract: 'Σύμβαση'};
     selMethods = ['Απ\' ευθείας ανάθεση', 'Έρευνα αγοράς', 'Διαγωνισμός'];
+
+    sendInfoToStage5b: string[];
+    isSupplierRequired: boolean;
 
     constructor(private fb: FormBuilder, private route: ActivatedRoute,
                 private requestService: ManageRequestsService,
@@ -48,15 +51,28 @@ export class RequestStageComponent implements OnInit {
             requestText: [''],
             supplier: [''],
             supplierSelectionMethod: [''],
-            amount: ['', [Validators.min(0), Validators.pattern(/^\\d+(\\.\\d{1,2})?$/)]]
+            amount: ['', [Validators.min(0), Validators.pattern('^\\d+(\\.\\d{1,2})?$')] ]
         });
         this.updateStage1Form.get('requestText').setValue(this.currentRequest.stage1.subject);
-        this.updateStage1Form.get('supplier').setValue(this.currentRequest.stage1.supplier);
-        this.updateStage1Form.get('supplierSelectionMethod').setValue(this.currentRequest.stage1.supplierSelectionMethod);
-        this.updateStage1Form.get('amount').setValue(this.currentRequest.stage1.amountInEuros);
+        this.updateStage1Form.get('requestText').updateValueAndValidity();
+        if ( this.currentRequest.stage1.supplier ) {
+            this.updateStage1Form.get('supplier').setValue(this.currentRequest.stage1.supplier);
+            this.updateStage1Form.get('supplier').updateValueAndValidity();
+        }
+        if ( this.currentRequest.stage1.supplierSelectionMethod ) {
+            this.updateStage1Form.get('supplierSelectionMethod').setValue(this.currentRequest.stage1.supplierSelectionMethod);
+            this.updateStage1Form.get('supplierSelectionMethod').updateValueAndValidity();
+        }
+        if ( !isNullOrUndefined(this.currentRequest.stage1.amountInEuros) ) {
+            this.updateStage1Form.get('amount').setValue( (this.currentRequest.stage1.amountInEuros).toString() );
+            this.updateStage1Form.get('amount').updateValueAndValidity();
+            this.updateStage1Form.get('amount').markAsTouched();
+        }
+
         if (this.currentRequest.stage1.attachment) {
             this.stage1AttachmentName = this.currentRequest.stage1.attachment.filename;
         }
+        this.isSupplierRequired = (this.currentRequest.type !== 'trip');
     }
 
     getCurrentRequest() {
@@ -78,6 +94,17 @@ export class RequestStageComponent implements OnInit {
                 this.getIfUserCanEditRequest();
                 if (this.currentRequest.stage === '1') {
                     this.createForm();
+                } else if ( (this.currentRequest.stage === '5b') &&
+                            (this.currentRequest.stage1.supplierSelectionMethod === 'Διαγωνισμός') ) {
+                    this.sendInfoToStage5b = [];
+                    this.sendInfoToStage5b.push('');
+                    this.sendInfoToStage5b.push('');
+                    if ( !isNullOrUndefined(this.currentRequest.stage1.supplier) ) {
+                        this.sendInfoToStage5b[0] = this.currentRequest.stage1.supplier;
+                    }
+                    if ( !isNullOrUndefined(this.currentRequest.stage1.amountInEuros) ) {
+                        this.sendInfoToStage5b[1] = (this.currentRequest.stage1.amountInEuros).toString();
+                    }
                 }
             }
         );
@@ -243,33 +270,41 @@ export class RequestStageComponent implements OnInit {
         }
     }
 
+    getNewSupplierAndAmount(newVals: string[]) {
+        if (newVals && newVals.length === 2) {
+            this.currentRequest.stage1.supplier = newVals[0];
+            this.currentRequest.stage1.amountInEuros = +newVals[1];
+        }
+    }
 
     getUploadedFile(file: File) {
         this.uploadedFile = file;
     }
 
     showAmount() {
-        this.requestedAmount = this.updateStage1Form.get('amount').value.trim();
+        this.requestedAmount = this.updateStage1Form.get('amount').value;
         this.updateStage1Form.get('amount').updateValueAndValidity();
+        this.updateStage1Form.get('amount').markAsTouched();
     }
 
     updateStage1() {
         console.log(this.updateStage1Form);
         this.errorMessage = '';
         if (this.updateStage1Form.valid ) {
-            if ( (+this.updateStage1Form.get('amount').value > 2500) && isUndefined(this.uploadedFile) ) {
+            if ( (+this.updateStage1Form.get('amount').value > 2500) && isNullOrUndefined(this.currentRequest.stage1.attachment) ) {
                 this.errorMessage = 'Για αιτήματα άνω των 2.500 € η επισύναψη εγγράφων είναι υποχρεωτική.';
             } else if ( ( this.currentRequest.type !== 'trip' ) &&
-                !this.updateStage1Form.get('supplier').value &&
-                !this.updateStage1Form.get('supplierSelectionMethod').value  ) {
+                        ( this.updateStage1Form.get('supplierSelectionMethod').value !== 'Διαγωνισμός' ) &&
+                        !this.updateStage1Form.get('supplier').value ) {
 
-                this.errorMessage = 'Χρειάζεται να προσθέσετε πληροφορίες για τον προμηθευτή.';
+                this.errorMessage = 'Είναι υποχρεωτικό να προσθέσετε πληροφορίες για τον προμηθευτή.';
             } else if ( (( this.updateStage1Form.get('supplierSelectionMethod').value !== 'Απ\' ευθείας ανάθεση' ) &&
                     ( this.currentRequest.type !== 'trip' )) && isUndefined(this.uploadedFile)  ) {
 
                 this.errorMessage = 'Για αναθέσεις μέσω διαγωνισμού ή έρευνας αγοράς η επισύναψη εγγράφων είναι υποχρεωτική.';
             } else if ( (+this.updateStage1Form.get('amount').value > this.amountLimit) &&
-                        ( this.updateStage1Form.get('supplierSelectionMethod').value !== 'Διαγωνισμός' ) ) {
+                        ( (this.currentRequest.type !== 'trip') &&
+                          (this.updateStage1Form.get('supplierSelectionMethod').value !== 'Διαγωνισμός') ) ) {
 
                 this.errorMessage = 'Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.';
             } else {
@@ -300,4 +335,13 @@ export class RequestStageComponent implements OnInit {
         }
     }
 
+    setIsSupplierReq(val: boolean) {
+        this.isSupplierRequired = val;
+    }
+
+    checkIfSupplierIsRequired() {
+        if (this.updateStage1Form.get('supplierSelectionMethod').value) {
+            this.setIsSupplierReq( (this.updateStage1Form.get('supplierSelectionMethod').value !== 'Διαγωνισμός' ) );
+        }
+    }
 }

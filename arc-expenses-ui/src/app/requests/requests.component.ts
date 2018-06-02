@@ -36,7 +36,7 @@ export class RequestsComponent implements OnInit {
   states = ['all', 'accepted', 'pending', 'rejected'];
   stages = ['all', '1', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
   stagesMap = stagesMap;
-  reqTypes = { regular: 'Πρωτογενές Αίτημα', trip: 'Ταξίδι', contract: 'Σύμβαση' };
+  reqTypes = { regular: 'Προμήθεια', trip: 'Ταξίδι', contract: 'Σύμβαση' };
 
   searchResults: Paging<Request>;
 

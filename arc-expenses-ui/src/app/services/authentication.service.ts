@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { deleteCookie, getCookie } from '../domain/cookieUtils';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
-import { User } from '../domain/operation';
+import { Attachment, User } from '../domain/operation';
 import {catchError, tap} from 'rxjs/operators';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
 import {environment} from '../../environments/environment';
@@ -146,7 +146,7 @@ export class AuthenticationService {
         // this.router.navigate(['/home']);
     }
 
-    updateUserInfo(firstname: string, lastname: string, receiveEmails: boolean, immediateEmails: boolean) {
+    updateUserInfo(firstname: string, lastname: string, receiveEmails: boolean, immediateEmails: boolean, attachment: Attachment) {
 
         const url = `${this.apiUrl}/user/update`;
         console.log(`calling ${url}`);
@@ -161,6 +161,7 @@ export class AuthenticationService {
             receiveEmails: receiveEmails,
             immediateEmails: immediateEmails
         };
+        // ADD SIGNATURE ATTACHMENT
 
         console.log(`sending: ${JSON.stringify(updatedUser)}`);
 

@@ -129,28 +129,29 @@
                     </div>
 
                     <div class="uk-width-1-1@l">
-                      <label class="uk-text-bold uk-margin-small-right">Θέμα:</label>
+                      <label class="uk-text-bold uk-margin-small-right">Θέμα (*):</label>
                       <textarea formControlName="requestText"></textarea>
                       <!--<span>{{ currentRequest.stage1.subject }}</span>-->
                     </div>
 
                     <div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">
-                      <label class="uk-text-bold uk-margin-small-right">Προμηθευτής: </label>
+                      <label class="uk-text-bold uk-margin-small-right">Προμηθευτής <span [hidden]="isSupplierRequired === false">(*)</span>:</label>
                       <input class="uk-input" type="text" placeholder="" id="request-supplier"
                              formControlName="supplier">
                       <!--<span>{{ currentRequest.stage1.supplier }} ({{ currentRequest.stage1.supplierSelectionMethod }})</span>-->
                     </div>
                     <div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">
-                      <label class="uk-text-bold uk-margin-small-right">Τρόπος επιλογής προμηθευτή: </label>
-                      <select class="uk-select" id="request-ssm" formControlName="supplierSelectionMethod" name="ssm">
+                      <label class="uk-text-bold uk-margin-small-right">Τρόπος επιλογής προμηθευτή (*): </label>
+                      <select class="uk-select" id="request-ssm" formControlName="supplierSelectionMethod"
+                              name="ssm" (change)="checkIfSupplierIsRequired()">
+
                         <option value="">-- επιλέξτε τρόπο --</option>
                         <option *ngFor="let sel of selMethods" value="{{sel}}">{{sel}}</option>
                       </select>
                     </div>
-                    <div class="uk-width-1-1@l">
-                      <span class="uk-text-bold uk-margin-small-right">Ποσό: </span>
-                      <input class="uk-input" type="text" id="request-amount"
-                             formControlName="amount" placeholder="0" (keyup)="showAmount()" (focus)="updateStage1Form.get('amount').markAsUntouched()">
+                    <div class="uk-width-1-2@l">
+                      <label class="uk-text-bold uk-margin-small-right">Ποσό (*): </label>
+                      <input class="uk-input" type="text" formControlName="amount" placeholder="0">
                       <!--<span>{{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>-->
                       <div class="uk-comment-body uk-text-small uk-text-muted">
                         <i>Ο δεκαδικός αριθμός θα πρέπει να είναι της μορφής: <b>1111.11</b></i>
@@ -164,6 +165,7 @@
                         Το ποσό είναι: {{ requestedAmount | currency: 'EUR': 'symbol-narrow' }}
                       </div>
                     </div>
+                    <div class="uk-width-1-2@l"></div>
                     <div class="uk-width-1-1@l">
                       <div class="uk-form-controls uk-form-controls-text">
                         <app-stage-form-upload-file [uploadedFilename]="stage1AttachmentName" (emitFile)="getUploadedFile($event)"></app-stage-form-upload-file>
@@ -180,7 +182,7 @@
                                   [currentStage]="currentRequest.stage2" [currentProject]="currentRequest.project"
                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage2-component>
 
-                <div *ngIf="isSimpleUser" class="uk-alert uk-alert-primary uk-text-center uk-margin-top">
+                <div *ngIf="isSimpleUser && !updateStage1Form" class="uk-alert uk-alert-primary uk-text-center uk-margin-top">
                   Το αίτημά σας {{ stateNames[currentRequest.status] }}
                 </div>
 
@@ -199,7 +201,9 @@
 
                 <stage5b-component [showStage]="willShowStage('5b')"[hasReturnedToPrevious]="checkIfHasReturnedToPrevious('5b')"
                                    [currentStage]="currentRequest.stage5b" [currentProject]="currentRequest.project"
-                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage5b-component>
+                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                   [oldSupplierAndAmount]="infoToStage5b"
+                                   (newValues)="getNewSupplierAndAmount($event)"></stage5b-component>
 
                 <stage6-component [showStage]="willShowStage('6')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('6')"
                                   [currentStage]="currentRequest.stage6" [currentProject]="currentRequest.project"

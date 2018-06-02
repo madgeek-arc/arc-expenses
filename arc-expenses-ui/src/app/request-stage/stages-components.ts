@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Attachment, User, POI, Project } from '../domain/operation';
+import { Attachment, User, POI, Project, Request } from '../domain/operation';
 import {
     commentDesc, Stage10Desc, Stage2Desc, Stage5aDesc, Stage5bDesc, Stage3Desc, Stage4Desc, Stage5Desc, Stage6Desc,
     Stage7Desc, Stage8Desc, Stage9Desc, StageDescription, StageFieldDescription, Stage12Desc, stagesMap, Stage11Desc,
@@ -366,6 +366,9 @@ export class Stage5aComponent extends StageComponent implements OnInit {
 })
 export class Stage5bComponent extends StageComponent implements OnInit {
 
+    @Input() oldSupplierAndAmount: string[];
+    @Output() newValues: EventEmitter<string[]> = new EventEmitter<string[]>();
+
     ngOnInit () {
         this.stageFormDefinition = {
             comment: [''],
@@ -374,6 +377,24 @@ export class Stage5bComponent extends StageComponent implements OnInit {
         this.stageDescription = Stage5bDesc;
         this.currentPOI = this.currentProject.institute.organization.dioikitikoSumvoulio;
         super.ngOnInit();
+    }
+
+    emitNewValues(approved: boolean) {
+        if ( !isNullOrUndefined(this.oldSupplierAndAmount) ) {
+            const newValArray = [];
+            newValArray.push(this.oldSupplierAndAmount[0]);
+            newValArray.push(this.oldSupplierAndAmount[1]);
+            this.newValues.emit(newValArray);
+        }
+        this.approveRequest(approved);
+    }
+
+    updateSupplier(event: any) {
+        this.oldSupplierAndAmount[0] = event.target.value;
+    }
+
+    updateAmount(event: any) {
+        this.oldSupplierAndAmount[1] = event.target.value;
     }
 }
 

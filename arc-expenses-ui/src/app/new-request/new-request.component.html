@@ -100,7 +100,9 @@
                       </div>
                     </div>
                     <div *ngIf="checkIfTrip()" class="uk-margin">
-                      <label class="uk-form-label" for="request-supplier">Προμηθευτής <span>(*)</span></label>
+                      <label class="uk-form-label" for="request-supplier">Προμηθευτής
+                        <span *ngIf="isSupplierRequired === true" class="uk-display-inline">(*)</span>
+                      </label>
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">
                           <div class="uk-width-1-1@s">
@@ -113,7 +115,8 @@
                     <div *ngIf="checkIfTrip()" class="uk-margin">
                       <label class="uk-form-label" for="request-ssm">Τρόπος επιλογής προμηθευτή <span>(*)</span></label>
                       <div class="uk-form-controls">
-                        <select class="uk-select" id="request-ssm" formControlName="supplierSelectionMethod" name="ssm">
+                        <select class="uk-select" id="request-ssm"
+                                formControlName="supplierSelectionMethod" (change)="checkIfSupplierIsRequired()">
                           <option value="">-- επιλέξτε τρόπο --</option>
                           <option *ngFor="let sel of selMethods" value="{{sel}}">{{sel}}</option>
                         </select>
