@@ -1,22 +1,38 @@
 package arc.expenses.messages;
 
+import arc.expenses.service.UserServiceImpl;
+import eu.openminted.registry.core.domain.FacetFilter;
 import gr.athenarc.domain.Request;
 import arc.expenses.mail.EmailMessage;
+import gr.athenarc.domain.User;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class StageMessages {
     public enum UserType {USER, POI, nextPOI}
-    public enum RequestState {INITIALIZED, ACCEPTED, REJECTED, FINISHED}
+    public enum RequestState {INITIALIZED, ACCEPTED, ACCEPTED_DIAVGEIA, REVIEW, REJECTED, FINISHED}
+
+    @Autowired
+    UserServiceImpl userService;
 
     public List<EmailMessage> createMessages(String prevStage, String nextStage, Request request) {
         List<EmailMessage> emails = new ArrayList<>();
+        List<User> users = userService.getAll(new FacetFilter()).getResults();
 
         String firstname;
         String lastname;
         String subject = "[ARC-REQUEST] Αίτηση " + request.getId();
 
+
+        if (request.getStatus().equals("rejected")) {
+            emails.add(createMessage(request.getRequester().getEmail(), subject, messageTemplates(
+                    null, null, request.getId(), UserType.USER, RequestState.REJECTED,
+                    request.getStage1().getRequestDate())));
+            return emails;
+        }
 
         // Stage 1 -> 2
         if (prevStage == null && nextStage.equals("2")) {
@@ -40,6 +56,11 @@ public class StageMessages {
         else if (prevStage.equals("2") && nextStage.equals("3")) {
             firstname = request.getStage2().getUser().getFirstname();
             lastname = request.getStage2().getUser().getLastname();
+
+            // email to user
+            emails.add(createMessage(request.getRequester().getEmail(), subject, messageTemplates(
+                    null, null, request.getId(), UserType.USER, RequestState.ACCEPTED,
+                    request.getStage1().getRequestDate())));
 
             // email report to POI
             emails.add(createMessage(request.getProject().getScientificCoordinator().getEmail(), subject,
@@ -256,6 +277,10 @@ public class StageMessages {
         else if (prevStage.equals("6") && nextStage.equals("7")) {
             firstname = request.getStage6().getUser().getFirstname();
             lastname = request.getStage6().getUser().getLastname();
+
+            // user email
+            emails.add(createMessage(request.getRequester().getEmail(), subject, messageTemplates(firstname, lastname,
+                    request.getId(), UserType.USER, RequestState.ACCEPTED_DIAVGEIA, request.getStage6().getDate())));
 
             // email report to POI
             emails.add(createMessage(
@@ -487,7 +512,9 @@ public class StageMessages {
                                     RequestState.ACCEPTED, null))));
         }
 
-        return emails;
+        List<EmailMessage> mails;
+        mails = filterOutNonImmediate(emails);
+        return mails;
     }
 
     private EmailMessage createMessage(String to, String subject, String text) {
@@ -498,6 +525,23 @@ public class StageMessages {
         return mail;
     }
 
+    public User getUserByEmail(final List<User> users, final String email) {
+        return users.parallelStream().filter(user -> user.getEmail().equals(email)).findAny().get();
+//        return users.stream().filter(user -> user.getEmail().equals(email)).findAny().get();
+    }
+
+    private List<EmailMessage> filterOutNonImmediate(List<EmailMessage> emails) {
+        List<User> users = userService.getAll(new FacetFilter()).getResults();
+        for (Iterator<EmailMessage> iterator = emails.iterator(); iterator.hasNext();) {
+            EmailMessage email = iterator.next();
+            User user = getUserByEmail(users, email.getRecipient());
+            if (!user.getReceiveEmails() || !user.getImmediateEmails()) {
+                emails.remove(email);
+            }
+        }
+        return emails;
+    }
+
 
     private String messageTemplates(String firstname, String lastname, String id, UserType type,
                                     RequestState state, String date) {
@@ -506,11 +550,14 @@ public class StageMessages {
             if (state == RequestState.INITIALIZED) {
                 messageText = "Το αίτημά σας, με κωδικό " + id + ", υποβλήθηκε επιτυχώς στις " + date;
             } else if (state == RequestState.ACCEPTED) {
-                messageText = "Το αίτημά σας ελέγχθηκε από τον υπεύθυνο: " + firstname + " " + lastname;
+                messageText = "Το αίτημά σας εγκρίθηκε από τον επιστημονικό υπεύθυνο: " + firstname + " " + lastname;
+            } else if (state == RequestState.ACCEPTED_DIAVGEIA) {
+                messageText = "Το αίτημά σας με κωδικό " + id + " εγκρίθηκε από τον υπεύθυνο της Διαύγειας, " +
+                        firstname + " " + lastname + " στις " + date + ". \nΜπορείτε να προχωρήσετε με τις αγορές σας.";
             } else if (state == RequestState.FINISHED) {
                 messageText = "Το αίτημά σας με κωδικό " + id + " ελέγχθηκε κι εγκρίθηκε επιτυχώς!";
             } else if (state == RequestState.REJECTED) {
-                messageText = "Το αίτημά σας με κωδικό " + id + " απορρίφθηκε...";
+                messageText = "Το αίτημά σας με κωδικό " + id + " απορρίφθηκε.";
             }
         } else if (type == UserType.POI) {
             if (state == RequestState.INITIALIZED) {
@@ -521,12 +568,17 @@ public class StageMessages {
                 messageText = "Ολοκληρώθηκε το αίτημα με κωδικό " + id + " από τον/την " + firstname + " " + lastname;
             } else if (state == RequestState.REJECTED) {
                 messageText = "Απορρίφθηκε το αίτημα με κωδικό " + id + " από τον/την " + firstname + " " + lastname;
+            } else if (state == RequestState.REVIEW) {
+                messageText = "Tο αίτημα με κωδικό " + id + ", επιστράφηκε για επανέλεγχο από τον/την " + firstname +
+                        " " + lastname;
             }
         } else if (type == UserType.nextPOI) {
             if (state == RequestState.INITIALIZED) {
                 messageText = "Nέα αίτηση υποβλήθηκε στο σύστημα. Κωδικός αίτησης: " + id;
             } else if (state == RequestState.ACCEPTED) {
                 messageText = "Νέο αίτημα προς έλεγχο με κωδικό " + id;
+            } else if (state == RequestState.REVIEW) {
+                messageText = "Το αίτημα με κωδικό " + id + " βρίσκεται υπό επανέλεγχο";
             } else if (state == RequestState.FINISHED) {
                 messageText = "";
             } else if (state == RequestState.REJECTED) {

@@ -18,7 +18,7 @@ import java.util.Properties;
 @Component
 public class JavaMailer {
     @Value("${mail.username}")
-    private String username;
+    private String address;
 
     @Value("${mail.host}")
     private String smtpHost;
@@ -48,15 +48,18 @@ public class JavaMailer {
 
         try {
             MimeMessage msg = new MimeMessage(session);
-            msg.setFrom(username);
-//            msg.setRecipients(Message.RecipientType.TO, to);
-            msg.setRecipients(Message.RecipientType.TO, username);
+            msg.setFrom(address);
+            if (mailDebug) {
+                msg.setRecipients(Message.RecipientType.TO, address);
+            } else {
+                msg.setRecipients(Message.RecipientType.TO, to);
+            }
             msg.setSubject(subject);
             msg.setSentDate(new Date());
             msg.setText(text);
             Transport transport = session.getTransport("smtp");
-            transport.connect(smtpHost, username, password);
-            Transport.send(msg, msg.getAllRecipients(), username, password);
+            transport.connect(smtpHost, address, password);
+            Transport.send(msg, msg.getAllRecipients(), address, password);
         } catch (MessagingException mex) {
             logger.error("sendEmail failed, exception: " + mex);
         }
