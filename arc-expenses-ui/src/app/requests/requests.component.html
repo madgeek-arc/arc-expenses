@@ -1,16 +1,53 @@
+<div class="uk-background-norepeat uk-background-cover uk-background-fixed uk-section uk-padding-remove-bottom uk-flex uk-flex-middle"
+     style="background-image: url('https://dl119.madgik.di.uoa.gr/images/Background_images/RDM6.jpg'); box-sizing: border-box; height: 200px">
+     <!--style="background-image: url('./assets/imgs/omtd_home_2.jpeg'); box-sizing: border-box; height: 150px">-->
+  <div class="uk-position-cover"></div>
+  <div class="uk-width-1-1">
+    <div class="uk-position-relative">
+      <div class="uk-container uk-margin-medium">
+        <div class="search_box_bg uk-grid-large uk-flex-middle uk-grid uk-grid-stack" uk-grid="">
+          <div class="uk-width-1-1@m uk-first-column">
+            <div>
+              <div class="search_box_bg" style="text-align:center">
+                <div [formGroup]="keywordField" class="uk-align-center uk-margin-top">
+                  <input class="uk-input uk-width-2-3 uk-search-field"
+                         placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο" formControlName="keyword">
+                  <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="getSearchResults()"><i class="fas fa-search"></i> Αναζήτηση</button>
+                </div>
+                <!--<ul *ngIf="urlParameters && urlParameters.length>0"-->
+                    <!--class="facets-selected cf uk-width-medium-9-10">-->
+                  <!--<ng-template ngFor let-urlParameter [ngForOf]="urlParameters">-->
+                    <!--<ng-template [ngIf]="urlParameter.key!='from'">-->
+                      <!--<li *ngFor="let facet of urlParameter.values" class="search-tag">-->
+                        <!--<span class="title">{{urlParameter.key}}:</span> {{facet}} <a-->
+                        <!--(click)="deselectFacet(urlParameter.key, facet)"-->
+                        <!--data-role="remove"></a>-->
+                      <!--</li>-->
+                    <!--</ng-template>-->
+                  <!--</ng-template>-->
+                <!--</ul>-->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="uk-section-default uk-section uk-section-small uk-padding-remove-bottom" style="min-height: 325px">
-  <div class="uk-container">
+  <div class="uk-container uk-container-expand">
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
       <div class="uk-width-1-1@m uk-first-column">
 
-        <h1 class="uk-h3 uk-heading-bullet uk-padding-small uk-margin-remove">{{title}}</h1>
+        <!--<h1 class="uk-h3 uk-heading-bullet uk-padding-small uk-margin-remove">{{title}}</h1>-->
 
         <!-- TOP HELP CONTENT -->
         <help-content #topHelperContent [position]="'top'"
                       [ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
         </help-content>
 
-        <div class="uk-container uk-margin-medium-top uk-margin-remove">
+        <div class="uk-container uk-container-expand uk-margin-medium-top uk-margin-remove">
           <div class="uk-grid">
 
             <!-- LEFT HELP CONTENT -->
@@ -21,13 +58,13 @@
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
-                <div class="uk-form-horizontal uk-margin-large">
-                    <div [formGroup]="keywordField" class="uk-width-1-2 uk-align-center uk-margin-top">
-                        <input class="uk-input uk-width-2-3 uk-search-field"
-                               placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο" formControlName="keyword">
-                        <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="getSearchResults()">Αναζήτηση</button>
-                    </div>
-                </div>
+                <!--<div class="uk-form-horizontal uk-margin-large">-->
+                    <!--<div [formGroup]="keywordField" class="uk-width-1-2 uk-align-center uk-margin-top">-->
+                        <!--<input class="uk-input uk-width-2-3 uk-search-field"-->
+                               <!--placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο" formControlName="keyword">-->
+                        <!--<button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="getSearchResults()">Αναζήτηση</button>-->
+                    <!--</div>-->
+                <!--</div>-->
                 <div>
                     <div *ngIf="errorMessage" class="uk-alert uk-alert-warning">{{errorMessage}}</div>
                     <div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">
@@ -35,7 +72,7 @@
                         <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
                     </div>
                     <div *ngIf="searchResults">
-                        <div class="uk-grid page-controls">
+                        <div class="uk-grid page-controls uk-flex-right">
                             <div class="uk-margin-bottom ">
                                 <div class="show-options uk-inline">
                                     <div class="filterLabel">Κατάσταση:</div>
@@ -108,21 +145,21 @@
                                     <table class="uk-table uk-table-hover uk-table-divider">
                                         <thead>
                                             <tr>
-                                                <th>Αρ.Πρωτοκόλλου</th>
-                                                <th>Είδος</th>
-                                                <th><a (click)="sortBy('request_project')" title="Ταξινόμηση με βάση τον τίτλο του έργου">
-                                                    Πρόγραμμα&nbsp;
+                                                <th>Αρ.Πρωτοκολλου</th>
+                                                <th>Ειδος</th>
+                                                <th><a (click)="sortBy('request_project')" title="Ταξινόμηση με βάση το ακρώνυμο του έργου">
+                                                    Εργο&nbsp;
                                                     <span *ngIf="orderField && (orderField === 'request_project')"
                                                           [innerHtml]="getOrderSign()"></span>
                                                     </a>
                                                 </th>
-                                                <th><a (click)="sortBy('request_institute')" title="Ταξινόμηση με βάση το όνομα του Ινστιτούτου" class="uk-margin-large-right">
-                                                    Ινστιτούτο/Μονάδα
+                                                <th><a (click)="sortBy('request_institute')" title="Ταξινόμηση με βάση το όνομα του Ινστιτούτου ή της Μονάδας" class="uk-margin-large-right">
+                                                    Ινστιτουτο / Μοναδα
                                                     <span *ngIf="orderField && (orderField === 'request_institute')"
                                                           [innerHtml]="getOrderSign()"></span>
                                                 </a></th>
 
-                                                <th>Αιτών</th>
+                                                <th>Αιτων</th>
                                                 <th><a (click)="sortBy('creation_date')" title="Ταξινόμηση με βάση την ημερομηνία υποβολής του αιτήματος">
                                                     Ημ/νια&nbsp;
                                                     <span *ngIf="orderField && (orderField === 'creation_date')"
@@ -130,12 +167,12 @@
                                                     </a>
                                                 </th>
                                                 <th *ngIf="!isSimpleUser"><a (click)="sortBy('request_stage')" title="Ταξινόμηση με βάση το στάδιο" class="uk-margin-right">
-                                                    Στάδιο&nbsp;
+                                                    Σταδιο&nbsp;
                                                     <span *ngIf="orderField && (orderField === 'request_stage')"
                                                           [innerHtml]="getOrderSign()"></span>
                                                     </a>
                                                 </th>
-                                                <th><span class="uk-margin-right">Κατάσταση</span></th>
+                                                <th><span class="uk-margin-right">Κατασταση</span></th>
                                             </tr>
                                             <tr *ngIf="noRequests">
                                                 <td colspan="7" class="uk-alert uk-width-1-1">{{noRequests}}</td>

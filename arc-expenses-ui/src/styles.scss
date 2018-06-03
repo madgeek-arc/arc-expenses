@@ -13,3 +13,20 @@
   top: 12px;
   left: 20px;
 }
+
+.whiteFilm {
+  background: #ffffff none repeat scroll 0 0;
+  height: 100%;
+  left: 0;
+  opacity: 0.7;
+  position: fixed;
+  text-align: center;
+  top: 0;
+  width: 100%;
+  z-index: 5;
+}
+
+.loader {
+  color: #2c318c;
+  margin: 25% auto;
+}

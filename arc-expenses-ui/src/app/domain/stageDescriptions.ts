@@ -178,6 +178,7 @@ export const Stage13Desc = {
 /* will be used everytime a stage title is needed */
 export const stagesMap = {
     'all': 'Όλα',
+    '1': 'Υποβολή αιτήματος',
     '2': 'Έγκριση επιστημονικού υπευθύνου',
     '3': 'Έλεγχος χειριστή έργου',
     '4': 'Βεβαίωση Π.Ο.Υ',

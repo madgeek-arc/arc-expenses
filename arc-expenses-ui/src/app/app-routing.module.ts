@@ -19,7 +19,7 @@ const appRoutes: Routes = [
     component: HomeComponent
   },
   {
-    path: 'new-request',
+    path: 'new-request/:type',
     canActivate: [AuthGuardService],
     component: NewRequestComponent
   },
