@@ -1,18 +1,21 @@
 package arc.expenses.service;
 
-import arc.expenses.utils.ParserPool;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
-import gr.athenarc.domain.Request;
+import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.User;
 import org.apache.log4j.Logger;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import javax.swing.text.html.parser.Parser;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -23,11 +26,23 @@ public class UserServiceImpl extends GenericService<User> {
     @Autowired
     DataSource dataSource;
 
+    @Autowired
+    private StoreRESTClient storeRESTClient;
+
+    @Value("${user.signature.archiveID}")
+    private String DS_ARCHIVE;
+
     private Logger LOGGER = Logger.getLogger(UserServiceImpl.class);
 
     public UserServiceImpl() {
         super(User.class);
     }
+
+    @PostConstruct
+    private void createArchiveForSignatures(){
+        storeRESTClient.createArchive("DS_ARCHIVE");
+    }
+
 
     @Override
     public String getResourceType() {
@@ -114,4 +129,9 @@ public class UserServiceImpl extends GenericService<User> {
         }
         return resultSet;
     }
+
+    public String getSignatureArchiveID() {
+        return DS_ARCHIVE;
+    }
+
 }

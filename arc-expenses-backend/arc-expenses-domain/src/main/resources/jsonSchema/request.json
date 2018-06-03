@@ -44,6 +44,7 @@
         "lastname": { "type": "string" },
         "firstnameLatin": { "type": "string" },
         "lastnameLatin": { "type": "string" },
+        "signatureArchiveId": { "type": "string" },
         "receiveEmails": { "type": "boolean" },
         "immediateEmails": { "type": "boolean" }
       },

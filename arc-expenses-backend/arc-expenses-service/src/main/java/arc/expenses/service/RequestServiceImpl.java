@@ -205,15 +205,13 @@ public class RequestServiceImpl extends GenericService<Request> {
         return storeRESTClient.createArchive().getResponse();
     }
 
-    public ResponseEntity<Object> upLoadFile(Request request, MultipartFile file) {
+    public ResponseEntity<Object> upLoadFile(String archiveID,String stage, MultipartFile file) {
 
-        String stage = request.getStage();
-
-        if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(request.getArchiveId(),request.getId()+"_stage"+stage).getResponse()))
-            storeRESTClient.deleteFile(request.getArchiveId(),stage+"/"+file.getName());
+        if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(archiveID,"stage"+stage).getResponse()))
+            storeRESTClient.deleteFile(archiveID,"stage"+stage);
 
         try {
-            storeRESTClient.storeFile(file.getBytes(),request.getArchiveId(),request.getId()+"_stage"+stage);
+            storeRESTClient.storeFile(file.getBytes(),archiveID,"stage"+stage);
         } catch (IOException e) {
             LOGGER.info(e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -221,8 +219,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public String downLoadArchive() {
-        return null;
-        //return storeRESTClient.downloadArchive().getResponse();
+    public void downLoadFile(String archiveID,String fileName) {
+        storeRESTClient.downloadArchive(archiveID+"/"+fileName,"/tmp");
     }
 }
