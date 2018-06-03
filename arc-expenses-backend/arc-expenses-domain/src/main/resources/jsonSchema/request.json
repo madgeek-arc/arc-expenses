@@ -321,6 +321,10 @@
       "description": "The type of the request.",
       "type": "string"
     },
+    "archiveId": {
+      "description": "The archiveId of the request.",
+      "type": "string"
+    },
     "project": { "$ref": "#/definitions/project" },
     "requester": { "$ref": "#/definitions/user" },
     "requesterPosition": {

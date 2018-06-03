@@ -13,6 +13,13 @@
       "type": "java.lang.String",
       "primaryKey":false,
       "multivalued":false
+    },
+    {
+      "name": "user_immediate_emails",
+      "path": "$.immediateEmails",
+      "type": "java.lang.String",
+      "primaryKey":false,
+      "multivalued":false
     }
   ],
   "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",

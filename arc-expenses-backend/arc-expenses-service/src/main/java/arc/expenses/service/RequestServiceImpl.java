@@ -3,11 +3,17 @@ package arc.expenses.service;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
+import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
 import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -16,6 +22,8 @@ import java.util.concurrent.ExecutionException;
 @Service("requestService")
 public class RequestServiceImpl extends GenericService<Request> {
 
+    @Autowired
+    private StoreRESTClient storeRESTClient;
 
     private Logger LOGGER = Logger.getLogger(RequestServiceImpl.class);
 
@@ -91,8 +99,8 @@ public class RequestServiceImpl extends GenericService<Request> {
                              " request_project_operator =  "+ email + " or " +
                              " request_project_operator_delegates = " + email + " or " +
                              " request_project_scientificCoordinator = " + email + " or " +
-                             " request_organization_POY = " + email + " or " +
-                             " request_organization_POY_delegate =  " + email+ " or "+
+                             " request_organization_POΙ = " + email + " or " +
+                             " request_organization_POΙ_delegate =  " + email+ " or "+
                              " request_institute_accountingRegistration = " + email + " or " +
                              " request_institute_diaugeia = " + email + " or " +
                              " request_institute_accountingPayment = " + email + " or " +
@@ -102,7 +110,9 @@ public class RequestServiceImpl extends GenericService<Request> {
                              " request_institute_accountingPayment_delegate =  " + email +" or " +
                              " request_institute_diaugeia_delegate =  " + email +" or " +
                              " request_organization_director = " + email + " or " +
-                             " request_organization_director_delegate =  " + email + " ) ";
+                             " request_institute_director = " + email + " or " +
+                             " request_organization_director_delegate =  " + email + " or "+
+                             " request_institute_director_delegate =  " + email + " ) ";
         whereClause += user_clause;
 
         if(!status.equals("all"))
@@ -144,5 +154,75 @@ public class RequestServiceImpl extends GenericService<Request> {
         }
         return new Paging<>(rs.getTotal(),rs.getFrom(),rs.getTo(),resultSet,rs.getOccurrences());
 
+    }
+
+    public List<Request> getPendingRequests(String email) {
+
+        String whereCaluse = " (  ( request_project_operator =  " + email + " or  request_project_operator_delegates = " + email + " ) "
+                           + "      and ( request_stage = 3 or request_stage = 7 ) "
+                           + "    ) "
+                           + " or ( request_project_scientificCoordinator = " + email + " and request_stage = 2 ) "
+                           + " or ( ( request_organization_POΙ =  " + email + " or  request_organization_POΙ_delegate = "  + email + " ) "
+                           + "      and ( request_stage = 4 or request_stage = 9 ) "
+                           + "    ) "
+                           + " or ( ( request_organization_director =  " + email + " or  request_organization_director_delegate = "  + email + " )"
+                           + "      and ( request_stage = 5a or request_stage = 10 ) "
+                           + "    ) "
+                           + " or ( ( request_organization_dioikitikoSumvoulio =  " + email + " or  request_organization_dioikitikoSumvoulio_delegate = "  + email + " )"
+                           + "      and request_stage = 5b "
+                           + "    ) "
+                           + " or ( ( request_institute_diaugeia =  " + email + " or  request_institute_diaugeia_delegate = "  + email + " )"
+                           + "      and ( request_stage = 6 or request_stage = 11 ) "
+                           + "    ) "
+                           + " or ( ( request_institute_accountingDirector =  " + email + " or  request_institute_accountingDirector_delegate = "  + email + " )"
+                           + "      and request_stage = 8 "
+                           + "    ) "
+                           + " or ( ( request_institute_accountingRegistration =  " + email + " or  request_institute_accountingRegistration_delegate = "  + email + " )"
+                           + "      and request_stage = 12 "
+                           + "    ) "
+                           + " or ( ( request_institute_accountingPayment =  " + email + " or  request_institute_accountingPayment_delegate = "  + email + " )"
+                           + "      and request_stage = 13 "
+                           + "    ) ";
+
+        Paging<Resource> rs = searchService.cqlQuery(
+                whereCaluse,"request",
+                1000,0,"",SortOrder.ASC);
+
+
+        List<Request> resultSet = new ArrayList<>();
+        for(Resource resource:rs.getResults()) {
+            try {
+                resultSet.add(parserPool.deserialize(resource,typeParameterClass).get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+        return resultSet;
+
+    }
+
+    public String createArchive() {
+        return storeRESTClient.createArchive().getResponse();
+    }
+
+    public ResponseEntity<Object> upLoadFile(Request request, MultipartFile file) {
+
+        String stage = request.getStage();
+
+        if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(request.getArchiveId(),request.getId()+"_stage"+stage).getResponse()))
+            storeRESTClient.deleteFile(request.getArchiveId(),stage+"/"+file.getName());
+
+        try {
+            storeRESTClient.storeFile(file.getBytes(),request.getArchiveId(),request.getId()+"_stage"+stage);
+        } catch (IOException e) {
+            LOGGER.info(e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    public String downLoadArchive() {
+        return null;
+        //return storeRESTClient.downloadArchive().getResponse();
     }
 }

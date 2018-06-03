@@ -3,6 +3,7 @@ package arc.expenses.controller;
 import arc.expenses.config.SAMLAuthentication;
 import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
+import gr.athenarc.domain.Request;
 import gr.athenarc.domain.User;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import arc.expenses.service.UserServiceImpl;
 
 import java.util.HashMap;
@@ -51,6 +49,8 @@ public class UserController {
             user = userService.getByField("user_email",authentication.getEmail());
             body.put("firstname",user !=null ? user.getFirstname():null);
             body.put("lastname",user !=null ? user.getLastname():null);
+            body.put("immediateEmails",user !=null ? user.getImmediateEmails():null);
+            body.put("receiveEmails",user !=null ? user.getReceiveEmails():null);
         } catch (Exception e) {
             LOGGER.fatal(e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -70,17 +70,10 @@ public class UserController {
     }
 
 
-    // TODO: remove method
-    @RequestMapping(value =  "/add", method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public User add(@RequestBody User user) {
-        return userService.add(user);
+    @RequestMapping(value =  "/getUsersWithImmediateEmailPreference", method = RequestMethod.GET)
+    public List<User> getUsersWithImmediateEmailPreference() {
+        return userService.getUsersWithImmediateEmailPreference();
     }
 
-    // TODO: remove method
-    @RequestMapping(value =  "/show/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Browsing<User> showUsers() {
-        return userService.getAll(new FacetFilter());
-    }
 
-}
+    }

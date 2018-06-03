@@ -65,8 +65,30 @@
     },
     {
       "multivalued": true,
-      "name": "request_organization_director_delegate",
-      "path": "$.project.institute.organization.director.delegates[*].email",
+      "name": "request_organization_POI_delegate",
+      "path": "$.project.institute.organization.POI.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_organization_dioikitikoSumvoulio",
+      "path": "$.project.institute.organization.dioikitikoSumvoulio.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "request_organization_dioikitikoSumvoulio_delegate",
+      "path": "$.project.institute.organization.dioikitikoSumvoulio.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_institute_director",
+      "path": "$.project.institute.director.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "request_institue_director_delegate",
+      "path": "$.project.institute.director.delegates[*].email",
       "type": "java.lang.String"
     },
     {

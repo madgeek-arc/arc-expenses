@@ -3,6 +3,7 @@ package arc.expenses.controller;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.SearchService;
+import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.Request;
 import io.swagger.annotations.Api;
 import org.slf4j.Logger;
@@ -14,6 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import arc.expenses.service.PolicyCheckerService;
 import arc.expenses.service.RequestServiceImpl;
+import org.springframework.web.multipart.MultipartFile;
+import sun.misc.IOUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/request")
@@ -30,6 +38,9 @@ public class RequestController {
 
     @Autowired
     SearchService searchService;
+
+
+
 
 
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)
@@ -57,6 +68,7 @@ public class RequestController {
     @ResponseBody
     Request addRequest(@RequestBody Request request) {
         request.setId(requestService.generateID());
+        request.setArchiveId(requestService.createArchive());
         return requestService.add(request);
     }
 
@@ -81,6 +93,28 @@ public class RequestController {
         return new ResponseEntity<>( false, HttpStatus.OK);
     }
 
+    @RequestMapping(value =  "/getUserPendingRequests", method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Request> getPendingRequests(@RequestParam(value = "email") String email) {
+        return requestService.getPendingRequests(email);
+    }
+
+    @RequestMapping(value = "/store/uploadFile", method = RequestMethod.POST,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> uploadFile(@RequestBody Request request,
+                             @RequestParam("file") MultipartFile file) throws IOException {
+        return requestService.upLoadFile(request,file);
+    }
+
+    @RequestMapping(value = "/store/downloadArchive", method = RequestMethod.GET)
+    @ResponseBody
+    public String downloadArchive(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return requestService.downLoadArchive();
+      /*  String mimeType = "application/zip";
+        String filename = request.getParameter("archiveId") + ".zip";
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        response.setContentType(mimeType);
+        IOUtils.copyLarge(storeService.downloadCorpus(request.getParameter("archiveId")), response.getOutputStream());*/
+
+    }
 
 
 
