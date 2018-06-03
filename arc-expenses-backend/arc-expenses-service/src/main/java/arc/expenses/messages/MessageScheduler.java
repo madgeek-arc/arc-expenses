@@ -1,39 +1,64 @@
 package arc.expenses.messages;
 
 import arc.expenses.mail.EmailMessage;
+import arc.expenses.mail.JavaMailer;
+import arc.expenses.service.RequestServiceImpl;
 import arc.expenses.service.UserServiceImpl;
+import eu.openminted.registry.core.domain.FacetFilter;
+import gr.athenarc.domain.Request;
 import gr.athenarc.domain.User;
-import org.apache.logging.log4j.core.config.Scheduled;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@Scheduled
+@Configuration
+@EnableScheduling
 public class MessageScheduler {
 
-    @Autowired
-    UserServiceImpl userService;
-    Map<User, List<EmailMessage>> queue = null;
+    @Value("${messages.cronExpr:0 0 8 * * ?}")
+    private String cronexpr;
 
-    public void addToQueue(List<EmailMessage> emails) {
-        List<EmailMessage> messages = null;
-        if (queue == null) {
-            Map<User, List<EmailMessage>> queue = new HashMap<>();
-        }
-        for (EmailMessage email: emails) {
-            User user = userService.get(email.getRecipient());
-            if (queue.containsKey(user)) {
-                messages = queue.get(user);
-                messages.add(email);
-                queue.put(user, messages);
-            } else {
-                messages = new ArrayList<>();
-                messages.add(email);
-                queue.put(user, messages);
+    @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
+    private RequestServiceImpl requestService;
+
+    @Autowired
+    private JavaMailer javaMailer;
+
+    Logger logger = Logger.getLogger(MessageScheduler.class);
+
+    List<EmailMessage> queue = null;
+
+//    @Scheduled(cron = cronexpr)
+    @Scheduled(cron = "0 * * * * ?")
+    public void scheduledEmails() {
+        logger.info("this is a log from scheduled emails");
+        queue = new ArrayList<>();
+        List<User> users = userService.getAll(new FacetFilter()).getResults();
+
+        for (User user: users) {
+            if (user.getReceiveEmails() && !user.getImmediateEmails()) {
+                List<Request> user_requests = requestService.getPendingRequests(user.getEmail());
+                String text = createDigest(user_requests);
+                queue.add(new EmailMessage(user.getEmail(), "[ARC-Expenses] Daily Digest", text));
             }
         }
+        queue.forEach(email -> javaMailer.sendEmail(email.getRecipient(), email.getSubject(), email.getText()));
+    }
+
+    private String createDigest(List<Request> requests) {
+        String text = "Εκκρεμεί η διεκπεραίωση των παρακάτω αιτημάτων: ";
+        for (Request req: requests) {
+            text += "\n" + req.getId();
+        }
+        return text;
     }
 }

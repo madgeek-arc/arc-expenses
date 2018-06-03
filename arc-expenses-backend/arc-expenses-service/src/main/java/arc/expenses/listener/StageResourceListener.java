@@ -55,8 +55,10 @@ public class StageResourceListener implements ResourceListener {
             try {
                 Request previousRequest = parserPool.deserialize(previousResource, Request.class).get();
                 Request newRequest = parserPool.deserialize(previousResource, Request.class).get();
-                if (previousRequest.getStage() != newRequest.getStage()) {
-                    logger.info("Stage changed from '" + previousRequest.getStage() + "' to '" + newRequest.getStage() + "'");
+                if (previousRequest.getStage() != newRequest.getStage() ||
+                        previousRequest.getStatus() != newRequest.getStatus()) {
+                    logger.info("Stage changed: " + previousRequest.getStage() + " " + previousRequest.getStatus() +
+                            " -> " + newRequest.getStage() + " " + newRequest.getStatus());
                     StageMessages stageMessages = new StageMessages();
                     List<EmailMessage> emails = stageMessages
                             .createMessages(previousRequest.getStage(), newRequest.getStage(), newRequest);
