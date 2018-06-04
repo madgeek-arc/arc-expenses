@@ -54,10 +54,10 @@ public class ProjectServiceImpl extends GenericService<Project> {
         try {
             connection = dataSource.getConnection();
             statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("select project_acronym::text || '(' || project_institute::text || ')' from project_view");
+            ResultSet rs = statement.executeQuery("select project_acronym::text || '(' || project_institute::text || ')' as projectName from project_view");
 
             while(rs.next())
-                acronyms.add(rs.getString("project_acronym"));
+                acronyms.add(rs.getString("projectName"));
 
             rs.close();
             statement.close();

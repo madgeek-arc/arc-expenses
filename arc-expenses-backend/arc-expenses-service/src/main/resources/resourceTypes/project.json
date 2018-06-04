@@ -22,7 +22,6 @@
       "type": "java.lang.String"
     },
     {
-      "multivalued": true,
       "primaryKey":false,
       "name": "project_institute",
       "path": "$.institute.id",

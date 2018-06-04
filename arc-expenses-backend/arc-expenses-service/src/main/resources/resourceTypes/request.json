@@ -65,8 +65,8 @@
     },
     {
       "multivalued": true,
-      "name": "request_organization_POI_delegate",
-      "path": "$.project.institute.organization.POI.delegates[*].email",
+      "name": "request_organization_director_delegate",
+      "path": "$.project.institute.organization.director.delegates[*].email",
       "type": "java.lang.String"
     },
     {
