@@ -20,7 +20,7 @@ public class StageMessages {
 
     public List<EmailMessage> createMessages(String prevStage, String nextStage, Request request) {
         List<EmailMessage> emails = new ArrayList<>();
-        List<User> users = userService.getAll(new FacetFilter()).getResults();
+//        List<User> users = userService.getUsersWithImmediateEmailPreference();
 
         String firstname;
         String lastname;
@@ -531,15 +531,17 @@ public class StageMessages {
     }
 
     private List<EmailMessage> filterOutNonImmediate(List<EmailMessage> emails) {
-        List<User> users = userService.getAll(new FacetFilter()).getResults();
+        List<EmailMessage> emailList = new ArrayList<>();
+        List<User> users = userService.getUsersWithImmediateEmailPreference();
         for (Iterator<EmailMessage> iterator = emails.iterator(); iterator.hasNext();) {
             EmailMessage email = iterator.next();
             User user = getUserByEmail(users, email.getRecipient());
-            if (!user.getReceiveEmails() || !user.getImmediateEmails()) {
-                emails.remove(email);
+//            if (user.getReceiveEmails() && user.getImmediateEmails()) {
+            if (user != null) {
+                emailList.add(email);
             }
         }
-        return emails;
+        return emailList;
     }
 
 
