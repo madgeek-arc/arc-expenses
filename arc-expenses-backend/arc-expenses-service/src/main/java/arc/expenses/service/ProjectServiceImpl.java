@@ -1,9 +1,12 @@
 package arc.expenses.service;
 
+import eu.openminted.registry.core.domain.Paging;
+import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.service.SearchService;
 import eu.openminted.registry.core.service.ServiceException;
 import gr.athenarc.domain.Project;
 import org.apache.log4j.Logger;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,15 +38,24 @@ public class ProjectServiceImpl extends GenericService<Project> {
         return "project";
     }
 
-    public Project getByAcronym(String acronym) {
-        Project project;
-        try {
-            project = parserPool.deserialize(searchService.searchId("project",new SearchService.KeyValue("project_acronym", acronym)), Project.class).get();
-        } catch (UnknownHostException | ExecutionException | InterruptedException e) {
-            LOGGER.fatal(e);
-            throw new ServiceException(e);
+    public Project getByAcronym(String acronym,String institute) {
+
+        Paging<Resource> rs = searchService.cqlQuery(
+                "project_acronym = " + acronym + " and project_institute = " + institute,"project",
+                10,0, "", SortOrder.ASC);
+
+        List<Project> resultSet = new ArrayList<>();
+        for(Resource resource:rs.getResults()) {
+            try {
+                resultSet.add(parserPool.deserialize(resource,typeParameterClass).get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
         }
-        return project;
+        return resultSet.get(0);
+
+
+
     }
 
     public List<String> getAllProjectNames() {
@@ -54,7 +66,7 @@ public class ProjectServiceImpl extends GenericService<Project> {
         try {
             connection = dataSource.getConnection();
             statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("select project_acronym::text || '(' || project_institute::text || ')' as projectName from project_view");
+            ResultSet rs = statement.executeQuery("select project_acronym::text || ' (' || project_institute::text || ')' as projectName from project_view");
 
             while(rs.next())
                 acronyms.add(rs.getString("projectName"));
