@@ -69,6 +69,7 @@ export class Request {
     stage12: Stage12;
     stage13: Stage13;
     id: string;
+    archiveId: string;
     type: string;
     project: Project;
     requester: User;
@@ -217,4 +218,6 @@ export class User {
     lastnameLatin: string;
     receiveEmails: boolean;
     immediateEmails: boolean;
+    signatureArchiveId: string;
+    signatureAttachment: Attachment;
 }

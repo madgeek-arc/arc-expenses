@@ -159,7 +159,9 @@ export class AuthenticationService {
             lastname: lastname,
             lastnameLatin: sessionStorage.getItem('lastnameLatin'),
             receiveEmails: receiveEmails,
-            immediateEmails: immediateEmails
+            immediateEmails: immediateEmails,
+            signatureArchiveId: '',
+            signatureAttachment: null
         };
         // ADD SIGNATURE ATTACHMENT
 

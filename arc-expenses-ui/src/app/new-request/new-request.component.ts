@@ -207,7 +207,9 @@ export class NewRequestComponent implements OnInit {
         this.errorMessage = '';
         if (this.newRequestForm.get('program').value) {
             this.showSpinner = true;
-            this.projectService.getProjectByAcronym(this.newRequestForm.get('program').value).subscribe (
+            const project = (this.newRequestForm.get('program').value).split('(');
+            const institute = project.split(')');
+            this.projectService.getProjectByAcronym(project[0].trim(), institute[0].trim()).subscribe (
                 res => {
                     this.chosenProject = res;
                     console.log(this.chosenProject);
