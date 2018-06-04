@@ -9,7 +9,6 @@ import gr.athenarc.domain.Request;
 import gr.athenarc.domain.User;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,10 +18,7 @@ import java.util.List;
 
 @Configuration
 @EnableScheduling
-public class MessageScheduler {
-
-    @Value("${messages.cronExpr:0 0 8 * * ?}")
-    private String cronexpr;
+public class MessageScheduler  {
 
     @Autowired
     private UserServiceImpl userService;
@@ -37,10 +33,10 @@ public class MessageScheduler {
 
     List<EmailMessage> queue = null;
 
-//    @Scheduled(cron = cronexpr)
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "${messages.cronExpr:0 0 8 * * ?}")
+//    @Scheduled(cron = "* * * * * ?") // use this for debugging
     public void scheduledEmails() {
-        logger.info("this is a log from scheduled emails");
+        logger.info("Sending scheduled emails");
         queue = new ArrayList<>();
         List<User> users = userService.getAll(new FacetFilter()).getResults();
 
@@ -61,4 +57,5 @@ public class MessageScheduler {
         }
         return text;
     }
+
 }
