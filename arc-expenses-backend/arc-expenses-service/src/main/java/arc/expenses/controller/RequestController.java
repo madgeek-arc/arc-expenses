@@ -97,14 +97,4 @@ public class RequestController {
                                              @RequestParam("file") MultipartFile file) throws IOException {
         return requestService.upLoadFile(archiveID,stage,file);
     }
-
-    @RequestMapping(value = "/store/downloadFile", method = RequestMethod.GET)
-    @ResponseBody
-    public void downloadFile(@RequestParam("archiveId") String archiveID,
-                               @RequestParam("file") String file) throws IOException {
-        requestService.downLoadFile(archiveID,file);
-    }
-
-
-
 }

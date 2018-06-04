@@ -1,5 +1,6 @@
 package arc.expenses.service;
 
+import arc.expenses.config.StoreRestConfig;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
@@ -24,6 +25,9 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     @Autowired
     private StoreRESTClient storeRESTClient;
+
+    @Autowired
+    private StoreRestConfig storeRestConfig;
 
     private Logger LOGGER = Logger.getLogger(RequestServiceImpl.class);
 
@@ -207,19 +211,17 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     public ResponseEntity<Object> upLoadFile(String archiveID,String stage, MultipartFile file) {
 
-        if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(archiveID,"stage"+stage).getResponse()))
-            storeRESTClient.deleteFile(archiveID,"stage"+stage);
+        if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(archiveID,stage).getResponse()))
+            storeRESTClient.deleteFile(archiveID,stage);
 
         try {
-            storeRESTClient.storeFile(file.getBytes(),archiveID,"stage"+stage);
+            storeRESTClient.storeFile(file.getBytes(),archiveID,stage);
         } catch (IOException e) {
             LOGGER.info(e);
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("ERROR",HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(storeRestConfig.getStoreHost()+"store/downloadFile/?fileName="+archiveID+"/"+stage,
+                HttpStatus.OK);
     }
 
-    public void downLoadFile(String archiveID,String fileName) {
-        storeRESTClient.downloadArchive(archiveID+"/"+fileName,"/tmp");
-    }
 }
