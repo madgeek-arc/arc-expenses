@@ -83,7 +83,7 @@ export class TopMenuComponent implements OnInit {
         };
 
         // send email somehow
-        /*this.requestService.sendContactFormToService(emailParams).subscribe(
+        this.requestService.sendContactFormToService(emailParams).subscribe(
             res => console.log(res),
             error => {
                 console.log(error);
@@ -91,11 +91,11 @@ export class TopMenuComponent implements OnInit {
                 this.modalError = 'Το μήνυμα δεν εστάλη. Παρακαλώ προσπαθήστε ξανά.';
               },
             () => {
-              this.modalError = '';*/
+              this.modalError = '';
               this.showSpinner = false;
               UIkit.modal('#contactModal').hide();
-            /*}
-        );*/
+            }
+        );
     } else {
       this.modalError = 'Όλα τα πεδία είναι υποχρεωτικά.';
     }

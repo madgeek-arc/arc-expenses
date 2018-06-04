@@ -61,7 +61,7 @@
                         <div class="uk-comment-body uk-text-small uk-text-muted">
                           <i>Ξεκινήστε να γράφετε το όνομα του έργου και επιλέξτε το από την λίστα που θα εμφανιστεί.</i>
                         </div>
-                        <div *ngIf="searchTerm && searchTerm.length > 2" class="uk-nav uk-padding-small uk-width-large uk-position-absolute" style="background-color: white">
+                        <div *ngIf="searchTerm" class="uk-nav uk-padding-small uk-width-large uk-position-absolute" style="background-color: white">
                           <ul>
                             <li *ngFor="let project of projects | filterByTerm: searchTerm">
                               <a (click)="updateProgramInput(project)">{{project}}</a>

@@ -180,7 +180,8 @@
 
                 <stage2-component [showStage]="willShowStage('2')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('2')"
                                   [currentStage]="currentRequest.stage2" [currentProject]="currentRequest.project"
-                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage2-component>
+                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                  (emitFile)="getUploadedFile($event)"></stage2-component>
 
                 <div *ngIf="isSimpleUser && !updateStage1Form" class="uk-alert uk-alert-primary uk-text-center uk-margin-top">
                   Το αίτημά σας {{ stateNames[currentRequest.status] }}
@@ -188,54 +189,66 @@
 
                 <stage3-component [showStage]="willShowStage('3')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('3')"
                                   [currentStage]="currentRequest.stage3" [currentProject]="currentRequest.project"
-                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage3-component>
+                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                  (emitFile)="getUploadedFile($event)"></stage3-component>
 
                 <stage4-component [showStage]="willShowStage('4')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('4')"
                                   [currentStage]="currentRequest.stage4" [currentProject]="currentRequest.project"
-                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage4-component>
+                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                  (emitFile)="getUploadedFile($event)"></stage4-component>
 
 
                 <stage5a-component [showStage]="willShowStage('5a')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('5a')"
                                    [currentStage]="currentRequest.stage5a" [currentProject]="currentRequest.project"
-                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage5a-component>
+                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                   (emitFile)="getUploadedFile($event)"></stage5a-component>
 
                 <stage5b-component [showStage]="willShowStage('5b')"[hasReturnedToPrevious]="checkIfHasReturnedToPrevious('5b')"
                                    [currentStage]="currentRequest.stage5b" [currentProject]="currentRequest.project"
                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
                                    [oldSupplierAndAmount]="infoToStage5b"
-                                   (newValues)="getNewSupplierAndAmount($event)"></stage5b-component>
+                                   (newValues)="getNewSupplierAndAmount($event)"
+                                   (emitFile)="getUploadedFile($event)"></stage5b-component>
 
                 <stage6-component [showStage]="willShowStage('6')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('6')"
                                   [currentStage]="currentRequest.stage6" [currentProject]="currentRequest.project"
-                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage6-component>
+                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                  (emitFile)="getUploadedFile($event)"></stage6-component>
 
                 <stage7-component [showStage]="willShowStage('7')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('7')"
                                   [currentStage]="currentRequest.stage7" [currentProject]="currentRequest.project"
-                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage7-component>
+                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                  (emitFile)="getUploadedFile($event)"></stage7-component>
 
                 <stage8-component [showStage]="willShowStage('8')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('8')"
                                   [currentStage]="currentRequest.stage8" [currentProject]="currentRequest.project"
-                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage8-component>
+                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                  (emitFile)="getUploadedFile($event)"></stage8-component>
 
                 <stage9-component [showStage]="willShowStage('9')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('9')"
                                   [currentStage]="currentRequest.stage9" [currentProject]="currentRequest.project"
-                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage9-component>
+                                  (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                  (emitFile)="getUploadedFile($event)"></stage9-component>
 
                 <stage10-component [showStage]="willShowStage('10')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('10')"
                                    [currentStage]="currentRequest.stage10" [currentProject]="currentRequest.project"
-                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage10-component>
+                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                   (emitFile)="getUploadedFile($event)"></stage10-component>
 
                 <stage11-component [showStage]="willShowStage('11')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('11')"
                                    [currentStage]="currentRequest.stage11" [currentProject]="currentRequest.project"
-                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage11-component>
+                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                   (emitFile)="getUploadedFile($event)"></stage11-component>
 
                 <stage12-component [showStage]="willShowStage('12')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('12')"
                                    [currentStage]="currentRequest.stage12" [currentProject]="currentRequest.project"
-                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage12-component>
+                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                   (emitFile)="getUploadedFile($event)"></stage12-component>
 
                 <stage13-component [showStage]="willShowStage('13')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('13')"
                                    [currentStage]="currentRequest.stage13" [currentProject]="currentRequest.project"
-                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"></stage13-component>
+                                   (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                   (emitFile)="getUploadedFile($event)"></stage13-component>
 
               </div>
             </div>

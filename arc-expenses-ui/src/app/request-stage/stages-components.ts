@@ -21,6 +21,7 @@ export class StageComponent implements OnInit {
     /* output variable that sends the new Stage back to the parent component
      * in order to call the api and update the request */
     @Output() emitStage: EventEmitter<any> = new EventEmitter<any>();
+    @Output() emitFile: EventEmitter<File> = new EventEmitter<File>();
 
     /* output variable that sends back to the parent an alert that the user
      * chose to go back to the previous stage */
@@ -178,6 +179,8 @@ export class StageComponent implements OnInit {
 
                 if (this.uploadedFile) {
                     this.currentStage['attachment'] = this.createAttachment();
+                    this.emitFile.emit(this.uploadedFile);
+
                 }
                 console.log(this.currentStage);
                 this.checkIfSubmitted();

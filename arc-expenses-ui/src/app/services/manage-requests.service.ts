@@ -5,7 +5,7 @@
 import { Injectable } from '@angular/core';
 import { Request } from '../domain/operation';
 import { Observable } from 'rxjs/Observable';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpEvent, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { Paging } from '../domain/extraClasses';
@@ -63,21 +63,18 @@ export class ManageRequestsService {
         );
     }
 
-    /*uploadResourceZip<T>(file : File, corpus : Blob, resourceType : string) : Observable<HttpEvent<T>> {
+    uploadAttachment<T>(archiveid: string, stage: string, file: File): Observable<HttpEvent<T>> {
+        const url = `${this.apiUrl}uploadFile?archiveID=${archiveid}&stage=${stage}`;
+        console.log(`calling ${url}`);
 
-        let formBody : FormData = new FormData();
-        formBody.append(resourceType,corpus);
-        formBody.append('file',file,file.name);
-        const req = new HttpRequest('POST', this._resourcesUrl + `${resourceType}/zipUpload`, formBody,{
+        const formBody: FormData = new FormData();
+        formBody.append('file', file, file.name);
+        const req = new HttpRequest('POST', url, formBody, {
             reportProgress: true,
             withCredentials: true
         });
-        return this.httpClient.request(req).catch(this.handleError);
-
-        // return this.http.post(this._resourcesUrl + 'corpus/zipUpload',formBody,options)
-        //     .map(res => res.json() as T)
-        //     .catch(this.handleError);
-    }*/
+        return this.http.request(req).pipe(catchError(this.handleError));
+    }
 
     searchAllRequests(searchField: string, status: string, stage: string, from: string, quantity: string,
                       order: string, orderField: string, email: string): Observable<Paging<Request>> {
@@ -91,12 +88,13 @@ export class ManageRequestsService {
     }
 
     sendContactFormToService(params: any): Observable<any> {
-        const url = ``;
+        const url = `${environment.API_ENDPOINT}/contactUs/sendMail`;
         console.log(`calling ${url}`);
         console.log(`sending ${JSON.stringify(params)}`);
 
-        return this.http.post<any>(url, JSON.stringify(params), headerOptions)
-                            .pipe( catchError(this.handleError) );
+        return this.http.post<any>(url, JSON.stringify(params), headerOptions).pipe(
+            catchError(this.handleError)
+        );
     }
 
     /*handleError function as provided by angular.io (copied on 27/4/2018)*/

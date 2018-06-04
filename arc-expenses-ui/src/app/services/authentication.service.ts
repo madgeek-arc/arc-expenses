@@ -129,7 +129,7 @@ export class AuthenticationService {
                             sessionStorage.removeItem('state.location');
                             console.log(`logged in - returning to state: ${stateLoc}`);
                         }
-                        this.router.navigate(['/sign-up']);
+                        // this.router.navigate(['/sign-up']);
                     }
                 );
             } else {

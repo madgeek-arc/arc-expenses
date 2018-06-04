@@ -5,6 +5,7 @@ import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { isNullOrUndefined, isUndefined } from 'util';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpEventType } from '@angular/common/http';
 
 @Component({
     selector: 'app-request-stage',
@@ -18,6 +19,7 @@ export class RequestStageComponent implements OnInit {
 
     updateStage1Form: FormGroup;
     uploadedFile: File;
+    uploadedFileURL: string;
     requestedAmount: string;
     stage1AttachmentName = '';
     readonly amountLimit = 20000;
@@ -25,6 +27,7 @@ export class RequestStageComponent implements OnInit {
     isSimpleUser: boolean;
     requestId: string;
     currentRequest: Request;
+    currentStageName: string;
     canEdit: boolean = false;
     wentBackOneStage: boolean;
     stages = ['1', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
@@ -84,6 +87,7 @@ export class RequestStageComponent implements OnInit {
         this.requestService.getRequestById(this.requestId, this.authService.getUserEmail()).subscribe(
             res => {
                 this.currentRequest = res;
+                console.log(`The archiveid of the currentRequest is ${res.archiveId}`);
             },
             error => {
                 console.log(error);
@@ -169,9 +173,9 @@ export class RequestStageComponent implements OnInit {
 
     getSubmittedStage(newStage: any) {
         console.log(`got ${JSON.stringify(newStage, null, 1)}`);
-        const currentStageName = 'stage' + this.currentRequest.stage;
-        console.log(`submitting as ${currentStageName}`);
-        this.currentRequest[currentStageName] = newStage;
+        this.currentStageName = 'stage' + this.currentRequest.stage;
+        console.log(`submitting as ${this.currentStageName}`);
+        this.currentRequest[this.currentStageName] = newStage;
         if (newStage['approved']) {
             if (this.currentRequest.stage === '13') {
                 this.currentRequest.status = 'accepted';
@@ -190,7 +194,11 @@ export class RequestStageComponent implements OnInit {
         }
         this.wentBackOneStage = false;
         console.log('submitted status:', this.currentRequest.status);
-        this.submitRequest();
+        if ( !isNullOrUndefined(this.uploadedFile) ) {
+            this.uploadFile();
+        } else {
+            this.submitRequest();
+        }
     }
 
     submitRequest() {
@@ -199,6 +207,10 @@ export class RequestStageComponent implements OnInit {
         this.errorMessage = '';
         this.successMessage = '';
 
+        if ( !isNullOrUndefined(this.currentRequest[this.currentStageName]['attachment']) ) {
+            this.uploadedFileURL = '';
+            this.currentRequest[this.currentStageName]['attachment']['url'] = this.uploadedFileURL;
+        }
         /*update this.currentRequest*/
         this.requestService.updateRequest(this.currentRequest, this.authService.getUserEmail()).subscribe(
             res => console.log(`update Request responded: ${res.id}, status=${res.status}, stage=${res.stage}`),
@@ -213,6 +225,30 @@ export class RequestStageComponent implements OnInit {
             }
         );
     }
+
+    uploadFile() {
+        this.showSpinner = true;
+        this.requestService.uploadAttachment(this.currentRequest.archiveId, this.currentStageName, this.uploadedFile)
+            .subscribe(
+                event => {
+                    // console.log('uploadAttachment responded: ', JSON.stringify(event));
+                    if (event.type === HttpEventType.UploadProgress) {
+                        console.log('uploadAttachment responded: ', event);
+                    }
+                },
+                error => {
+                    console.log(error);
+                    this.uploadedFile = null;
+                    this.showSpinner = false;
+                },
+                () => {
+                    this.uploadedFile = null;
+                    this.showSpinner = false;
+                    this.submitRequest();
+                }
+            );
+    }
+
 
     willShowStage(stage: string) {
         if (!this.isSimpleUser) {
