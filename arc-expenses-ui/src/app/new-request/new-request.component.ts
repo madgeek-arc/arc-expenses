@@ -208,7 +208,7 @@ export class NewRequestComponent implements OnInit {
         if (this.newRequestForm.get('program').value) {
             this.showSpinner = true;
             const project = (this.newRequestForm.get('program').value).split('(');
-            const institute = project.split(')');
+            const institute = project[1].split(')');
             this.projectService.getProjectByAcronym(project[0].trim(), institute[0].trim()).subscribe (
                 res => {
                     this.chosenProject = res;
