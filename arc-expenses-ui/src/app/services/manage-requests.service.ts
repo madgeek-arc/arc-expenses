@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 import { Request } from '../domain/operation';
 import { Observable } from 'rxjs/Observable';
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpHeaders, HttpRequest } from '@angular/common/http';
-import { catchError } from 'rxjs/operators';
+import {catchError, tap} from 'rxjs/operators';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { Paging } from '../domain/extraClasses';
 import {environment} from '../../environments/environment';
@@ -64,16 +64,24 @@ export class ManageRequestsService {
     }
 
     uploadAttachment<T>(archiveid: string, stage: string, file: File): Observable<HttpEvent<T>> {
-        const url = `${this.apiUrl}uploadFile?archiveID=${archiveid}&stage=${stage}`;
+        const url = `${this.apiUrl}store/uploadFile?archiveID=${archiveid}&stage=${stage}`;
         console.log(`calling ${url}`);
 
         const formBody: FormData = new FormData();
         formBody.append('file', file, file.name);
         const req = new HttpRequest('POST', url, formBody, {
             reportProgress: true,
+            responseType: 'text',
             withCredentials: true
         });
         return this.http.request(req).pipe(catchError(this.handleError));
+        /*return this.http.request<HttpEvent<T>>('POST', url, {body: formBody, headers: headerOptions.headers, withCredentials: true});*/
+    }
+
+    getAttachment (url: string): Observable<File> {
+        const body = {};
+        console.log(`calling ${url}`);
+        return this.http.post<File>(url, body, headerOptions).pipe(catchError(this.handleError));
     }
 
     searchAllRequests(searchField: string, status: string, stage: string, from: string, quantity: string,

@@ -10,6 +10,7 @@ import {AuthenticationService} from '../services/authentication.service';
 import {DatePipe} from '@angular/common';
 import {ManageProjectService} from '../services/manage-project.service';
 import {isUndefined} from 'util';
+import {HttpEventType, HttpResponse} from '@angular/common/http';
 
 declare const UIkit: any;
 
@@ -192,8 +193,12 @@ export class NewRequestComponent implements OnInit {
                         this.showSpinner = false;
                     },
                     () => {
-                        this.router.navigate(['/requests']);
-                        this.showSpinner = false;
+                        if (this.uploadedFile) {
+                            this.uploadFile();
+                        } else {
+                            this.showSpinner = false;
+                            this.router.navigate(['/requests']);
+                        }
                     }
                 );
             }
@@ -201,6 +206,40 @@ export class NewRequestComponent implements OnInit {
         } else {
             UIkit.modal.alert('Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.');
         }
+    }
+
+    uploadFile() {
+        this.showSpinner = true;
+        this.requestService.uploadAttachment<string>(this.request.archiveId, 'stage1', this.uploadedFile)
+            .subscribe(
+                event => {
+                    // console.log('uploadAttachment responded: ', JSON.stringify(event));
+                    if (event.type === HttpEventType.UploadProgress) {
+                        console.log('uploadAttachment responded: ', event);
+                    } else if ( event instanceof HttpResponse) {
+                        console.log('final event:', event.body);
+                        this.request.stage1.attachment.url = event.body;
+                    }
+                },
+                error => {
+                    console.log(error);
+                    this.showSpinner = false;
+                },
+                () => {
+                    console.log('ready to update Request');
+                    this.requestService.updateRequest(this.request, this.authService.getUserEmail()).subscribe(
+                        res => console.log('updated new request: ', res.status, res.stage, res.stage1),
+                        error => {
+                            console.log('from update new request', error);
+                            this.showSpinner = false;
+                        },
+                        () => {
+                            this.showSpinner = false;
+                            this.router.navigate(['/requests']);
+                        }
+                );
+                }
+            );
     }
 
     getProject() {

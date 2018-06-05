@@ -5,7 +5,7 @@ import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { isNullOrUndefined, isUndefined } from 'util';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpEventType } from '@angular/common/http';
+import {HttpEventType, HttpResponse} from '@angular/common/http';
 
 @Component({
     selector: 'app-request-stage',
@@ -208,8 +208,8 @@ export class RequestStageComponent implements OnInit {
         this.successMessage = '';
 
         if ( !isNullOrUndefined(this.currentRequest[this.currentStageName]['attachment']) ) {
-            this.uploadedFileURL = '';
             this.currentRequest[this.currentStageName]['attachment']['url'] = this.uploadedFileURL;
+            this.uploadedFileURL = '';
         }
         /*update this.currentRequest*/
         this.requestService.updateRequest(this.currentRequest, this.authService.getUserEmail()).subscribe(
@@ -228,12 +228,15 @@ export class RequestStageComponent implements OnInit {
 
     uploadFile() {
         this.showSpinner = true;
-        this.requestService.uploadAttachment(this.currentRequest.archiveId, this.currentStageName, this.uploadedFile)
+        this.requestService.uploadAttachment<string>(this.currentRequest.archiveId, this.currentStageName, this.uploadedFile)
             .subscribe(
                 event => {
                     // console.log('uploadAttachment responded: ', JSON.stringify(event));
                     if (event.type === HttpEventType.UploadProgress) {
                         console.log('uploadAttachment responded: ', event);
+                    } else if ( event instanceof HttpResponse) {
+                        console.log('final event:', event.body);
+                        this.uploadedFileURL = event.body;
                     }
                 },
                 error => {
@@ -242,6 +245,7 @@ export class RequestStageComponent implements OnInit {
                     this.showSpinner = false;
                 },
                 () => {
+                    console.log('ready to update Request');
                     this.uploadedFile = null;
                     this.showSpinner = false;
                     this.submitRequest();
@@ -301,9 +305,17 @@ export class RequestStageComponent implements OnInit {
     }
 
     linkToFile() {
+        let attachedFile: File;
         if (this.currentRequest.stage1.attachment && this.currentRequest.stage1.attachment.url) {
-            window.open(this.currentRequest.stage1.attachment.url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
+            this.requestService.getAttachment(this.currentRequest.stage1.attachment.url).subscribe(
+                res => attachedFile = res,
+                error => console.log(error),
+                () => window.open(attachedFile.webkitRelativePath, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0')
+            );
         }
+        /*const url = 'http://marilyn.athenarc.gr:8090/store/downloadFile?fileName=c91c8b28-884d-4146-a046-f03cf0e5f4fb/stage9';
+        window.open(url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');*/
+        /*window.open(this.currentRequest.stage1.attachment.url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');*/
     }
 
     getNewSupplierAndAmount(newVals: string[]) {

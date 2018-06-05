@@ -10,6 +10,7 @@ import { DatePipe } from '@angular/common';
 import { AuthenticationService } from '../services/authentication.service';
 import { Router } from '@angular/router';
 import { isNullOrUndefined, isUndefined } from 'util';
+import {ManageRequestsService} from '../services/manage-requests.service';
 
 @Component ({
     selector: 'stage-component',
@@ -61,7 +62,9 @@ export class StageComponent implements OnInit {
 
     datePipe = new DatePipe('el');
 
-    constructor(private fb: FormBuilder, private authService: AuthenticationService) {}
+    constructor(private fb: FormBuilder,
+                private authService: AuthenticationService,
+                private requestService: ManageRequestsService) {}
 
     ngOnInit() {
         /*console.log(`showStage ${this.stageDescription.id} is ${this.showStage}`);*/
@@ -124,9 +127,17 @@ export class StageComponent implements OnInit {
     }
 
     linkToFile() {
+        let attachedFile: File;
         if (this.currentStage['attachment'] && this.currentStage['attachment']['url'].length > 0 ) {
+            /*this.requestService.getAttachment(this.currentStage['attachment']['url']).subscribe(
+                res => attachedFile = res,
+                error => console.log(error),
+                () => window.open(attachedFile.webkitRelativePath, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0')
+            );*/
             window.open(this.currentStage['attachment']['url'], '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
         }
+        /*const url = 'http://marilyn.athenarc.gr:8090/store/downloadFile/?fileName=c91c8b28-884d-4146-a046-f03cf0e5f4fb/stage9';
+        window.open(url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');*/
     }
 
     getAttachmentInput(newFile: File) {
