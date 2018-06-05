@@ -91,16 +91,26 @@
                 <version>0.5.1</version>
                 <executions>
                     <execution>
-                        <id>json schema to java</id>
+                        <id>RequestJsonSchema</id>
                         <configuration>
                             <sourceDirectory>${basedir}/src/main/resources/jsonSchema/request.json</sourceDirectory>
-                            <!--<sourceDirectory>${basedir}/src/main/resources/jsonSchema/request.json</sourceDirectory>-->
                             <targetPackage>${project.groupId}.domain</targetPackage>
                             <outputDirectory>target/generated-sources/jsonSchema</outputDirectory>
                             <useLongIntegers>true</useLongIntegers>
                             <includeConstructors>true</includeConstructors>
                         </configuration>
 
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>ContactMailJsonSchema</id>
+                        <configuration>
+                            <sourceDirectory>${basedir}/src/main/resources/jsonSchema/contactUsMail.json</sourceDirectory>
+                            <targetPackage>${project.groupId}.domain</targetPackage>
+                            <outputDirectory>target/generated-sources/jsonSchema</outputDirectory>
+                        </configuration>
                         <goals>
                             <goal>generate</goal>
                         </goals>
