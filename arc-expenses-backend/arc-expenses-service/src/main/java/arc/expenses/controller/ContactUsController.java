@@ -1,11 +1,9 @@
 package arc.expenses.controller;
 
 import arc.expenses.mail.JavaMailer;
-import com.google.common.base.Charsets;
 import gr.athenarc.domain.ContactUsMail;
 import io.swagger.annotations.Api;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
