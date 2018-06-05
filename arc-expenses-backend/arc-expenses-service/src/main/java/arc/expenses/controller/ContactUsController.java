@@ -24,7 +24,6 @@ public class ContactUsController {
 
     @RequestMapping(value =  "/sendMail", method = RequestMethod.POST)
     public void contactUs(@RequestBody ContactUsMail mail) {
-        // TODO: write this code better
         String text = "Από: " + mail.getName() + " " + mail.getSurname() + "\n\n\n" + mail.getMessage();
         javaMailer.sendEmailWithBCC("${contact.address:test.athenarc@gmail.com}", mail.getSubject(),
                 text, "${contact.address:spyroukostas@msn.com}");
