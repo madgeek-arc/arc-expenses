@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Attachment, Request, Stage5b } from '../domain/operation';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { isNullOrUndefined, isUndefined } from 'util';
@@ -38,7 +38,9 @@ export class RequestStageComponent implements OnInit {
     sendInfoToStage5b: string[];
     isSupplierRequired: boolean;
 
-    constructor(private fb: FormBuilder, private route: ActivatedRoute,
+    constructor(private fb: FormBuilder,
+                private route: ActivatedRoute,
+                private router: Router,
                 private requestService: ManageRequestsService,
                 private authService: AuthenticationService) {
     }
@@ -140,7 +142,8 @@ export class RequestStageComponent implements OnInit {
             if (stage === '4') {
                 return '5a';
             } else if (stage === '5a') {
-                if (this.currentRequest.stage1.amountInEuros > this.amountLimit) {
+                if ( (this.currentRequest.stage1.amountInEuros > this.amountLimit) ||
+                     (this.currentRequest.stage1.supplierSelectionMethod === 'Διαγωνισμός') ) {
                     return '5b';
                 } else {
                     return '6';
@@ -161,7 +164,8 @@ export class RequestStageComponent implements OnInit {
         } else if (stage === '5b') {
             return '5a';
         } else if (stage === '6') {
-            if (this.currentRequest.stage1.amountInEuros > this.amountLimit) {
+            if ( (this.currentRequest.stage1.amountInEuros > this.amountLimit) ||
+                 (this.currentRequest.stage1.supplierSelectionMethod === 'Διαγωνισμός') ) {
                 return '5b';
             } else {
                 return '5a';
@@ -189,6 +193,9 @@ export class RequestStageComponent implements OnInit {
         }
         if (this.wentBackOneStage === true) {
             this.currentRequest.stage = this.getPreviousStage(this.currentRequest.stage);
+            if (this.currentRequest.stage === '1') {
+                this.createForm();
+            }
         } else {
             this.currentRequest.stage = this.getNextStage(this.currentRequest.stage);
         }
@@ -207,7 +214,10 @@ export class RequestStageComponent implements OnInit {
         this.errorMessage = '';
         this.successMessage = '';
 
-        if ( !isNullOrUndefined(this.currentRequest[this.currentStageName]['attachment']) ) {
+        if ( !isNullOrUndefined(this.uploadedFile) ||
+             (!isNullOrUndefined(this.currentRequest[this.currentStageName]['attachment']) &&
+             !isNullOrUndefined(this.currentRequest[this.currentStageName]['attachment']['url']))) {
+
             this.currentRequest[this.currentStageName]['attachment']['url'] = this.uploadedFileURL;
             this.uploadedFileURL = '';
         }
@@ -222,6 +232,7 @@ export class RequestStageComponent implements OnInit {
             () => {
                 this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
                 this.showSpinner = false;
+                this.router.navigate([]);
             }
         );
     }
@@ -310,8 +321,9 @@ export class RequestStageComponent implements OnInit {
             this.requestService.getAttachment(this.currentRequest.stage1.attachment.url).subscribe(
                 res => attachedFile = res,
                 error => console.log(error),
-                () => window.open(attachedFile.webkitRelativePath, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0')
+                () => window.open('http://marilyn.athenarc.gr:8090/' + attachedFile.webkitRelativePath, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0')
             );
+            /*window.open(this.currentRequest.stage1.attachment.url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');*/
         }
         /*const url = 'http://marilyn.athenarc.gr:8090/store/downloadFile?fileName=c91c8b28-884d-4146-a046-f03cf0e5f4fb/stage9';
         window.open(url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');*/
@@ -347,7 +359,8 @@ export class RequestStageComponent implements OnInit {
 
                 this.errorMessage = 'Είναι υποχρεωτικό να προσθέσετε πληροφορίες για τον προμηθευτή.';
             } else if ( (( this.updateStage1Form.get('supplierSelectionMethod').value !== 'Απ\' ευθείας ανάθεση' ) &&
-                    ( this.currentRequest.type !== 'trip' )) && isUndefined(this.uploadedFile)  ) {
+                    ( this.currentRequest.type !== 'trip' )) &&
+                    (isNullOrUndefined(this.uploadedFile) && isNullOrUndefined(this.currentRequest.stage1.attachment) )) {
 
                 this.errorMessage = 'Για αναθέσεις μέσω διαγωνισμού ή έρευνας αγοράς η επισύναψη εγγράφων είναι υποχρεωτική.';
             } else if ( (+this.updateStage1Form.get('amount').value > this.amountLimit) &&
@@ -356,6 +369,7 @@ export class RequestStageComponent implements OnInit {
 
                 this.errorMessage = 'Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.';
             } else {
+                this.currentStageName = 'stage1';
                 this.currentRequest.stage1.requestDate = Date.now().toString();
                 this.currentRequest.stage1.subject = this.updateStage1Form.get('requestText').value;
                 this.currentRequest.stage1.supplier = this.updateStage1Form.get('supplier').value;

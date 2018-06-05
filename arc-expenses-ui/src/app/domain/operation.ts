@@ -221,3 +221,11 @@ export class User {
     signatureArchiveId: string;
     signatureAttachment: Attachment;
 }
+
+export class ContactUsMail {
+    name: string;
+    surname: string;
+    email: string;
+    subject: string;
+    message: string;
+}

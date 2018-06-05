@@ -104,6 +104,11 @@
                     <!--<span class="uk-text-bold uk-margin-small-right">Ποσό: </span>-->
                     <!--<span>{{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>-->
                     <!--</div>-->
+                    <div *ngIf="currentRequest.stage1.attachment">
+                      <a class="uk-link uk-width-1-1@l uk-margin-small-top" (click)="linkToFile()">
+                        Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία
+                      </a>
+                    </div>
 
                   </div>
                 </div>
@@ -206,7 +211,7 @@
                 <stage5b-component [showStage]="willShowStage('5b')"[hasReturnedToPrevious]="checkIfHasReturnedToPrevious('5b')"
                                    [currentStage]="currentRequest.stage5b" [currentProject]="currentRequest.project"
                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                   [oldSupplierAndAmount]="infoToStage5b"
+                                   [oldSupplierAndAmount]="sendInfoToStage5b"
                                    (newValues)="getNewSupplierAndAmount($event)"
                                    (emitFile)="getUploadedFile($event)"></stage5b-component>
 

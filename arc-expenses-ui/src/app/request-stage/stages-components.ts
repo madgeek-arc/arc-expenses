@@ -132,7 +132,7 @@ export class StageComponent implements OnInit {
             /*this.requestService.getAttachment(this.currentStage['attachment']['url']).subscribe(
                 res => attachedFile = res,
                 error => console.log(error),
-                () => window.open(attachedFile.webkitRelativePath, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0')
+                () => window.open('http://marilyn.athenarc.gr:8090/' + attachedFile.webkitRelativePath, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0')
             );*/
             window.open(this.currentStage['attachment']['url'], '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
         }
@@ -146,6 +146,7 @@ export class StageComponent implements OnInit {
     }
 
     approveRequest( approved: boolean ) {
+        console.log('approved is:', approved);
         if (!approved) {
             Object.keys(this.stageForm.controls).forEach(key => {
                 this.stageForm.get(key).clearValidators();
@@ -194,8 +195,8 @@ export class StageComponent implements OnInit {
 
                 }
                 console.log(this.currentStage);
-                this.checkIfSubmitted();
-                this.checkIfApproved();
+                /*this.checkIfSubmitted();
+                this.checkIfApproved();*/
                 this.emitStage.emit(this.currentStage);
 
             }
@@ -384,6 +385,7 @@ export class Stage5bComponent extends StageComponent implements OnInit {
     @Output() newValues: EventEmitter<string[]> = new EventEmitter<string[]>();
 
     ngOnInit () {
+        console.log('oldSupplierAndAmount is', this.oldSupplierAndAmount);
         this.stageFormDefinition = {
             comment: [''],
         };
@@ -394,13 +396,20 @@ export class Stage5bComponent extends StageComponent implements OnInit {
     }
 
     emitNewValues(approved: boolean) {
+        this.stageFormError = '';
         if ( !isNullOrUndefined(this.oldSupplierAndAmount) ) {
-            const newValArray = [];
-            newValArray.push(this.oldSupplierAndAmount[0]);
-            newValArray.push(this.oldSupplierAndAmount[1]);
-            this.newValues.emit(newValArray);
+            if ( !isNullOrUndefined(this.oldSupplierAndAmount[0]) &&
+                 !isNullOrUndefined(this.oldSupplierAndAmount[1]) ) {
+
+                const newValArray = [];
+                newValArray.push(this.oldSupplierAndAmount[0]);
+                newValArray.push(this.oldSupplierAndAmount[1]);
+                this.newValues.emit(newValArray);
+                this.approveRequest(approved);
+            } else {
+                this.stageFormError = 'Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.';
+            }
         }
-        this.approveRequest(approved);
     }
 
     updateSupplier(event: any) {

@@ -114,7 +114,7 @@ export class NewRequestComponent implements OnInit {
             position: ['', Validators.required],
             requestText: ['', Validators.required],
             supplier: [''],
-            supplierSelectionMethod: ['', Validators.required],
+            supplierSelectionMethod: [''],
             amount: ['', [Validators.required, Validators.min(0), Validators.pattern('^\\d+(\\.\\d{1,2})?$')] ],
             director: ['']
         });
@@ -137,10 +137,11 @@ export class NewRequestComponent implements OnInit {
                           isUndefined(this.uploadedFile)  ) {
 
                 UIkit.modal.alert('Για αναθέσεις μέσω διαγωνισμού ή έρευνας αγοράς η επισύναψη εγγράφων είναι υποχρεωτική.');
-            } else if ( (+this.newRequestForm.get('amount').value > this.amountLimit) &&
+            } else if ( ( +this.newRequestForm.get('amount').value > this.amountLimit) &&
+                        ( this.requestType !== 'trip' ) &&
                         ( this.newRequestForm.get('supplierSelectionMethod').value !== 'Διαγωνισμός' ) ) {
 
-                this.errorMessage = 'Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.';
+                UIkit.modal.alert('Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.');
             } else {
                 this.request = new Request();
                 this.request.id = '';
@@ -152,8 +153,10 @@ export class NewRequestComponent implements OnInit {
                 /*this.request.stage1.requestDate = this.datePipe.transform(Date.now(), 'dd/MM/yyyy');*/
                 this.request.stage1.requestDate = Date.now().toString();
                 this.request.stage1.subject = this.newRequestForm.get('requestText').value;
-                this.request.stage1.supplier = this.newRequestForm.get('supplier').value;
-                this.request.stage1.supplierSelectionMethod = this.newRequestForm.get('supplierSelectionMethod').value;
+                if (this.requestType !== 'trip') {
+                    this.request.stage1.supplier = this.newRequestForm.get('supplier').value;
+                    this.request.stage1.supplierSelectionMethod = this.newRequestForm.get('supplierSelectionMethod').value;
+                }
                 this.request.stage1.amountInEuros = +this.newRequestForm.get('amount').value;
                 if (this.uploadedFile) {
                     this.request.stage1.attachment = new Attachment();
@@ -300,6 +303,9 @@ export class NewRequestComponent implements OnInit {
     }
 
     checkIfTrip() {
+        if (this.requestType !== this.route.snapshot.paramMap.get('type')) {
+            this.createForm();
+        }
         this.requestType = this.route.snapshot.paramMap.get('type');
         this.title = this.reqTypes[this.requestType];
         this.isSupplierRequired = (this.requestType !== 'trip');

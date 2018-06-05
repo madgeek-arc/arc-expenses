@@ -9,6 +9,7 @@ import { HttpClient, HttpErrorResponse, HttpEvent, HttpHeaders, HttpRequest } fr
 import {catchError, tap} from 'rxjs/operators';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { Paging } from '../domain/extraClasses';
+import { ContactUsMail } from '../domain/operation';
 import {environment} from '../../environments/environment';
 
 const headerOptions = {
@@ -95,7 +96,7 @@ export class ManageRequestsService {
         );
     }
 
-    sendContactFormToService(params: any): Observable<any> {
+    sendContactFormToService(params: ContactUsMail): Observable<any> {
         const url = `${environment.API_ENDPOINT}/contactUs/sendMail`;
         console.log(`calling ${url}`);
         console.log(`sending ${JSON.stringify(params)}`);

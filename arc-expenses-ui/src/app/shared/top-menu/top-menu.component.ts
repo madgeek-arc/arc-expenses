@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {AuthenticationService} from '../../services/authentication.service';
-import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ManageRequestsService } from '../../services/manage-requests.service';
+import { ContactUsMail } from '../../domain/operation';
 
 
 declare const UIkit: any;
@@ -74,13 +74,12 @@ export class TopMenuComponent implements OnInit {
     if (this.contactForm.valid) {
         this.showSpinner = true;
 
-        const emailParams = {
-            name: this.contactForm.get('name').value,
-            surname: this.contactForm.get('surname').value,
-            email: this.contactForm.get('email').value,
-            subject: this.contactForm.get('subject').value,
-            message: this.contactForm.get('message').value
-        };
+        const emailParams = new ContactUsMail();
+        emailParams.name = this.contactForm.get('name').value;
+        emailParams.surname = this.contactForm.get('surname').value;
+        emailParams.email = this.contactForm.get('email').value;
+        emailParams.subject = this.contactForm.get('subject').value;
+        emailParams.message = this.contactForm.get('message').value;
 
         // send email somehow
         this.requestService.sendContactFormToService(emailParams).subscribe(
