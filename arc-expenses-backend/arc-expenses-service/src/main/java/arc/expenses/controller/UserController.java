@@ -1,9 +1,6 @@
 package arc.expenses.controller;
 
 import arc.expenses.config.SAMLAuthentication;
-import eu.openminted.registry.core.domain.Browsing;
-import eu.openminted.registry.core.domain.FacetFilter;
-import gr.athenarc.domain.Request;
 import gr.athenarc.domain.User;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
