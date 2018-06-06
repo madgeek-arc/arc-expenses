@@ -3,15 +3,15 @@ version: "3.1"
 services:
 #  tomcat:
 #    container_name: tomcat
-#    build: ../arc-expenses-service
+#    build: ../../arc-expenses-service
 #    ports:
 #      - "8009:8009"
 #    links:
-#      - db
+##      - db
 ##      - elastic
-#      - jms
-#      - apache_shibboleth_sp
-##      - arc_proxy_shibboleth
+##      - jms
+##      - apache_shibboleth_sp
+#      - arc_proxy_shibboleth
 #    networks:
 #      - arcnet
 #    secrets:

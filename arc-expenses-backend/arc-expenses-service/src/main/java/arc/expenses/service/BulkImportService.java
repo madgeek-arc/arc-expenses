@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service("bulkImport")
-public class BulkImportService {
+class BulkImportService {
 
     private org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(BulkImportService.class);
 
