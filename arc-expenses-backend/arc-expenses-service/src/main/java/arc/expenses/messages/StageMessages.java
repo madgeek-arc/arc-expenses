@@ -1,26 +1,33 @@
 package arc.expenses.messages;
 
+import arc.expenses.service.GenericService;
 import arc.expenses.service.UserServiceImpl;
-import eu.openminted.registry.core.domain.FacetFilter;
 import gr.athenarc.domain.Request;
 import arc.expenses.mail.EmailMessage;
 import gr.athenarc.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
+@Component
 public class StageMessages {
     public enum UserType {USER, POI, nextPOI}
     public enum RequestState {INITIALIZED, ACCEPTED, ACCEPTED_DIAVGEIA, REVIEW, REJECTED, FINISHED}
 
+    UserServiceImpl userServiceImpl;
+
     @Autowired
-    UserServiceImpl userService;
+    private StageMessages(GenericService<User> userServiceImpl) {
+        this.userServiceImpl = (UserServiceImpl) userServiceImpl;
+    }
 
     public List<EmailMessage> createMessages(String prevStage, String nextStage, Request request) {
         List<EmailMessage> emails = new ArrayList<>();
-//        List<User> users = userService.getUsersWithImmediateEmailPreference();
+//        List<User> users = userServiceImpl.getUsersWithImmediateEmailPreference();
 
         String firstname;
         String lastname;
@@ -147,7 +154,7 @@ public class StageMessages {
                                     RequestState.ACCEPTED, null))));
         }
         // Stage 5 -> 5a
-        else if (prevStage.equals("5") && nextStage.equals("5a")) {
+        else if (prevStage.equals("4") && nextStage.equals("5a")) {
             firstname = request.getStage5().getUser().getFirstname();
             lastname = request.getStage5().getUser().getLastname();
 
@@ -176,7 +183,7 @@ public class StageMessages {
                                     RequestState.ACCEPTED, null))));
         }
         // Stage 5 -> 5b
-        else if (prevStage.equals("5") && nextStage.equals("5b")) {
+        else if (prevStage.equals("4") && nextStage.equals("5b")) {
             firstname = request.getStage5().getUser().getFirstname();
             lastname = request.getStage5().getUser().getLastname();
 
@@ -526,13 +533,16 @@ public class StageMessages {
     }
 
     public User getUserByEmail(final List<User> users, final String email) {
-        return users.parallelStream().filter(user -> user.getEmail().equals(email)).findAny().get();
+        if(users == null || email == null)
+            return null;
+        Optional<User> user = users.parallelStream().filter(u -> u.getEmail().equals(email)).findAny();
+        return user.orElse(null);
 //        return users.stream().filter(user -> user.getEmail().equals(email)).findAny().get();
     }
 
     private List<EmailMessage> filterOutNonImmediate(List<EmailMessage> emails) {
         List<EmailMessage> emailList = new ArrayList<>();
-        List<User> users = userService.getUsersWithImmediateEmailPreference();
+        List<User> users = userServiceImpl.getUsersWithImmediateEmailPreference();
         for (Iterator<EmailMessage> iterator = emails.iterator(); iterator.hasNext();) {
             EmailMessage email = iterator.next();
             User user = getUserByEmail(users, email.getRecipient());
@@ -543,7 +553,6 @@ public class StageMessages {
         }
         return emailList;
     }
-
 
     private String messageTemplates(String firstname, String lastname, String id, UserType type,
                                     RequestState state, String date) {
@@ -570,6 +579,7 @@ public class StageMessages {
                 messageText = "Ολοκληρώθηκε το αίτημα με κωδικό " + id + " από τον/την " + firstname + " " + lastname;
             } else if (state == RequestState.REJECTED) {
                 messageText = "Απορρίφθηκε το αίτημα με κωδικό " + id + " από τον/την " + firstname + " " + lastname;
+//                messageText = "Απορρίφθηκε το αίτημα με κωδικό {{id}} από τον/την {{firstname}} {{lastname}}"; //TODO @spring.Resource to load (use .xml not .properties)
             } else if (state == RequestState.REVIEW) {
                 messageText = "Tο αίτημα με κωδικό " + id + ", επιστράφηκε για επανέλεγχο από τον/την " + firstname +
                         " " + lastname;
