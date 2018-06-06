@@ -120,6 +120,7 @@ export class RequestsComponent implements OnInit {
           this.order = 'ASC';
           this.orderField = category;
       }
+      this.currentPage = 0;
       this.getListOfRequests();
   }
 
@@ -129,6 +130,7 @@ export class RequestsComponent implements OnInit {
       } else {
           this.order = 'ASC';
       }
+      this.currentPage = 0;
   }
 
   getOrderSign() {
@@ -155,6 +157,7 @@ export class RequestsComponent implements OnInit {
 
   getItemsPerPage(event: any) {
     this.itemsPerPage = event.target.value;
+    this.currentPage = 0;
     this.getListOfRequests();
   }
 
@@ -164,6 +167,7 @@ export class RequestsComponent implements OnInit {
           console.log(`this.stageChoice is ${this.stageChoice}`);
           this.keywordField.get('keyword').setValue('');
           this.searchTerm = '';
+          this.currentPage = 0;
           this.getListOfRequests();
       }
     }
@@ -173,12 +177,14 @@ export class RequestsComponent implements OnInit {
       console.log(`this.statusChoice is ${this.statusChoice}`);
       this.keywordField.get('keyword').setValue('');
       this.searchTerm = '';
+        this.currentPage = 0;
       this.getListOfRequests();
     }
 
     getSearchResults() {
       this.searchTerm = this.keywordField.get('keyword').value;
       console.log('this.searchTerm is', this.searchTerm);
+      this.currentPage = 0;
       this.getListOfRequests();
     }
 
