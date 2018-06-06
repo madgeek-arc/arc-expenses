@@ -41,6 +41,7 @@ public class UserServiceImpl extends GenericService<User> {
     @PostConstruct
     private void createArchiveForSignatures(){
         storeRESTClient.createArchive("DS_ARCHIVE");
+        LOGGER.info("DS archive created");
     }
 
 
