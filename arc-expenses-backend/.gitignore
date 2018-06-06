@@ -13,10 +13,11 @@
 **/*.idea
 **/*.iml
 
-/arc-expenses-docker/
-/arc-expenses-operations/
+**/arc-expenses-docker/
+**/arc-expenses-operations/
 
 # Sensitive or high-churn files:
+**/registry.properties
 .idea/**/dataSources/
 .idea/**/dataSources.ids
 .idea/**/dataSources.xml
