@@ -94,7 +94,9 @@ export class NewRequestComponent implements OnInit {
                 this.showSpinner = false;
                 this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την ανάκτηση των απαραίτητων πληροφοριών.';
             },
-            () => this.showSpinner = false
+            () => {
+                this.showSpinner = false;
+            }
         );
     }
 
@@ -248,6 +250,10 @@ export class NewRequestComponent implements OnInit {
     getProject() {
         this.errorMessage = '';
         if (this.newRequestForm.get('program').value) {
+
+            this.newRequestForm.get('institute').setValue('');
+            this.newRequestForm.get('director').setValue('');
+
             this.showSpinner = true;
             const project = (this.newRequestForm.get('program').value).split('(');
             const institute = project[1].split(')');
@@ -264,9 +270,13 @@ export class NewRequestComponent implements OnInit {
                 },
                 () => {
                     this.programSelected = true;
-                    this.newRequestForm.get('institute').setValue(this.chosenProject['institute'].name);
-                    this.newRequestForm.get('director')
-                        .setValue(this.chosenProject.institute.director.firstname + ' ' + this.chosenProject.institute.director.lastname);
+                    if (this.chosenProject['institute'] && this.chosenProject.institute.name) {
+                        this.newRequestForm.get('institute').setValue(this.chosenProject.institute.name);
+                    }
+                    if (this.chosenProject.institute && this.chosenProject.institute.director) {
+                        this.newRequestForm.get('director')
+                            .setValue(this.chosenProject.institute.director.firstname + ' ' + this.chosenProject.institute.director.lastname);
+                    }
                     this.newRequestForm.get('institute').disable();
                     this.newRequestForm.get('director').disable();
                     this.showSpinner = false;
