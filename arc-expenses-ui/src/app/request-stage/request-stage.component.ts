@@ -222,7 +222,7 @@ export class RequestStageComponent implements OnInit {
             this.uploadedFileURL = '';
         }
         /*update this.currentRequest*/
-        this.requestService.updateRequest(this.currentRequest, this.authService.getUserEmail()).subscribe(
+        this.requestService.updateRequest(this.currentRequest, this.authService.getUserEmail()).subscribe (
             res => console.log(`update Request responded: ${res.id}, status=${res.status}, stage=${res.stage}`),
             error => {
                 console.log(error);
@@ -316,20 +316,9 @@ export class RequestStageComponent implements OnInit {
     }
 
     linkToFile() {
-        let attachedFile: File;
         if (this.currentRequest.stage1.attachment && this.currentRequest.stage1.attachment.url) {
-            this.requestService.getAttachment(this.currentRequest.stage1.attachment.url).subscribe(
-                res => attachedFile = res,
-                error => console.log(error)
-            );
-            console.log('the downloaded file is:', attachedFile.name);
-            /*, () => window.open('http://marilyn.athenarc.gr:8090/' + attachedFile.webkitRelativePath,
-            '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0')*/
-            /*window.open(this.currentRequest.stage1.attachment.url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');*/
+            window.open(this.currentRequest.stage1.attachment.url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
         }
-        /*const url = 'http://marilyn.athenarc.gr:8090/store/downloadFile?fileName=c91c8b28-884d-4146-a046-f03cf0e5f4fb/stage9';
-        window.open(url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');*/
-        /*window.open(this.currentRequest.stage1.attachment.url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');*/
     }
 
     getNewSupplierAndAmount(newVals: string[]) {
