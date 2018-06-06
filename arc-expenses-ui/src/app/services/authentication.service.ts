@@ -100,8 +100,8 @@ export class AuthenticationService {
                         sessionStorage.setItem('lastnameLatin', userInfo['lastnameLatin']);
                         sessionStorage.setItem('receiveEmails', userInfo['receiveEmails']);
                         sessionStorage.setItem('immediateEmails', userInfo['immediateEmails']);
-                        /*sessionStorage.setItem('role', userInfo['role']);*/
-                        sessionStorage.setItem('role', 'ROLE_ADMIN');
+                        sessionStorage.setItem('role', userInfo['role']);
+                        /*sessionStorage.setItem('role', 'ROLE_ADMIN');*/
                     },
                     error => {
                         console.log('login error!');
