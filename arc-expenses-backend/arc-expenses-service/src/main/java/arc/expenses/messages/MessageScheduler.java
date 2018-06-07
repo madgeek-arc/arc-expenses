@@ -43,8 +43,10 @@ public class MessageScheduler  {
         for (User user: users) {
             if ( "true".equals(user.getReceiveEmails()) && "false".equals(user.getImmediateEmails()) ) {
                 List<Request> user_requests = requestService.getPendingRequests(user.getEmail());
-                String text = createDigest(user_requests);
-                queue.add(new EmailMessage(user.getEmail(), "[ARC-Expenses] Daily Digest", text));
+                if (user_requests.size() > 0) {
+                    String text = createDigest(user_requests);
+                    queue.add(new EmailMessage(user.getEmail(), "[ARC-Expenses] Daily Digest", text));
+                }
             }
         }
         queue.forEach(email -> javaMailer.sendEmail(email.getRecipient(), email.getSubject(), email.getText()));
