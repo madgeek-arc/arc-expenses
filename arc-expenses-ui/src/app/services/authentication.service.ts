@@ -129,7 +129,15 @@ export class AuthenticationService {
                             sessionStorage.removeItem('state.location');
                             console.log(`logged in - returning to state: ${stateLoc}`);
                         }
-                        this.router.navigate(['/sign-up']);
+
+                        if (this.isLoggedIn &&
+                            (isNullOrUndefined(sessionStorage.getItem('firstname')) ||
+                             (sessionStorage.getItem('firstname') === 'null')) ||
+                             isNullOrUndefined(sessionStorage.getItem('lastname')) ||
+                             (sessionStorage.getItem('lastname') === 'null') ) {
+
+                            this.router.navigate(['/sign-up']);
+                        }
                     }
                 );
             } else {
@@ -151,7 +159,7 @@ export class AuthenticationService {
         const url = `${this.apiUrl}/user/update`;
         console.log(`calling ${url}`);
 
-        const updatedUser: User = {
+        const updatedUser = {
             email: sessionStorage.getItem('email'),
             firstname: firstname,
             firstnameLatin: sessionStorage.getItem('firstnameLatin'),
@@ -159,9 +167,7 @@ export class AuthenticationService {
             lastname: lastname,
             lastnameLatin: sessionStorage.getItem('lastnameLatin'),
             receiveEmails: receiveEmails,
-            immediateEmails: immediateEmails,
-            signatureArchiveId: '',
-            signatureAttachment: new Attachment()
+            immediateEmails: immediateEmails
         };
         // ADD SIGNATURE ATTACHMENT
 
