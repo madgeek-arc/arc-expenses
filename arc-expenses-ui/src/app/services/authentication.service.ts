@@ -129,7 +129,7 @@ export class AuthenticationService {
                             sessionStorage.removeItem('state.location');
                             console.log(`logged in - returning to state: ${stateLoc}`);
                         }
-                        // this.router.navigate(['/sign-up']);
+                        this.router.navigate(['/sign-up']);
                     }
                 );
             } else {
@@ -146,7 +146,7 @@ export class AuthenticationService {
         // this.router.navigate(['/home']);
     }
 
-    updateUserInfo(firstname: string, lastname: string, receiveEmails: boolean, immediateEmails: boolean, attachment: Attachment) {
+    updateUserInfo(firstname: string, lastname: string, receiveEmails: string, immediateEmails: string, attachment: Attachment) {
 
         const url = `${this.apiUrl}/user/update`;
         console.log(`calling ${url}`);
@@ -161,7 +161,7 @@ export class AuthenticationService {
             receiveEmails: receiveEmails,
             immediateEmails: immediateEmails,
             signatureArchiveId: '',
-            signatureAttachment: null
+            signatureAttachment: new Attachment()
         };
         // ADD SIGNATURE ATTACHMENT
 
@@ -186,7 +186,10 @@ export class AuthenticationService {
 
     /* public get  userId() */
     public getUserId() {
-        if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('userid')) && (sessionStorage.getItem('userid') !== 'null')) {
+        if (this.isLoggedIn &&
+            !isNullOrUndefined(sessionStorage.getItem('userid')) &&
+            (sessionStorage.getItem('userid') !== 'null')) {
+
             return sessionStorage.getItem('userid');
         } else {
             return '';
@@ -194,7 +197,10 @@ export class AuthenticationService {
     }
 
     public getUserFirstName() {
-        if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('firstname')) && (sessionStorage.getItem('firstname') !== 'null')) {
+        if (this.isLoggedIn &&
+            !isNullOrUndefined(sessionStorage.getItem('firstname')) &&
+            (sessionStorage.getItem('firstname') !== 'null')) {
+
             return sessionStorage.getItem('firstname');
         } else {
             return '';
@@ -202,7 +208,10 @@ export class AuthenticationService {
     }
 
     public getUserLastName() {
-        if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('lastname')) && (sessionStorage.getItem('lastname') !== 'null')) {
+        if (this.isLoggedIn &&
+            !isNullOrUndefined(sessionStorage.getItem('lastname')) &&
+            (sessionStorage.getItem('lastname') !== 'null')) {
+
             return sessionStorage.getItem('lastname');
         } else {
             return '';
@@ -210,7 +219,10 @@ export class AuthenticationService {
     }
 
     public getUserFirstNameInLatin() {
-        if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('firstnameLatin')) && (sessionStorage.getItem('firstnameLatin') !== 'null')) {
+        if (this.isLoggedIn &&
+            !isNullOrUndefined(sessionStorage.getItem('firstnameLatin')) &&
+            (sessionStorage.getItem('firstnameLatin') !== 'null')) {
+
             return sessionStorage.getItem('firstnameLatin');
         } else {
             return '';
@@ -218,7 +230,10 @@ export class AuthenticationService {
     }
 
     public getUserLastNameInLatin() {
-        if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('lastnameLatin')) && (sessionStorage.getItem('lastnameLatin') !== 'null')) {
+        if (this.isLoggedIn &&
+            !isNullOrUndefined(sessionStorage.getItem('lastnameLatin')) &&
+            (sessionStorage.getItem('lastnameLatin') !== 'null')) {
+
             return sessionStorage.getItem('lastnameLatin');
         } else {
             return '';
@@ -226,7 +241,10 @@ export class AuthenticationService {
     }
 
     public getUserEmail() {
-        if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('email')) && (sessionStorage.getItem('email') !== 'null')) {
+        if (this.isLoggedIn &&
+            !isNullOrUndefined(sessionStorage.getItem('email')) &&
+            (sessionStorage.getItem('email') !== 'null')) {
+
             return sessionStorage.getItem('email');
         } else {
             return '';

@@ -102,8 +102,8 @@ export class SignUpComponent implements OnInit {
 
           this.authService.updateUserInfo( this.signUpForm.get('name').value,
                                            this.signUpForm.get('surname').value,
-                                           this.signUpForm.get('receiveEmails').value,
-                                           this.signUpForm.get('immediateEmails').value,
+                                           (this.signUpForm.get('receiveEmails').value).toString(),
+                                           (this.signUpForm.get('immediateEmails').value).toString(),
                                            this.userAttachment ).subscribe(
               user => console.log(`updateUser responded: ${user}`),
               error => {
