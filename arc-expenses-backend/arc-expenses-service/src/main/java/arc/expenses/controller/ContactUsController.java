@@ -5,6 +5,7 @@ import gr.athenarc.domain.ContactUsMail;
 import io.swagger.annotations.Api;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,11 +21,16 @@ public class ContactUsController {
     @Autowired
     JavaMailer javaMailer;
 
+    @Value("${contact.address:4485helpdesk@athena-innovation.gr}")
+    private String contactAddress;
+
     @RequestMapping(value =  "/sendMail", method = RequestMethod.POST)
     public void contactUs(@RequestBody ContactUsMail mail) {
         String text = "Από: " + mail.getName() + " " + mail.getSurname() + "\n\n\n" + mail.getMessage();
-        javaMailer.sendEmailWithBCC("${contact.address:test.athenarc@gmail.com}", mail.getSubject(),
-                text, "${contact.address:spyroukostas@msn.com}");
+
+        javaMailer.sendEmailWithBCC(contactAddress, mail.getSubject(),
+                text, "spyroukostas@msn.com");
+
         logger.info("Contact Us email was sent from: " + mail.getEmail());
     }
 
