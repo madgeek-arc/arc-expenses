@@ -70,7 +70,7 @@
     <div *ngIf="!wasSubmitted && stageForm" [formGroup]="stageForm" class="uk-form-controls stageForm">
         <h5>{{ stageTitle }}</h5>
 
-        <div *ngIf="stageFormError" class="uk-alert uk-alert-error">{{ stageFormError }}</div>
+        <div *ngIf="stageFormError" class="uk-alert uk-alert-danger">{{ stageFormError }}</div>
         <!--INPUTS FOR EXTRA FIELDS-->
         <div *ngIf="stageDescription.id !== '3'">
             <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">

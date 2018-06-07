@@ -1,5 +1,6 @@
 <div class="uk-section-default uk-section uk-section-small uk-padding-remove-bottom" style="min-height: 325px">
-  <div class="uk-container">
+  <div class="uk-container uk-container-expand">
+    <div class="tm-header-placeholder uk-margin-remove-adjacent" style="height: 84px;"></div>
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
       <div class="uk-width-1-1@m uk-first-column">
 
@@ -11,7 +12,7 @@
                       [ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
         </help-content>
 
-        <div class="uk-container uk-margin-medium-top uk-margin-medium-bottom">
+        <div class="uk-container uk-container-expand uk-margin-medium-top uk-margin-medium-bottom">
           <div class="uk-grid">
 
             <!-- LEFT HELP CONTENT -->
@@ -22,9 +23,94 @@
             <!-- MIDDLE -->
 
                 <div class="uk-width-expand@m">
-                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vehicula magna in enim ornare placerat a ac sem. Nulla dignissim erat eget convallis placerat. Duis quis consectetur felis. Integer et tortor urna. Sed eget scelerisque felis, vitae rhoncus lacus. Cras mattis erat id massa ultrices euismod. Nulla a dolor mattis, rhoncus sapien sed, commodo risus. Duis tincidunt imperdiet est, vitae convallis ante auctor in. In hac habitasse platea dictumst. Nunc mi orci, cursus id enim varius, dignissim efficitur lectus. Maecenas tempor commodo sollicitudin. In pharetra velit ut lorem aliquam sodales. Vestibulum consectetur diam sed turpis bibendum varius. Aliquam laoreet posuere augue, vel pharetra felis eleifend id. Proin ut libero id justo luctus scelerisque. Vestibulum consectetur pulvinar dui nec porttitor.
 
-                    Vestibulum nulla ex, aliquet vel aliquet non, dapibus nec mi. Sed scelerisque pretium lacus. Nam a tristique lectus, in consectetur ex. In ac mi ut tortor ullamcorper pulvinar. Quisque posuere non quam eget rutrum. Maecenas malesuada aliquet quam at faucibus. In rhoncus mauris tincidunt ultrices viverra. Mauris hendrerit lobortis tempor. Proin et nisi eget mi placerat scelerisque et porttitor odio. Interdum et malesuada fames ac ante ipsum primis in faucibus. Phasellus pulvinar nisl ut tellus imperdiet, at molestie velit tincidunt. Curabitur. </p>
+                  <div class="">
+                    <h4>Αναλυτική παρουσίαση της διαδικασίας ανάληψης υποχρέωσης και υλοποίησης δαπάνης</h4>
+                    Στη διαδικασία αυτή, εμπλέκονται οι εξής (ατομικοί ή ομαδικοί) ρόλοι της συγκεκριμένης διαδικασίας ή συνολικότερα της όλης λειτουργίας του Κέντρου:
+                    <ul>
+                      <li><strong>Αιτών</strong> - Εκκινεί την όλη διαδικασία σύμφωνα με συγκεκριμένη ανάγκη δαπάνης (πρωτογενές αίτημα)</li>
+                      <li><strong>Γραφείο Ταμειακής Διαχείρισης</strong> - Προετοιμάζει τη λογιστική και τραπεζική εξόφληση μιας δαπάνης</li>
+                      <li><strong>Δαπανών</strong> - Πραγματοποιεί μια συγκεκριμένη δαπάνη (π.χ., ταξιδιώτης, υπεύθυνος προμηθειών, κτλ.)</li>
+                      <li><strong>Διατάκτης</strong> - Ο Πρόεδρος του ΔΣ ή άλλος εξουσιοδοτημένος από αυτόν με απόφαση ΔΣ</li>
+                      <li><strong>Επιστημονικός Υπεύθυνος</strong> - Ηγείται του φυσικού αντικειμένου και έχει τη συνολική
+                        εποπτεία του έργου στο πλαίσιο του οποίου θα πραγματοποιηθεί η δαπάνη</li>
+                      <li><strong>Γραφείο Διαδικαστικού Ελέγχου</strong> - Ελέγχει και βεβαιώνει τη νομιμότητα και κανονικότητα
+                        των διαδικασιών πραγματοποίησης δαπανών</li>
+                      <li><strong>Προϊστάμενος Οικονομικών Υπηρεσιών (Π.Ο.Υ.)</strong> - Προΐσταται των Οικονομικών Υπηρεσιών
+                        του Κέντρου και έχει τη συνολική εποπτεία και ευθύνη της οικονομικής του δραστηριότητας</li>
+                      <li><strong>Υπεύθυνος Διαχείρισης</strong> - Χειρίζεται το διαχειριστικό και οικονομικό αντικείμενο του
+                        σχετικού έργου</li>
+                      <li><strong>Υπεύθυνος Δι@ύγειας–ΚΗΜΔΥΣ</strong> - Αναρτά στη Δι@ύγεια και στο ΚΗΜΔΥΣ (όπου απαιτείται)
+                        αποφάσεις που εμπίπτουν στη σχετική υποχρέωση και λαμβάνονται από αρμόδια στελέχη στο χώρο ευθύνης του μέσα στο Κέντρο</li>
+                    </ul>
+
+                  </div>
+
+                  <p>
+                    Η επιτυχής και σύννομη πραγματοποίηση μιας δαπάνης περιλαμβάνει δύο φάσεις, οι οποίες αναλύονται παρακάτω.
+                  </p>
+
+                  <div class="uk-margin-small-bottom">
+                    Η πρώτη φάση <i>προηγείται</i> της πραγματοποίησης της δαπάνης:
+                  </div>
+                  <div>
+                    <i><u>Ανάληψη Υποχρέωσης Δαπάνης (A)</u></i>
+                    <ol>
+                      <li>Ο <strong>Αιτών</strong> <i>συμπληρώνει</i> (ηλεκτρονικό) έγγραφο με περιγραφή αιτήματος δαπάνης και
+                        καταγραφή της αναγκαιότητας και σκοπιμότητας. Επίσης επισυνάπτει οποιοδήποτε υποστηρικτικό υλικό απαιτείται ανάλογα με το είδος της δαπάνης (π.χ., έρευνα αγοράς, έντυπο έγκρισης ταξιδιού, κλπ.).</li>
+                      <li>Ο <strong>Επιστημονικός Υπεύθυνος</strong> του έργου <i>εγκρίνει</i> το αίτημα.</li>
+                      <li>Ο <strong>Υπεύθυνος Διαχείρισης</strong> του έργου <i>ελέγχει</i> το αίτημα και βεβαιώνει τα εξής
+                        <ul>
+                          <li>ύπαρξη διαθέσιμου χρηματικού υπολοίπου στον οικείο τραπεζικό λογαριασμό</li>
+                          <li>συμβατότητα δαπάνης με συγκεκριμένη κατηγορία εντός του συνολικού και του
+                            ετήσιου εγκεκριμένου προϋπολογισμού του έργου.</li>
+                        </ul>
+                        Κατόπιν <i>εισηγείται</i> την επικύρωση της δυνατότητας πραγματοποίησης της δαπάνης.
+                      </li>
+                      <li>Ο <strong>Π.Ο.Υ.</strong> <i>επανελέγχει</i> και <i>επιβεβαιώνει</i> τα ανωτέρω και <i>επικυρώνει</i> τη δυνατότητα πραγματοποίησης της δαπάνης ως εξής:
+                        <div class="uk-card uk-card-body uk-card-simple uk-margin-top uk-margin-bottom">
+                          <i>... βεβαιώνεται</i>
+                          <ol>
+                            <li>
+                              <i>ότι η ανωτέρω δαπάνη .................................... (... ) Ευρώ <br></i>
+                              <i>είναι εντός του εγκεκριμένου ποσοστού διάθεσης, και</i>
+                            </li>
+                            <li>
+                              <i>η συνδρομή των προϋποθέσεων της παρ. 1α του άρθ. 4 του ΠΔ 80/2016.</i>
+                            </li>
+                          </ol>
+                          <i>Καταχωρήθηκε με α/α ...... στο Βιβλίο</i> <br>
+                          <i>Εγκρίσεων & Εντολών Πληρωμής της Υπηρεσίας μας</i> <br>
+                          <i>Υπόλοιπο προς ανάληψη: ......................</i> <br>
+                          <strong><i>Ο Προϊστάμενος της Οικονομικής Υπηρεσίας</i></strong>
+                        </div>
+                      </li>
+                      <li>Ο <strong>Διατάκτης</strong> <i>εκδίδει</i> την απόφαση ανάληψης υποχρέωσης σε βάρος των πιστώσεων του προϋπολογισμού του έργου ή, εφόσον απαιτείται, εισηγείται την έκδοση της απόφασης στο ΔΣ.</li>
+                      <li>Ο οικείος <strong>Υπεύθυνος Δι@ύγειας</strong> <i>αναρτά</i> την απόφαση στη Δι@ύγεια και στο ΚΗΜΔΥΣ (όπου απαιτείται) και <i>ενημερώνει</i> τον Αιτούντα σχετικώς.</li>
+                    </ol>
+                  </div>
+
+                  <div class="uk-margin-small-bottom">
+                    Η δεύτερη φάση <i>έπεται</i> της πραγματοποίησης της δαπάνης, η οποία ακολουθεί την ολοκλήρωση της πρώτης:
+                  </div>
+                  <div>
+                    <i><u>Εξόφληση Δαπάνης (B)</u></i>
+                    <ol>
+                      <li>Ο <strong>Δαπανών</strong> <i>υποβάλει</i> όλα τα σχετικά δικαιολογητικά.
+                      <li>Το <strong>Γραφείο Διαδικαστικού Ελέγχου</strong> <i>ελέγχει</i> και <i>βεβαιώνει</i> την ορθότητα (νομιμότητα
+                      και κανονικότητα) όλων των διαδικασιών όπως τεκμηριώνεται από τα δικαιολογητικά
+                      και εισηγείται την επικύρωση τους.</li>
+                      <li>Ο <strong>Π.Ο.Υ.</strong> <i>επανελέγχει</i> και <i>επιβεβαιώνει</i> τα ανωτέρω και <i>επικυρώνει</i> τη νομιμότητα και
+                        κανονικότητα της δαπάνης.
+                      </li>
+                      <li>Ο <strong>Διατάκτης</strong> <i>υπογράφει</i> το ένταλμα πληρωμής.</li>
+                      <li>Ο οικείος <strong>Υπεύθυνος Δι@ύγειας</strong> <i>αναρτά</i> την απόφαση στη Δι@ύγεια και <i>ενημερώνει</i>
+                        το Γραφείο Ταμειακής Διαχείρισης σχετικώς.</li>
+                      <li>Το <strong>Γραφείο Ταμειακής Διαχείρισης</strong> <i>εξοφλεί</i> τη δαπάνη.</li>
+                    </ol>
+                  </div>
+
+
                 </div>
 
 

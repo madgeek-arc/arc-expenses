@@ -108,9 +108,11 @@ export class StageComponent implements OnInit {
             } else {
                 if ( this.currentStage['approved'] ||
                     ( this.stageDescription &&
-                        ( this.stageDescription.id === '6' || this.stageDescription.id === '11' ) ) ) {
+                        ( this.stageDescription.id === '11' ) ) ) {
 
-                    this.wasApproved = 'Εγκρίθηκε';
+                  this.wasApproved = 'Εγκρίθηκε';
+                } else if (this.stageDescription && this.stageDescription.id === '6'  ) {
+                  this.wasApproved = 'Αναρτήθηκε';
                 } else {
                     this.wasApproved = 'Απορρίφθηκε';
                 }

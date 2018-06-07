@@ -1,8 +1,10 @@
 <div *ngIf="showSpinner" class="whiteFilm"><i class="fa fa-spinner fa-spin fa-5x loader" aria-hidden="true"></i></div>
-<div class="tm-header uk-visible@m" uk-header="">
-    <div class="uk-navbar-container uk-sticky" uk-sticky style="">
-        <div class="uk-container uk-container-expand">
-            <nav class="uk-navbar-container" uk-navbar style="">
+<div class="tm-header uk-visible@m tm-header-transparent" uk-header="">
+  <div class="uk-navbar-container uk-sticky uk-navbar-transparent" uk-sticky="top:0" media="768"
+       cls-active="uk-active uk-navbar-sticky" style="" animation="uk-animation-slide-top"
+       top=".tm-header + [class*=&quot;uk-section&quot;]" cls-inactive="uk-navbar-transparent">
+    <div class="uk-container uk-container-expand">
+      <nav class="uk-navbar" uk-navbar="{&quot;align&quot;:&quot;left&quot;}">
                 <div class="uk-navbar-left">
                     <a [routerLink]="['home']" class="uk-navbar-item navbar-brand-athena uk-logo"></a>
                 </div>

@@ -1,5 +1,5 @@
 <div *ngIf="showStage || (!showStage && (hasReturnedToPrevious===1))" class="uk-width-1-1 uk-margin-bottom">
-    <hr>
+    <!--<hr>-->
     <div *ngIf="wasSubmitted" class="uk-form-controls">
         <h5>{{ stageTitle }}</h5>
         <div>
@@ -21,7 +21,7 @@
     <div *ngIf="!wasSubmitted && stageForm" [formGroup]="stageForm" class="uk-form-controls stageForm">
         <h5>{{ stageTitle }}</h5>
 
-        <div *ngIf="stageFormError" class="uk-alert uk-alert-error">{{ stageFormError }}</div>
+        <div *ngIf="stageFormError" class="uk-alert uk-alert-danger">{{ stageFormError }}</div>
 
         <!-- COMMENT FIELD -->
         <app-stage-form [description]="commentFieldDesc">
