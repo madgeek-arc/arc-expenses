@@ -12,13 +12,14 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 
 @Component
 public class JavaMailer {
     @Value("${mail.username}")
-    private String username;
+    private String address;
 
     @Value("${mail.host}")
     private String smtpHost;
@@ -48,15 +49,65 @@ public class JavaMailer {
 
         try {
             MimeMessage msg = new MimeMessage(session);
-            msg.setFrom(username);
-//            msg.setRecipients(Message.RecipientType.TO, to);
-            msg.setRecipients(Message.RecipientType.TO, username);
+            msg.setFrom(address);
+            if (mailDebug) {
+                msg.setRecipients(Message.RecipientType.TO, address);
+            } else {
+                msg.setRecipients(Message.RecipientType.TO, to);
+            }
             msg.setSubject(subject);
             msg.setSentDate(new Date());
             msg.setText(text);
             Transport transport = session.getTransport("smtp");
-            transport.connect(smtpHost, username, password);
-            Transport.send(msg, msg.getAllRecipients(), username, password);
+            transport.connect(smtpHost, address, password);
+            Transport.send(msg, msg.getAllRecipients(), address, password);
+        } catch (MessagingException mex) {
+            logger.error("sendEmail failed, exception: " + mex);
+        }
+    }
+
+    public void sendEmail(List<String> mailList, String subject, String text) {
+        Session session = Session.getInstance(properties);
+
+        try {
+            MimeMessage msg = new MimeMessage(session);
+            msg.setFrom(address);
+            if (mailDebug) {
+                msg.setRecipients(Message.RecipientType.TO, address);
+            } else {
+                for (String mail: mailList) {
+                    msg.setRecipients(Message.RecipientType.TO, mail);
+                }
+            }
+            msg.setSubject(subject);
+            msg.setSentDate(new Date());
+            msg.setText(text);
+            Transport transport = session.getTransport("smtp");
+            transport.connect(smtpHost, address, password);
+            Transport.send(msg, msg.getAllRecipients(), address, password);
+        } catch (MessagingException mex) {
+            logger.error("sendEmail failed, exception: " + mex);
+        }
+    }
+
+    public void sendEmailWithBCC(String to, String subject, String text, String bcc) {
+        Session session = Session.getInstance(properties);
+
+        try {
+            MimeMessage msg = new MimeMessage(session);
+            msg.setFrom(address);
+            if (mailDebug) {
+                msg.setRecipients(Message.RecipientType.TO, address);
+            } else {
+                msg.setRecipients(Message.RecipientType.TO, to);
+                msg.setRecipients(Message.RecipientType.BCC, bcc);
+            }
+            msg.setSubject(subject);
+            msg.setSentDate(new Date());
+            msg.setText(text);
+            Transport transport = session.getTransport("smtp");
+            transport.connect(smtpHost, address, password);
+            Transport.send(msg, msg.getAllRecipients(), address, password);
         } catch (MessagingException mex) {
             logger.error("sendEmail failed, exception: " + mex);
         }

@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { deleteCookie, getCookie } from '../domain/cookieUtils';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
-import { User } from '../domain/operation';
+import { Attachment, User } from '../domain/operation';
 import {catchError, tap} from 'rxjs/operators';
 import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
 import {environment} from '../../environments/environment';
+import { isNullOrUndefined } from 'util';
 
 const headerOptions = {
     headers : new HttpHeaders().set('Content-Type', 'application/json').set('Accept', 'application/json'),
@@ -40,6 +41,7 @@ export class AuthenticationService {
 
     public logout() {
         deleteCookie('arc_currentUser');
+        this.isLoggedIn = false;
         sessionStorage.removeItem('userid');
         sessionStorage.removeItem('email');
         sessionStorage.removeItem('firstname');
@@ -49,7 +51,6 @@ export class AuthenticationService {
         sessionStorage.removeItem('receiveEmails');
         sessionStorage.removeItem('immediateEmails');
         sessionStorage.removeItem('role');
-        this.isLoggedIn = false;
 
         console.log('logging out, going /home');
         /*console.log(`https://aai.openaire.eu/proxy/saml2/idp/SingleLogoutService.php?ReturnTo=${this.baseUrl}`);
@@ -70,6 +71,7 @@ export class AuthenticationService {
                     },
                     () => {
                         console.log(`Something went wrong -- I'm logging out!`);
+                        this.isLoggedIn = false;
                         sessionStorage.removeItem('userid');
                         sessionStorage.removeItem('email');
                         sessionStorage.removeItem('firstname');
@@ -80,7 +82,6 @@ export class AuthenticationService {
                         sessionStorage.removeItem('immediateEmails');
                         sessionStorage.removeItem('role');
                         deleteCookie('arc_currentUser');
-                        this.isLoggedIn = false;
                         this.router.navigate(['/home']);
                     }
                 );
@@ -89,7 +90,8 @@ export class AuthenticationService {
                 console.log(`session.email wasn't found --> logging in via arc-service!`);
                 this.http.get(this.apiUrl + '/user/getUserInfo', headerOptions).subscribe(
                     userInfo => {
-                        console.log(JSON.stringify(userInfo, null, 1));
+                        console.log(JSON.stringify(userInfo));
+                        this.isLoggedIn = true;
                         sessionStorage.setItem('userid', userInfo['uid']);
                         sessionStorage.setItem('email', userInfo['email']);
                         sessionStorage.setItem('firstname', userInfo['firstname']);
@@ -104,6 +106,7 @@ export class AuthenticationService {
                     error => {
                         console.log('login error!');
                         console.log(error);
+                        this.isLoggedIn = false;
                         sessionStorage.removeItem('userid');
                         sessionStorage.removeItem('email');
                         sessionStorage.removeItem('firstname');
@@ -114,11 +117,9 @@ export class AuthenticationService {
                         sessionStorage.removeItem('immediateEmails');
                         sessionStorage.removeItem('role');
                         deleteCookie('arc_currentUser');
-                        this.isLoggedIn = false;
                         this.router.navigate(['/home']);
                     },
                     () => {
-                        this.isLoggedIn = true;
                         console.log(`the current user is: ${sessionStorage.getItem('firstname')} ` +
                             `${sessionStorage.getItem('lastname')}, ` +
                             `${sessionStorage.getItem('email')}`);
@@ -128,7 +129,7 @@ export class AuthenticationService {
                             sessionStorage.removeItem('state.location');
                             console.log(`logged in - returning to state: ${stateLoc}`);
                         }
-                        this.router.navigate(['/sign-up']);
+                        // this.router.navigate(['/sign-up']);
                     }
                 );
             } else {
@@ -142,10 +143,10 @@ export class AuthenticationService {
             console.log(`cleared session - returning to state: ${state}`);
             this.router.navigate([state]);
         }
-        //this.router.navigate(['/home']);
+        // this.router.navigate(['/home']);
     }
 
-    updateUserInfo(firstname: string, lastname: string, receiveEmails: boolean, immediateEmails: boolean) {
+    updateUserInfo(firstname: string, lastname: string, receiveEmails: boolean, immediateEmails: boolean, attachment: Attachment) {
 
         const url = `${this.apiUrl}/user/update`;
         console.log(`calling ${url}`);
@@ -158,8 +159,11 @@ export class AuthenticationService {
             lastname: lastname,
             lastnameLatin: sessionStorage.getItem('lastnameLatin'),
             receiveEmails: receiveEmails,
-            immediateEmails: immediateEmails
+            immediateEmails: immediateEmails,
+            signatureArchiveId: '',
+            signatureAttachment: null
         };
+        // ADD SIGNATURE ATTACHMENT
 
         console.log(`sending: ${JSON.stringify(updatedUser)}`);
 
@@ -180,8 +184,9 @@ export class AuthenticationService {
         return this.isLoggedIn;
     }
 
+    /* public get  userId() */
     public getUserId() {
-        if (this.isLoggedIn && (sessionStorage.getItem('userid') !== 'null')) {
+        if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('userid')) && (sessionStorage.getItem('userid') !== 'null')) {
             return sessionStorage.getItem('userid');
         } else {
             return '';
@@ -189,7 +194,7 @@ export class AuthenticationService {
     }
 
     public getUserFirstName() {
-        if (this.isLoggedIn && (sessionStorage.getItem('firstname') !== 'null')) {
+        if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('firstname')) && (sessionStorage.getItem('firstname') !== 'null')) {
             return sessionStorage.getItem('firstname');
         } else {
             return '';
@@ -197,7 +202,7 @@ export class AuthenticationService {
     }
 
     public getUserLastName() {
-        if (this.isLoggedIn && (sessionStorage.getItem('lastname') !== 'null')) {
+        if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('lastname')) && (sessionStorage.getItem('lastname') !== 'null')) {
             return sessionStorage.getItem('lastname');
         } else {
             return '';
@@ -205,7 +210,7 @@ export class AuthenticationService {
     }
 
     public getUserFirstNameInLatin() {
-        if (this.isLoggedIn && (sessionStorage.getItem('firstnameLatin') !== 'null')) {
+        if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('firstnameLatin')) && (sessionStorage.getItem('firstnameLatin') !== 'null')) {
             return sessionStorage.getItem('firstnameLatin');
         } else {
             return '';
@@ -213,7 +218,7 @@ export class AuthenticationService {
     }
 
     public getUserLastNameInLatin() {
-        if (this.isLoggedIn && (sessionStorage.getItem('lastnameLatin') !== 'null')) {
+        if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('lastnameLatin')) && (sessionStorage.getItem('lastnameLatin') !== 'null')) {
             return sessionStorage.getItem('lastnameLatin');
         } else {
             return '';
@@ -221,7 +226,7 @@ export class AuthenticationService {
     }
 
     public getUserEmail() {
-        if (this.isLoggedIn && (sessionStorage.getItem('email') !== 'null')) {
+        if (this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('email')) && (sessionStorage.getItem('email') !== 'null')) {
             return sessionStorage.getItem('email');
         } else {
             return '';

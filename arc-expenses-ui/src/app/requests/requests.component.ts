@@ -34,9 +34,9 @@ export class RequestsComponent implements OnInit {
 
   stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
   states = ['all', 'accepted', 'pending', 'rejected'];
-  stages = ['all', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
+  stages = ['all', '1', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
   stagesMap = stagesMap;
-  reqTypes = { regular: 'Πρωτογενές Αίτημα', trip: 'Ταξίδι', contract: 'Σύμβαση' };
+  reqTypes = { regular: 'Προμήθεια', trip: 'Ταξίδι', contract: 'Σύμβαση' };
 
   searchResults: Paging<Request>;
 
@@ -120,6 +120,7 @@ export class RequestsComponent implements OnInit {
           this.order = 'ASC';
           this.orderField = category;
       }
+      this.currentPage = 0;
       this.getListOfRequests();
   }
 
@@ -129,6 +130,7 @@ export class RequestsComponent implements OnInit {
       } else {
           this.order = 'ASC';
       }
+      this.currentPage = 0;
   }
 
   getOrderSign() {
@@ -155,6 +157,7 @@ export class RequestsComponent implements OnInit {
 
   getItemsPerPage(event: any) {
     this.itemsPerPage = event.target.value;
+    this.currentPage = 0;
     this.getListOfRequests();
   }
 
@@ -164,6 +167,7 @@ export class RequestsComponent implements OnInit {
           console.log(`this.stageChoice is ${this.stageChoice}`);
           this.keywordField.get('keyword').setValue('');
           this.searchTerm = '';
+          this.currentPage = 0;
           this.getListOfRequests();
       }
     }
@@ -173,12 +177,14 @@ export class RequestsComponent implements OnInit {
       console.log(`this.statusChoice is ${this.statusChoice}`);
       this.keywordField.get('keyword').setValue('');
       this.searchTerm = '';
+        this.currentPage = 0;
       this.getListOfRequests();
     }
 
     getSearchResults() {
       this.searchTerm = this.keywordField.get('keyword').value;
       console.log('this.searchTerm is', this.searchTerm);
+      this.currentPage = 0;
       this.getListOfRequests();
     }
 

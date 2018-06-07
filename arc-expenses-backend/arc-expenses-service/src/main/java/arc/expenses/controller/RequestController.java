@@ -14,6 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import arc.expenses.service.PolicyCheckerService;
 import arc.expenses.service.RequestServiceImpl;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/request")
@@ -57,6 +61,7 @@ public class RequestController {
     @ResponseBody
     Request addRequest(@RequestBody Request request) {
         request.setId(requestService.generateID());
+        request.setArchiveId(requestService.createArchive());
         return requestService.add(request);
     }
 
@@ -81,7 +86,15 @@ public class RequestController {
         return new ResponseEntity<>( false, HttpStatus.OK);
     }
 
+    @RequestMapping(value =  "/getUserPendingRequests", method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Request> getPendingRequests(@RequestParam(value = "email") String email) {
+        return requestService.getPendingRequests(email);
+    }
 
-
-
+    @RequestMapping(value = "/store/uploadFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> uploadFile(@RequestParam("archiveID") String archiveID,
+                                             @RequestParam("stage") String stage,
+                                             @RequestParam("file") MultipartFile file) throws IOException {
+        return requestService.upLoadFile(archiveID,stage,file);
+    }
 }

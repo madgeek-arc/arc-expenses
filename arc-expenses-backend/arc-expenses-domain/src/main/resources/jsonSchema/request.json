@@ -44,8 +44,18 @@
         "lastname": { "type": "string" },
         "firstnameLatin": { "type": "string" },
         "lastnameLatin": { "type": "string" },
-        "receiveEmails": { "type": "boolean" },
-        "immediateEmails": { "type": "boolean" }
+        "signatureArchiveId": { "type": "string" },
+        "receiveEmails": { "type": "string" },
+        "immediateEmails": { "type": "string" },
+        "signatureAttachment": {
+          "type": "object",
+          "properties": {
+            "filename": { "type": "string" },
+            "mimetype": { "type": "string" },
+            "size": { "type": "integer" },
+            "url": { "type": "string" }
+          }
+        }
       },
       "required": [
         "id",
@@ -319,6 +329,10 @@
     },
     "type": {
       "description": "The type of the request.",
+      "type": "string"
+    },
+    "archiveId": {
+      "description": "The archiveId of the request.",
       "type": "string"
     },
     "project": { "$ref": "#/definitions/project" },

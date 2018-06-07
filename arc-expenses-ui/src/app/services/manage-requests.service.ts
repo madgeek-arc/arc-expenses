@@ -5,10 +5,11 @@
 import { Injectable } from '@angular/core';
 import { Request } from '../domain/operation';
 import { Observable } from 'rxjs/Observable';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { catchError } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse, HttpEvent, HttpHeaders, HttpRequest } from '@angular/common/http';
+import {catchError, tap} from 'rxjs/operators';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { Paging } from '../domain/extraClasses';
+import { ContactUsMail } from '../domain/operation';
 import {environment} from '../../environments/environment';
 
 const headerOptions = {
@@ -63,6 +64,27 @@ export class ManageRequestsService {
         );
     }
 
+    uploadAttachment<T>(archiveid: string, stage: string, file: File): Observable<HttpEvent<T>> {
+        const url = `${this.apiUrl}store/uploadFile?archiveID=${archiveid}&stage=${stage}`;
+        console.log(`calling ${url}`);
+
+        const formBody: FormData = new FormData();
+        formBody.append('file', file, file.name);
+        const req = new HttpRequest('POST', url, formBody, {
+            reportProgress: true,
+            responseType: 'text',
+            withCredentials: true
+        });
+        return this.http.request(req).pipe(catchError(this.handleError));
+        /*return this.http.request<HttpEvent<T>>('POST', url, {body: formBody, headers: headerOptions.headers, withCredentials: true});*/
+    }
+
+    getAttachment (url: string): Observable<File> {
+        const body = {};
+        console.log(`calling ${url}`);
+        return this.http.post<File>(url, body, headerOptions).pipe(catchError(this.handleError));
+    }
+
     searchAllRequests(searchField: string, status: string, stage: string, from: string, quantity: string,
                       order: string, orderField: string, email: string): Observable<Paging<Request>> {
         let url = `${this.apiUrl}getAll?from=${from}&quantity=${quantity}&status=${status}&stage=${stage}`;
@@ -70,6 +92,16 @@ export class ManageRequestsService {
 
         console.log(`calling ${url}`);
         return this.http.get<Paging<Request>>(url, headerOptions).pipe(
+            catchError(this.handleError)
+        );
+    }
+
+    sendContactFormToService(params: ContactUsMail): Observable<any> {
+        const url = `${environment.API_ENDPOINT}/contactUs/sendMail`;
+        console.log(`calling ${url}`);
+        console.log(`sending ${JSON.stringify(params)}`);
+
+        return this.http.post<any>(url, JSON.stringify(params), headerOptions).pipe(
             catchError(this.handleError)
         );
     }

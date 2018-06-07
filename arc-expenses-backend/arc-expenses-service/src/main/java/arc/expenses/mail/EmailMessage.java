@@ -5,6 +5,15 @@ public class EmailMessage {
     private String subject;
     private String text;
 
+    public EmailMessage() {
+    }
+
+    public EmailMessage(String email, String subject, String text) {
+        this.recipient = email;
+        this.subject = subject;
+        this.text = text;
+    }
+
     public String getRecipient() {
         return recipient;
     }

@@ -1,13 +1,24 @@
 package arc.expenses.service;
 
+import eu.openminted.registry.core.domain.Paging;
+import eu.openminted.registry.core.domain.Resource;
+import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.User;
 import org.apache.log4j.Logger;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class UserServiceImpl extends GenericService<User> {
@@ -15,11 +26,24 @@ public class UserServiceImpl extends GenericService<User> {
     @Autowired
     DataSource dataSource;
 
+    @Autowired
+    private StoreRESTClient storeRESTClient;
+
+    @Value("${user.signature.archiveID}")
+    private String DS_ARCHIVE;
+
     private Logger LOGGER = Logger.getLogger(UserServiceImpl.class);
 
     public UserServiceImpl() {
         super(User.class);
     }
+
+    @PostConstruct
+    private void createArchiveForSignatures(){
+        storeRESTClient.createArchive("DS_ARCHIVE");
+        LOGGER.info("DS archive created");
+    }
+
 
     @Override
     public String getResourceType() {
@@ -85,4 +109,30 @@ public class UserServiceImpl extends GenericService<User> {
               //  " project_organization_director_delegate = ? ";
 
     }
+
+    public List<User> getUsersWithImmediateEmailPreference() {
+
+        String query = " user_immediate_emails = true ";
+
+        Paging<Resource> rs = searchService.cqlQuery(
+                query,"user",
+                1000,0,
+                "", SortOrder.ASC);
+
+
+        List<User> resultSet = new ArrayList<>();
+        for(Resource resource:rs.getResults()) {
+            try {
+                resultSet.add(parserPool.deserialize(resource,typeParameterClass).get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+        return resultSet;
+    }
+
+    public String getSignatureArchiveID() {
+        return DS_ARCHIVE;
+    }
+
 }

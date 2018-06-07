@@ -1,0 +1,69 @@
+<div *ngIf="showStage || (!showStage && (hasReturnedToPrevious===1))" class="uk-width-1-1 uk-margin-bottom">
+    <hr>
+    <div *ngIf="wasSubmitted" class="uk-form-controls">
+        <h5>{{ stageTitle }}</h5>
+        <div>
+            {{ wasApproved }}
+            ({{ getDelegateName() }})
+            στις {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
+        </div>
+        <div class="uk-grid uk-margin-small-top">
+            <label class="uk-width-1-3">Έχει αναληφθεί η υποχρέωση;</label>
+            <div class="uk-width-expand">
+                <input class="uk-form-controls uk-checkbox"
+                       type="checkbox" [checked]="currentStage['analiftheiYpoxrewsi']" disabled>
+            </div>
+        </div>
+        <div class="uk-grid uk-margin-small-top">
+            <label class="uk-width-1-3">Υπάρχει διαθέσιμη πίστωση;</label>
+            <div class="uk-width-expand">
+                <input class="uk-form-controls uk-checkbox"
+                       type="checkbox" [checked]="currentStage['fundsAvailable']" disabled>
+            </div>
+        </div>
+        <div *ngIf="currentStage['comment']">
+            <span class="uk-text-bold uk-margin-small-right">Σχόλια: </span>
+            <span> {{ currentStage['comment'] }} </span>
+        </div>
+        <div *ngIf="currentStage['attachment']">
+            <a class="uk-link uk-width-1-1@l uk-margin-small-top" (click)="linkToFile()">
+                Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία
+            </a>
+        </div>
+    </div>
+    <div *ngIf="!wasSubmitted && stageForm" [formGroup]="stageForm" class="uk-form-controls stageForm">
+        <h5>{{ stageTitle }}</h5>
+
+        <div *ngIf="stageFormError" class="uk-alert uk-alert-error">{{ stageFormError }}</div>
+
+        <div class="uk-grid uk-margin-small-top">
+            <label class="uk-width-1-3">Έχει αναληφθεί η υποχρέωση;</label>
+            <div class="uk-width-expand">
+                <input class="uk-form-controls uk-checkbox" type="checkbox" formControlName="analiftheiYpoxrewsi">
+            </div>
+        </div>
+        <div class="uk-grid uk-margin-small-top">
+            <label class="uk-width-1-3">Υπάρχει διαθέσιμη πίστωση;</label>
+            <div class="uk-width-expand">
+                <input class="uk-form-controls uk-checkbox" type="checkbox" formControlName="fundsAvailable">
+            </div>
+        </div>
+
+        <!-- COMMENT FIELD -->
+        <app-stage-form [description]="commentFieldDesc">
+            <textarea formControlName="comment" class="uk-form-controls uk-textarea" rows="2"></textarea>
+        </app-stage-form>
+
+        <!--ATTACHMENT FIELD-->
+        <app-stage-form-upload-file [uploadedFilename]="uploadedFilename" (emitFile)="getAttachmentInput($event)"></app-stage-form-upload-file>
+
+        <!--BUTTONS-->
+        <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
+
+        <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>
+
+        <button class="uk-button uk-button-primary" (click)="goBackOneStage()">Επιστροφή στο προηγούμενο στάδιο</button>
+
+    </div>
+</div>
+

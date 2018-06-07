@@ -11,7 +11,7 @@ export class AuthGuardService implements CanActivate {
 
     canActivate (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
 
-        if ( this.authenticationService.getIsUserLoggedIn() ) { return true; }
+        if ( this.authenticationService.getIsUserLoggedIn() && this.authenticationService.getUserEmail() ) { return true; }
 
         /*uncomment when cookie is used*/
         if ( getCookie('arc_currentUser') != null ) { return true; }

@@ -41,4 +41,3 @@ export class Paging<T> {
     results: T[];
     occurences: Occurences;
 }
-

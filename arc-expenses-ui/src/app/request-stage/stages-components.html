@@ -1,3 +1,5 @@
+<!-- OLD STAGES HTML -->
+
 <div *ngIf="showStage || (!showStage && (hasReturnedToPrevious===1))" class="uk-width-1-1 uk-margin-bottom">
     <hr>
     <div *ngIf="wasSubmitted" class="uk-form-controls">
@@ -121,7 +123,7 @@
         </app-stage-form>
 
         <!--ATTACHMENT FIELD-->
-        <app-stage-form-upload-file (emitFile)="getAttachmentInput($event)"></app-stage-form-upload-file>
+        <app-stage-form-upload-file [uploadedFilename]="uploadedFilename" (emitFile)="getAttachmentInput($event)"></app-stage-form-upload-file>
 
         <!--BUTTONS-->
         <div *ngIf="stageDescription.id !== '6' && stageDescription.id !== '11'">

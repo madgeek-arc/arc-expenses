@@ -1,3 +1,4 @@
+<div *ngIf="showSpinner" class="whiteFilm"><i class="fa fa-spinner fa-spin fa-5x loader" aria-hidden="true"></i></div>
 <div class="tm-header uk-visible@m" uk-header="">
     <div class="uk-navbar-container uk-sticky" uk-sticky style="">
         <div class="uk-container uk-container-expand">
@@ -13,19 +14,18 @@
                             </a>
                         </li>
                         <li class="uk-parent" [routerLinkActive]="['uk-active']">
-                            <a href="#">Νέο Αίτημα</a>
-                            <div class="uk-navbar-dropdown">
-                                <ul class="uk-nav uk-navbar-dropdown-nav">
-                                    <li>
-                                        <a [routerLink]="['new-request','regular']">Πρωτογενές Αίτημα</a>
-                                    </li>
-                                    <li>
-                                        <a [routerLink]="['new-request','trip']">Ταξίδι</a>
-                                    </li>
-                                    <li>
-                                        <a [routerLink]="['new-request','contract']">Σύμβαση</a>
-                                    </li>
-                                </ul>
+                            <a href="#" aria-expanded="false">Πρωτογενές αίτημα</a>
+                            <div class="uk-navbar-dropdown uk-navbar-dropdown-bottom-left" style="top: 80px; left: 106.55px;"
+                                 id="newRequestMenu" (click)="onClick('newRequestMenu')">
+                                <div class="uk-navbar-dropdown-grid uk-child-width-1-1 uk-grid uk-grid-stack" uk-grid="">
+                                    <div class="uk-first-column">
+                                        <ul class="uk-nav uk-navbar-dropdown-nav">
+                                            <li><a [routerLink]="['new-request','regular']">Προμήθεια</a></li>
+                                            <li><a [routerLink]="['new-request','trip']">Ταξίδι</a></li>
+                                            <li><a [routerLink]="['new-request','contract']">Σύμβαση</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </li>
                         <li class="uk-parent" [routerLinkActive]="['uk-active']">
@@ -36,6 +36,11 @@
                         <li class="uk-parent" [routerLinkActive]="['uk-active']">
                             <a [routerLink]="['about']">
                                 Σχετικά
+                            </a>
+                        </li>
+                        <li class="uk-parent">
+                            <a (click)="showContactForm()">
+                                Φόρμα Επικοινωνίας
                             </a>
                         </li>
                     </ul>
@@ -127,3 +132,49 @@
         </div>
     </div>
 </div>
+
+<!-- Όνομα, Επώνυμο, email, Θέμα, Μήνυμα
+     name, surname, email, subject, message -->
+<div id="contactModal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <h4 class="uk-modal-title uk-h4">Φόρμα Επικοινωνίας</h4>
+        <div *ngIf="modalError" class="uk-alert uk-alert-danger">{{ modalError }}</div>
+        <div *ngIf="contactForm" class="uk-modal-body">
+            <div [formGroup]="contactForm">
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="name">Όνομα <span>(*)</span></label>
+                    <div class="uk-form-controls">
+                        <input class="uk-input" id="name" formControlName="name">
+                    </div>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="surname">Επώνυμο <span>(*)</span></label>
+                    <div class="uk-form-controls">
+                        <input class="uk-input" id="surname" formControlName="surname">
+                    </div>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="email">Email <span>(*)</span></label>
+                    <div class="uk-form-controls">
+                        <input class="uk-input" id="email" formControlName="email">
+                    </div>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="subject">Θέμα <span>(*)</span></label>
+                    <div class="uk-form-controls">
+                        <input class="uk-input" id="subject" formControlName="subject">
+                    </div>
+                </div>
+                <div class="uk-margin">
+                    <label class="uk-form-label" for="message">Μήνυμα <span>(*)</span></label>
+                    <div class="uk-form-controls">
+                        <textarea class="uk-textarea" id="message" formControlName="message"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="uk-button uk-button-primary" type="button" (click)="submitContactForm($event)">Αποστολή</button>
+        <button class="uk-button uk-button-primary uk-modal-close" type="button">Άκυρο</button>
+    </div>
+</div>
+

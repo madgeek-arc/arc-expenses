@@ -10,6 +10,7 @@ import {AuthenticationService} from '../services/authentication.service';
 import {DatePipe} from '@angular/common';
 import {ManageProjectService} from '../services/manage-project.service';
 import {isUndefined} from 'util';
+import {HttpEventType, HttpResponse} from '@angular/common/http';
 
 declare const UIkit: any;
 
@@ -24,7 +25,9 @@ export class NewRequestComponent implements OnInit {
     showSpinner: boolean;
 
     requestType: string;
-    reqTypes = { regular: 'Πρωτογενές Αίτημα', trip: 'Ταξίδι', contract: 'Σύμβαση' };
+    reqTypes = { regular: 'Προμήθεια', trip: 'Ταξίδι', contract: 'Σύμβαση' };
+    readonly amountLimit = 20000;
+    isSupplierRequired: boolean;
 
     currentUser: User;
 
@@ -32,7 +35,7 @@ export class NewRequestComponent implements OnInit {
 
     uploadedFile: File;
 
-    requestedAmmount: string;
+    requestedAmount: string;
     searchTerm: string = '';
 
     request: Request;
@@ -71,8 +74,10 @@ export class NewRequestComponent implements OnInit {
         this.currentUser.firstnameLatin = this.authService.getUserFirstNameInLatin();
         this.currentUser.lastnameLatin = this.authService.getUserLastNameInLatin();
         console.log('this.currentUser is: ', this.currentUser);
+
         this.requestType = this.route.snapshot.paramMap.get('type');
         this.title = this.reqTypes[this.requestType];
+        this.isSupplierRequired = (this.requestType !== 'trip');
         this.createForm();
     }
 
@@ -89,7 +94,9 @@ export class NewRequestComponent implements OnInit {
                 this.showSpinner = false;
                 this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την ανάκτηση των απαραίτητων πληροφοριών.';
             },
-            () => this.showSpinner = false
+            () => {
+                this.showSpinner = false;
+            }
         );
     }
 
@@ -110,28 +117,33 @@ export class NewRequestComponent implements OnInit {
             requestText: ['', Validators.required],
             supplier: [''],
             supplierSelectionMethod: [''],
-            ammount: ['', [Validators.required, Validators.min(0), Validators.pattern('^\\d+(\\.\\d{1,2})?$')] ],
+            amount: ['', [Validators.required, Validators.min(0), Validators.pattern('^\\d+(\\.\\d{1,2})?$')] ],
             director: ['']
         });
         this.newRequestForm.get('name').setValue(`${this.currentUser.firstname} ${this.currentUser.lastname}`);
         this.newRequestForm.get('name').disable();
-        this.newRequestForm.get('institute').disable();
-        this.newRequestForm.get('director').disable();
     }
 
     submitRequest() {
         console.log(this.newRequestForm);
         if (this.newRequestForm.valid ) {
-            if ( (+this.newRequestForm.get('ammount').value > 2500) && isUndefined(this.uploadedFile) ) {
+            if ( (+this.newRequestForm.get('amount').value > 2500) && isUndefined(this.uploadedFile) ) {
                 UIkit.modal.alert('Για αιτήματα άνω των 2.500 € η επισύναψη εγγράφων είναι υποχρεωτική.');
             } else if ( ( this.requestType !== 'trip' ) &&
-                        !this.newRequestForm.get('supplier').value &&
-                        !this.newRequestForm.get('supplierSelectionMethod').value  ) {
+                        ( (this.newRequestForm.get('supplierSelectionMethod').value !== 'Διαγωνισμός') &&
+                          !this.newRequestForm.get('supplier').value )) {
+
                 UIkit.modal.alert('Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.');
             } else if ( (( this.newRequestForm.get('supplierSelectionMethod').value !== 'Απ\' ευθείας ανάθεση' ) &&
                          ( this.requestType !== 'trip' )) &&
                           isUndefined(this.uploadedFile)  ) {
+
                 UIkit.modal.alert('Για αναθέσεις μέσω διαγωνισμού ή έρευνας αγοράς η επισύναψη εγγράφων είναι υποχρεωτική.');
+            } else if ( ( +this.newRequestForm.get('amount').value > this.amountLimit) &&
+                        ( this.requestType !== 'trip' ) &&
+                        ( this.newRequestForm.get('supplierSelectionMethod').value !== 'Διαγωνισμός' ) ) {
+
+                UIkit.modal.alert('Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.');
             } else {
                 this.request = new Request();
                 this.request.id = '';
@@ -143,9 +155,11 @@ export class NewRequestComponent implements OnInit {
                 /*this.request.stage1.requestDate = this.datePipe.transform(Date.now(), 'dd/MM/yyyy');*/
                 this.request.stage1.requestDate = Date.now().toString();
                 this.request.stage1.subject = this.newRequestForm.get('requestText').value;
-                this.request.stage1.supplier = this.newRequestForm.get('supplier').value;
-                this.request.stage1.supplierSelectionMethod = this.newRequestForm.get('supplierSelectionMethod').value;
-                this.request.stage1.amountInEuros = +this.newRequestForm.get('ammount').value;
+                if (this.requestType !== 'trip') {
+                    this.request.stage1.supplier = this.newRequestForm.get('supplier').value;
+                    this.request.stage1.supplierSelectionMethod = this.newRequestForm.get('supplierSelectionMethod').value;
+                }
+                this.request.stage1.amountInEuros = +this.newRequestForm.get('amount').value;
                 if (this.uploadedFile) {
                     this.request.stage1.attachment = new Attachment();
                     this.request.stage1.attachment.filename = this.uploadedFile.name;
@@ -158,9 +172,13 @@ export class NewRequestComponent implements OnInit {
                 this.request.stage2 = new Stage2();
                 this.request.stage3 = new Stage3();
                 this.request.stage4 = new Stage4();
-                this.request.stage5 = new Stage5();
+                // this.request.stage5 = new Stage5();
                 this.request.stage5a = new Stage5a();
-                this.request.stage5b = new Stage5b();
+
+                if ( (this.request.stage1.amountInEuros > this.amountLimit) ||
+                     (this.request.stage1.supplierSelectionMethod === 'Διαγωνισμός') ) {
+                    this.request.stage5b = new Stage5b();
+                }
                 this.request.stage6 = new Stage6();
                 this.request.stage7 = new Stage7();
                 this.request.stage8 = new Stage8();
@@ -180,22 +198,66 @@ export class NewRequestComponent implements OnInit {
                         this.showSpinner = false;
                     },
                     () => {
-                        this.router.navigate(['/requests']);
-                        this.showSpinner = false;
+                        if (this.uploadedFile) {
+                            this.uploadFile();
+                        } else {
+                            this.showSpinner = false;
+                            this.router.navigate(['/requests']);
+                        }
                     }
                 );
             }
 
         } else {
-            this.errorMessage = 'Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά';
+            UIkit.modal.alert('Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.');
         }
+    }
+
+    uploadFile() {
+        this.showSpinner = true;
+        this.requestService.uploadAttachment<string>(this.request.archiveId, 'stage1', this.uploadedFile)
+            .subscribe(
+                event => {
+                    // console.log('uploadAttachment responded: ', JSON.stringify(event));
+                    if (event.type === HttpEventType.UploadProgress) {
+                        console.log('uploadAttachment responded: ', event);
+                    } else if ( event instanceof HttpResponse) {
+                        console.log('final event:', event.body);
+                        this.request.stage1.attachment.url = event.body;
+                    }
+                },
+                error => {
+                    console.log(error);
+                    this.showSpinner = false;
+                },
+                () => {
+                    console.log('ready to update Request');
+                    this.requestService.updateRequest(this.request, this.authService.getUserEmail()).subscribe(
+                        res => console.log('updated new request: ', res.status, res.stage, res.stage1),
+                        error => {
+                            console.log('from update new request', error);
+                            this.showSpinner = false;
+                        },
+                        () => {
+                            this.showSpinner = false;
+                            this.router.navigate(['/requests']);
+                        }
+                );
+                }
+            );
     }
 
     getProject() {
         this.errorMessage = '';
         if (this.newRequestForm.get('program').value) {
+
+            this.newRequestForm.get('institute').setValue('');
+            this.newRequestForm.get('director').setValue('');
+
             this.showSpinner = true;
-            this.projectService.getProjectByAcronym(this.newRequestForm.get('program').value).subscribe (
+            const project = (this.newRequestForm.get('program').value).split('(');
+            const institute = project[1].split(')');
+            this.projectService.getProjectByAcronym(project[0].trim(), institute[0].trim()).subscribe (
                 res => {
                     this.chosenProject = res;
                     console.log(this.chosenProject);
@@ -208,9 +270,15 @@ export class NewRequestComponent implements OnInit {
                 },
                 () => {
                     this.programSelected = true;
-                    this.newRequestForm.get('institute').setValue(this.chosenProject['institute'].name);
-                    this.newRequestForm.get('director')
-                        .setValue(this.chosenProject.institute.director.firstname + ' ' + this.chosenProject.institute.director.lastname);
+                    if (this.chosenProject['institute'] && this.chosenProject.institute.name) {
+                        this.newRequestForm.get('institute').setValue(this.chosenProject.institute.name);
+                    }
+                    if (this.chosenProject.institute && this.chosenProject.institute.director) {
+                        this.newRequestForm.get('director')
+                            .setValue(this.chosenProject.institute.director.firstname + ' ' + this.chosenProject.institute.director.lastname);
+                    }
+                    this.newRequestForm.get('institute').disable();
+                    this.newRequestForm.get('director').disable();
                     this.showSpinner = false;
                     this.searchTerm = '';
                 }
@@ -239,15 +307,30 @@ export class NewRequestComponent implements OnInit {
         this.uploadedFile = file;
     }
 
-    showAmmount() {
-        this.requestedAmmount = this.newRequestForm.get('ammount').value.trim();
-        this.newRequestForm.get('ammount').updateValueAndValidity();
+    showAmount() {
+        this.requestedAmount = this.newRequestForm.get('amount').value.trim();
+        this.newRequestForm.get('amount').updateValueAndValidity();
     }
 
     checkIfTrip() {
+        if (this.requestType !== this.route.snapshot.paramMap.get('type')) {
+            this.createForm();
+        }
         this.requestType = this.route.snapshot.paramMap.get('type');
         this.title = this.reqTypes[this.requestType];
+        this.isSupplierRequired = (this.requestType !== 'trip');
         return (this.requestType !== 'trip');
+    }
+
+    setIsSupplierReq(val: boolean) {
+        this.isSupplierRequired = val;
+    }
+
+    checkIfSupplierIsRequired() {
+        if (this.newRequestForm.get('supplierSelectionMethod').value) {
+            this.setIsSupplierReq( (this.newRequestForm.get('supplierSelectionMethod').value !== 'Διαγωνισμός' ) );
+        }
+        console.log(this.isSupplierRequired);
     }
 
 }

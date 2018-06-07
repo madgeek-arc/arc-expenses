@@ -23,6 +23,12 @@
     },
     {
       "primaryKey":false,
+      "name": "project_institute",
+      "path": "$.institute.id",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
       "name": "project_scientificCoordinator",
       "path": "$.scientificCoordinator.email",
       "type": "java.lang.String"
