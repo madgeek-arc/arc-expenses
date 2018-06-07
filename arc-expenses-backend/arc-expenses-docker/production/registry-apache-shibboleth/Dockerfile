@@ -3,7 +3,7 @@ FROM unicon/shibboleth-sp
 MAINTAINER "pkanakakis@di.uoa.gr"
 
 RUN yum -y update \
-    && yum -y install php mod_ssl   
-
+    && yum -y install php mod_ssl apt-get install -y libapache2-mod-shib2 a2enmod shib2 
 COPY  arc-shibboleth /etc/shibboleth/
-COPY  apache2 /etc/httpd/conf.d/
+COPY  apache2/conf.d /etc/httpd/conf.d/
+COPY  apache2/ssl /etc/httpd/
