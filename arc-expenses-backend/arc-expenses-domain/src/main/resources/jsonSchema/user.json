@@ -10,8 +10,8 @@
     "firstnameLatin": { "type": "string" },
     "lastnameLatin": { "type": "string" },
     "signatureArchiveId": { "type": "string" },
-    "receiveEmails": { "type": "boolean" },
-    "immediateEmails": { "type": "boolean" },
+    "receiveEmails": { "type": "string" },
+    "immediateEmails": { "type": "string" },
     "signatureAttachment": {
       "type": "object",
       "properties": {
