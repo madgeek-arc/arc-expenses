@@ -12,7 +12,7 @@
     "signatureArchiveId": { "type": "string" },
     "receiveEmails": { "type": "string" },
     "immediateEmails": { "type": "string" },
-    "signatureAttachment": {
+    "attachment": {
       "type": "object",
       "properties": {
         "filename": { "type": "string" },
