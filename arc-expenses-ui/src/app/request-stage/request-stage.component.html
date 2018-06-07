@@ -192,9 +192,13 @@
                 <h4>Ανάληψη υποχρέωσης δαπάνης</h4>
                 <hr>
 
-                <div class="uk-child-width-expand uk-grid" uk-grid >
+                <div class="uk-child-width-expand uk-grid" uk-grid
+                     *ngIf="(willShowStage('2') && (checkIfHasReturnedToPrevious('2') !== 1))
+                     || (willShowStage('3') && (checkIfHasReturnedToPrevious('3') !== 1))
+                     || (willShowStage('4') && (checkIfHasReturnedToPrevious('4') !== 1))">
 
-                  <stage2-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('2')"
+                  <stage2-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                    *ngIf="willShowStage('2') && (checkIfHasReturnedToPrevious('2') !== 1)"
                                     [showStage]="willShowStage('2')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('2')"
                                     [currentStage]="currentRequest.stage2" [currentProject]="currentRequest.project"
                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
@@ -204,13 +208,15 @@
                     Το αίτημά σας {{ stateNames[currentRequest.status] }}
                   </div>
 
-                  <stage3-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('3')"
+                  <stage3-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                    *ngIf="willShowStage('3') && (checkIfHasReturnedToPrevious('3') !== 1)"
                                     [showStage]="willShowStage('3')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('3')"
                                     [currentStage]="currentRequest.stage3" [currentProject]="currentRequest.project"
                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
                                     (emitFile)="getUploadedFile($event)"></stage3-component>
 
-                  <stage4-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('4')"
+                  <stage4-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                    *ngIf="willShowStage('4') && (checkIfHasReturnedToPrevious('4') !== 1)"
                                     [showStage]="willShowStage('4')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('4')"
                                     [currentStage]="currentRequest.stage4" [currentProject]="currentRequest.project"
                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
@@ -219,15 +225,20 @@
                 </div>
 
 
-                <div class="uk-child-width-expand uk-grid" uk-grid >
+                <div class="uk-child-width-expand uk-grid" uk-grid
+                     *ngIf="(willShowStage('5a') && (checkIfHasReturnedToPrevious('5a') !== 1))
+                     || (willShowStage('5b') && (checkIfHasReturnedToPrevious('5b') !== 1))
+                     || (willShowStage('6') && (checkIfHasReturnedToPrevious('6') !== 1))">
 
-                  <stage5a-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('5a')"
+                  <stage5a-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                     *ngIf="willShowStage('5a') && (checkIfHasReturnedToPrevious('5a') !== 1)"
                                      [showStage]="willShowStage('5a')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('5a')"
                                      [currentStage]="currentRequest.stage5a" [currentProject]="currentRequest.project"
                                      (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
                                      (emitFile)="getUploadedFile($event)"></stage5a-component>
 
-                  <stage5b-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('5b')"
+                  <stage5b-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                     *ngIf="willShowStage('5b') && (checkIfHasReturnedToPrevious('5b') !== 1)"
                                      [showStage]="willShowStage('5b')"[hasReturnedToPrevious]="checkIfHasReturnedToPrevious('5b')"
                                      [currentStage]="currentRequest.stage5b" [currentProject]="currentRequest.project"
                                      (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
@@ -235,7 +246,8 @@
                                      (newValues)="getNewSupplierAndAmount($event)"
                                      (emitFile)="getUploadedFile($event)"></stage5b-component>
 
-                  <stage6-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('6')"
+                  <stage6-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                    *ngIf="willShowStage('6') && (checkIfHasReturnedToPrevious('6') !== 1)"
                                     [showStage]="willShowStage('6')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('6')"
                                     [currentStage]="currentRequest.stage6" [currentProject]="currentRequest.project"
                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
@@ -244,39 +256,51 @@
                 </div>
 
 
+                <div class="uk-margin-top" *ngIf="(currentRequest.stage7 && currentRequest.stage7.date) || (currentRequest.stage === '7')">
+                  <h4>Εξόφληση Δαπάνης</h4>
+                  <hr>
+                </div>
 
-                <h4>Εξόφληση Δαπάνης</h4>
-                <hr>
 
-                <div class="uk-child-width-expand uk-grid" uk-grid >
+                <div class="uk-child-width-expand uk-grid" uk-grid
+                     *ngIf="(willShowStage('7') && (checkIfHasReturnedToPrevious('7') !== 1))
+                     || (willShowStage('8') && (checkIfHasReturnedToPrevious('8') !== 1))
+                     || (willShowStage('9') && (checkIfHasReturnedToPrevious('9') !== 1))">
 
-                  <stage7-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('7')"
+                  <stage7-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                    *ngIf="willShowStage('7') && (checkIfHasReturnedToPrevious('7') !== 1)"
                                     [showStage]="willShowStage('7')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('7')"
                                     [currentStage]="currentRequest.stage7" [currentProject]="currentRequest.project"
                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
                                     (emitFile)="getUploadedFile($event)"></stage7-component>
 
-                  <stage8-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('8')"
+                  <stage8-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                    *ngIf="willShowStage('8') && (checkIfHasReturnedToPrevious('8') !== 1)"
                                     [showStage]="willShowStage('8')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('8')"
                                     [currentStage]="currentRequest.stage8" [currentProject]="currentRequest.project"
                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
                                     (emitFile)="getUploadedFile($event)"></stage8-component>
 
-                  <stage9-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('9')"
+                  <stage9-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                    *ngIf="willShowStage('9') && (checkIfHasReturnedToPrevious('9') !== 1)"
                                     [showStage]="willShowStage('9')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('9')"
                                     [currentStage]="currentRequest.stage9" [currentProject]="currentRequest.project"
                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
                                     (emitFile)="getUploadedFile($event)"></stage9-component>
                 </div>
 
-                <div class="uk-child-width-expand uk-grid" uk-grid >
-                  <stage10-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('10')"
+                <div class="uk-child-width-expand uk-grid" uk-grid
+                     *ngIf="(willShowStage('10') && (checkIfHasReturnedToPrevious('10') !== 1))
+                     || (willShowStage('11') && (checkIfHasReturnedToPrevious('11') !== 1))">
+                  <stage10-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                     *ngIf="willShowStage('10') && (checkIfHasReturnedToPrevious('10') !== 1)"
                                      [showStage]="willShowStage('10')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('10')"
                                      [currentStage]="currentRequest.stage10" [currentProject]="currentRequest.project"
                                      (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
                                      (emitFile)="getUploadedFile($event)"></stage10-component>
 
-                  <stage11-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('11')"
+                  <stage11-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                     *ngIf="willShowStage('11') && (checkIfHasReturnedToPrevious('11') !== 1)"
                                      [showStage]="willShowStage('11')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('11')"
                                      [currentStage]="currentRequest.stage11" [currentProject]="currentRequest.project"
                                      (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
@@ -284,14 +308,18 @@
                 </div>
 
 
-                <div class="uk-child-width-expand uk-grid" uk-grid >
-                  <stage12-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('12')"
+                <div class="uk-child-width-expand uk-grid" uk-grid
+                     *ngIf="(willShowStage('12') && (checkIfHasReturnedToPrevious('12') !== 1))
+                     || (willShowStage('13') && (checkIfHasReturnedToPrevious('13') !== 1))">
+                  <stage12-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                     *ngIf="willShowStage('12') && (checkIfHasReturnedToPrevious('12') !== 1)"
                                      [showStage]="willShowStage('12')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('12')"
                                      [currentStage]="currentRequest.stage12" [currentProject]="currentRequest.project"
                                      (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
                                      (emitFile)="getUploadedFile($event)"></stage12-component>
 
-                  <stage13-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left" *ngIf="willShowStage('13')"
+                  <stage13-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                     *ngIf="willShowStage('13') && (checkIfHasReturnedToPrevious('13') !== 1)"
                                      [showStage]="willShowStage('13')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('13')"
                                      [currentStage]="currentRequest.stage13" [currentProject]="currentRequest.project"
                                      (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
@@ -300,8 +328,101 @@
 
 
 
-                <div class="uk-margin-top">
+                <div class="uk-margin-medium-top">
+                  <!--<hr>-->
 
+                  <stage2-component class=""
+                                    *ngIf="willShowStage('2') && (checkIfHasReturnedToPrevious('2') === 1)"
+                                    [showStage]="willShowStage('2')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('2')"
+                                    [currentStage]="currentRequest.stage2" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                    (emitFile)="getUploadedFile($event)"></stage2-component>
+
+                  <stage3-component class=""
+                                    *ngIf="willShowStage('3') && (checkIfHasReturnedToPrevious('3') === 1)"
+                                    [showStage]="willShowStage('3')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('3')"
+                                    [currentStage]="currentRequest.stage3" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                    (emitFile)="getUploadedFile($event)"></stage3-component>
+
+                  <stage4-component class=""
+                                    *ngIf="willShowStage('4') && (checkIfHasReturnedToPrevious('4') === 1)"
+                                    [showStage]="willShowStage('4')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('4')"
+                                    [currentStage]="currentRequest.stage4" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                    (emitFile)="getUploadedFile($event)"></stage4-component>
+
+                  <stage5a-component class=""
+                                     *ngIf="willShowStage('5a') && (checkIfHasReturnedToPrevious('5a') === 1)"
+                                     [showStage]="willShowStage('5a')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('5a')"
+                                     [currentStage]="currentRequest.stage5a" [currentProject]="currentRequest.project"
+                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                     (emitFile)="getUploadedFile($event)"></stage5a-component>
+
+                  <stage5b-component class=""
+                                     *ngIf="willShowStage('5b') && (checkIfHasReturnedToPrevious('5b') === 1)"
+                                     [showStage]="willShowStage('5b')"[hasReturnedToPrevious]="checkIfHasReturnedToPrevious('5b')"
+                                     [currentStage]="currentRequest.stage5b" [currentProject]="currentRequest.project"
+                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                     [oldSupplierAndAmount]="sendInfoToStage5b"
+                                     (newValues)="getNewSupplierAndAmount($event)"
+                                     (emitFile)="getUploadedFile($event)"></stage5b-component>
+
+                  <stage6-component class=""
+                                    *ngIf="willShowStage('6') && (checkIfHasReturnedToPrevious('6') === 1)"
+                                    [showStage]="willShowStage('6')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('6')"
+                                    [currentStage]="currentRequest.stage6" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                    (emitFile)="getUploadedFile($event)"></stage6-component>
+
+                  <stage7-component class=""
+                                    *ngIf="willShowStage('7') && (checkIfHasReturnedToPrevious('7') === 1)"
+                                    [showStage]="willShowStage('7')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('7')"
+                                    [currentStage]="currentRequest.stage7" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                    (emitFile)="getUploadedFile($event)"></stage7-component>
+
+                  <stage8-component class=""
+                                    *ngIf="willShowStage('8') && (checkIfHasReturnedToPrevious('8') === 1)"
+                                    [showStage]="willShowStage('8')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('8')"
+                                    [currentStage]="currentRequest.stage8" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                    (emitFile)="getUploadedFile($event)"></stage8-component>
+
+                  <stage9-component class=""
+                                    *ngIf="willShowStage('9') && (checkIfHasReturnedToPrevious('9') === 1)"
+                                    [showStage]="willShowStage('9')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('9')"
+                                    [currentStage]="currentRequest.stage9" [currentProject]="currentRequest.project"
+                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                    (emitFile)="getUploadedFile($event)"></stage9-component>
+
+                  <stage10-component class=""
+                                     *ngIf="willShowStage('10') && (checkIfHasReturnedToPrevious('10') === 1)"
+                                     [showStage]="willShowStage('10')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('10')"
+                                     [currentStage]="currentRequest.stage10" [currentProject]="currentRequest.project"
+                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                     (emitFile)="getUploadedFile($event)"></stage10-component>
+
+                  <stage11-component class=""
+                                     *ngIf="willShowStage('11') && (checkIfHasReturnedToPrevious('11') === 1)"
+                                     [showStage]="willShowStage('11')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('11')"
+                                     [currentStage]="currentRequest.stage11" [currentProject]="currentRequest.project"
+                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                     (emitFile)="getUploadedFile($event)"></stage11-component>
+
+                  <stage12-component class=""
+                                     *ngIf="willShowStage('12') && (checkIfHasReturnedToPrevious('12') === 1)"
+                                     [showStage]="willShowStage('12')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('12')"
+                                     [currentStage]="currentRequest.stage12" [currentProject]="currentRequest.project"
+                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                     (emitFile)="getUploadedFile($event)"></stage12-component>
+
+                  <stage13-component class=""
+                                     *ngIf="willShowStage('13') && (checkIfHasReturnedToPrevious('13') === 1)"
+                                     [showStage]="willShowStage('13')" [hasReturnedToPrevious]="checkIfHasReturnedToPrevious('13')"
+                                     [currentStage]="currentRequest.stage13" [currentProject]="currentRequest.project"
+                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
+                                     (emitFile)="getUploadedFile($event)"></stage13-component>
                 </div>
 
 
