@@ -1,6 +1,0 @@
-.idea/
-*.iml
-dev*.log
-dev.pid
-dev*.err
-/npm-debug.log

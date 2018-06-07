@@ -112,7 +112,7 @@ public class UserServiceImpl extends GenericService<User> {
 
     public List<User> getUsersWithImmediateEmailPreference() {
 
-        String query = " user_immediate_emails = true ";
+        String query = " user_immediate_emails = 'true' ";
 
         Paging<Resource> rs = searchService.cqlQuery(
                 query,"user",
