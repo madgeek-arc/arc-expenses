@@ -20,7 +20,7 @@
     -->
 
     <!-- The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. -->
-    <ApplicationDefaults entityID="https://aleka.athenarc.gr/shibboleth"
+    <ApplicationDefaults entityID="https://requests.athenarc.gr/shibboleth"
                          REMOTE_USER="email eppn persistent-id targeted-id"
 			 cipherSuites="ECDHE+AESGCM:ECDHE:!aNULL:!eNULL:!LOW:!EXPORT:!RC4:!SHA:!SSLv2"
 			 attributePrefix="AJP_">
@@ -57,7 +57,7 @@
             <Handler type="MetadataGenerator" Location="/Metadata" signing="false"/>
 
             <!-- Status reporting service. -->
-            <Handler type="Status" Location="/Status" acl="194.177.192.121 127.0.0.1 ::1"/>
+            <Handler type="Status" Location="/Status" acl="195.251.63.49 127.0.0.1 ::1"/>
 
             <!-- Session diagnostic service. -->
             <Handler type="Session" Location="/Session" showAttributeValues="true"/>
@@ -103,7 +103,7 @@
         <AttributeFilter type="XML" validate="true" path="attribute-policy.xml"/>
 
         <!-- Simple file-based resolver for using a single keypair. -->
-        <CredentialResolver type="File" key="/run/secrets/sp_key" certificate="sp-cert.pem"/>
+        <CredentialResolver type="File" key="sp-key.pem" certificate="sp-cert.pem"/>
 
         <!--
         The default settings can be overridden by creating ApplicationOverride elements (see
