@@ -41,7 +41,7 @@ public class MessageScheduler  {
         List<User> users = userService.getAll(new FacetFilter()).getResults();
 
         for (User user: users) {
-            if (user.getReceiveEmails() && !user.getImmediateEmails()) {
+            if ( "true".equals(user.getReceiveEmails()) && "true".equals(user.getImmediateEmails()) ) {
                 List<Request> user_requests = requestService.getPendingRequests(user.getEmail());
                 String text = createDigest(user_requests);
                 queue.add(new EmailMessage(user.getEmail(), "[ARC-Expenses] Daily Digest", text));
