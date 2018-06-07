@@ -1,10 +1,18 @@
-// Generated using typescript-generator version 2.1.406 on 2018-05-22 15:50:40.
+// Generated using typescript-generator version 2.1.406 on 2018-06-07 16:03:04.
 
 export class Attachment {
     filename: string;
     mimetype: string;
     size: number;
     url: string;
+}
+
+export class ContactUsMail {
+    name: string;
+    surname: string;
+    email: string;
+    subject: string;
+    message: string;
 }
 
 export class Delegate {
@@ -69,8 +77,8 @@ export class Request {
     stage12: Stage12;
     stage13: Stage13;
     id: string;
-    archiveId: string;
     type: string;
+    archiveId: string;
     project: Project;
     requester: User;
     requesterPosition: string;
@@ -216,16 +224,8 @@ export class User {
     lastname: string;
     firstnameLatin: string;
     lastnameLatin: string;
-    receiveEmails: boolean;
-    immediateEmails: boolean;
     signatureArchiveId: string;
+    receiveEmails: string;
+    immediateEmails: string;
     signatureAttachment: Attachment;
-}
-
-export class ContactUsMail {
-    name: string;
-    surname: string;
-    email: string;
-    subject: string;
-    message: string;
 }
