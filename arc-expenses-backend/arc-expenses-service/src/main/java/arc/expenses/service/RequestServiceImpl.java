@@ -219,7 +219,7 @@ public class RequestServiceImpl extends GenericService<Request> {
             LOGGER.info(e);
             return new ResponseEntity<>("ERROR",HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/downloadFile/?fileName="+archiveID+"/"+stage,
+        return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/downloadFile/?filename="+archiveID+"/"+stage,
                 HttpStatus.OK);
     }
 
