@@ -189,8 +189,10 @@
 
                 <!--end of 1st stage-->
 
-                <h4>Ανάληψη υποχρέωσης δαπάνης</h4>
-                <hr>
+                <div *ngIf="!isSimpleUser">
+                  <h4>Ανάληψη υποχρέωσης δαπάνης</h4>
+                  <hr>
+                </div>
 
                 <div class="uk-child-width-expand uk-grid" uk-grid
                      *ngIf="(willShowStage('2') && (checkIfHasReturnedToPrevious('2') !== 1))
@@ -204,9 +206,6 @@
                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
                                     (emitFile)="getUploadedFile($event)"></stage2-component>
 
-                  <div *ngIf="isSimpleUser && !updateStage1Form" class="uk-alert uk-alert-primary uk-text-center uk-margin-top">
-                    Το αίτημά σας {{ stateNames[currentRequest.status] }}
-                  </div>
 
                   <stage3-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
                                     *ngIf="willShowStage('3') && (checkIfHasReturnedToPrevious('3') !== 1)"
@@ -222,6 +221,10 @@
                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
                                     (emitFile)="getUploadedFile($event)"></stage4-component>
 
+                </div>
+
+                <div *ngIf="isSimpleUser && !updateStage1Form" class="uk-alert uk-alert-primary uk-text-center uk-margin-top">
+                  Το αίτημά σας {{ stateNames[currentRequest.status] }}
                 </div>
 
 
@@ -256,7 +259,7 @@
                 </div>
 
 
-                <div class="uk-margin-top" *ngIf="(currentRequest.stage7 && currentRequest.stage7.date) || (currentRequest.stage === '7')">
+                <div class="uk-margin-top" *ngIf="!isSimpleUser && ((currentRequest.stage7 && currentRequest.stage7.date) || (currentRequest.stage === '7'))">
                   <h4>Εξόφληση Δαπάνης</h4>
                   <hr>
                 </div>
