@@ -28,8 +28,8 @@ public class ContactUsController {
     public void contactUs(@RequestBody ContactUsMail mail) {
         String text = "Από: " + mail.getName() + " " + mail.getSurname() + "\n\n\n" + mail.getMessage();
 
-        javaMailer.sendEmailWithBCC(contactAddress, mail.getSubject(),
-                text, "spyroukostas@msn.com");
+        javaMailer.sendEmailWithCC(contactAddress, mail.getSubject(),
+                text, "", false);
 
         logger.info("Contact Us email was sent from: " + mail.getEmail());
     }

@@ -8,10 +8,8 @@ import gr.athenarc.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Component
 public class StageMessages {
@@ -555,8 +553,9 @@ public class StageMessages {
     }
 
     private String messageTemplates(String firstname, String lastname, String id, UserType type,
-                                    RequestState state, String date) {
+                                    RequestState state, String date_secs) {
         String messageText = null;
+        String date = new SimpleDateFormat("DD/mm/YYYY").format(new Date(Long.parseLong(date_secs))).toString();
         if (type == UserType.USER) {
             if (state == RequestState.INITIALIZED) {
                 messageText = "Το αίτημά σας, με κωδικό " + id + ", υποβλήθηκε επιτυχώς στις " + date;

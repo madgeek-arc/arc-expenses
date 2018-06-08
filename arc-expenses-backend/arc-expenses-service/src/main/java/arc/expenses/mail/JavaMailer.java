@@ -75,8 +75,33 @@ public class JavaMailer {
             if (mailDebug) {
                 msg.setRecipients(Message.RecipientType.TO, address);
             } else {
-                for (String mail: mailList) {
-                    msg.setRecipients(Message.RecipientType.TO, mail);
+                msg.setRecipients(Message.RecipientType.TO, addressListToString(mailList));
+            }
+            msg.setSubject(subject);
+            msg.setSentDate(new Date());
+            msg.setText(text);
+            Transport transport = session.getTransport("smtp");
+            transport.connect(smtpHost, address, password);
+            Transport.send(msg, msg.getAllRecipients(), address, password);
+        } catch (MessagingException mex) {
+            logger.error("sendEmail failed, exception: " + mex);
+        }
+    }
+
+    public void sendEmailWithCC(String to, String subject, String text, String cc_addr, boolean bcc) {
+        Session session = Session.getInstance(properties);
+
+        try {
+            MimeMessage msg = new MimeMessage(session);
+            msg.setFrom(address);
+            if (mailDebug) {
+                msg.setRecipients(Message.RecipientType.TO, address);
+            } else {
+                msg.setRecipients(Message.RecipientType.TO, to);
+                if (bcc) {
+                    msg.setRecipients(Message.RecipientType.BCC, cc_addr);
+                } else {
+                    msg.setRecipients(Message.RecipientType.CC, cc_addr);
                 }
             }
             msg.setSubject(subject);
@@ -90,26 +115,14 @@ public class JavaMailer {
         }
     }
 
-    public void sendEmailWithBCC(String to, String subject, String text, String bcc) {
-        Session session = Session.getInstance(properties);
-
-        try {
-            MimeMessage msg = new MimeMessage(session);
-            msg.setFrom(address);
-            if (mailDebug) {
-                msg.setRecipients(Message.RecipientType.TO, address);
-            } else {
-                msg.setRecipients(Message.RecipientType.TO, to);
-                msg.setRecipients(Message.RecipientType.BCC, bcc);
+    private String addressListToString(List<String> list) {
+        String addresses = "";
+        if (!list.isEmpty()) {
+            for (int i = 0; i < list.size()-1; i++) {
+                addresses += list.get(i) + ", ";
             }
-            msg.setSubject(subject);
-            msg.setSentDate(new Date());
-            msg.setText(text);
-            Transport transport = session.getTransport("smtp");
-            transport.connect(smtpHost, address, password);
-            Transport.send(msg, msg.getAllRecipients(), address, password);
-        } catch (MessagingException mex) {
-            logger.error("sendEmail failed, exception: " + mex);
+            addresses += list.get(list.size()-1);
         }
+        return addresses;
     }
 }
