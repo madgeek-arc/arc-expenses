@@ -21,7 +21,9 @@ class BulkImportService {
 
     private org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(BulkImportService.class);
 
-    private String path = "/home/panagiotis/Desktop/uploadFiles/";
+
+    @Value("${bulkImport.path}")
+    private String path;
 
     @Value("${bulkImport.operation}")
     private String bulkImportOperation;
