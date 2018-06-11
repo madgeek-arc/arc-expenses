@@ -1,5 +1,10 @@
-/* the descriptions are used for dynamically loading request update forms and viewing results per stage */
+/* shared constants */
+export const requestTypes = {regular: 'Προμήθεια', trip: 'Ταξίδι', contract: 'Σύμβαση'};
+export const statesList = ['all', 'accepted', 'pending', 'rejected'];
+export const supplierSelectionMethods = ['Απ\' ευθείας ανάθεση', 'Έρευνα αγοράς', 'Διαγωνισμός'];
 
+
+/* the descriptions are used for dynamically loading request update forms and viewing results per stage */
 export class StageFieldDescription {
   label: string;
   type: string;
@@ -176,21 +181,104 @@ export const Stage13Desc = {
 
 
 /* will be used everytime a stage title is needed */
-export const stagesMap = {
-    'all': 'Όλα',
-    '1': 'Υποβολή αιτήματος',
-    '2': 'Έγκριση επιστημονικού υπευθύνου',
-    '3': 'Έλεγχος χειριστή έργου',
-    '4': 'Βεβαίωση Π.Ο.Υ.',
-    '5': 'Έγκριση Διευθυντή/Υπεύθυνου Μονάδας',
-    '5a': 'Έγκριση Διατάκτη',
-    '5b': 'Έγκριση Διοικητικού Συμβουλίου',
-    '6': 'Ανάρτηση στην Διαύγεια',
-    '7': 'Καταχώρηση συνοδευτικού υλικού',
-    '8': 'Έλεγχος από ομάδα ελέγχου',
-    '9': 'Έλεγχος από Π.Ο.Υ.',
-    '10': 'Έλεγχος Διατάκτη',
-    '11': 'Ανάρτηση εξόφλησης στη Διαύγεια',
-    '12': 'Λογιστική καταχώρηση',
-    '13': 'Οικονομική διεκπεραίωση'
+export const stageIds = ['1', '2', '3', '4', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
+
+export const stagesDescriptionMap = {
+    '1': {
+        title: 'Υποβολή αιτήματος',
+        prev: [],
+        next: ['2'],
+        canGoBack: false,
+        stageFields: []
+    },
+    '2': {
+        title: 'Έγκριση επιστημονικού υπευθύνου',
+        prev: ['1'],
+        next: ['3'],
+        canGoBack: true,
+        stageFields: [checkNecessityDesc, checkFeasibilityDesc] },
+    '3': {
+        title: 'Έλεγχος χειριστή έργου',
+        prev: ['2'],
+        next: ['4'],
+        canGoBack: true,
+        stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc, loanDesc, loanSourceDesc]
+    },
+    '4': {
+        title: 'Βεβαίωση Π.Ο.Υ',
+        prev: ['3'],
+        next: ['5a'],
+        canGoBack: true,
+        stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc]
+    },
+    // '5': { title: 'Έγκριση Διευθυντή/Υπεύθυνου Μονάδας', prev: ['4'], next: ['5a'], canGoBack: true, stageFields: [] },
+    '5a': {
+        title: 'Έγκριση Διατάκτη',
+        prev: ['4'],
+        next: ['5b', '6'],
+        canGoBack: true,
+        stageFields: []
+    },
+    '5b': {
+        title: 'Έγκριση Διοικητικού Συμβουλίου',
+        prev: ['5a'],
+        next: ['6'],
+        canGoBack: true,
+        stageFields: []
+    },
+    '6': {
+        title: 'Ανάρτηση στην Διαύγεια',
+        prev: ['5b', '5a'],
+        next: ['7'],
+        canGoBack: false,
+        stageFields: []
+    },
+    '7': {
+        title: 'Καταχώρηση συνοδευτικού υλικού',
+        prev: ['6'],
+        next: ['8'],
+        canGoBack: true,
+        stageFields: [checkRegularityDesc, checkLegalityDesc]
+    },
+    '8': {
+        title: 'Έλεγχος από ομάδα ελέγχου',
+        prev: ['7'],
+        next: ['9'],
+        canGoBack: true,
+        stageFields: [checkRegularityDesc, checkLegalityDesc]
+    },
+    '9': {
+        title: 'Έλεγχος από Π.Ο.Υ',
+        prev: ['8'],
+        next: ['10'],
+        canGoBack: true,
+        stageFields: [] },
+    '10': {
+        title: 'Έλεγχος Διατάκτη',
+        prev: ['9'],
+        next: ['11'],
+        canGoBack: true,
+        stageFields: []
+    },
+    '11': {
+        title: 'Ανάρτηση εξόφλησης στη Διαύγεια',
+        prev: ['10'],
+        canGoBack: true,
+        next: ['12'],
+        stageFields: []
+    },
+    '12': {
+        title: 'Λογιστική καταχώρηση',
+        prev: ['11'],
+        next: ['13'],
+        canGoBack: true,
+        stageFields: []
+    },
+    '13': {
+        title: 'Οικονομική διεκπεραίωση',
+        prev: ['12'],
+        next: [],
+        canGoBack: true,
+        stageFields: []
+    }
 };

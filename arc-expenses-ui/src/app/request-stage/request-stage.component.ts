@@ -6,6 +6,8 @@ import { AuthenticationService } from '../services/authentication.service';
 import { isNullOrUndefined, isUndefined } from 'util';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {HttpEventType, HttpResponse} from '@angular/common/http';
+import { requestTypes, stageIds, stagesDescriptionMap, supplierSelectionMethods } from '../domain/stageDescriptions';
+import { printRequestPage } from './print-request-function';
 
 @Component({
     selector: 'app-request-stage',
@@ -30,10 +32,11 @@ export class RequestStageComponent implements OnInit {
     currentStageName: string;
     canEdit: boolean = false;
     wentBackOneStage: boolean;
-    stages = ['1', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
+    stages = stageIds;
+    stagesMap = stagesDescriptionMap;
     stateNames = {pending: 'βρίσκεται σε εξέλιξη', rejected: 'έχει απορριφθεί', accepted: 'έχει ολοκληρωθεί'};
-    reqTypes = {regular: 'Προμήθεια', trip: 'Ταξίδι', contract: 'Σύμβαση'};
-    selMethods = ['Απ\' ευθείας ανάθεση', 'Έρευνα αγοράς', 'Διαγωνισμός'];
+    reqTypes = requestTypes;
+    selMethods = supplierSelectionMethods;
 
     sendInfoToStage5b: string[];
     isSupplierRequired: boolean;
@@ -97,23 +100,28 @@ export class RequestStageComponent implements OnInit {
                 this.showSpinner = false;
             },
             () => {
-                this.getIfUserCanEditRequest();
                 if (this.currentRequest.stage === '1') {
                     this.createForm();
-                } else if ( (this.currentRequest.stage === '5b') &&
-                            (this.currentRequest.stage1.supplierSelectionMethod === 'Διαγωνισμός') ) {
-                    this.sendInfoToStage5b = [];
-                    this.sendInfoToStage5b.push('');
-                    this.sendInfoToStage5b.push('');
-                    if ( !isNullOrUndefined(this.currentRequest.stage1.supplier) ) {
-                        this.sendInfoToStage5b[0] = this.currentRequest.stage1.supplier;
-                    }
-                    if ( !isNullOrUndefined(this.currentRequest.stage1.amountInEuros) ) {
-                        this.sendInfoToStage5b[1] = (this.currentRequest.stage1.amountInEuros).toString();
-                    }
                 }
+                this.checkIfStageIs5b();
+                this.getIfUserCanEditRequest();
             }
         );
+    }
+
+    checkIfStageIs5b() {
+        if ( (this.currentRequest.stage === '5b') &&
+            (this.currentRequest.stage1.supplierSelectionMethod === 'Διαγωνισμός') ) {
+            this.sendInfoToStage5b = [];
+            this.sendInfoToStage5b.push('');
+            this.sendInfoToStage5b.push('');
+            if ( !isNullOrUndefined(this.currentRequest.stage1.supplier) ) {
+                this.sendInfoToStage5b[0] = this.currentRequest.stage1.supplier;
+            }
+            if ( !isNullOrUndefined(this.currentRequest.stage1.amountInEuros) ) {
+                this.sendInfoToStage5b[1] = (this.currentRequest.stage1.amountInEuros).toString();
+            }
+        }
     }
 
     getIfUserCanEditRequest() {
@@ -138,41 +146,23 @@ export class RequestStageComponent implements OnInit {
     }
 
     getNextStage(stage: string) {
-        if (stage !== '13' && this.currentRequest.status !== 'rejected') {
-            if (stage === '4') {
-                return '5a';
-            } else if (stage === '5a') {
-                if ( (this.currentRequest.stage1.amountInEuros > this.amountLimit) ||
-                     (this.currentRequest.stage1.supplierSelectionMethod === 'Διαγωνισμός') ) {
-                    return '5b';
-                } else {
-                    return '6';
-                }
-            } else if (stage === '5b') {
-                return '6';
-            } else {
-                return (+stage + 1).toString();
+        for ( const nextStage of this.stagesMap[stage]['next'] ) {
+            if ( !isUndefined(this.currentRequest['stage' + nextStage]) ) {
+                return nextStage;
             }
         }
-        /*console.log('next stage is', newStage);*/
+
         return this.currentRequest.stage;
     }
 
     getPreviousStage(stage: string) {
-        if (stage === '5a') {
-            return '4';
-        } else if (stage === '5b') {
-            return '5a';
-        } else if (stage === '6') {
-            if ( (this.currentRequest.stage1.amountInEuros > this.amountLimit) ||
-                 (this.currentRequest.stage1.supplierSelectionMethod === 'Διαγωνισμός') ) {
-                return '5b';
-            } else {
-                return '5a';
+        for ( const prevStage of this.stagesMap[stage]['prev'] ) {
+            if ( !isUndefined(this.currentRequest['stage' + prevStage]) ) {
+                return prevStage;
             }
-        } else {
-            return (+stage - 1).toString();
         }
+
+        return this.currentRequest.stage;
     }
 
     getSubmittedStage(newStage: any) {
@@ -199,8 +189,10 @@ export class RequestStageComponent implements OnInit {
         } else {
             this.currentRequest.stage = this.getNextStage(this.currentRequest.stage);
         }
+        this.checkIfStageIs5b();
         this.wentBackOneStage = false;
         console.log('submitted status:', this.currentRequest.status);
+
         if ( !isNullOrUndefined(this.uploadedFile) ) {
             this.uploadFile();
         } else {
@@ -214,13 +206,13 @@ export class RequestStageComponent implements OnInit {
         this.errorMessage = '';
         this.successMessage = '';
 
-        if ( !isNullOrUndefined(this.uploadedFile) ||
-             (!isNullOrUndefined(this.currentRequest[this.currentStageName]['attachment']) &&
-             !isNullOrUndefined(this.currentRequest[this.currentStageName]['attachment']['url']))) {
+        if ( !isNullOrUndefined(this.uploadedFile) ) {
 
             this.currentRequest[this.currentStageName]['attachment']['url'] = this.uploadedFileURL;
             this.uploadedFileURL = '';
+            this.uploadedFile = null;
         }
+        console.log(`sending ${JSON.stringify(this.currentRequest[this.currentStageName], null, 1)} to updateRequest`);
         /*update this.currentRequest*/
         this.requestService.updateRequest(this.currentRequest, this.authService.getUserEmail()).subscribe (
             res => console.log(`update Request responded: ${res.id}, status=${res.status}, stage=${res.stage}`),
@@ -257,8 +249,7 @@ export class RequestStageComponent implements OnInit {
                 },
                 () => {
                     console.log('ready to update Request');
-                    this.uploadedFile = null;
-                    this.showSpinner = false;
+                    // this.showSpinner = false;
                     this.submitRequest();
                 }
             );
@@ -266,7 +257,7 @@ export class RequestStageComponent implements OnInit {
 
 
     willShowStage(stage: string) {
-        if (!this.isSimpleUser) {
+        if (!this.isSimpleUser ) {
             if ((stage === this.currentRequest.stage)) {
                 if (this.authService.getUserRole() === 'ROLE_ADMIN') {
                     return true;
@@ -279,7 +270,7 @@ export class RequestStageComponent implements OnInit {
                     !isNullOrUndefined(this.currentRequest[`stage${stage}`].date) );
             }
         } else {
-            return false;
+            return ( (stage === '2') && (this.currentRequest.stage !== '2') );
         }
     }
 
@@ -332,11 +323,6 @@ export class RequestStageComponent implements OnInit {
         this.uploadedFile = file;
     }
 
-    showAmount() {
-        this.requestedAmount = this.updateStage1Form.get('amount').value;
-        this.updateStage1Form.get('amount').updateValueAndValidity();
-        this.updateStage1Form.get('amount').markAsTouched();
-    }
 
     updateStage1() {
         console.log(this.updateStage1Form);
@@ -380,7 +366,12 @@ export class RequestStageComponent implements OnInit {
                     this.currentRequest.stage5b = new Stage5b();
                 }
 
-                this.submitRequest();
+                if ( !isNullOrUndefined(this.uploadedFile) ) {
+                    this.uploadFile();
+                } else {
+                    this.submitRequest();
+                }
+
             }
 
         } else {
@@ -397,4 +388,9 @@ export class RequestStageComponent implements OnInit {
             this.setIsSupplierReq( (this.updateStage1Form.get('supplierSelectionMethod').value !== 'Διαγωνισμός' ) );
         }
     }
+
+    printRequest(): void {
+        printRequestPage(this.currentRequest);
+    }
+
 }

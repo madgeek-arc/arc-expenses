@@ -3,7 +3,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { Attachment, User, POI, Project, Request } from '../domain/operation';
 import {
     commentDesc, Stage10Desc, Stage2Desc, Stage5aDesc, Stage5bDesc, Stage3Desc, Stage4Desc, Stage5Desc, Stage6Desc,
-    Stage7Desc, Stage8Desc, Stage9Desc, StageDescription, StageFieldDescription, Stage12Desc, stagesMap, Stage11Desc,
+    Stage7Desc, Stage8Desc, Stage9Desc, StageDescription, StageFieldDescription, Stage12Desc, stagesDescriptionMap, Stage11Desc,
     Stage13Desc
 } from '../domain/stageDescriptions';
 import { DatePipe } from '@angular/common';
@@ -27,6 +27,7 @@ export class StageComponent implements OnInit {
     /* output variable that sends back to the parent an alert that the user
      * chose to go back to the previous stage */
     @Output() emitGoBack: EventEmitter<any> = new EventEmitter<any>();
+    choseToGoBack: boolean;
 
     /* input variable that controls if the current stage template should be displayed */
     @Input() showStage: boolean;
@@ -70,7 +71,7 @@ export class StageComponent implements OnInit {
         /*console.log(`showStage ${this.stageDescription.id} is ${this.showStage}`);*/
         this.checkIfSubmitted();
         this.checkIfApproved();
-        this.stageTitle = stagesMap[this.stageDescription.id];
+        this.stageTitle = stagesDescriptionMap[this.stageDescription.id].title;
     }
 
     checkIfSubmitted() {
@@ -111,9 +112,14 @@ export class StageComponent implements OnInit {
                         ( this.stageDescription.id === '11' ) ) ) {
 
                   this.wasApproved = 'Εγκρίθηκε';
-                } else if (this.stageDescription && this.stageDescription.id === '6'  ) {
+
+                } else if (this.stageDescription &&
+                           ( (this.stageDescription.id === '6') || ( this.stageDescription.id === '11' ))  ) {
+
                   this.wasApproved = 'Αναρτήθηκε';
+
                 } else {
+
                     this.wasApproved = 'Απορρίφθηκε';
                 }
             }
@@ -135,6 +141,7 @@ export class StageComponent implements OnInit {
     }
 
     getAttachmentInput(newFile: File) {
+        this.stageFormError = '';
         this.uploadedFile = newFile;
         console.log('this.uploadedFile is : ', this.uploadedFile);
     }
@@ -162,6 +169,7 @@ export class StageComponent implements OnInit {
                 this.stageForm.get(key).updateValueAndValidity();
             });
             this.emitGoBack.emit(true);
+            this.choseToGoBack = true;
             this.submitForm();
         }
     }
@@ -169,10 +177,10 @@ export class StageComponent implements OnInit {
     submitForm() {
         this.stageFormError = '';
         if (this.stageForm && this.stageForm.valid && this.delegateCanEdit() ) {
-            if ( (this.stageDescription.id === '6' ||
-                  this.stageDescription.id === '11' ||
-                  (this.stageDescription.id === '7' && this.currentStage['approved']) ) &&
-                 (isNullOrUndefined(this.uploadedFile) && isNullOrUndefined(this.currentStage['attachment'])) ) {
+            if ( (isNullOrUndefined(this.uploadedFile) && isNullOrUndefined(this.currentStage['attachment'])) &&
+                !this.choseToGoBack &&
+                ( (this.stageDescription.id === '6') || (this.stageDescription.id === '11') ||
+                  ( (this.stageDescription.id === '7') && this.currentStage['approved']) ) ) {
 
                 this.stageFormError = 'Η επισύναψη εγγράφων είναι υποχρεωτική.';
             } else {
@@ -188,7 +196,7 @@ export class StageComponent implements OnInit {
                     this.emitFile.emit(this.uploadedFile);
 
                 }
-                console.log(this.currentStage);
+                /*console.log(this.currentStage);*/
                 /*this.checkIfSubmitted();
                 this.checkIfApproved();*/
                 this.emitStage.emit(this.currentStage);
@@ -391,9 +399,12 @@ export class Stage5bComponent extends StageComponent implements OnInit {
 
     emitNewValues(approved: boolean) {
         this.stageFormError = '';
-        if ( !isNullOrUndefined(this.oldSupplierAndAmount) ) {
+        if ( !isUndefined(this.oldSupplierAndAmount) ) {
+
             if ( !isNullOrUndefined(this.oldSupplierAndAmount[0]) &&
-                 !isNullOrUndefined(this.oldSupplierAndAmount[1]) ) {
+                 !isNullOrUndefined(this.oldSupplierAndAmount[1]) &&
+                 (this.oldSupplierAndAmount[0].length > 0) &&
+                 (this.oldSupplierAndAmount[1].length > 0)) {
 
                 const newValArray = [];
                 newValArray.push(this.oldSupplierAndAmount[0]);
@@ -403,7 +414,24 @@ export class Stage5bComponent extends StageComponent implements OnInit {
             } else {
                 this.stageFormError = 'Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.';
             }
+
+        } else {
+            this.approveRequest(approved);
         }
+    }
+
+    emitNewValuesAndGoBack() {
+        if ( !isUndefined(this.oldSupplierAndAmount) ) {
+            if ( !isNullOrUndefined(this.oldSupplierAndAmount[0]) ||
+                !isNullOrUndefined(this.oldSupplierAndAmount[1]) ) {
+
+                const newValArray = [];
+                newValArray.push(this.oldSupplierAndAmount[0]);
+                newValArray.push(this.oldSupplierAndAmount[1]);
+                this.newValues.emit(newValArray);
+            }
+        }
+        this.goBackOneStage();
     }
 
     updateSupplier(event: any) {

@@ -6,7 +6,7 @@ import { Paging } from '../domain/extraClasses';
 import {Router} from '@angular/router';
 import {isNull} from 'util';
 import {FormBuilder, FormGroup} from '@angular/forms';
-import { stagesMap } from '../domain/stageDescriptions';
+import { requestTypes, stageIds, stagesDescriptionMap, statesList } from '../domain/stageDescriptions';
 
 @Component({
     selector: 'app-requests',
@@ -33,10 +33,10 @@ export class RequestsComponent implements OnInit {
   totalPages: number;
 
   stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
-  states = ['all', 'accepted', 'pending', 'rejected'];
-  stages = ['all', '1', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
-  stagesMap = stagesMap;
-  reqTypes = { regular: 'Προμήθεια', trip: 'Ταξίδι', contract: 'Σύμβαση' };
+  states = statesList;
+  stages = stageIds;
+  stagesMap = stagesDescriptionMap;
+  reqTypes = requestTypes;
 
   searchResults: Paging<Request>;
 
@@ -106,6 +106,7 @@ export class RequestsComponent implements OnInit {
         () => {
             // this.searchTerm = 'all';
             this.showSpinner = false;
+            this.errorMessage = '';
             if (this.listOfRequests.length === 0) {
                 this.noRequests = 'Δεν βρέθηκαν σχετικά αιτήματα.';
             }

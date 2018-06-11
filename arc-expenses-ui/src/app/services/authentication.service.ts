@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { deleteCookie, getCookie } from '../domain/cookieUtils';
-import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Attachment, User } from '../domain/operation';
-import {catchError, tap} from 'rxjs/operators';
-import {ErrorObservable} from 'rxjs/observable/ErrorObservable';
-import {environment} from '../../environments/environment';
+import { catchError, tap } from 'rxjs/operators';
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
+import { environment } from '../../environments/environment';
 import { isNullOrUndefined } from 'util';
 
 const headerOptions = {
-    headers : new HttpHeaders().set('Content-Type', 'application/json').set('Accept', 'application/json'),
+    headers: new HttpHeaders().set('Content-Type', 'application/json').set('Accept', 'application/json'),
     withCredentials: true
 };
 
@@ -18,7 +18,8 @@ export class AuthenticationService {
 
     constructor(private route: ActivatedRoute,
                 private router: Router,
-                private http: HttpClient) {}
+                private http: HttpClient) {
+    }
 
     private apiUrl: string = environment.API_ENDPOINT;
     private loginUrl: string = environment.API_ENDPOINT + '/user/idp_login';
@@ -92,6 +93,16 @@ export class AuthenticationService {
                     userInfo => {
                         console.log(JSON.stringify(userInfo));
                         this.isLoggedIn = true;
+                        const currentUser = {
+                            userid: userInfo['uid'],
+                            email: userInfo['email'],
+                            firstname: userInfo['firstname'],
+                            lastname: userInfo['lastname'],
+                            firstnameLatin: userInfo['firstnameLatin'],
+                            lastnameLatin: userInfo['lastnameLatin'],
+                            receiveEmails: userInfo['receiveEmails'],
+                            immediateEmails: userInfo['immediateEmails']
+                        };
                         sessionStorage.setItem('userid', userInfo['uid']);
                         sessionStorage.setItem('email', userInfo['email']);
                         sessionStorage.setItem('firstname', userInfo['firstname']);
@@ -124,7 +135,7 @@ export class AuthenticationService {
                             `${sessionStorage.getItem('lastname')}, ` +
                             `${sessionStorage.getItem('email')}`);
 
-                        if ( sessionStorage.getItem('state.location') ) {
+                        if (sessionStorage.getItem('state.location')) {
                             const stateLoc = sessionStorage.getItem('state.location');
                             sessionStorage.removeItem('state.location');
                             console.log(`logged in - returning to state: ${stateLoc}`);
@@ -132,9 +143,9 @@ export class AuthenticationService {
 
                         if (this.isLoggedIn &&
                             (isNullOrUndefined(sessionStorage.getItem('firstname')) ||
-                             (sessionStorage.getItem('firstname') === 'null')) ||
-                             isNullOrUndefined(sessionStorage.getItem('lastname')) ||
-                             (sessionStorage.getItem('lastname') === 'null') ) {
+                                (sessionStorage.getItem('firstname') === 'null')) ||
+                            isNullOrUndefined(sessionStorage.getItem('lastname')) ||
+                            (sessionStorage.getItem('lastname') === 'null')) {
 
                             this.router.navigate(['/sign-up']);
                         }
@@ -145,7 +156,7 @@ export class AuthenticationService {
             }
         }
         let state: string;
-        if ( sessionStorage.getItem('state.location') ) {
+        if (sessionStorage.getItem('state.location')) {
             state = sessionStorage.getItem('state.location');
             sessionStorage.removeItem('state.location');
             console.log(`cleared session - returning to state: ${state}`);
@@ -173,8 +184,8 @@ export class AuthenticationService {
 
         console.log(`sending: ${JSON.stringify(updatedUser)}`);
 
-        return this.http.post(url, updatedUser, headerOptions).pipe (
-            tap (userInfo => {
+        return this.http.post(url, updatedUser, headerOptions).pipe(
+            tap(userInfo => {
                 if (userInfo) {
                     sessionStorage.setItem('firstname', userInfo['firstname']);
                     sessionStorage.setItem('lastname', userInfo['lastname']);
@@ -259,8 +270,8 @@ export class AuthenticationService {
 
     public getUserReceiveEmails() {
         return (this.isLoggedIn &&
-                (sessionStorage.getItem('receiveEmails') &&
-                 sessionStorage.getItem('receiveEmails') === 'true'));
+            (sessionStorage.getItem('receiveEmails') &&
+                sessionStorage.getItem('receiveEmails') === 'true'));
     }
 
     public getUserImmediateEmails() {

@@ -44,7 +44,7 @@
                           </div>
                           <div class="uk-width-1-2@s">
                             <select class="uk-select" id="request-position" formControlName="position">
-                              <option value="">-- επιλέξτε θέση στον φορέα --</option>
+                              <option value="">-- επιλέξτε θέση στον φορέα (*) --</option>
                               <option value="Ερευνητής-ΕΛΕ">Ερευνητής-ΕΛΕ</option>
                               <option value="Συνεργαζόμενος Ερευνητής">Συνεργαζόμενος Ερευνητής</option>
                               <option value="Διοικητικό Προσωπικό">Διοικητικό Προσωπικό</option>
@@ -102,7 +102,7 @@
                     </div>
                     <div *ngIf="checkIfTrip()" class="uk-margin">
                       <label class="uk-form-label" for="request-supplier">Προμηθευτής
-                        <span *ngIf="isSupplierRequired === true" class="uk-display-inline">(*)</span>
+                        <span class="uk-display-inline">{{ isSupplierRequired }}</span>
                       </label>
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">

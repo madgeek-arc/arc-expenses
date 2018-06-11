@@ -11,6 +11,7 @@ import {DatePipe} from '@angular/common';
 import {ManageProjectService} from '../services/manage-project.service';
 import {isUndefined} from 'util';
 import {HttpEventType, HttpResponse} from '@angular/common/http';
+import { requestTypes, supplierSelectionMethods } from '../domain/stageDescriptions';
 
 declare const UIkit: any;
 
@@ -25,9 +26,9 @@ export class NewRequestComponent implements OnInit {
     showSpinner: boolean;
 
     requestType: string;
-    reqTypes = { regular: 'Προμήθεια', trip: 'Ταξίδι', contract: 'Σύμβαση' };
+    reqTypes = requestTypes;
     readonly amountLimit = 20000;
-    isSupplierRequired: boolean;
+    isSupplierRequired = '';
 
     currentUser: User;
 
@@ -44,7 +45,7 @@ export class NewRequestComponent implements OnInit {
 
     chosenProject: Project;
 
-    selMethods = ['Απ\' ευθείας ανάθεση', 'Έρευνα αγοράς', 'Διαγωνισμός'];
+    selMethods = supplierSelectionMethods;
 
     programSelected = false;
 
@@ -77,12 +78,15 @@ export class NewRequestComponent implements OnInit {
 
         this.requestType = this.route.snapshot.paramMap.get('type');
         this.title = this.reqTypes[this.requestType];
-        this.isSupplierRequired = (this.requestType !== 'trip');
+        if (this.requestType !== 'trip') {
+            this.isSupplierRequired = '(*)';
+        }
         this.createForm();
     }
 
     getProjects() {
         this.showSpinner = true;
+        this.errorMessage = '';
         this.projects = [];
         this.projectService.getAllProjectsNames().subscribe(
             projects => {
@@ -96,6 +100,7 @@ export class NewRequestComponent implements OnInit {
             },
             () => {
                 this.showSpinner = false;
+                this.errorMessage = '';
             }
         );
     }
@@ -318,19 +323,19 @@ export class NewRequestComponent implements OnInit {
         }
         this.requestType = this.route.snapshot.paramMap.get('type');
         this.title = this.reqTypes[this.requestType];
-        this.isSupplierRequired = (this.requestType !== 'trip');
+        this.checkIfSupplierIsRequired();
+
         return (this.requestType !== 'trip');
     }
 
-    setIsSupplierReq(val: boolean) {
-        this.isSupplierRequired = val;
-    }
-
     checkIfSupplierIsRequired() {
-        if (this.newRequestForm.get('supplierSelectionMethod').value) {
-            this.setIsSupplierReq( (this.newRequestForm.get('supplierSelectionMethod').value !== 'Διαγωνισμός' ) );
+        if ((this.newRequestForm.get('supplierSelectionMethod').value &&
+            (this.newRequestForm.get('supplierSelectionMethod').value === 'Διαγωνισμός')) ) {
+
+                this.isSupplierRequired = '';
+        } else {
+            this.isSupplierRequired = '(*)';
         }
-        console.log(this.isSupplierRequired);
     }
 
 }

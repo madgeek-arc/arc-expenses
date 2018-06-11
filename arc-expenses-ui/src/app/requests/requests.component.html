@@ -89,7 +89,8 @@
                                     <div class="filterLabel">Στάδιο:</div>
                                     <div class="inlineBlock">
                                         <select class="form-control" (change)="chooseStage($event)">
-                                            <option *ngFor="let stage of stages" value="{{ stage }}">{{ stagesMap[stage] }}</option>
+                                            <option value="all" selected>Όλα</option>
+                                            <option *ngFor="let stage of stages" value="{{ stage }}">{{ stagesMap[stage].title }}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -187,7 +188,7 @@
                                                 <td>{{ req.project.institute.name }}</td>
                                                 <td>{{ req.requester.firstname }} {{ req.requester.lastname }}</td>
                                                 <td>{{ req.stage1.requestDate | date : 'dd-MM-yyyy' }}</td>
-                                                <td *ngIf="!isSimpleUser" >{{ stagesMap[req.stage] }}</td>
+                                                <td *ngIf="!isSimpleUser" >{{ stagesMap[req.stage].title }}</td>
                                                 <td>{{ getStatusAsString(req.status) }}</td>
                                             </tr>
                                         </thead>
