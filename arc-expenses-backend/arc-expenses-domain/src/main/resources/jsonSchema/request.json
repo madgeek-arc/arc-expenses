@@ -71,14 +71,16 @@
         "name": { "type": "string" },
         "POI": { "$ref": "#/definitions/personOfInterest" },
         "director": { "$ref": "#/definitions/personOfInterest" },
-        "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" }
+        "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" },
+        "inspectionTeam": { "$ref": "#/definitions/personOfInterest" }
       },
       "required": [
         "id",
         "name",
         "POI",
         "director",
-        "dioikitikoSumvoulio"
+        "dioikitikoSumvoulio",
+        "inspectionTeam"
       ]
     },
     "institute": {
