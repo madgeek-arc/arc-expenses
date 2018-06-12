@@ -2,6 +2,7 @@ package arc.expenses.messages;
 
 import arc.expenses.service.GenericService;
 import arc.expenses.service.UserServiceImpl;
+import eu.openminted.registry.core.domain.FacetFilter;
 import gr.athenarc.domain.Request;
 import arc.expenses.mail.EmailMessage;
 import gr.athenarc.domain.User;
@@ -517,9 +518,11 @@ public class StageMessages {
                                     RequestState.ACCEPTED, null))));
         }
 
-        List<EmailMessage> mails;
-        mails = filterOutNonImmediate(emails);
-        return mails;
+//        TODO: uncomment when filterOutNonImmediate is ready
+//        List<EmailMessage> mails;
+//        mails = filterOutNonImmediate(emails);
+//        return mails;
+        return emails; // TODO remove when you uncomment this^^
     }
 
     private EmailMessage createMessage(String to, String subject, String text) {
@@ -534,13 +537,15 @@ public class StageMessages {
         if(users == null || email == null)
             return null;
         Optional<User> user = users.parallelStream().filter(u -> u.getEmail().equals(email)).findAny();
+
         return user.orElse(null);
 //        return users.stream().filter(user -> user.getEmail().equals(email)).findAny().get();
     }
 
     private List<EmailMessage> filterOutNonImmediate(List<EmailMessage> emails) {
         List<EmailMessage> emailList = new ArrayList<>();
-        List<User> users = userServiceImpl.getUsersWithImmediateEmailPreference();
+//        List<User> users = userServiceImpl.getUsersWithImmediateEmailPreference();
+        List<User> users = userServiceImpl.getAll(new FacetFilter()).getResults();
         for (Iterator<EmailMessage> iterator = emails.iterator(); iterator.hasNext();) {
             EmailMessage email = iterator.next();
             User user = getUserByEmail(users, email.getRecipient());
