@@ -72,7 +72,10 @@
         "POI": { "$ref": "#/definitions/personOfInterest" },
         "director": { "$ref": "#/definitions/personOfInterest" },
         "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" },
-        "inspectionTeam": { "$ref": "#/definitions/personOfInterest" }
+        "inspectionTeam": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/personOfInterest" }
+        }
       },
       "required": [
         "id",

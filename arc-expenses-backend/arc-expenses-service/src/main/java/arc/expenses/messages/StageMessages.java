@@ -333,36 +333,59 @@ public class StageMessages {
                                                 UserType.POI, RequestState.ACCEPTED, null))));
                     });
 
-            // email to next POI
-            emails.add(createMessage(
-                    request.getProject().getInstitute().getAccountingDirector().getEmail(),
-                    subject, messageTemplates(null, null, request.getId(), UserType.nextPOI,
-                            RequestState.ACCEPTED, null)));
+            request.getProject().getInstitute().getOrganization().getInspectionTeam()
+                    .forEach(inspector -> {
+                        emails.add(createMessage(inspector.getEmail(), subject,
+                                messageTemplates(null, null, request.getId(),
+                                        UserType.nextPOI, RequestState.ACCEPTED, null)));
+                        inspector.getDelegates()
+                                .forEach(delegate -> emails.add(createMessage(
+                                        delegate.getEmail(), subject,
+                                        messageTemplates(null, null, request.getId(),
+                                                UserType.nextPOI, RequestState.ACCEPTED, null))));
+                    });
 
-            // email to next POI delegates
-            request.getProject().getInstitute().getAccountingDirector().getDelegates()
-                    .forEach(delegate -> emails.add(createMessage(
-                            delegate.getEmail(), subject,
-                            messageTemplates(null, null, request.getId(), UserType.nextPOI,
-                                    RequestState.ACCEPTED, null))));
+//            // email to next POI
+//            emails.add(createMessage(
+//                    request.getProject().getInstitute().getAccountingDirector().getEmail(),
+//                    subject, messageTemplates(null, null, request.getId(), UserType.nextPOI,
+//                            RequestState.ACCEPTED, null)));
+//
+//            // email to next POI delegates
+//            request.getProject().getInstitute().getOrganization().getInspectionTeam().getDelegates()
+//                    .forEach(delegate -> emails.add(createMessage(
+//                            delegate.getEmail(), subject,
+//                            messageTemplates(null, null, request.getId(), UserType.nextPOI,
+//                                    RequestState.ACCEPTED, null))));
         }
         // Stage 8 -> 9
         else if (prevStage.equals("8") && nextStage.equals("9")) {
             firstname = request.getStage8().getUser().getFirstname();
             lastname = request.getStage8().getUser().getLastname();
 
-            // email report to POI
-            emails.add(createMessage(
-                    request.getProject().getInstitute().getAccountingDirector().getEmail(),
-                    subject, messageTemplates(firstname, lastname, request.getId(), UserType.POI,
-                            RequestState.ACCEPTED, null)));
-
-            // email report to all POI delegates
-            request.getProject().getInstitute().getAccountingDirector().getDelegates()
-                    .forEach(delegate -> emails.add(createMessage(
-                            delegate.getEmail(), subject,
-                            messageTemplates(firstname, lastname, request.getId(), UserType.POI,
-                                    RequestState.ACCEPTED, null))));
+            request.getProject().getInstitute().getOrganization().getInspectionTeam()
+                    .forEach(inspector -> {
+                        emails.add(createMessage(inspector.getEmail(), subject,
+                                messageTemplates(firstname, lastname, request.getId(),
+                                        UserType.POI, RequestState.ACCEPTED, null)));
+                        inspector.getDelegates()
+                                .forEach(delegate -> emails.add(createMessage(
+                                        delegate.getEmail(), subject,
+                                        messageTemplates(firstname, lastname, request.getId(),
+                                                UserType.POI, RequestState.ACCEPTED, null))));
+                    });
+//            // email report to POI
+//            emails.add(createMessage(
+//                    request.getProject().getInstitute().getOrganization().getInspectionTeam().getEmail(),
+//                    subject, messageTemplates(firstname, lastname, request.getId(), UserType.POI,
+//                            RequestState.ACCEPTED, null)));
+//
+//            // email report to all POI delegates
+//            request.getProject().getInstitute().getOrganization().getInspectionTeam().getDelegates()
+//                    .forEach(delegate -> emails.add(createMessage(
+//                            delegate.getEmail(), subject,
+//                            messageTemplates(firstname, lastname, request.getId(), UserType.POI,
+//                                    RequestState.ACCEPTED, null))));
 
             // email to next POI
             emails.add(createMessage(
