@@ -30,9 +30,9 @@ export class AppComponent implements OnInit {
           window.scrollTo(0, 0);
       });
 
-      if ( this.authService.getIsUserLoggedIn() && (!this.authService.getUserFirstName() || !this.authService.getUserLastName()) ) {
+      /*if ( this.authService.getIsUserLoggedIn() && (!this.authService.getUserFirstName() || !this.authService.getUserLastName()) ) {
           this.router.navigate(['/sign-up']);
-      }
+      }*/
   }
 
   showTop() {

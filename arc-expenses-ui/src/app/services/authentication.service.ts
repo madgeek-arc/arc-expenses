@@ -93,7 +93,7 @@ export class AuthenticationService {
                     userInfo => {
                         console.log(JSON.stringify(userInfo));
                         this.isLoggedIn = true;
-                        const currentUser = {
+                        /*const currentUser = {
                             userid: userInfo['uid'],
                             email: userInfo['email'],
                             firstname: userInfo['firstname'],
@@ -102,7 +102,7 @@ export class AuthenticationService {
                             lastnameLatin: userInfo['lastnameLatin'],
                             receiveEmails: userInfo['receiveEmails'],
                             immediateEmails: userInfo['immediateEmails']
-                        };
+                        };*/
                         sessionStorage.setItem('userid', userInfo['uid']);
                         sessionStorage.setItem('email', userInfo['email']);
                         sessionStorage.setItem('firstname', userInfo['firstname']);

@@ -3,6 +3,7 @@ import {AuthenticationService} from '../../services/authentication.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ManageRequestsService } from '../../services/manage-requests.service';
 import { ContactUsMail } from '../../domain/operation';
+import { Router } from '@angular/router';
 
 
 declare const UIkit: any;
@@ -22,10 +23,13 @@ export class TopMenuComponent implements OnInit {
 
   constructor(private authService: AuthenticationService,
               private requestService: ManageRequestsService,
-              private fb: FormBuilder) { }
+              private fb: FormBuilder, private router: Router) { }
 
   ngOnInit() {
     this.isUserLoggedIn();
+    if ( this.authService.getIsUserLoggedIn() && (!this.authService.getUserFirstName() || !this.authService.getUserLastName()) ) {
+        this.router.navigate(['/sign-up']);
+    }
   }
 
   login() {
