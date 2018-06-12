@@ -7,6 +7,7 @@ import arc.expenses.service.UserServiceImpl;
 import eu.openminted.registry.core.domain.FacetFilter;
 import gr.athenarc.domain.Request;
 import gr.athenarc.domain.User;
+import gr.athenarc.domain.Organization;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
