@@ -57,6 +57,7 @@ class BulkImportService {
             organization.setPOI(parserPOY(line[2]));
             organization.setDirector(parserPOY(line[3]));
             organization.setDioikitikoSumvoulio(parserPOY(line[4]));
+            organization.setInspectionTeam(parser(line[5]));
             organizationService.add(organization);
         }
     }
