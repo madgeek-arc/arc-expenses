@@ -39,6 +39,7 @@ export class Organization {
     POI: POI;
     director: POI;
     dioikitikoSumvoulio: POI;
+    inspectionTeam: POI[];
 }
 
 export class POI {

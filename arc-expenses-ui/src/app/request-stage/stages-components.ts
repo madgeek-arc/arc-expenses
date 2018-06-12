@@ -492,7 +492,7 @@ export class Stage8Component extends StageComponent implements OnInit {
         };
 
         this.stageDescription = Stage8Desc;
-        this.currentPOI = this.currentProject.institute.accountingDirector;
+        this.currentPOI = this.findCurrentPOI(this.currentProject.institute.organization.inspectionTeam);
         super.ngOnInit();
     }
 }
