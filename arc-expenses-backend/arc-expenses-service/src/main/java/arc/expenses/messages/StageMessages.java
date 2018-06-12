@@ -2,12 +2,12 @@ package arc.expenses.messages;
 
 import arc.expenses.service.GenericService;
 import arc.expenses.service.UserServiceImpl;
-import com.google.inject.Stage;
+import arc.expenses.ApplicationStages;
+import eu.openminted.registry.core.domain.FacetFilter;
 import gr.athenarc.domain.POI;
 import gr.athenarc.domain.Request;
 import arc.expenses.mail.EmailMessage;
 import gr.athenarc.domain.User;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,6 +129,7 @@ public class StageMessages {
             User user = request.getStage4().getUser();
             String date = request.getStage4().getDate();
 
+//            ((ApplicationStages) request).getCoordinator(prevStage); // TODO use "getCoordinator(stage)"
             // email to POI and delegates
             emails.addAll(getEmailMessages(request, request.getProject().getInstitute().getOrganization().getPOI(),
                     user, UserType.POI, state, date, subject));
@@ -436,7 +437,8 @@ public class StageMessages {
 
     private List<EmailMessage> filterOutNonImmediate(List<EmailMessage> emails) {
         List<EmailMessage> emailList = new ArrayList<>();
-        List<User> users = userServiceImpl.getUsersWithImmediateEmailPreference();
+//        List<User> users = userServiceImpl.getUsersWithImmediateEmailPreference();
+        List<User> users = userServiceImpl.getAll(new FacetFilter()).getResults(); // FIXME: sends e-mails to everyone
         for (Iterator<EmailMessage> iterator = emails.iterator(); iterator.hasNext();) {
             EmailMessage email = iterator.next();
             User user = getUserByEmail(users, email.getRecipient());
@@ -486,7 +488,8 @@ public class StageMessages {
             }
         } else if (type == UserType.nextPOI) {
             if (state == RequestState.INITIALIZED) {
-                messageText = "Nέα αίτηση υποβλήθηκε στο σύστημα. Κωδικός αίτησης: " + id;
+                messageText = "Nέα αίτηση υποβλήθηκε στο σύστημα από τον/την " + firstname + " " + lastname +
+                        ". Κωδικός αίτησης: " + id;
             } else if (state == RequestState.ACCEPTED) {
                 messageText = "Νέο αίτημα προς έλεγχο με κωδικό " + id;
             } else if (state == RequestState.ACCEPTED_DIAVGEIA) {
