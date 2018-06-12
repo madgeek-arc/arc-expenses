@@ -24,6 +24,9 @@ public class JavaMailer {
     @Value("${mail.host}")
     private String smtpHost;
 
+    @Value("${mail.port}")
+    private String smtpPort;
+
     @Value("${mail.password}")
     private String password;
 
@@ -42,6 +45,7 @@ public class JavaMailer {
         properties.put("mail.smtp.sasl.enable", "true");
         properties.put("mail.debug", mailDebug);
         properties.put("mail.smtp.host", smtpHost);
+        properties.put("mail.smtp.port", smtpPort);
     }
 
     public void sendEmail(String to, String subject, String text) {
