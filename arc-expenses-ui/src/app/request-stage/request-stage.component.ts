@@ -224,7 +224,8 @@ export class RequestStageComponent implements OnInit {
             () => {
                 this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
                 this.showSpinner = false;
-                this.router.navigate([]);
+                /*this.router.navigate(['requests/request-stage', this.currentRequest.id]);*/
+                window.location.href = '/requests/request-stage/' + this.currentRequest.id;
             }
         );
     }
