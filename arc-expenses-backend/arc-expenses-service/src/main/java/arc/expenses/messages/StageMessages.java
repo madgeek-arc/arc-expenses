@@ -58,6 +58,26 @@ public class StageMessages {
                             messageTemplates(null, null, request.getId(), UserType.nextPOI,
                                     RequestState.INITIALIZED, request.getStage1().getRequestDate()))));
         }
+
+        // Stage 1 -> 2 // this is used only when a request is returned back to the first stage
+        // TODO : change messages probably (create RequestState.REAPPROVED??)
+        if (prevStage.equals("1") && nextStage.equals("2")) {
+            // email to user
+            emails.add(createMessage(request.getRequester().getEmail(), subject, messageTemplates(
+                    null, null, request.getId(), UserType.USER, RequestState.INITIALIZED,
+                    request.getStage1().getRequestDate())));
+
+            // email to next POI for review
+            emails.add(createMessage(request.getProject().getScientificCoordinator().getEmail(), subject,
+                    messageTemplates(null, null, request.getId(), UserType.nextPOI,
+                            RequestState.INITIALIZED, request.getStage1().getRequestDate())));
+            // email to all next POI delegates
+            request.getProject().getScientificCoordinator().getDelegates()
+                    .forEach(delegate -> emails.add(createMessage(
+                            delegate.getEmail(), subject,
+                            messageTemplates(null, null, request.getId(), UserType.nextPOI,
+                                    RequestState.INITIALIZED, request.getStage1().getRequestDate()))));
+        }
         // Stage 2 -> 3
         else if (prevStage.equals("2") && nextStage.equals("3")) {
             firstname = request.getStage2().getUser().getFirstname();
@@ -545,12 +565,24 @@ public class StageMessages {
     private List<EmailMessage> filterOutNonImmediate(List<EmailMessage> emails) {
         List<EmailMessage> emailList = new ArrayList<>();
 //        List<User> users = userServiceImpl.getUsersWithImmediateEmailPreference();
+//        for (Iterator<EmailMessage> iterator = emails.iterator(); iterator.hasNext();) {
+//            EmailMessage email = iterator.next();
+//            User user = getUserByEmail(users, email.getRecipient());
+////            if (user.getReceiveEmails() && user.getImmediateEmails()) {
+//            if (user != null) {
+//                emailList.add(email);
+//            }
+//        }
+        // TODO:
         List<User> users = userServiceImpl.getAll(new FacetFilter()).getResults();
         for (Iterator<EmailMessage> iterator = emails.iterator(); iterator.hasNext();) {
             EmailMessage email = iterator.next();
             User user = getUserByEmail(users, email.getRecipient());
-//            if (user.getReceiveEmails() && user.getImmediateEmails()) {
             if (user != null) {
+                if ("true".equals(user.getReceiveEmails()) && "true".equals(user.getImmediateEmails())) {
+                    emailList.add(email);
+                }
+            } else {
                 emailList.add(email);
             }
         }
