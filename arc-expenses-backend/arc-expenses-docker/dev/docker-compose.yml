@@ -18,6 +18,16 @@ services:
 #      - source: db_file
 #    restart: unless-stopped
 
+  platform:
+    container_name: platform
+    build: ../../../arc-expenses-ui
+    ports:
+      - "3000:80"
+    networks:
+      - arcnet
+    restart: unless-stopped
+
+
 
   arc_proxy_shibboleth:
       container_name: arc_proxy_shibboleth
