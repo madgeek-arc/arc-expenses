@@ -4,7 +4,7 @@ import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { Paging } from '../domain/extraClasses';
 import {Router} from '@angular/router';
-import {isNull} from 'util';
+import { isNull, isNullOrUndefined } from 'util';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import { requestTypes, stageIds, stagesDescriptionMap, statesList } from '../domain/stageDescriptions';
 

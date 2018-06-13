@@ -189,17 +189,19 @@
                 </div>
 
 
-                <!--end of 1st stage-->
-
-                <div *ngIf="!isSimpleUser">
+                <div *ngIf="!isSimpleUser &&
+                            ( (currentRequest.stage2 && currentRequest.stage2.date) ||
+                            ( (currentRequest.stage === '2') && (canEdit === true)) )">
                   <h4>Ανάληψη υποχρέωσης δαπάνης</h4>
                   <hr>
                 </div>
 
+                <!--end of 1st stage-->
+
                 <div class="uk-child-width-expand uk-grid" uk-grid
-                     *ngIf="(willShowStage('2') && (checkIfHasReturnedToPrevious('2') !== 1))
-                     || (willShowStage('3') && (checkIfHasReturnedToPrevious('3') !== 1))
-                     || (willShowStage('4') && (checkIfHasReturnedToPrevious('4') !== 1))">
+                     *ngIf="(willShowStage('2') && (checkIfHasReturnedToPrevious('2') !== 1)) ||
+                            (willShowStage('3') && (checkIfHasReturnedToPrevious('3') !== 1)) ||
+                            (willShowStage('4') && (checkIfHasReturnedToPrevious('4') !== 1))">
 
                   <stage2-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
                                     *ngIf="willShowStage('2') && (checkIfHasReturnedToPrevious('2') !== 1)"
@@ -261,7 +263,9 @@
                 </div>
 
 
-                <div class="uk-margin-top" *ngIf="!isSimpleUser && ((currentRequest.stage7 && currentRequest.stage7.date) || (currentRequest.stage === '7'))">
+                <div class="uk-margin-top" *ngIf="!isSimpleUser &&
+                                                  ((currentRequest.stage7 && currentRequest.stage7.date) ||
+                                                  ( (currentRequest.stage === '7') && (canEdit === true)) )">
                   <h4>Εξόφληση Δαπάνης</h4>
                   <hr>
                 </div>

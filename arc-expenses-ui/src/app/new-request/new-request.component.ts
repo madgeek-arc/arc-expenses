@@ -123,7 +123,7 @@ export class NewRequestComponent implements OnInit {
             supplier: [''],
             supplierSelectionMethod: [''],
             amount: ['', [Validators.required, Validators.min(0), Validators.pattern('^\\d+(\\.\\d{1,2})?$')] ],
-            director: ['']
+            sciCoord: ['']
         });
         this.newRequestForm.get('name').setValue(`${this.currentUser.firstname} ${this.currentUser.lastname}`);
         this.newRequestForm.get('name').disable();
@@ -255,14 +255,14 @@ export class NewRequestComponent implements OnInit {
     getProject() {
         this.errorMessage = '';
         if (this.newRequestForm.get('program').value) {
+            this.showSpinner = true;
 
             this.newRequestForm.get('institute').setValue('');
-            this.newRequestForm.get('director').setValue('');
+            this.newRequestForm.get('sciCoord').setValue('');
 
-            this.showSpinner = true;
-            const project = (this.newRequestForm.get('program').value).split('(');
-            const institute = project[1].split(')');
-            this.projectService.getProjectByAcronym(project[0].trim(), institute[0].trim()).subscribe (
+            /*const project = (this.newRequestForm.get('program').value).split('(');
+            const institute = project[1].split(')');*/
+            this.projectService.getProjectByAcronym(this.newRequestForm.get('program').value).subscribe (
                 res => {
                     this.chosenProject = res;
                     console.log(this.chosenProject);
@@ -278,12 +278,12 @@ export class NewRequestComponent implements OnInit {
                     if (this.chosenProject['institute'] && this.chosenProject.institute.name) {
                         this.newRequestForm.get('institute').setValue(this.chosenProject.institute.name);
                     }
-                    if (this.chosenProject.institute && this.chosenProject.institute.director) {
-                        this.newRequestForm.get('director')
-                            .setValue(this.chosenProject.institute.director.firstname + ' ' + this.chosenProject.institute.director.lastname);
+                    if (this.chosenProject && this.chosenProject.scientificCoordinator) {
+                        this.newRequestForm.get('sciCoord')
+                            .setValue(this.chosenProject.scientificCoordinator.firstname + ' ' + this.chosenProject.scientificCoordinator.lastname);
                     }
                     this.newRequestForm.get('institute').disable();
-                    this.newRequestForm.get('director').disable();
+                    this.newRequestForm.get('sciCoord').disable();
                     this.showSpinner = false;
                     this.searchTerm = '';
                 }

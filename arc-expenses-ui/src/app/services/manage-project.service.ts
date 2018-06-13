@@ -47,8 +47,8 @@ export class ManageProjectService {
             );
     }
 
-    getProjectByAcronym(acronym: string, institute: string): Observable<Project> {
-        const url = `${this.apiUrl}getByAcronym/${acronym}/${institute}`;
+    getProjectByAcronym(acronym: string): Observable<Project> {
+        const url = `${this.apiUrl}getByAcronym/${acronym}`;
         console.log(`calling ${url}`);
         return this.http.get<Project>(url, headerOptions)
             .pipe(

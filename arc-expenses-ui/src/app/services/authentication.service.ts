@@ -34,8 +34,11 @@ export class AuthenticationService {
     isLoggedIn: boolean = false;
 
     public loginWithState() {
-        console.log(`logging in with state. Current url is: ${this.router.url}`);
-        sessionStorage.setItem('state.location', this.router.url);
+        if ( isNullOrUndefined(sessionStorage.getItem('state.location')) ) {
+            console.log(`logging in with state. Current url is: ${this.router.url}`);
+            sessionStorage.setItem('state.location', sessionStorage.getItem('state.location') );
+        }
+        console.log(`logging in. Current state.location is: ${this.router.url}`);
         console.log(`going to ${this.loginUrl}`);
         window.location.href = this.loginUrl;
     }
@@ -60,6 +63,7 @@ export class AuthenticationService {
     }
 
     public tryLogin() {
+        console.log('entering tryLogin -> state.location is:', sessionStorage.getItem('state.location'));
         if (getCookie('arc_currentUser')) {
             console.log(`I got the cookie!`);
             /* SETTING INTERVAL TO REFRESH SESSION TIMEOUT COUNTD */
@@ -93,16 +97,6 @@ export class AuthenticationService {
                     userInfo => {
                         console.log(JSON.stringify(userInfo));
                         this.isLoggedIn = true;
-                        /*const currentUser = {
-                            userid: userInfo['uid'],
-                            email: userInfo['email'],
-                            firstname: userInfo['firstname'],
-                            lastname: userInfo['lastname'],
-                            firstnameLatin: userInfo['firstnameLatin'],
-                            lastnameLatin: userInfo['lastnameLatin'],
-                            receiveEmails: userInfo['receiveEmails'],
-                            immediateEmails: userInfo['immediateEmails']
-                        };*/
                         sessionStorage.setItem('userid', userInfo['uid']);
                         sessionStorage.setItem('email', userInfo['email']);
                         sessionStorage.setItem('firstname', userInfo['firstname']);
@@ -132,22 +126,26 @@ export class AuthenticationService {
                     },
                     () => {
                         console.log(`the current user is: ${sessionStorage.getItem('firstname')} ` +
-                            `${sessionStorage.getItem('lastname')}, ` +
-                            `${sessionStorage.getItem('email')}`);
+                                    `${sessionStorage.getItem('lastname')}, ` +
+                                    `${sessionStorage.getItem('email')}`);
 
-                        if (sessionStorage.getItem('state.location')) {
-                            const stateLoc = sessionStorage.getItem('state.location');
+                        let state: string;
+                        if ( !isNullOrUndefined(sessionStorage.getItem('state.location')) ) {
+                            state = sessionStorage.getItem('state.location');
                             sessionStorage.removeItem('state.location');
-                            console.log(`logged in - returning to state: ${stateLoc}`);
+                        } else {
+                            state = '/home';
                         }
 
-                        if (this.isLoggedIn &&
-                            (isNullOrUndefined(sessionStorage.getItem('firstname')) ||
-                                (sessionStorage.getItem('firstname') === 'null')) ||
-                            isNullOrUndefined(sessionStorage.getItem('lastname')) ||
-                            (sessionStorage.getItem('lastname') === 'null')) {
+                        if ( (isNullOrUndefined(sessionStorage.getItem('firstname')) ||
+                             (sessionStorage.getItem('firstname') === 'null')) ||
+                             isNullOrUndefined(sessionStorage.getItem('lastname')) ||
+                             (sessionStorage.getItem('lastname') === 'null')) {
 
                             this.router.navigate(['/sign-up']);
+                        } else {
+                            console.log(`cleared session - returning to state: ${state}`);
+                            this.router.navigate([state]);
                         }
                     }
                 );
@@ -155,14 +153,7 @@ export class AuthenticationService {
                 this.isLoggedIn = true;
             }
         }
-        let state: string;
-        if (sessionStorage.getItem('state.location')) {
-            state = sessionStorage.getItem('state.location');
-            sessionStorage.removeItem('state.location');
-            console.log(`cleared session - returning to state: ${state}`);
-            this.router.navigate([state]);
-        }
-        // this.router.navigate(['/home']);
+
     }
 
     updateUserInfo(firstname: string, lastname: string, receiveEmails: string, immediateEmails: string, attachment: Attachment) {

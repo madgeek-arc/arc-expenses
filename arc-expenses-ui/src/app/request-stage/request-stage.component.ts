@@ -100,11 +100,16 @@ export class RequestStageComponent implements OnInit {
                 this.showSpinner = false;
             },
             () => {
-                if (this.currentRequest.stage === '1') {
-                    this.createForm();
+                if ( isNullOrUndefined(this.currentRequest) ) {
+                    this.showSpinner = false;
+                    this.errorMessage = 'Το αίτημα που ζητήσατε δεν βρέθηκε.';
+                } else {
+                    if (this.currentRequest.stage === '1') {
+                        this.createForm();
+                    }
+                    this.checkIfStageIs5b();
+                    this.getIfUserCanEditRequest();
                 }
-                this.checkIfStageIs5b();
-                this.getIfUserCanEditRequest();
             }
         );
     }
@@ -232,6 +237,7 @@ export class RequestStageComponent implements OnInit {
 
     uploadFile() {
         this.showSpinner = true;
+        this.errorMessage = '';
         this.requestService.uploadAttachment<string>(this.currentRequest.archiveId, this.currentStageName, this.uploadedFile)
             .subscribe(
                 event => {
@@ -247,6 +253,7 @@ export class RequestStageComponent implements OnInit {
                     console.log(error);
                     this.uploadedFile = null;
                     this.showSpinner = false;
+                    this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών.';
                 },
                 () => {
                     console.log('ready to update Request');

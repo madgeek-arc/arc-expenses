@@ -64,8 +64,7 @@ export class StageComponent implements OnInit {
     datePipe = new DatePipe('el');
 
     constructor(private fb: FormBuilder,
-                private authService: AuthenticationService,
-                private requestService: ManageRequestsService) {}
+                private authService: AuthenticationService) {}
 
     ngOnInit() {
         /*console.log(`showStage ${this.stageDescription.id} is ${this.showStage}`);*/
@@ -107,9 +106,7 @@ export class StageComponent implements OnInit {
             if (this.hasReturnedToPrevious === 2) {
                 this.wasApproved = 'Επεστράφη στο προηγούμενο στάδιο';
             } else {
-                if ( this.currentStage['approved'] ||
-                    ( this.stageDescription &&
-                        ( this.stageDescription.id === '11' ) ) ) {
+                if ( this.currentStage['approved'] ) {
 
                   this.wasApproved = 'Εγκρίθηκε';
 

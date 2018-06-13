@@ -109,7 +109,7 @@ export class SignUpComponent implements OnInit {
                                            (this.signUpForm.get('receiveEmails').value).toString(),
                                            (this.signUpForm.get('immediateEmails').value).toString(),
                                            this.userAttachment ).subscribe(
-              user => console.log(`updateUser responded: ${user}`),
+              user => console.log(`updateUser responded: ${JSON.stringify(user)}`),
               error => {
                   this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών';
                   this.showSpinner = false;
