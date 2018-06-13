@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface CoordinatorInterface {
 
-    List<POI> getCoordinator(String stage);
+    List<POI> getPersonsOfInterest(String stage);
 }
