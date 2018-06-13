@@ -127,7 +127,17 @@ export class StageComponent implements OnInit {
         if (this.authService.getUserRole() === 'ROLE_ADMIN') {
             return poiList[0];
         } else {
-            return poiList.filter(x => x.email === this.currentStage['user']['email'])[0];
+            let curEmail: string;
+            if ( this.hasReturnedToPrevious === 1 ) {
+                curEmail = this.authService.getUserEmail();
+            } else {
+                curEmail = this.currentStage['user']['email'];
+            }
+            for ( const poi of poiList ) {
+                if ( (poi.email === curEmail) || poi.delegates.some(x => x.email === curEmail) ) {
+                    return poi;
+                }
+            }
         }
     }
 
@@ -206,8 +216,8 @@ export class StageComponent implements OnInit {
 
     delegateCanEdit() {
         return ( (this.authService.getUserRole() === 'ROLE_ADMIN') ||
-            (this.currentPOI.email === this.authService.getUserEmail()) ||
-            this.currentPOI.delegates.some(x => x.email === this.authService.getUserEmail()) );
+                 (this.currentPOI.email === this.authService.getUserEmail()) ||
+                 this.currentPOI.delegates.some(x => x.email === this.authService.getUserEmail()) );
     }
 
     createUser(): User {
