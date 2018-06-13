@@ -44,7 +44,7 @@ export class StageComponent implements OnInit {
     wasApproved: string;
 
     /*  phrase mentioning the delegate's position.
-        It is used to describe the results of the stage*/
+        It is used to describe the results of the stage */
     delegatePositionInParagraph: string;
 
     stageForm: FormGroup;

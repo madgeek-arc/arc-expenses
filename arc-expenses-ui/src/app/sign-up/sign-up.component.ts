@@ -115,6 +115,8 @@ export class SignUpComponent implements OnInit {
                   this.showSpinner = false;
               },
               () => {
+                  this.errorMessage = '';
+                  this.showSpinner = false;
                   this.router.navigate(['/home']);
               }
           );

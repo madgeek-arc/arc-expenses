@@ -133,22 +133,27 @@ export class NewRequestComponent implements OnInit {
         console.log(this.newRequestForm);
         if (this.newRequestForm.valid ) {
             if ( (+this.newRequestForm.get('amount').value > 2500) && isUndefined(this.uploadedFile) ) {
+
                 UIkit.modal.alert('Για αιτήματα άνω των 2.500 € η επισύναψη εγγράφων είναι υποχρεωτική.');
+
             } else if ( ( this.requestType !== 'trip' ) &&
                         ( (this.newRequestForm.get('supplierSelectionMethod').value !== 'Διαγωνισμός') &&
                           !this.newRequestForm.get('supplier').value )) {
 
                 UIkit.modal.alert('Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.');
+
             } else if ( (( this.newRequestForm.get('supplierSelectionMethod').value !== 'Απ\' ευθείας ανάθεση' ) &&
                          ( this.requestType !== 'trip' )) &&
                           isUndefined(this.uploadedFile)  ) {
 
                 UIkit.modal.alert('Για αναθέσεις μέσω διαγωνισμού ή έρευνας αγοράς η επισύναψη εγγράφων είναι υποχρεωτική.');
+
             } else if ( ( +this.newRequestForm.get('amount').value > this.amountLimit) &&
                         ( this.requestType !== 'trip' ) &&
                         ( this.newRequestForm.get('supplierSelectionMethod').value !== 'Διαγωνισμός' ) ) {
 
                 UIkit.modal.alert('Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.');
+
             } else {
                 this.request = new Request();
                 this.request.id = '';
@@ -199,7 +204,8 @@ export class NewRequestComponent implements OnInit {
                 this.requestService.addRequest(this.request).subscribe (
                     res => {this.request = res; console.log(res); },
                     error => {
-                        console.log(error); this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την υποβολή της φόρμας';
+                        console.log(error);
+                        UIkit.modal.alert('Παρουσιάστηκε πρόβλημα με την υποβολή της φόρμας');
                         this.showSpinner = false;
                     },
                     () => {
@@ -260,8 +266,11 @@ export class NewRequestComponent implements OnInit {
             this.newRequestForm.get('institute').setValue('');
             this.newRequestForm.get('sciCoord').setValue('');
 
-            /*const project = (this.newRequestForm.get('program').value).split('(');
-            const institute = project[1].split(')');*/
+            /*
+            const project = (this.newRequestForm.get('program').value).split('(');
+            const institute = project[1].split(')');
+            this.projectService.getProjectByAcronym(project[0].trim(), institute[0].trim()).subscribe (
+            */
             this.projectService.getProjectByAcronym(this.newRequestForm.get('program').value).subscribe (
                 res => {
                     this.chosenProject = res;
@@ -274,6 +283,7 @@ export class NewRequestComponent implements OnInit {
                     this.searchTerm = '';
                 },
                 () => {
+                    this.errorMessage = '';
                     this.programSelected = true;
                     if (this.chosenProject['institute'] && this.chosenProject.institute.name) {
                         this.newRequestForm.get('institute').setValue(this.chosenProject.institute.name);
