@@ -127,7 +127,7 @@ export class StageComponent implements OnInit {
         if (this.authService.getUserRole() === 'ROLE_ADMIN') {
             return poiList[0];
         } else {
-            return poiList.filter(x => x.email === this.authService.getUserEmail())[0];
+            return poiList.filter(x => x.email === this.currentStage['user']['email'])[0];
         }
     }
 

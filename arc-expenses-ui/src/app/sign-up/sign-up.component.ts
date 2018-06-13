@@ -3,6 +3,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AuthenticationService} from '../services/authentication.service';
 import {Router} from '@angular/router';
 import { Attachment } from '../domain/operation';
+import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'app-sign-up',
@@ -117,7 +118,15 @@ export class SignUpComponent implements OnInit {
               () => {
                   this.errorMessage = '';
                   this.showSpinner = false;
-                  this.router.navigate(['/home']);
+                  /*if ( !isNullOrUndefined(sessionStorage.getItem('state.location')) &&
+                      (sessionStorage.getItem('state.location') !== '/sign-up') ) {
+                      const state = sessionStorage.getItem('state.location');
+                      sessionStorage.removeItem('state.location');
+                      console.log('in sign-up returning to', state);
+                      this.router.navigate([state]);
+                  } else {*/
+                      this.router.navigate(['/home']);
+                  /*}*/
               }
           );
       } else {

@@ -101,6 +101,8 @@ export class AuthenticationService {
                         sessionStorage.setItem('email', userInfo['email']);
                         sessionStorage.setItem('firstname', userInfo['firstname']);
                         sessionStorage.setItem('lastname', userInfo['lastname']);
+                        /*sessionStorage.setItem('firstname', null);
+                        sessionStorage.setItem('lastname', null);*/
                         sessionStorage.setItem('firstnameLatin', userInfo['firstnameLatin']);
                         sessionStorage.setItem('lastnameLatin', userInfo['lastnameLatin']);
                         sessionStorage.setItem('receiveEmails', userInfo['receiveEmails']);
