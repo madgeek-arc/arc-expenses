@@ -38,7 +38,7 @@ public class StageResourceListener implements ResourceListener {
                 logger.info("New Request added: stage = " + request.getStage() + " " + request.getStatus());
                 if (request.getStage().equals("2")) {
                     stageMessages
-                            .createMessages(null, request.getStage(), request)
+                            .createStageMessages("1", request.getStage(), request)
                             .forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
                 }
             } catch (InterruptedException e) {
@@ -64,7 +64,7 @@ public class StageResourceListener implements ResourceListener {
                     logger.info("Prev Request: " + previousRequest.toString());
                     logger.info("New Request : " + newRequest.toString());
                     stageMessages
-                            .createMessages(previousRequest.getStage(), newRequest.getStage(), newRequest)
+                            .createStageMessages(previousRequest.getStage(), newRequest.getStage(), newRequest)
                             .forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
                 }
             } catch (InterruptedException | ExecutionException e) {
