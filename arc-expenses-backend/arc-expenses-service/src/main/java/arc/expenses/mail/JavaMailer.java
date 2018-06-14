@@ -52,12 +52,14 @@ public class JavaMailer {
             msg.setFrom(address);
             if (mailDebug) {
                 msg.setRecipients(Message.RecipientType.TO, address);
+                msg.setText(text + debugText(to));
             } else {
                 msg.setRecipients(Message.RecipientType.TO, to);
+                msg.setText(text);
             }
             msg.setSubject(subject);
             msg.setSentDate(new Date());
-            msg.setText(text);
+//            msg.setText(text);
             Transport transport = session.getTransport("smtp");
             transport.connect(smtpHost, address, password);
             Transport.send(msg, msg.getAllRecipients(), address, password);
@@ -74,12 +76,14 @@ public class JavaMailer {
             msg.setFrom(address);
             if (mailDebug) {
                 msg.setRecipients(Message.RecipientType.TO, address);
+                msg.setText(text + debugText(addressListToString(mailList)));
             } else {
                 msg.setRecipients(Message.RecipientType.TO, addressListToString(mailList));
+                msg.setText(text);
             }
             msg.setSubject(subject);
             msg.setSentDate(new Date());
-            msg.setText(text);
+//            msg.setText(text);
             Transport transport = session.getTransport("smtp");
             transport.connect(smtpHost, address, password);
             Transport.send(msg, msg.getAllRecipients(), address, password);
@@ -124,5 +128,9 @@ public class JavaMailer {
             addresses += list.get(list.size()-1);
         }
         return addresses;
+    }
+
+    private String debugText(String email) {
+        return "\n\n Προορισμός μηνύματος: " + email;
     }
 }

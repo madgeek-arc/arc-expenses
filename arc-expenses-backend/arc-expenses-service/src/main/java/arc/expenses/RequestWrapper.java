@@ -13,57 +13,76 @@ import java.util.List;
 /**
  * created by spyroukostas 13/06/18
  */
-//public class ApplicationStages extends Request implements StageInterface {
-public class ApplicationStages implements StageInterface {
+//public class RequestWrapper extends Request implements StageInterface {
+public class RequestWrapper implements StageInterface {
 
     public static final String[] stages = {null,"1","2","3","4","5a","5b","6","7","8","9","10","11","12","13"};
 
     private Request request;
 
-    public ApplicationStages(Request request) {
+    public RequestWrapper(Request request) {
         super();
         this.request = request;
     }
 
-    public static String getPreviousStage(Request request) {
-        try {
-            Object stage = null;
-            int index = Arrays.asList(stages).indexOf(request.getStage());
-            do {
-                index --;
-                stage = PropertyUtils.getProperty(request,"stage" + stages[index]);
-            } while (stage == null);
+    public static String getNextStage(Request request) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        Object stage = null;
+        int index = Arrays.asList(stages).indexOf(request.getStage());
+        do {
+            index ++;
+            stage = PropertyUtils.getProperty(request,"stage" + stages[index]);
+        } while (stage == null);
 
-            return stages[index];
-        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        return stages[index];
     }
 
-    public static String getPreviousStage(Request request, String stageFrom) {
-        try {
-            Object stage = null;
-            int index = Arrays.asList(stages).indexOf(stageFrom);
-            do {
-                index --;
-                stage = PropertyUtils.getProperty(request,"stage" + stages[index]);
-            } while (stage == null);
+    public static String getPreviousStage(Request request) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        Object stage = null;
+        int index = Arrays.asList(stages).indexOf(request.getStage());
+        do {
+            index --;
+            stage = PropertyUtils.getProperty(request,"stage" + stages[index]);
+        } while (stage == null);
 
-            return stages[index+1];
-        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        return stages[index];
     }
 
-    public static boolean underReview(String previousStage, String nextStage) {
+    public static String getPreviousStage(Request request, String stageFrom) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        Object stage = null;
+        int index = Arrays.asList(stages).indexOf(stageFrom);
+        do {
+            index --;
+            stage = PropertyUtils.getProperty(request,"stage" + stages[index]);
+        } while (stage == null);
+
+        return stages[index];
+    }
+
+    public static boolean stageUnderReview(String previousStage, String nextStage) {
         if (Arrays.asList(stages).indexOf(previousStage) > Arrays.asList(stages).indexOf(nextStage)) {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public String getPreviousStage() {
+        try {
+            return getPreviousStage(request);
+        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public String getNextStage() {
+        try {
+            return getNextStage(request);
+        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -286,5 +305,9 @@ public class ApplicationStages implements StageInterface {
                 return null;
         }
         return comment;
+    }
+
+    public Request getRequest() {
+        return request;
     }
 }

@@ -17,4 +17,8 @@ public interface StageInterface {
     String getDate(String stage);
 
     String getComment(String stage);
+
+    String getPreviousStage();
+
+    String getNextStage();
 }

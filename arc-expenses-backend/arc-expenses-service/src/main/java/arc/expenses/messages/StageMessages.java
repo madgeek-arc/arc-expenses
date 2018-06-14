@@ -1,22 +1,19 @@
 package arc.expenses.messages;
 
+import arc.expenses.RequestWrapper;
 import arc.expenses.service.GenericService;
 import arc.expenses.service.UserServiceImpl;
-import arc.expenses.ApplicationStages;
 import eu.openminted.registry.core.domain.FacetFilter;
 import gr.athenarc.domain.POI;
 import gr.athenarc.domain.Request;
 import arc.expenses.mail.EmailMessage;
 import gr.athenarc.domain.User;
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -49,23 +46,27 @@ public class StageMessages {
 
         if ("rejected".equals(request.getStatus())) {
             emails.add(new EmailMessage(request.getRequester().getEmail(), subject, messageTemplates(
-                    null, null, request.getId(), UserType.USER, RequestState.REJECTED,
+                    null, null, request, UserType.USER, RequestState.REJECTED,
                     request.getStage1().getRequestDate())));
             state = RequestState.REJECTED;
             transition = "rejected";
 
-        } else if (ApplicationStages.underReview(prevStage, nextStage)) {
+        } else if (RequestWrapper.stageUnderReview(prevStage, nextStage)) {
 //        } else if ("review".equals(request.getStatus())) {
-            nextStage = prevStage;
-            prevStage = ApplicationStages.getPreviousStage(request); // FIXME DEBUG this function
+            switch (nextStage) {
+                case "1":
+                    transition = nextStage + "<-" + prevStage;
+                    break;
+                default:
+                    transition = "<-";
+            }
             state = RequestState.REVIEW;
-            transition = "<-";
         } else {
             transition = prevStage + "->" + nextStage;
         }
 
         switch (transition) {
-
+            // TODO: add explicitly cases requiring special handling
             case "1->2":
                 if (state == RequestState.ACCEPTED) {
                     state = RequestState.INITIALIZED;
@@ -100,8 +101,22 @@ public class StageMessages {
                 emails.addAll(getEmailMessages(request, UserType.POI, state, subject));
                 break;
 
-            case "<-":
+            case "1<-2":
+                // email to USER
+                emails.addAll(getEmailMessages(request, UserType.USER, state, subject));
+                // email to POI and delegates
+                emails.addAll(getEmailMessages(request, UserType.POI, state, subject));
+                break;
 
+//            case "12<-13":
+//
+//                break;
+
+            case "<-":
+                // email to POI and delegates
+                emails.addAll(getEmailMessages(request, UserType.POI, state, subject));
+                // email to nextPOI and delegates
+                emails.addAll(getEmailMessages(request, UserType.nextPOI, state, subject));
                 break;
 
             case "rejected":
@@ -115,44 +130,6 @@ public class StageMessages {
                 emails.addAll(getEmailMessages(request, UserType.nextPOI, state, subject));
         }
         return emails;
-    }
-
-
-    private List<EmailMessage> getEmailMessages(Request request, UserType type, RequestState state, String subject) {
-        List<EmailMessage> messages = new ArrayList<>();
-        ApplicationStages appStages = new ApplicationStages(request);
-        String completedStage = ApplicationStages.getPreviousStage(request);
-        String date = appStages.getDate(completedStage);
-
-        if (type == UserType.USER) {
-            User user = appStages.getUser(completedStage); // get User of completed stage (previous stage)
-            List<POI> poi = appStages.getPersonsOfInterest(completedStage); // get POIs of completed stage (previous stage)
-            messages.add(new EmailMessage(request.getRequester().getEmail(), subject,
-                    messageTemplates(user.getFirstname(), user.getLastname(), request.getId(), type, state, date)));
-        } else if (type == UserType.POI) {
-            User user = appStages.getUser(completedStage); // get User of completed stage (previous stage)
-            List<POI> poi = appStages.getPersonsOfInterest(completedStage); // get POIs of completed stage (previous stage)
-            List<String> addresses = new ArrayList<>();
-            poi.forEach(person -> {
-                addresses.add(person.getEmail());
-                person.getDelegates().forEach(delegate -> addresses.add(delegate.getEmail()));
-            });
-            addresses.forEach(address -> messages.add(new EmailMessage(address, subject,
-                    messageTemplates(user.getFirstname(), user.getLastname(), request.getId(), type, state, date))));
-        } else if (type == UserType.nextPOI) {
-            User user = appStages.getUser(completedStage); // get User of completed stage (previous stage)
-            List<POI> poi = appStages.getPersonsOfInterest(request.getStage()); // get POIs of next stage
-            List<String> addresses = new ArrayList<>();
-            poi.forEach(person -> {
-                addresses.add(person.getEmail());
-                person.getDelegates().forEach(delegate -> addresses.add(delegate.getEmail()));
-            });
-            addresses.forEach(address -> messages.add(new EmailMessage(address, subject,
-                    messageTemplates(user.getFirstname(), user.getLastname(), request.getId(), type, state, date))));
-        } else {
-
-        }
-        return messages;
     }
 
     public User getUserByEmail(final List<User> users, final String email) {
@@ -177,10 +154,62 @@ public class StageMessages {
         return emailList;
     }
 
-    private String messageTemplates(String firstname, String lastname, String id, UserType type,
+    private List<EmailMessage> getEmailMessages(Request request, UserType type, RequestState state, String subject) {
+        List<EmailMessage> messages = new ArrayList<>();
+        RequestWrapper appStages = new RequestWrapper(request);
+        String completedStage = null;
+        try {
+            if (state == RequestState.REVIEW) { // if stage is under review
+                // the completed stage is the stage after the request.getStage()
+                completedStage = RequestWrapper.getNextStage(request);
+            } else { // if stage is not under review
+                // the completed stage is always one stage behind request.getStage()
+                completedStage = RequestWrapper.getPreviousStage(request);
+            }
+
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        String date = appStages.getDate(completedStage);
+
+        if (type == UserType.USER) {
+            User user = appStages.getUser(completedStage); // get User of completed stage (previous stage)
+            List<POI> poi = appStages.getPersonsOfInterest(completedStage); // get POIs of completed stage (previous stage)
+            messages.add(new EmailMessage(request.getRequester().getEmail(), subject,
+                    messageTemplates(user.getFirstname(), user.getLastname(), request, type, state, date)));
+        } else if (type == UserType.POI) {
+            User user = appStages.getUser(completedStage); // get User of completed stage (previous stage)
+            List<POI> poi = appStages.getPersonsOfInterest(completedStage); // get POIs of completed stage (previous stage)
+            List<String> addresses = new ArrayList<>();
+            poi.forEach(person -> {
+                addresses.add(person.getEmail());
+                person.getDelegates().forEach(delegate -> addresses.add(delegate.getEmail()));
+            });
+            addresses.forEach(address -> messages.add(new EmailMessage(address, subject,
+                    messageTemplates(user.getFirstname(), user.getLastname(), request, type, state, date))));
+        } else if (type == UserType.nextPOI) {
+            User user = appStages.getUser(completedStage); // get User of completed stage (previous stage)
+            List<POI> pois;
+            pois = appStages.getPersonsOfInterest(request.getStage()); // get POIs of next stage
+            List<String> addresses = new ArrayList<>();
+            pois.forEach(person -> {
+                addresses.add(person.getEmail());
+                person.getDelegates().forEach(delegate -> addresses.add(delegate.getEmail()));
+            });
+            addresses.forEach(address -> messages.add(new EmailMessage(address, subject,
+                    messageTemplates(user.getFirstname(), user.getLastname(), request, type, state, date))));
+        } else {
+
+        }
+        return messages;
+    }
+
+    private String messageTemplates(String firstname, String lastname, Request request, UserType type,
                                     RequestState state, String date_secs) {
         String messageText = null;
         String date = "";
+        String id = request.getId();
+        RequestWrapper appStages = new RequestWrapper(request);
         if (date_secs != null) {
             date = new SimpleDateFormat("dd/MM/yyyy").format(new Date(Long.parseLong(date_secs))).toString();
         }
@@ -197,6 +226,10 @@ public class StageMessages {
                 messageText = "Το αίτημά σας με κωδικό " + id + " ελέγχθηκε κι εγκρίθηκε επιτυχώς!";
             } else if (state == RequestState.REJECTED) {
                 messageText = "Το αίτημά σας με κωδικό " + id + " απορρίφθηκε.";
+            } else if (state == RequestState.REVIEW) {
+                messageText = "Tο αίτημα σας με κωδικό " + id + ", επιστράφηκε στο αρχικό στάδιο από τον/την " + firstname +
+                        " " + lastname;
+                messageText += "\n\nΣχόλια: " + appStages.getComment(appStages.getNextStage());
             }
         } else if (type == UserType.POI) {
             if (state == RequestState.INITIALIZED) {
