@@ -27,10 +27,9 @@ public class ProjectController {
         return projectService.get(id);
     }
 
-    @RequestMapping(value =  "/getByAcronym/{acronym}/{institute}", method = RequestMethod.GET)
-    public Project getByAcronym(@PathVariable("acronym") String acronym,
-                                @PathVariable("institute") String institute) {
-        return projectService.getByAcronym(acronym,institute);
+    @RequestMapping(value =  "/getByAcronym/{acronym:.+}", method = RequestMethod.GET)
+    public Project getByAcronym(@PathVariable("acronym") String acronym) {
+        return projectService.getByAcronym(acronym);
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST,

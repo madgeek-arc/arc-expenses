@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class UserServiceImpl extends GenericService<User> {
 
     @Autowired
-    DataSource dataSource;
+    DataSource ARC_DataSource;
 
     @Autowired
     private StoreRESTClient storeRESTClient;
@@ -57,7 +57,7 @@ public class UserServiceImpl extends GenericService<User> {
 
         try {
             String query = createQuery();
-            connection = dataSource.getConnection();
+            connection = ARC_DataSource.getConnection();
             statement = connection.prepareStatement(query);
 
             //for(int i = 1;i<16;i++)

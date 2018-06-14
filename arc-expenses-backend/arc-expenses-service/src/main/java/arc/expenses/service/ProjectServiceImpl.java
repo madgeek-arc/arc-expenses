@@ -23,7 +23,7 @@ public class ProjectServiceImpl extends GenericService<Project> {
     private Logger LOGGER = Logger.getLogger(ProjectServiceImpl.class);
 
     @Autowired
-    DataSource dataSource;
+    DataSource ARC_DataSource;
 
 
     public ProjectServiceImpl() {
@@ -35,10 +35,12 @@ public class ProjectServiceImpl extends GenericService<Project> {
         return "project";
     }
 
-    public Project getByAcronym(String acronym,String institute) {
+    public Project getByAcronym(String acronym) {
+
+        acronym = acronym.split("[(].+[)]")[0];
 
         Paging<Resource> rs = searchService.cqlQuery(
-                "project_acronym = " + acronym + " and project_institute = " + institute,"project",
+                "project_acronym = " + acronym ,"project",
                 10,0, "", SortOrder.ASC);
 
         List<Project> resultSet = new ArrayList<>();
@@ -61,7 +63,7 @@ public class ProjectServiceImpl extends GenericService<Project> {
         Connection connection = null;
         Statement statement = null;
         try {
-            connection = dataSource.getConnection();
+            connection = ARC_DataSource.getConnection();
             statement = connection.createStatement();
             ResultSet rs = statement.executeQuery("select project_acronym::text || ' (' || project_institute::text || ')' as projectName from project_view");
 

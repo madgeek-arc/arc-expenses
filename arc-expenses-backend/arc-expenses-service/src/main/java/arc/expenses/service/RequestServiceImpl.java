@@ -102,7 +102,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                              " request_project_operator =  "+ email + " or " +
                              " request_project_operator_delegates = " + email + " or " +
                              " request_project_scientificCoordinator = " + email + " or " +
-                             " request_organization_POΙ = " + email + " or " +
+                             " request_organization_POI = " + email + " or " +
                              " request_organization_POΙ_delegate =  " + email+ " or "+
                              " request_institute_accountingRegistration = " + email + " or " +
                              " request_institute_diaugeia = " + email + " or " +
@@ -161,7 +161,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     public List<Request> getPendingRequests(String email) {
 
-        String whereCaluse = " (  ( request_project_operator =  " + email + " or  request_project_operator_delegates = " + email + " ) "
+        String whereClause = " (  ( request_project_operator =  " + email + " or  request_project_operator_delegates = " + email + " ) "
                            + "      and ( request_stage = 3 or request_stage = 7 ) "
                            + "    ) "
                            + " or ( request_project_scientificCoordinator = " + email + " and request_stage = 2 ) "
@@ -188,7 +188,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                            + "    ) ";
 
         Paging<Resource> rs = searchService.cqlQuery(
-                whereCaluse,"request",
+                whereClause,"request",
                 1000,0,"",SortOrder.ASC);
 
 
