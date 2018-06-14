@@ -72,6 +72,7 @@ export class SignUpComponent implements OnInit {
       if (!this.authService.getUserFirstName() || !this.authService.getUserLastName()) {
           this.signUpForm.get('receiveEmails').setValue(true);
           this.signUpForm.get('immediateEmails').setValue(true);
+          this.signUpForm.get('immediateEmails').enable();
       }
     }
 
