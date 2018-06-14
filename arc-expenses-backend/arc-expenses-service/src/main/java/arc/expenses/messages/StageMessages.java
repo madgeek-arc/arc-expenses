@@ -136,6 +136,7 @@ public class StageMessages {
         if (users == null || email == null)
             return null;
         Optional<User> user = users.parallelStream().filter(u -> u.getEmail().equals(email)).findAny();
+
         return user.orElse(null);
 //        return users.stream().filter(user -> user.getEmail().equals(email)).findAny().get();
     }
@@ -148,6 +149,10 @@ public class StageMessages {
             EmailMessage email = iterator.next();
             User user = getUserByEmail(users, email.getRecipient());
             if (user != null) {
+                if ("true".equals(user.getReceiveEmails()) && "true".equals(user.getImmediateEmails())) {
+                    emailList.add(email);
+                }
+            } else {
                 emailList.add(email);
             }
         }

@@ -8,6 +8,7 @@
         <h1 class="uk-h3 uk-heading-bullet uk-padding-small">
           Αίτημα {{requestId}}
           <span *ngIf="currentRequest" class="uk-text-small">[{{ reqTypes[currentRequest.type] }}]</span></h1>
+        <!--<button class="uk-button uk-button-small" (click)="printRequest()">Εκτύπωση</button>-->
 
         <!-- TOP HELP CONTENT -->
         <help-content #topHelperContent [position]="'top'"
@@ -30,7 +31,8 @@
                 <!--<div class="uk-overlay-default uk-position-cover"></div>-->
                 <!--<div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>-->
               <!--</div>-->
-              <div *ngIf="!showSpinner &&
+              <div id="printable-section"
+                   *ngIf="!showSpinner &&
                           currentRequest &&
                           currentRequest.requester &&
                           currentRequest.project &&

@@ -68,6 +68,10 @@ export class SignUpComponent implements OnInit {
       this.signUpForm.get('surnameLatin').disable();
       this.signUpForm.get('email').disable();
       this.toggleImmediateEmailsDisable();
+      if (!this.authService.getUserFirstName() || !this.authService.getUserLastName()) {
+          this.signUpForm.get('receiveEmails').setValue(true);
+          this.signUpForm.get('immediateEmails').setValue(true);
+      }
     }
 
     toggleImmediateEmailsDisable() {
