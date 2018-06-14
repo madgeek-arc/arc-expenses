@@ -57,9 +57,8 @@ export class AuthenticationService {
         sessionStorage.removeItem('role');
 
         console.log('logging out, going /home');
-        /*console.log(`https://aai.openaire.eu/proxy/saml2/idp/SingleLogoutService.php?ReturnTo=${this.baseUrl}`);
-        window.location.href = `https://aai.openaire.eu/proxy/saml2/idp/SingleLogoutService.php?ReturnTo=${this.baseUrl}`;*/
-        this.router.navigate(['/home']);
+        console.log(`${this.baseUrl}/Shibboleth.sso/Logout?return=${this.baseUrl}`);
+        window.location.href = `${this.baseUrl}/Shibboleth.sso/Logout?return=${this.baseUrl}`;
     }
 
     public tryLogin() {
@@ -131,22 +130,23 @@ export class AuthenticationService {
                                     `${sessionStorage.getItem('lastname')}, ` +
                                     `${sessionStorage.getItem('email')}`);
 
-                        let state: string;
-                        if ( !isNullOrUndefined(sessionStorage.getItem('state.location')) ) {
-                            state = sessionStorage.getItem('state.location');
-                            sessionStorage.removeItem('state.location');
-                        } else {
-                            state = '/home';
-                        }
-
                         if ( (isNullOrUndefined(sessionStorage.getItem('firstname')) ||
                              (sessionStorage.getItem('firstname') === 'null')) ||
                              isNullOrUndefined(sessionStorage.getItem('lastname')) ||
                              (sessionStorage.getItem('lastname') === 'null')) {
 
                             this.router.navigate(['/sign-up']);
+
                         } else {
-                            console.log(`cleared session - returning to state: ${state}`);
+                            let state: string;
+                            if ( !isNullOrUndefined(sessionStorage.getItem('state.location')) ) {
+                                state = sessionStorage.getItem('state.location');
+                                sessionStorage.removeItem('state.location');
+                            } else {
+                                state = '/home';
+                            }
+
+                            console.log(`cleared state.location - returning to state: ${state}`);
                             this.router.navigate([state]);
                         }
                     }
