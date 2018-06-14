@@ -172,9 +172,7 @@ public class RequestWrapper implements StageInterface {
                 personsOfInterest.addAll(request.getProject().getOperator());
                 break;
             case "8":
-                personsOfInterest.add(request.getProject().getInstitute().getAccountingDirector());
-
-//                personsOfInterest.addAll(request.getProject().getInstitute().getOrganization().getInspectionTeam());
+                personsOfInterest.addAll(request.getProject().getInstitute().getOrganization().getInspectionTeam());
                 break;
             case "9":
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPOI());
