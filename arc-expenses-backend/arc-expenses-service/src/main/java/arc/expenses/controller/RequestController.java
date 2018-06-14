@@ -56,10 +56,10 @@ public class RequestController {
 
     }
 
-    @RequestMapping(value =  "/getAllAll", method = RequestMethod.GET)
+    /*@RequestMapping(value =  "/getAllAll", method = RequestMethod.GET)
     public List<Request> getAll() {
         return requestService.getAll(new FacetFilter()).getResults();
-    }
+    }*/
 
     @RequestMapping(value = "/add", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
