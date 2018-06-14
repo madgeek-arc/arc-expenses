@@ -118,15 +118,15 @@ export class SignUpComponent implements OnInit {
               () => {
                   this.errorMessage = '';
                   this.showSpinner = false;
-                  /*if ( !isNullOrUndefined(sessionStorage.getItem('state.location')) &&
+                  if ( !isNullOrUndefined(sessionStorage.getItem('state.location')) &&
                       (sessionStorage.getItem('state.location') !== '/sign-up') ) {
                       const state = sessionStorage.getItem('state.location');
                       sessionStorage.removeItem('state.location');
                       console.log('in sign-up returning to', state);
                       this.router.navigate([state]);
-                  } else {*/
+                  } else {
                       this.router.navigate(['/home']);
-                  /*}*/
+                  }
               }
           );
       } else {
