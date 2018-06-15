@@ -2,16 +2,23 @@ package arc.expenses.config;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 
+@Component("samlAuthentication")
 public class SAMLAuthentication extends AbstractAuthenticationToken {
 
-    private final String firstname;
-    private final String lastname;
-    private final String email;
-    private final String uid;
+    private  String firstname;
+    private  String lastname;
+    private  String email;
+    private  String uid;
 
+
+
+    public SAMLAuthentication(){
+        super(null);
+    }
 
     public SAMLAuthentication(String firstname, String lastname, String email, String uid,
                               Collection<? extends GrantedAuthority> authorities) {
@@ -21,6 +28,10 @@ public class SAMLAuthentication extends AbstractAuthenticationToken {
         this.email = email;
         this.uid = uid;
         setAuthenticated(true);
+    }
+
+    public SAMLAuthentication(Collection<? extends GrantedAuthority> authorities) {
+        super(authorities);
     }
 
     @Override

@@ -15,9 +15,6 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 public class IDPSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    SAMLLogoutSuccessHandler samlLogoutSuccessHandler;
-
-    @Autowired
     SAMLBasicFilter samlBasicFilter;
 
     @Autowired
@@ -30,6 +27,5 @@ public class IDPSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatcher("/user/idp_login")
                 .addFilterBefore(samlBasicFilter, BasicAuthenticationFilter.class)
                 .addFilterAfter(samlRedirectFilter,FilterSecurityInterceptor.class);
-//        http.logout().logoutSuccessHandler(samlLogoutSuccessHandler).permitAll();
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
 import arc.expenses.service.PolicyCheckerService;
 import arc.expenses.service.RequestServiceImpl;
@@ -38,6 +39,7 @@ public class RequestController {
 
 
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)
+//    @PostAuthorize("returnObject.requester.email.equals(samlAuthentication.email)")
     public Request getById(@PathVariable("id") String id) {
         return requestService.get(id);
     }

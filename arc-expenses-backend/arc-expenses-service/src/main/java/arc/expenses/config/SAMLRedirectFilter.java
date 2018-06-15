@@ -24,6 +24,5 @@ public class SAMLRedirectFilter extends GenericFilterBean {
 
         response.sendRedirect(redirect_url);
         return;
-//        chain.doFilter(request,response);
     }
 }
