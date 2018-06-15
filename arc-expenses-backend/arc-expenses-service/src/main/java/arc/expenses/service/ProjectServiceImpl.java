@@ -3,6 +3,8 @@ package arc.expenses.service;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
 import gr.athenarc.domain.Project;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service("projectService")
 public class ProjectServiceImpl extends GenericService<Project> {
@@ -37,10 +41,19 @@ public class ProjectServiceImpl extends GenericService<Project> {
 
     public Project getByAcronym(String acronym) {
 
-        acronym = acronym.split("[(].+[)]")[0];
+        String s[] = acronym.split("\\s(?=\\S*$)");
+        Pattern pattern = Pattern.compile("\\w+");
+        Matcher matcher = pattern.matcher(s[1]);
+        matcher.find();
+        String institute = matcher.group(0);
+        acronym = s[0].trim();
+//"project_acronym = \"ΔΡΑΣΕΙΣ ΣΤΗΡΙΞΗΣ ΓΕΝΙΚΗΣ ΔΙΕΥΘΥΝΣΗΣ\" and project_institute = GD"
+       /* */
+       //acronym = new StringBuffer().append("\\").append("\"").append(acronym).append("\\").append("\"").toString();
 
         Paging<Resource> rs = searchService.cqlQuery(
-                "project_acronym = " + acronym ,"project",
+                "project_acronym = " + acronym
+                        + " and project_institute = " + institute,"project",
                 10,0, "", SortOrder.ASC);
 
         List<Project> resultSet = new ArrayList<>();
