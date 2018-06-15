@@ -398,7 +398,7 @@ export class RequestStageComponent implements OnInit {
     }
 
     printRequest(): void {
-        printRequestPage(this.currentRequest);
+        printRequestPage();
     }
 
 }

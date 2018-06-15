@@ -7,6 +7,7 @@ import {Router} from '@angular/router';
 import { isNull, isNullOrUndefined } from 'util';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import { requestTypes, stageIds, stagesDescriptionMap, statesList } from '../domain/stageDescriptions';
+import { printRequestPage } from '../request-stage/print-request-function';
 
 @Component({
     selector: 'app-requests',
@@ -197,6 +198,9 @@ export class RequestsComponent implements OnInit {
       } else {
           return 'απορρίφθηκε';
       }
-}
+    }
 
+    printRequest(): void {
+      printRequestPage();
+    }
 }
