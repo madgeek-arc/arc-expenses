@@ -1,3 +1,4 @@
+/*
 package arc.expenses.controller;
 
 import eu.openminted.registry.core.service.RestoreService;
@@ -18,4 +19,4 @@ public class RestoreController {
         restoreService.restoreDataFromZip(file);
     }
 
-}
+}*/

@@ -39,7 +39,7 @@ public class RequestController {
 
 
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)
-//    @PostAuthorize("returnObject.requester.email.equals(samlAuthentication.email)")
+    @PostAuthorize("returnObject.requester.email == samlAuthentication.email")
     public Request getById(@PathVariable("id") String id) {
         return requestService.get(id);
     }

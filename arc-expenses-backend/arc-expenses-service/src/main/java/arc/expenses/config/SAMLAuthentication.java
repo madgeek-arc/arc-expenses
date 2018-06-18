@@ -14,8 +14,6 @@ public class SAMLAuthentication extends AbstractAuthenticationToken {
     private  String email;
     private  String uid;
 
-
-
     public SAMLAuthentication(){
         super(null);
     }

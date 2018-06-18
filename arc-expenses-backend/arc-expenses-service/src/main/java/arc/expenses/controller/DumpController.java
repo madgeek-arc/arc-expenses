@@ -1,3 +1,4 @@
+/*
 package arc.expenses.controller;
 
 import eu.openminted.registry.core.service.DumpService;
@@ -120,3 +121,4 @@ public class DumpController {
         deleteDirectory(new File(downloadFile.getParent()));
     }
 }
+*/
