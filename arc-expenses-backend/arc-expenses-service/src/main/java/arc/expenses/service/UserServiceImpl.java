@@ -32,6 +32,9 @@ public class UserServiceImpl extends GenericService<User> {
     @Value("${user.signature.archiveID}")
     private String DS_ARCHIVE;
 
+    @Value("#{'${admin.emails}'.split(',')}")
+    private List<String> admins;
+
     private Logger LOGGER = Logger.getLogger(UserServiceImpl.class);
 
     public UserServiceImpl() {
@@ -54,6 +57,10 @@ public class UserServiceImpl extends GenericService<User> {
 
         Connection connection = null;
         PreparedStatement statement = null;
+
+        if(admins.contains(email))
+            return "ROLE_ADMIN";
+
 
         try {
             String query = createQuery();
