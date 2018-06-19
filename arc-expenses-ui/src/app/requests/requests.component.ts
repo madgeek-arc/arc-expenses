@@ -61,7 +61,7 @@ export class RequestsComponent implements OnInit {
       this.stageChoice = 'all';
       this.currentPage = 0;
       this.itemsPerPage = 10;
-      this.order = 'ASC';
+      this.order = 'DESC';
       this.orderField = 'creation_date';
       this.totalPages = 0;
 
