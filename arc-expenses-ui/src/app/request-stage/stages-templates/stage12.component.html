@@ -1,10 +1,9 @@
-<div *ngIf="showStage || (!showStage && (hasReturnedToPrevious===1))" class="uk-width-1-1 uk-margin-bottom">
+<div *ngIf="showStage > 0" class="uk-width-1-1 uk-margin-bottom">
     <!--<hr>-->
-    <div *ngIf="wasSubmitted" class="uk-form-controls">
+    <div *ngIf="showStage > 1" class="uk-form-controls">
         <!--<h5>{{ stageTitle }}</h5>-->
         <div>
-            {{ wasApproved }}
-            ({{ getDelegateName() }})
+            {{ submittedStageResult }} ({{ getDelegateName() }})
             στις {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
         </div>
         <div *ngIf="currentStage['comment']">
@@ -17,7 +16,7 @@
             </a>
         </div>
     </div>
-    <div *ngIf="!wasSubmitted && stageForm" [formGroup]="stageForm" class="uk-form-controls stageForm">
+    <div *ngIf="(showStage === 1) && stageForm" [formGroup]="stageForm" class="uk-form-controls stageForm">
         <h5>{{ stageTitle }}</h5>
 
         <div *ngIf="stageFormError" class="uk-alert uk-alert-danger">{{ stageFormError }}</div>

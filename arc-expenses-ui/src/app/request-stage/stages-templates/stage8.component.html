@@ -1,11 +1,9 @@
-<div *ngIf="showStage || (!showStage && (hasReturnedToPrevious===1))" class="uk-width-1-1 uk-margin-bottom">
+<div *ngIf="showStage > 0" class="uk-width-1-1 uk-margin-bottom">
     <!--<hr>-->
-    <div *ngIf="wasSubmitted" class="uk-form-controls">
+    <div *ngIf="showStage > 1" class="uk-form-controls">
         <!--<h5>{{ stageTitle }}</h5>-->
         <div>
-            {{ wasApproved }}
-            από τον Διευθυντή Λογιστηρίου
-            ({{ getDelegateName() }})
+            {{ submittedStageResult }} ({{ getDelegateName() }})
             στις {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
         </div>
         <div class="uk-grid uk-margin-small-top">
@@ -32,7 +30,7 @@
             </a>
         </div>
     </div>
-    <div *ngIf="!wasSubmitted && stageForm" [formGroup]="stageForm" class="uk-form-controls stageForm">
+    <div *ngIf="(showStage === 1) && stageForm" [formGroup]="stageForm" class="uk-form-controls stageForm">
         <h5>{{ stageTitle }}</h5>
 
         <div *ngIf="stageFormError" class="uk-alert uk-alert-danger">{{ stageFormError }}</div>
@@ -55,7 +53,8 @@
         </app-stage-form>
 
         <!--ATTACHMENT FIELD-->
-        <app-stage-form-upload-file [uploadedFilename]="uploadedFilename" (emitFile)="getAttachmentInput($event)"></app-stage-form-upload-file>
+        <app-stage-form-upload-file [uploadedFilename]="uploadedFilename" (emitFile)="getAttachmentInput($event)">
+        </app-stage-form-upload-file>
 
         <!--BUTTONS-->
         <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>

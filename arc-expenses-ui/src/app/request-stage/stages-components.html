@@ -1,34 +1,32 @@
 <!-- OLD STAGES HTML -->
 
-<div *ngIf="showStage || (!showStage && (hasReturnedToPrevious===1))" class="uk-width-1-1 uk-margin-bottom">
+<div *ngIf="showStage > 0" class="uk-width-1-1 uk-margin-bottom">
     <hr>
-    <div *ngIf="wasSubmitted" class="uk-form-controls">
+    <div *ngIf="showStage > 1" class="uk-form-controls">
         <h5>{{ stageTitle }}</h5>
         <div>
-            {{ wasApproved }}
-             {{ delegatePositionInParagraph }}
-             ({{ getDelegateName() }})
-             στις {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
+            {{ submittedStageResult }} ({{ getDelegateName() }})
+            στις {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
         </div>
-        <div *ngIf="stageDescription.id !== '3'">
-            <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
+        <div *ngIf="stageId !== '3'">
+            <div *ngFor="let desc of stageFields">
                 <app-stage-form [description]="desc">
                     <div *ngIf="desc.type === 'checkbox'">
                         <input class="uk-form-controls uk-checkbox"
-                               type="checkbox" [checked]="currentStage[ stageExtraFieldsList[controlIndex] ]" disabled>
+                               type="checkbox" [checked]="currentStage[ desc.id ]" disabled>
                     </div>
                     <div *ngIf="desc.type === 'text'">
-                        <input value="{{currentStage[ stageExtraFieldsList[controlIndex] ]}}" disabled
+                        <input value="{{currentStage[ desc.id ]}}" disabled
                                class="uk-form-controls uk-input" type="text">
                     </div>
                     <div *ngIf="desc.type === 'textarea'">
-                        <textarea value="{{currentStage[ stageExtraFieldsList[controlIndex] ]}}" disabled
+                        <textarea value="{{currentStage[ desc.id ]}}" disabled
                                   class="uk-form-controls uk-textarea" rows="2"></textarea>
                     </div>
                 </app-stage-form>
             </div>
         </div>
-        <div *ngIf="stageDescription.id === '3'">
+        <div *ngIf="stageId === '3'">
             <div class="uk-grid uk-margin-small-top">
                 <label class="uk-width-1-3">Έχει αναληφθεί η υποχρέωση;</label>
                 <div class="uk-width-expand">
@@ -67,30 +65,30 @@
             </a>
         </div>
     </div>
-    <div *ngIf="!wasSubmitted && stageForm" [formGroup]="stageForm" class="uk-form-controls stageForm">
+    <div *ngIf="(showStage === 1) && stageForm" [formGroup]="stageForm" class="uk-form-controls stageForm">
         <h5>{{ stageTitle }}</h5>
 
         <div *ngIf="stageFormError" class="uk-alert uk-alert-danger">{{ stageFormError }}</div>
         <!--INPUTS FOR EXTRA FIELDS-->
-        <div *ngIf="stageDescription.id !== '3'">
-            <div *ngFor="let desc of stageDescription.stageFields; let controlIndex = index">
+        <div *ngIf="stageId !== '3'">
+            <div *ngFor="let desc of stageFields">
                 <app-stage-form [description]="desc">
                     <div *ngIf="desc.type === 'checkbox'">
-                        <input formControlName="{{stageExtraFieldsList[controlIndex]}}"
+                        <input formControlName="{{ desc.id }}"
                                class="uk-form-controls uk-checkbox" type="checkbox">
                     </div>
                     <div *ngIf="desc.type === 'text'">
-                        <input formControlName="{{stageExtraFieldsList[controlIndex]}}"
+                        <input formControlName="{{ desc.id }}"
                                class="uk-form-controls uk-input" type="text">
                     </div>
                     <div *ngIf="desc.type === 'textarea'">
-                        <textarea formControlName="{{stageExtraFieldsList[controlIndex]}}"
+                        <textarea formControlName="{{ desc.id }}"
                                   class="uk-form-controls uk-textarea" rows="2"></textarea>
                     </div>
                 </app-stage-form>
             </div>
         </div>
-        <div *ngIf="stageDescription.id === '3'">
+        <div *ngIf="stageId === '3'">
             <div class="uk-grid uk-margin-small-top">
                 <label class="uk-width-1-3">Έχει αναληφθεί η υποχρέωση;</label>
                 <div class="uk-width-expand">
@@ -126,7 +124,7 @@
         <app-stage-form-upload-file [uploadedFilename]="uploadedFilename" (emitFile)="getAttachmentInput($event)"></app-stage-form-upload-file>
 
         <!--BUTTONS-->
-        <div *ngIf="stageDescription.id !== '6' && stageDescription.id !== '11'">
+        <div *ngIf="stageId !== '6' && stageId !== '11'">
             <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
 
             <!-- NOT USED ANYMORE -->
@@ -137,9 +135,9 @@
                 {{ willShowButtonTo5a ? 'Προωθείται προς το Διοικητικό Συμβούλιο': 'Εγκρίνεται' }}</button>-->
 
             <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>
-            <button *ngIf="stageDescription.id !== '2'" class="uk-button uk-button-primary" (click)="goBackOneStage()">Επιστροφή στο προηγούμενο στάδιο</button>
+            <button *ngIf="stageId !== '2'" class="uk-button uk-button-primary" (click)="goBackOneStage()">Επιστροφή στο προηγούμενο στάδιο</button>
         </div>
-        <div *ngIf="stageDescription.id === '6' || stageDescription.id === '11'">
+        <div *ngIf="stageId === '6' || stageId === '11'">
             <button class="uk-button uk-button-primary" (click)="submitForm()">Προώθηση αιτήματος</button>
             <button class="uk-button uk-button-primary" (click)="goBackOneStage()">Επιστροφή στο προηγούμενο στάδιο</button>
         </div>

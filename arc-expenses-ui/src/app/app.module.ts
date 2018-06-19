@@ -29,6 +29,7 @@ import {LOCALE_ID} from '@angular/core';
 import {CommonModule, registerLocaleData} from '@angular/common';
 import localeEL from '@angular/common/locales/el';
 import {FilterByTerm} from './shared/search-term.pipe';
+import { Stage1FormComponent } from './request-stage/stage1-form/stage1-form.component';
 
 registerLocaleData(localeEL);
 
@@ -46,6 +47,7 @@ registerLocaleData(localeEL);
     StageFormComponent,
     StageFormUploadFileComponent,
     RequestStageComponent,
+    Stage1FormComponent,
     StageComponent,
     Stage2Component,
     Stage3Component,

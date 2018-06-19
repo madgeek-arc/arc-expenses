@@ -1,16 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Attachment, User, POI, Project, Request } from '../domain/operation';
-import {
-    commentDesc, Stage10Desc, Stage2Desc, Stage5aDesc, Stage5bDesc, Stage3Desc, Stage4Desc, Stage5Desc, Stage6Desc,
-    Stage7Desc, Stage8Desc, Stage9Desc, StageDescription, StageFieldDescription, Stage12Desc, stagesDescriptionMap, Stage11Desc,
-    Stage13Desc
-} from '../domain/stageDescriptions';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Attachment, User, POI, Project } from '../domain/operation';
+import { commentDesc, StageFieldDescription, stagesDescriptionMap } from '../domain/stageDescriptions';
 import { DatePipe } from '@angular/common';
 import { AuthenticationService } from '../services/authentication.service';
-import { Router } from '@angular/router';
 import { isNullOrUndefined, isUndefined } from 'util';
-import {ManageRequestsService} from '../services/manage-requests.service';
 
 @Component ({
     selector: 'stage-component',
@@ -30,36 +24,30 @@ export class StageComponent implements OnInit {
     choseToGoBack: boolean;
 
     /* input variable that controls if the current stage template should be displayed */
-    @Input() showStage: boolean;
+    @Input() showStage: number; /* values: 0 -> don't show
+                                           1 -> show form
+                                           2 -> was approved
+                                           3 -> was rejected
+                                           4 -> was returned to previous*/
 
-    /* input variable that controls if in this stage the user chose to return the request back to the previous stage */
-    @Input() hasReturnedToPrevious: number;
-
-    /* if true, the results of the stage will be shown
-     * otherwise a form will be shown so that the user can update the request */
-    wasSubmitted: boolean;
-
-    /* if the stage was submitted in the past, this variable will control the displayed
-     * text according to the submitted stage's status [approved/rejected] */
-    wasApproved: string;
-
-    /*  phrase mentioning the delegate's position.
-        It is used to describe the results of the stage */
-    delegatePositionInParagraph: string;
+    /*  phrase mentioning the result of a submitted stage
+        it changes according to stage */
+    submittedStageResult: string;
 
     stageForm: FormGroup;
-    stageTitle: string;
-
     stageFormDefinition; /*will contain the form schema*/
+    commentFieldDesc: StageFieldDescription = commentDesc;
+
+    stageTitle: string;
+    stageId: string;
+    stageFields: StageFieldDescription[];
+
     uploadedFile: File;
-    uploadedFilename: string = ''; /*a filename to send to the attachment wrapper*/
+    uploadedFilename = ''; /*a filename to send to the attachment wrapper*/
 
     @Input() currentStage: any;
     @Input() currentProject: Project;
     currentPOI: POI;
-    stageDescription: StageDescription;  /*contains the name of the delegate field and the list of the extra fields descriptions*/
-
-    commentFieldDesc: StageFieldDescription = commentDesc; /*a description for the comments field*/
 
     datePipe = new DatePipe('el');
 
@@ -67,59 +55,27 @@ export class StageComponent implements OnInit {
                 private authService: AuthenticationService) {}
 
     ngOnInit() {
-        /*console.log(`showStage ${this.stageDescription.id} is ${this.showStage}`);*/
-        this.checkIfSubmitted();
-        this.checkIfApproved();
-        this.stageTitle = stagesDescriptionMap[this.stageDescription.id].title;
+        this.stageTitle = stagesDescriptionMap[this.stageId].title;
+        this.stageFields = stagesDescriptionMap[this.stageId].stageFields;
+        this.initializeView();
     }
 
-    checkIfSubmitted() {
-        /*console.log(`hasReturned is ${this.hasReturnedToPrevious}`);*//*console.log(`hasReturned is ${this.hasReturnedToPrevious}`);*/
-        this.wasSubmitted = ( (!isNullOrUndefined(this.currentStage) &&
-            !isNullOrUndefined(this.currentStage.date)) &&
-            (this.hasReturnedToPrevious !== 1) );
-        if ( !this.wasSubmitted && (this.hasReturnedToPrevious !== 2) && ( this.authService.getUserRole() !== 'ROLE_USER' )) {
-            if (!this.showStage) {
-                this.wasSubmitted = true;
-            } else {
-                /* set filename if exists */
-                if ( !isNullOrUndefined(this.currentStage['attachment']) ) {
-                    this.uploadedFilename = this.currentStage['attachment']['filename'];
-                }
-
-                /* create form */
-                this.stageForm = this.fb.group(this.stageFormDefinition);
-
-                /* fill the form if the values exist */
-                Object.keys(this.stageForm.controls).forEach(key => {
-                    if (!isNullOrUndefined(this.currentStage[key.toString()])) {
-                        this.stageForm.get(key).setValue(this.currentStage[key.toString()]);
-                    }
-                });
+    initializeView() {
+        if (this.showStage === 1) {
+            /* set filename if exists */
+            if ( !isNullOrUndefined(this.currentStage['attachment']) ) {
+                this.uploadedFilename = this.currentStage['attachment']['filename'];
             }
-        }
-        /*console.log(`in stage ${this.stageDescription.id}, wasSubmitted is ${this.wasSubmitted}`);*/
-    }
 
-    checkIfApproved() {
-        if (this.currentStage) {
-            if (this.hasReturnedToPrevious === 2) {
-                this.wasApproved = 'Επεστράφη στο προηγούμενο στάδιο';
-            } else {
-                if ( this.currentStage['approved'] ) {
+            /* create form */
+            this.stageForm = this.fb.group(this.stageFormDefinition);
 
-                  this.wasApproved = 'Εγκρίθηκε';
-
-                } else if (this.stageDescription &&
-                           ( (this.stageDescription.id === '6') || ( this.stageDescription.id === '11' ))  ) {
-
-                  this.wasApproved = 'Αναρτήθηκε';
-
-                } else {
-
-                    this.wasApproved = 'Απορρίφθηκε';
+            /* fill the form if the values exist */
+            Object.keys(this.stageForm.controls).forEach(key => {
+                if (!isNullOrUndefined(this.currentStage[key.toString()])) {
+                    this.stageForm.get(key).setValue(this.currentStage[key.toString()]);
                 }
-            }
+            });
         }
     }
 
@@ -128,7 +84,7 @@ export class StageComponent implements OnInit {
             return poiList[0];
         } else {
             let curEmail: string;
-            if ( this.hasReturnedToPrevious === 1 ) {
+            if ( this.showStage === 1 ) {
                 curEmail = this.authService.getUserEmail();
             } else {
                 curEmail = this.currentStage['user']['email'];
@@ -175,21 +131,22 @@ export class StageComponent implements OnInit {
                 this.stageForm.get(key).clearValidators();
                 this.stageForm.get(key).updateValueAndValidity();
             });
-            this.emitGoBack.emit(true);
             this.choseToGoBack = true;
+            this.emitGoBack.emit( this.choseToGoBack );
             this.submitForm();
         }
     }
 
     submitForm() {
         this.stageFormError = '';
-        if (this.stageForm && this.stageForm.valid && this.delegateCanEdit() ) {
+        if (this.stageForm && this.stageForm.valid ) {
             if ( (isNullOrUndefined(this.uploadedFile) && isNullOrUndefined(this.currentStage['attachment'])) &&
                 !this.choseToGoBack &&
-                ( (this.stageDescription.id === '6') || (this.stageDescription.id === '11') ||
-                  ( (this.stageDescription.id === '7') && this.currentStage['approved']) ) ) {
+                ( (this.stageId === '6') || (this.stageId === '11') ||
+                    ( (this.stageId === '7') && this.currentStage['approved']) ) ) {
 
                 this.stageFormError = 'Η επισύναψη εγγράφων είναι υποχρεωτική.';
+
             } else {
 
                 this.currentStage['user'] = this.createUser();
@@ -203,22 +160,21 @@ export class StageComponent implements OnInit {
                     this.emitFile.emit(this.uploadedFile);
 
                 }
-                /*console.log(this.currentStage);*/
-                /*this.checkIfSubmitted();
-                this.checkIfApproved();*/
                 this.emitStage.emit(this.currentStage);
 
             }
+
         } else {
+
             this.stageFormError = 'Πρέπει να έχουν γίνει όλοι οι έλεγχοι για να προχωρήσει το αίτημα.';
         }
     }
 
-    delegateCanEdit() {
+    /*delegateCanEdit() {
         return ( (this.authService.getUserRole() === 'ROLE_ADMIN') ||
                  (this.currentPOI.email === this.authService.getUserEmail()) ||
                  this.currentPOI.delegates.some(x => x.email === this.authService.getUserEmail()) );
-    }
+    }*/
 
     createUser(): User {
         const tempUser: User = new User();
@@ -282,9 +238,19 @@ export class Stage2Component extends StageComponent implements OnInit {
             checkNecessity: ['', Validators.requiredTrue],
             checkFeasibility: ['', Validators.requiredTrue]
         };
-
-        this.stageDescription = Stage2Desc;
+        this.stageId = '2';
         this.currentPOI = this.currentProject.scientificCoordinator;
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Εγκρίθηκε από τον επιστημονικό υπεύθυνο';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε από τον επιστημονικό υπεύθυνο';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο από τον επιστημονικό υπεύθυνο';
+        }
+
         super.ngOnInit();
     }
 
@@ -305,9 +271,18 @@ export class Stage3Component extends StageComponent implements OnInit {
             loan: [''],
             loanSource: ['']
         };
-
-        this.stageDescription = Stage3Desc;
+        this.stageId = '3';
         this.currentPOI = this.findCurrentPOI(this.currentProject.operator);
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Εγκρίθηκε από τον χειριστή του προγράμματος';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε από τον χειριστή του προγράμματος';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο από τον χειριστή του προγράμματος';
+        }
 
         super.ngOnInit();
 
@@ -339,9 +314,19 @@ export class Stage4Component extends StageComponent implements OnInit {
             analiftheiYpoxrewsi: ['', Validators.requiredTrue],
             fundsAvailable: ['', Validators.requiredTrue],
         };
-
-        this.stageDescription = Stage4Desc;
+        this.stageId = '4';
         this.currentPOI = this.currentProject.institute.organization.POI;
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Εγκρίθηκε';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο';
+        }
+
         super.ngOnInit();
     }
 }
@@ -359,9 +344,19 @@ export class Stage5Component extends StageComponent implements OnInit {
         this.stageFormDefinition = {
             comment: [''],
         };
-
-        this.stageDescription = Stage5Desc;
+        this.stageId = '5';
         this.currentPOI = this.currentProject.institute.director;
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Εγκρίθηκε από τον Διευθυντή του Ινστιτούτου';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε από τον Διευθυντή του Ινστιτούτου';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο από τον Διευθυντή του Ινστιτούτου';
+        }
+
         super.ngOnInit();
     }
 }
@@ -377,9 +372,19 @@ export class Stage5aComponent extends StageComponent implements OnInit {
         this.stageFormDefinition = {
             comment: [''],
         };
-
-        this.stageDescription = Stage5aDesc;
+        this.stageId = '5a';
         this.currentPOI = this.currentProject.institute.organization.director;
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Εγκρίθηκε από τον Διατάκτη';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε από τον Διατάκτη';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο από τον Διατάκτη';
+        }
+
         super.ngOnInit();
     }
 }
@@ -398,9 +403,19 @@ export class Stage5bComponent extends StageComponent implements OnInit {
         this.stageFormDefinition = {
             comment: [''],
         };
-
-        this.stageDescription = Stage5bDesc;
+        this.stageId = '5b';
         this.currentPOI = this.currentProject.institute.organization.dioikitikoSumvoulio;
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Εγκρίθηκε από το Διοικητικό Συμβούλιο';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε από το Διοικητικό Συμβούλιο';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο από το Διοικητικό Συμβούλιο';
+        }
+
         super.ngOnInit();
     }
 
@@ -409,9 +424,9 @@ export class Stage5bComponent extends StageComponent implements OnInit {
         if ( !isUndefined(this.oldSupplierAndAmount) ) {
 
             if ( !isNullOrUndefined(this.oldSupplierAndAmount[0]) &&
-                 !isNullOrUndefined(this.oldSupplierAndAmount[1]) &&
-                 (this.oldSupplierAndAmount[0].length > 0) &&
-                 (this.oldSupplierAndAmount[1].length > 0)) {
+                !isNullOrUndefined(this.oldSupplierAndAmount[1]) &&
+                (this.oldSupplierAndAmount[0].length > 0) &&
+                (this.oldSupplierAndAmount[1].length > 0)) {
 
                 const newValArray = [];
                 newValArray.push(this.oldSupplierAndAmount[0]);
@@ -460,9 +475,19 @@ export class Stage6Component extends StageComponent implements OnInit {
         this.stageFormDefinition = {
             comment: [''],
         };
-
-        this.stageDescription = Stage6Desc;
+        this.stageId = '6';
         this.currentPOI = this.currentProject.institute.diaugeia;
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Αναρτήθηκε στην ΔΙΑΥΓΕΙΑ';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε πριν αναρτηθεί στην ΔΙΑΥΓΕΙΑ';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο πριν αναρτηθεί στην ΔΙΑΥΓΕΙΑ';
+        }
+
         super.ngOnInit();
     }
 }
@@ -478,9 +503,19 @@ export class Stage7Component extends StageComponent implements OnInit {
         this.stageFormDefinition = {
             comment: [''],
         };
-
-        this.stageDescription = Stage7Desc;
+        this.stageId = '7';
         this.currentPOI = this.findCurrentPOI(this.currentProject.operator);
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Εγκρίθηκε';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο';
+        }
+
         super.ngOnInit();
     }
 }
@@ -497,9 +532,19 @@ export class Stage8Component extends StageComponent implements OnInit {
             checkLegality: ['', Validators.requiredTrue],
             comment: [''],
         };
-
-        this.stageDescription = Stage8Desc;
+        this.stageId = '8';
         this.currentPOI = this.findCurrentPOI(this.currentProject.institute.organization.inspectionTeam);
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Εγκρίθηκε από τον Διευθυντή Λογιστηρίου';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε από τον Διευθυντή Λογιστηρίου';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο από τον Διευθυντή Λογιστηρίου';
+        }
+
         super.ngOnInit();
     }
 }
@@ -516,9 +561,19 @@ export class Stage9Component extends StageComponent implements OnInit {
             checkLegality: ['', Validators.requiredTrue],
             comment: [''],
         };
-
-        this.stageDescription = Stage9Desc;
+        this.stageId = '9';
         this.currentPOI = this.currentProject.institute.organization.POI;
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Εγκρίθηκε';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο';
+        }
+
         super.ngOnInit();
     }
 }
@@ -533,9 +588,19 @@ export class Stage10Component extends StageComponent implements OnInit {
         this.stageFormDefinition = {
             comment: [''],
         };
-
-        this.stageDescription = Stage10Desc;
+        this.stageId = '10';
         this.currentPOI = this.currentProject.institute.organization.director;
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Εγκρίθηκε από τον Διατάκτη';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε από τον Διατάκτη';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο από τον Διατάκτη';
+        }
+
         super.ngOnInit();
     }
 }
@@ -550,9 +615,20 @@ export class Stage11Component extends StageComponent implements OnInit {
         this.stageFormDefinition = {
             comment: [''],
         };
-
-        this.stageDescription = Stage11Desc;
+        this.stageId = '11';
         this.currentPOI = this.currentProject.institute.diaugeia;
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Αναρτήθηκε στην ΔΙΑΥΓΕΙΑ';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε πριν αναρτηθεί στην ΔΙΑΥΓΕΙΑ';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο πριν αναρτηθεί στην ΔΙΑΥΓΕΙΑ';
+        }
+
+
         super.ngOnInit();
     }
 }
@@ -567,9 +643,19 @@ export class Stage12Component extends StageComponent implements OnInit {
         this.stageFormDefinition = {
             comment: [''],
         };
-
-        this.stageDescription = Stage12Desc;
+        this.stageId = '12';
         this.currentPOI = this.currentProject.institute.accountingRegistration;
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Εγκρίθηκε';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο';
+        }
+
         super.ngOnInit();
     }
 }
@@ -585,9 +671,19 @@ export class Stage13Component extends StageComponent implements OnInit {
         this.stageFormDefinition = {
             comment: [''],
         };
-
-        this.stageDescription = Stage13Desc;
+        this.stageId = '13';
         this.currentPOI = this.currentProject.institute.accountingPayment;
+        if (this.showStage === 2) {
+            // was approved phrase
+            this.submittedStageResult = 'Εγκρίθηκε';
+        } else if (this.showStage === 3) {
+            // was not approved phrase
+            this.submittedStageResult = 'Απορρίφθηκε';
+        } else if (this.showStage === 4) {
+            // was returned phrase
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο';
+        }
+
         super.ngOnInit();
     }
 }
