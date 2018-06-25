@@ -40,8 +40,8 @@
                           (canEdit === true || canEdit === false)">
 
                 <!--1st stage-->
-
-                <div *ngIf="(currentRequest.stage !== '1') || (canEdit) === false" class="submittedRequest">
+                <!--<span>{{ stagesMap[currentRequest.stage].title }}</span>-->
+                <div *ngIf="willShowStage('1') !== 1" class="submittedRequest">
                   <div class="uk-margin-bottom uk-width-1-1 uk-grid">
                     <div class="uk-width-1-2@l">
                       <span class="uk-text-bold uk-margin-small-right">Πρόγραμμα: </span>
@@ -59,7 +59,7 @@
                       </span>
                     </div>
 
-                    <div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">
+                    <div *ngIf="(currentRequest.type !== 'trip') && (currentRequest.type !== 'contract')" class="uk-width-1-2@l">
                       <span class="uk-text-bold uk-margin-small-right">Προμηθευτής: </span>
                       <span>{{ currentRequest.stage1.supplier }} ({{ currentRequest.stage1.supplierSelectionMethod }})</span>
                     </div>
@@ -90,6 +90,7 @@
                 </div>
 
 
+                <! -- status report for users with ROLE_USER role -->
                 <div *ngIf="!isSimpleUser &&
                             ( (currentRequest.stage2 && currentRequest.stage2.date) ||
                             ( (currentRequest.stage === '2') && (canEdit === true)) )">
@@ -102,19 +103,19 @@
                 <div class="uk-child-width-expand uk-grid" uk-grid
                      *ngIf="( (willShowStage('2') > 1) || (willShowStage('3') > 1) || (willShowStage('4') > 1) )">
 
-                  <stage2-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                  <stage2-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left newStyle"
                                     *ngIf="willShowStage('2') > 1"
                                     [showStage]="willShowStage('2')"
                                     [currentStage]="currentRequest.stage2"
                                     [currentProject]="currentRequest.project"></stage2-component>
 
-                  <stage3-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                  <stage3-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left newStyle"
                                     *ngIf="willShowStage('3') > 1"
                                     [showStage]="willShowStage('3')"
                                     [currentStage]="currentRequest.stage3"
                                     [currentProject]="currentRequest.project"></stage3-component>
 
-                  <stage4-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                  <stage4-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left newStyle"
                                     *ngIf="willShowStage('4') > 1"
                                     [showStage]="willShowStage('4')"
                                     [currentStage]="currentRequest.stage4"

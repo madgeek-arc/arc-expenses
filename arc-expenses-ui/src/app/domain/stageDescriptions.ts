@@ -1,8 +1,16 @@
 /* shared constants */
-export const requestTypes = {regular: 'Προμήθεια', trip: 'Ταξίδι', contract: 'Σύμβαση'};
+
+/* NEXT TIME WE EMPTY THE DB REMEMBER TO:
+    CHANGE 'regular' TO 'supply' AND USE supplierSelectionMethod terms in english
+    CHANGE 'accepted' status TO 'completed'
+    ADD 'review' status [uncomment code in request-stage.component.ts]
+    ADD english terms as values in supplierSelectionMethops (see supplierSelectionMethodsMap) */
+export const requestTypes = {regular: 'Προμήθεια', trip: 'Ταξίδι', contract: 'Σύμβαση Έργου', services_contract: 'Σύμβαση Υπηρεσίας'};
+/*export const statesList = ['all', 'accepted', 'pending', 'review', 'rejected'];*/
 export const statesList = ['all', 'accepted', 'pending', 'rejected'];
 export const supplierSelectionMethods = ['Απ\' ευθείας ανάθεση', 'Έρευνα αγοράς', 'Διαγωνισμός'];
-
+export const supplierSelectionMethodsMap = {
+    direct: 'Απ\' ευθείας ανάθεση', market_investigation: 'Έρευνα αγοράς', competition: 'Διαγωνισμός' };
 
 /* the descriptions are used for dynamically loading request update forms and viewing results per stage */
 export class StageFieldDescription {
@@ -23,7 +31,7 @@ export const commentDesc = {
 
 export const fundsAvailableDesc = {
     id: 'fundsAvailable',
-    label: 'Υπάρχει διαθέσιμη πίστωση;',
+    label: 'Υπάρχει διαθέσιμη πίστωση',
     type: 'checkbox',
     description: '',
     required: true
@@ -31,7 +39,7 @@ export const fundsAvailableDesc = {
 
 export const analiftheiYpoxrewsiDesc = {
     id: 'analiftheiYpoxrewsi',
-    label: 'Έχει αναληφθεί η υποχρέωση;',
+    label: 'Έχει αναληφθεί η υποχρέωση',
     type: 'checkbox',
     description: '',
     required: true
@@ -47,7 +55,7 @@ export const checkRegularityDesc = {
 
 export const checkLegalityDesc = {
     id: 'checkLegality',
-    label: 'Έγινε έλεγχος νομιμότητας;',
+    label: 'Έγινε έλεγχος νομιμότητας',
     type: 'checkbox',
     description: '',
     required: true
@@ -55,7 +63,7 @@ export const checkLegalityDesc = {
 
 export const checkNecessityDesc = {
     id: 'checkNecessity',
-    label: 'Έγινε έλεγχος αναγκαιότητας;',
+    label: 'Έγινε έλεγχος αναγκαιότητας',
     type: 'checkbox',
     description: '',
     required: true
@@ -63,7 +71,7 @@ export const checkNecessityDesc = {
 
 export const checkFeasibilityDesc = {
     id: 'checkFeasibility',
-    label: 'Έγινε έλεγχος σκοπιμότητας;',
+    label: 'Έγινε έλεγχος σκοπιμότητας',
     type: 'checkbox',
     description: '',
     required: true
@@ -88,6 +96,7 @@ export  const loanSourceDesc = {
 
 /* stages descriptions */
 export const stageIds = ['1', '2', '3', '4', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
+export const stagesIfLowCost = ['1', '2', '3', '4', '5a', '5b', '8', '6', '12', '13'];
 
 export const stagesDescriptionMap = {
     '1': {

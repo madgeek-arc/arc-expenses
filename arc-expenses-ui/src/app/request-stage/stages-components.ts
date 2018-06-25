@@ -224,6 +224,15 @@ export class StageComponent implements OnInit {
         return this.datePipe.transform(Date.now(), 'dd/MM/yyyy');
     }
 
+
+    getCorrectIcon(fieldName: string) {
+        if ( this.currentStage[fieldName] ) {
+            return 'assets/imgs/checked-box.png';
+        } else {
+            return 'assets/imgs/unchecked-box.png';
+        }
+    }
+
 }
 
 @Component ({

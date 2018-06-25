@@ -25,13 +25,15 @@
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
-              <div *ngIf="requestType && (requestType.length > 0)">
+              <div *ngIf="requestType && (requestType !== '')">
                 <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
                 <!--<div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">-->
                   <!--<div class="uk-overlay-default uk-position-cover"></div>-->
                   <!--<div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>-->
                 <!--</div>-->
-                <div *ngIf="newRequestForm && currentUser && projects" [formGroup]="newRequestForm" class="uk-form-horizontal">
+                <div *ngIf="requestType === 'services_contract'">Coming soon...</div>
+                <div *ngIf="(requestType !== 'services_contract') && newRequestForm && currentUser && projects"
+                            [formGroup]="newRequestForm" class="uk-form-horizontal">
                   <fieldset data-uk-margin>
                     <legend class="uk-margin-medium-bottom">Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>
                     <div class="uk-margin">
@@ -119,7 +121,9 @@
                         <select class="uk-select" id="request-ssm"
                                 formControlName="supplierSelectionMethod" (change)="checkIfSupplierIsRequired()">
                           <option value="">-- επιλέξτε τρόπο --</option>
-                          <option *ngFor="let sel of selMethods" value="{{sel}}">{{sel}}</option>
+                          <option value="direct">{{ selMethods['direct'] }}</option>
+                          <option value="market_investigation">{{ selMethods['market_investigation'] }}</option>
+                          <option value="competition">{{ selMethods['competition'] }}</option>
                         </select>
                       </div>
                     </div>
@@ -130,6 +134,9 @@
                           <div class="uk-width-small">
                             <input class="uk-input" type="text" id="request-amount"
                                    formControlName="amount" placeholder="0" (keyup)="showAmount()" (focus)="newRequestForm.get('amount').markAsUntouched()">
+                          </div>
+                          <div *ngIf="showWarning" class="uk-text-primary">
+                            Για ποσά μεταξύ 2500 € και 20000 € είναι απαραίτητο να συμπληρώσετε το ακριβές ποσό.
                           </div>
                           <div class="uk-comment-body uk-text-small uk-text-muted">
                             <i>Ο δεκαδικός αριθμός θα πρέπει να είναι της μορφής: <b>1111.11</b></i>

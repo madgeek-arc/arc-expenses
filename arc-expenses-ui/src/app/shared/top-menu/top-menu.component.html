@@ -29,9 +29,10 @@
                                 <div class="uk-navbar-dropdown-grid uk-child-width-1-1 uk-grid uk-grid-stack" uk-grid="">
                                     <div class="uk-first-column">
                                         <ul class="uk-nav uk-navbar-dropdown-nav">
-                                            <li><a [routerLink]="['new-request','regular']">Προμήθεια</a></li>
-                                            <li><a [routerLink]="['new-request','trip']">Ταξίδι</a></li>
-                                            <li><a [routerLink]="['new-request','contract']">Σύμβαση</a></li>
+                                            <li><a routerLink="new-request/regular" (click)="onClick('')">{{ reqTypes['regular'] }}</a></li>
+                                            <li><a routerLink="new-request/trip" (click)="onClick('')">{{ reqTypes['trip'] }}</a></li>
+                                            <li><a routerLink="new-request/contract" (click)="onClick('')">{{ reqTypes['contract'] }}</a></li>
+                                            <li><a routerLink="new-request/services_contract" (click)="onClick('')">{{ reqTypes['services_contract'] }}</a></li>
                                         </ul>
                                     </div>
                                 </div>
