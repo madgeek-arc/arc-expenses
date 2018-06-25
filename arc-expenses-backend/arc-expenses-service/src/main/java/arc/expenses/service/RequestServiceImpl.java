@@ -144,7 +144,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         Paging<Resource> rs = searchService.cqlQuery(
                 this.createWhereClause(email,status,searchField,stage),"request",
                 Integer.parseInt(quantity),Integer.parseInt(from),
-                orderField, SortOrder.valueOf(orderType));
+                orderField, orderType);
 
 
         List<Request> resultSet = new ArrayList<>();
@@ -189,7 +189,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         Paging<Resource> rs = searchService.cqlQuery(
                 whereClause,"request",
-                1000,0,"",SortOrder.ASC);
+                1000,0,"", "ASC");
 
 
         List<Request> resultSet = new ArrayList<>();
