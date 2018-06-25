@@ -54,7 +54,7 @@ public class ProjectServiceImpl extends GenericService<Project> {
         Paging<Resource> rs = searchService.cqlQuery(
                 "project_acronym = " + acronym
                         + " and project_institute = " + institute,"project",
-                10,0, "", SortOrder.ASC);
+                10,0, "", "ASC");
 
         List<Project> resultSet = new ArrayList<>();
         for(Resource resource:rs.getResults()) {

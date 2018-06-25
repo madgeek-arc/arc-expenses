@@ -124,7 +124,7 @@ public class UserServiceImpl extends GenericService<User> {
         Paging<Resource> rs = searchService.cqlQuery(
                 query,"user",
                 1000,0,
-                "", SortOrder.ASC);
+                "", "ASC");
 
 
         List<User> resultSet = new ArrayList<>();
