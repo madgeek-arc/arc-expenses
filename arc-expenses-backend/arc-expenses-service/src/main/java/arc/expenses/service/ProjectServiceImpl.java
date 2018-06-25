@@ -1,10 +1,9 @@
 package arc.expenses.service;
 
+import arc.expenses.domain.Vocabulary;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
 import gr.athenarc.domain.Project;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,7 @@ public class ProjectServiceImpl extends GenericService<Project> {
         return "project";
     }
 
-    public Project getByAcronym(String acronym) {
+    /*public Project getByAcronym(String acronym) {
 
         String s[] = acronym.split("\\s(?=\\S*$)");
         Pattern pattern = Pattern.compile("\\w+");
@@ -48,7 +47,7 @@ public class ProjectServiceImpl extends GenericService<Project> {
         String institute = matcher.group(0);
         acronym = s[0].trim();
 //"project_acronym = \"ΔΡΑΣΕΙΣ ΣΤΗΡΙΞΗΣ ΓΕΝΙΚΗΣ ΔΙΕΥΘΥΝΣΗΣ\" and project_institute = GD"
-       /* */
+       *//* *//*
        //acronym = new StringBuffer().append("\\").append("\"").append(acronym).append("\\").append("\"").toString();
 
         Paging<Resource> rs = searchService.cqlQuery(
@@ -68,25 +67,31 @@ public class ProjectServiceImpl extends GenericService<Project> {
 
 
 
-    }
+    }*/
 
-    public List<String> getAllProjectNames() {
+    public List<Vocabulary> getAllProjectNames() {
 
         List<String> acronyms = new ArrayList<>();
+        List<Vocabulary> resultSet = new ArrayList<>();
         Connection connection = null;
         Statement statement = null;
         try {
             connection = ARC_DataSource.getConnection();
             statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("select project_acronym::text || ' (' || project_institute::text || ')' as projectName from project_view");
+            ResultSet rs = statement.executeQuery("select id ,project_acronym,project_institute from project_view");
 
-            while(rs.next())
-                acronyms.add(rs.getString("projectName"));
+            while(rs.next()) {
+                Vocabulary vocabulary = new Vocabulary();
+                vocabulary.setProjectID(rs.getString("id"));
+                vocabulary.setProjectAcronym(rs.getString("project_acronym"));
+                vocabulary.setInstituteName(rs.getString("project_institute"));
+                resultSet.add(vocabulary);
+            }
 
             rs.close();
             statement.close();
             connection.close();
-            return acronyms;
+            return resultSet;
 
         } catch (SQLException e) {
             e.printStackTrace();

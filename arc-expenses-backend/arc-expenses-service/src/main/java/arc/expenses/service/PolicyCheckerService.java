@@ -91,6 +91,9 @@ public class PolicyCheckerService {
 
         Boolean value = false;
         switch (request.getStage()) {
+            case "1":
+                value = isRequestor(request,email);
+                break;
             case "2":
                 value =  isScientificCoordinator(request,email);
                 break;
