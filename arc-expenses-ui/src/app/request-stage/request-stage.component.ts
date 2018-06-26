@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Attachment, Request, Stage5b } from '../domain/operation';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Request } from '../domain/operation';
+import { ActivatedRoute } from '@angular/router';
 import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { isNull, isNullOrUndefined, isUndefined } from 'util';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { isNullOrUndefined, isUndefined } from 'util';
 import {HttpEventType, HttpResponse} from '@angular/common/http';
-import { requestTypes, stageIds, stagesDescriptionMap, supplierSelectionMethods } from '../domain/stageDescriptions';
+import { requestTypes, stageIds, stagesDescriptionMap, stagesIfLowCost } from '../domain/stageDescriptions';
 import { printRequestPage } from './print-request-function';
-import { noUndefined } from '@angular/compiler/src/util';
 
 @Component({
     selector: 'app-request-stage',
@@ -20,6 +18,8 @@ export class RequestStageComponent implements OnInit {
     successMessage: string;
     showSpinner: boolean;
 
+    readonly lowAmountLimit = 2500;
+
     uploadedFile: File;
     uploadedFileURL: string;
 
@@ -29,15 +29,14 @@ export class RequestStageComponent implements OnInit {
     currentStageName: string;
     canEdit: boolean = false;
     wentBackOneStage: boolean;
-    stages = stageIds;
+    stages: string[];
     stagesMap = stagesDescriptionMap;
-    stateNames = {pending: 'βρίσκεται σε εξέλιξη', rejected: 'έχει απορριφθεί', accepted: 'έχει ολοκληρωθεί'};
+    stateNames = {pending: 'βρίσκεται σε εξέλιξη', review: 'βρίσκεται σε εξέλιξη', rejected: 'έχει απορριφθεί', accepted: 'έχει ολοκληρωθεί'};
     reqTypes = requestTypes;
 
     sendInfoToStage5b: string[];
 
     constructor(private route: ActivatedRoute,
-                private router: Router,
                 private requestService: ManageRequestsService,
                 private authService: AuthenticationService) {
     }
@@ -69,6 +68,11 @@ export class RequestStageComponent implements OnInit {
                     this.showSpinner = false;
                     this.errorMessage = 'Το αίτημα που ζητήσατε δεν βρέθηκε.';
                 } else {
+                    if (this.currentRequest.stage1.amountInEuros > this.lowAmountLimit) {
+                        this.stages = stageIds;
+                    } else {
+                        this.stages = stagesIfLowCost;
+                    }
                     this.checkIfStageIs5b();
                     this.getIfUserCanEditRequest();
                 }
@@ -113,9 +117,19 @@ export class RequestStageComponent implements OnInit {
     }
 
     getNextStage(stage: string) {
-        for ( const nextStage of this.stagesMap[stage]['next'] ) {
-            if ( !isUndefined(this.currentRequest['stage' + nextStage]) ) {
-                return nextStage;
+        if (this.currentRequest.stage1.amountInEuros > this.lowAmountLimit) {
+            for (const nextStage of this.stagesMap[stage]['next']) {
+                if (!isUndefined(this.currentRequest['stage' + nextStage])) {
+                    return nextStage;
+                }
+            }
+        } else {
+            if ( this.stages.indexOf(stage) < (this.stages.length - 1) ) {
+                for ( let i = (this.stages.indexOf(stage) + 1); i < this.stages.length; i++ ) {
+                    if (!isUndefined(this.currentRequest['stage' + this.stages[i]])) {
+                        return this.stages[i];
+                    }
+                }
             }
         }
 
@@ -123,9 +137,19 @@ export class RequestStageComponent implements OnInit {
     }
 
     getPreviousStage(stage: string) {
-        for ( const prevStage of this.stagesMap[stage]['prev'] ) {
-            if ( !isUndefined(this.currentRequest['stage' + prevStage]) ) {
-                return prevStage;
+        if (this.currentRequest.stage1.amountInEuros > this.lowAmountLimit) {
+            for (const prevStage of this.stagesMap[stage]['prev']) {
+                if (!isUndefined(this.currentRequest['stage' + prevStage])) {
+                    return prevStage;
+                }
+            }
+        } else {
+            if ( this.stages.indexOf(stage) > 0 ) {
+                for ( let i = (this.stages.indexOf(stage) - 1); i >= 0; i-- ) {
+                    if (!isUndefined(this.currentRequest['stage' + this.stages[i]])) {
+                        return this.stages[i];
+                    }
+                }
             }
         }
 
@@ -137,7 +161,7 @@ export class RequestStageComponent implements OnInit {
         this.currentStageName = 'stage' + this.currentRequest.stage;
         console.log(`submitting as ${this.currentStageName}`);
         this.currentRequest[this.currentStageName] = newStage;
-        if (newStage['approved']) {
+        /*if (newStage['approved']) {
             if (this.currentRequest.stage === '13') {
                 this.currentRequest.status = 'accepted';
             } else {
@@ -147,12 +171,32 @@ export class RequestStageComponent implements OnInit {
             this.currentRequest.status = 'pending';
         } else {
             this.currentRequest.status = 'rejected';
-        }
+        }*/
+        const submittedStage = this.currentRequest.stage;
         if (this.wentBackOneStage === true) {
             this.currentRequest.stage = this.getPreviousStage(this.currentRequest.stage);
         } else {
             this.currentRequest.stage = this.getNextStage(this.currentRequest.stage);
         }
+
+        if (this.currentRequest.stage === submittedStage) {
+            if ( ((this.stages.indexOf(this.currentRequest.stage) === (this.stages.length - 1)) && (newStage['approved'] === true)) ||
+                 ((this.currentRequest.stage === '6') && (this.currentRequest.type === 'contract')) ) {
+
+                this.currentRequest.status = 'accepted';
+            } else {
+
+                this.currentRequest.status = 'rejected';
+            }
+        } else {
+            /*if ( this.wentBackOneStage === true ) {
+                this.currentRequest.status = 'review';
+            } else {
+                this.currentRequest.status = 'pending';
+            }*/
+            this.currentRequest.status = 'pending';
+        }
+
         this.checkIfStageIs5b();
         this.wentBackOneStage = false;
         console.log('submitted status:', this.currentRequest.status);
@@ -199,7 +243,8 @@ export class RequestStageComponent implements OnInit {
                 this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
                 this.showSpinner = false;
                 /*this.router.navigate(['requests/request-stage', this.currentRequest.id]);*/
-                window.location.href = '/requests/request-stage/' + this.currentRequest.id;
+                /*window.location.href = '/requests/request-stage/' + this.currentRequest.id;*/
+                this.getIfUserCanEditRequest();
             }
         );
     }
@@ -243,12 +288,25 @@ export class RequestStageComponent implements OnInit {
             return 1;
 
         } else {
+            if (stage === '1') {
+                return 2;
+            }
             if ( !isNullOrUndefined(this.currentRequest[stageField]) && !isNullOrUndefined(this.currentRequest[stageField].date)) {
 
                 if (!this.isSimpleUser || (stage === '2')) {
 
                     if ( this.stages.indexOf(this.currentRequest.stage) < this.stages.indexOf(stage)) {
                         return 4;
+                    }
+
+                    if ( (stage === this.currentRequest.stage) && (this.stages.indexOf(stage) > 0)) {
+
+                        const prevStageField = 'stage' + this.stages[this.stages.indexOf(stage) - 1];
+                        if ( !isNullOrUndefined(this.currentRequest[prevStageField]) &&
+                             !isNullOrUndefined(this.currentRequest[prevStageField].date) &&
+                             (this.currentRequest[prevStageField].date > this.currentRequest[stageField].date) ) {
+                            return 4;
+                        }
                     }
 
                     if ((!isUndefined(this.currentRequest[stageField]['approved']) &&

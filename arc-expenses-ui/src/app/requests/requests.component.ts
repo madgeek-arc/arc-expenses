@@ -33,7 +33,7 @@ export class RequestsComponent implements OnInit {
   orderField: string;
   totalPages: number;
 
-  stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
+  stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', review: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
   states = statesList;
   stages = stageIds;
   stagesMap = stagesDescriptionMap;
@@ -46,7 +46,7 @@ export class RequestsComponent implements OnInit {
   keywordField: FormGroup;
 
   constructor(private requestService: ManageRequestsService,
-              private authService: AuthenticationService, private router: Router, private fb: FormBuilder) {}
+              private authService: AuthenticationService, private fb: FormBuilder) {}
 
   ngOnInit() {
       this.initializeParams();
@@ -191,7 +191,7 @@ export class RequestsComponent implements OnInit {
     }
 
     getStatusAsString( status: string ) {
-      if (status === 'pending') {
+      if ( (status === 'pending') || (status === 'review') ) {
           return 'σε εξέλιξη';
       } else if (status === 'accepted') {
           return 'ολοκληρωθηκε';

@@ -24,18 +24,20 @@
             <textarea formControlName="requestText"></textarea>
         </div>
 
-        <div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">
+        <div *ngIf="(currentRequest.type !== 'trip') && (currentRequest.type !== 'contract')" class="uk-width-1-2@l">
             <label class="uk-text-bold uk-margin-small-right">Προμηθευτής <span [hidden]="isSupplierRequired === false">(*)</span>:</label>
             <input class="uk-input" type="text" placeholder="" id="request-supplier"
                    formControlName="supplier">
         </div>
-        <div *ngIf="currentRequest.type !== 'trip'" class="uk-width-1-2@l">
+        <div *ngIf="(currentRequest.type !== 'trip') && (currentRequest.type !== 'contract')" class="uk-width-1-2@l">
             <label class="uk-text-bold uk-margin-small-right">Τρόπος επιλογής προμηθευτή (*): </label>
             <select class="uk-select" id="request-ssm" formControlName="supplierSelectionMethod"
                     name="ssm" (change)="checkIfSupplierIsRequired()">
 
                 <option value="">-- επιλέξτε τρόπο --</option>
-                <option *ngFor="let sel of selMethods" value="{{sel}}">{{sel}}</option>
+                <option value="direct">{{ selMethods['direct'] }}</option>
+                <option value="market_investigation">{{ selMethods['market_investigation'] }}</option>
+                <option value="competition">{{ selMethods['competition'] }}</option>
             </select>
         </div>
         <div class="uk-width-1-2@l">

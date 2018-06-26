@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ManageRequestsService } from '../../services/manage-requests.service';
 import { ContactUsMail } from '../../domain/operation';
 import { Router } from '@angular/router';
+import { requestTypes } from '../../domain/stageDescriptions';
 
 
 declare const UIkit: any;
@@ -20,6 +21,8 @@ export class TopMenuComponent implements OnInit {
   contactForm: FormGroup;
   modalError: string;
   showSpinner: boolean;
+
+  reqTypes = requestTypes;
 
   constructor(private authService: AuthenticationService,
               private requestService: ManageRequestsService,
