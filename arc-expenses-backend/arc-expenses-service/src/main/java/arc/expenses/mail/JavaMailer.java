@@ -10,7 +10,11 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -21,17 +25,26 @@ public class JavaMailer {
     @Value("${mail.username}")
     private String address;
 
-    @Value("${mail.host}")
-    private String smtpHost;
-
-//    @Value("${mail.port}")
-//    private String smtpPort;
-
     @Value("${mail.password}")
     private String password;
 
-    @Value("${mail.debug}")
+    @Value("${mail.host:mail.ilsp.gr}")
+    private String smtpHost;
+
+    @Value("${mail.port:2525}")
+    private String smtpPort;
+
+    @Value("${mail.debug:false}")
     private boolean mailDebug;
+
+    @Value("${mail.debug.address:test.athenarc.gr}")
+    private String debugAddress;
+
+    @Value("${mail.smtp.ssl:false}")
+    private String mailSSL;
+
+    @Value("${mail.smtp.sasl:false}")
+    private String mailSASL;
 
 
     private Properties properties;
@@ -41,21 +54,21 @@ public class JavaMailer {
     @PostConstruct
     public void init() {
         properties = new Properties();
-        properties.put("mail.smtp.ssl.enable", "true");
-        properties.put("mail.smtp.sasl.enable", "true");
+        properties.put("mail.smtp.ssl.enable", mailSSL);
+        properties.put("mail.smtp.sasl.enable", mailSASL);
         properties.put("mail.debug", mailDebug);
         properties.put("mail.smtp.host", smtpHost);
-//        properties.put("mail.smtp.port", smtpPort);
+        properties.put("mail.smtp.port", smtpPort);
     }
 
     public void sendEmail(String to, String subject, String text) {
-        Session session = Session.getInstance(properties);
+        Session session = Session.getInstance(properties, null);
 
         try {
             MimeMessage msg = new MimeMessage(session);
             msg.setFrom(address);
             if (mailDebug) {
-                msg.setRecipients(Message.RecipientType.TO, address);
+                msg.setRecipients(Message.RecipientType.TO, debugAddress);
                 msg.setText(text + debugText(to));
             } else {
                 msg.setRecipients(Message.RecipientType.TO, to);
@@ -63,12 +76,48 @@ public class JavaMailer {
             }
             msg.setSubject(subject);
             msg.setSentDate(new Date());
-//            msg.setText(text);
+
             Transport transport = session.getTransport("smtp");
-            transport.connect(smtpHost, address, password);
-            Transport.send(msg, msg.getAllRecipients(), address, password);
+            if (mailSSL == "true") {
+                transport.connect(smtpHost, address, password);
+                Transport.send(msg, msg.getAllRecipients(), address, password);
+            } else {
+                Transport.send(msg, msg.getAllRecipients());
+            }
+
         } catch (MessagingException mex) {
             logger.error("sendEmail failed, exception: " + mex);
+        }
+    }
+
+    public void sendEmail(String fromEmail, String from, String to, String subject, String text) {
+        Session session = Session.getInstance(properties);
+
+        try {
+            MimeMessage msg = new MimeMessage(session);
+            msg.setFrom(new InternetAddress(fromEmail, from));
+            if (mailDebug) {
+                msg.setRecipients(Message.RecipientType.TO, debugAddress);
+                msg.setText(text + debugText(to));
+            } else {
+                msg.setRecipients(Message.RecipientType.TO, to);
+                msg.setText(text);
+            }
+            msg.setSubject(subject);
+            msg.setSentDate(new Date());
+
+            Transport transport = session.getTransport("smtp");
+            if (mailSSL == "true" ) {
+                transport.connect(smtpHost, address, password);
+                Transport.send(msg, msg.getAllRecipients(), address, password);
+            } else {
+                Transport.send(msg, msg.getAllRecipients());
+            }
+
+        } catch (MessagingException mex) {
+            logger.error("sendEmail failed, exception: " + mex);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
     }
 
@@ -79,18 +128,23 @@ public class JavaMailer {
             MimeMessage msg = new MimeMessage(session);
             msg.setFrom(address);
             if (mailDebug) {
-                msg.setRecipients(Message.RecipientType.TO, address);
+                msg.setRecipients(Message.RecipientType.TO, debugAddress);
                 msg.setText(text + debugText(addressListToString(mailList)));
             } else {
-                msg.setRecipients(Message.RecipientType.TO, addressListToString(mailList));
+                msg.setRecipients(Message.RecipientType.TO, addressList(mailList));
                 msg.setText(text);
             }
             msg.setSubject(subject);
             msg.setSentDate(new Date());
-//            msg.setText(text);
+
             Transport transport = session.getTransport("smtp");
-            transport.connect(smtpHost, address, password);
-            Transport.send(msg, msg.getAllRecipients(), address, password);
+            if (mailSSL == "true") {
+                transport.connect(smtpHost, address, password);
+                Transport.send(msg, msg.getAllRecipients(), address, password);
+            } else {
+                Transport.send(msg, msg.getAllRecipients());
+            }
+
         } catch (MessagingException mex) {
             logger.error("sendEmail failed, exception: " + mex);
         }
@@ -115,9 +169,15 @@ public class JavaMailer {
             msg.setSubject(subject);
             msg.setSentDate(new Date());
             msg.setText(text);
+
             Transport transport = session.getTransport("smtp");
-            transport.connect(smtpHost, address, password);
-            Transport.send(msg, msg.getAllRecipients(), address, password);
+            if (mailSSL == "true") {
+                transport.connect(smtpHost, address, password);
+                Transport.send(msg, msg.getAllRecipients(), address, password);
+            } else {
+                Transport.send(msg, msg.getAllRecipients());
+            }
+
         } catch (MessagingException mex) {
             logger.error("sendEmail failed, exception: " + mex);
         }
@@ -132,6 +192,18 @@ public class JavaMailer {
             addresses += list.get(list.size()-1);
         }
         return addresses;
+    }
+
+    private InternetAddress[] addressList(List<String> list) {
+        List<InternetAddress> addresses = new ArrayList<>();
+        list.forEach(addr -> {
+            try {
+                addresses.add(new InternetAddress(addr));
+            } catch (AddressException e) {
+                e.printStackTrace();
+            }
+        });
+        return (InternetAddress[]) addresses.toArray();
     }
 
     private String debugText(String email) {

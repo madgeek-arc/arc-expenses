@@ -26,10 +26,8 @@ public class ContactUsController {
 
     @RequestMapping(value =  "/sendMail", method = RequestMethod.POST)
     public void contactUs(@RequestBody ContactUsMail mail) {
-        String text = "Από: " + mail.getName() + " " + mail.getSurname() + "\n\n\n" + mail.getMessage();
-
-        javaMailer.sendEmailWithCC(contactAddress, mail.getSubject(),
-                text, "", false);
+        javaMailer.sendEmail(mail.getEmail(), mail.getName()+" "+mail.getSurname(),
+                contactAddress, mail.getSubject(), mail.getMessage());
 
         logger.info("Contact Us email was sent from: " + mail.getEmail());
     }

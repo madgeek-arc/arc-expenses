@@ -23,7 +23,6 @@ public class StageMessages {
 
     public enum RequestState {INITIALIZED, ACCEPTED, ACCEPTED_DIAVGEIA, REVIEW, REJECTED, COMPLETED}
 
-    @Autowired
     UserServiceImpl userServiceImpl;
 
     @Autowired
@@ -45,17 +44,18 @@ public class StageMessages {
         logger.info("Request Link: " + url + request.getId());
 
         if ("rejected".equals(request.getStatus())) {
-            emails.add(new EmailMessage(request.getRequester().getEmail(), subject, messageTemplates(
-                    null, null, request, UserType.USER, RequestState.REJECTED,
-                    request.getStage1().getRequestDate())));
+//            emails.add(new EmailMessage(request.getRequester().getEmail(), subject, messageTemplates(
+//                    null, null, request, UserType.USER, RequestState.REJECTED,
+//                    request.getStage1().getRequestDate())));
             state = RequestState.REJECTED;
             transition = "rejected";
 
         } else if (RequestWrapper.stageUnderReview(prevStage, nextStage)) {
 //        } else if ("review".equals(request.getStatus())) {
+            // TODO: add explicitly cases requiring special handling
             switch (nextStage) {
                 case "1":
-                    transition = nextStage + "<-" + prevStage;
+                    transition = nextStage + "<-";
                     break;
                 default:
                     transition = "<-";
@@ -93,7 +93,7 @@ public class StageMessages {
                 if (state == RequestState.ACCEPTED) {
                     state = RequestState.COMPLETED;
                 }
-                if (state != RequestState.REVIEW) {
+                if (state != RequestState.REVIEW) { // TODO: probably remove, REVIEW is only for '<-' cases
                     // email to USER
                     emails.addAll(getEmailMessages(request, UserType.USER, state, subject));
                 }
@@ -101,7 +101,7 @@ public class StageMessages {
                 emails.addAll(getEmailMessages(request, UserType.POI, state, subject));
                 break;
 
-            case "1<-2":
+            case "1<-":
                 // email to USER
                 emails.addAll(getEmailMessages(request, UserType.USER, state, subject));
                 // email to POI and delegates
@@ -120,7 +120,10 @@ public class StageMessages {
                 break;
 
             case "rejected":
-
+                // email to USER
+                emails.addAll(getEmailMessages(request, UserType.USER, state, subject));
+                // email to POIs and delegates
+                emails.addAll(getEmailMessages(request, UserType.POI, state, subject));
                 break;
 
             default:
@@ -159,7 +162,7 @@ public class StageMessages {
         return emailList;
     }
 
-    private List<EmailMessage> getEmailMessages(Request request, UserType type, RequestState state, String subject) {
+    List<EmailMessage> getEmailMessages(Request request, UserType type, RequestState state, String subject) {
         List<EmailMessage> messages = new ArrayList<>();
         RequestWrapper appStages = new RequestWrapper(request);
         String completedStage = null;
