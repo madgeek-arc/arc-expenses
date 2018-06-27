@@ -1,6 +1,6 @@
-package arc.expenses.config;
+package arc.expenses.config.security;
 
-import arc.expenses.controller.UserController;
+import arc.expenses.config.SAMLAuthenticationToken;
 import arc.expenses.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,10 +39,11 @@ public class SAMLBasicFilter extends GenericFilterBean{
 
             Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
             grantedAuthorities.add(new SimpleGrantedAuthority(userService.getRole(request.getHeader("AJP_email"))));
+            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_CLIENT"));
 
-            SAMLAuthentication samlAuthentication = new SAMLAuthentication(request.getHeader("AJP_firstname"),
+            SAMLAuthenticationToken samlAuthentication = new SAMLAuthenticationToken(request.getHeader("AJP_firstname"),
                     request.getHeader("AJP_lastname"),request.getHeader("AJP_email"),
-                    request.getHeader("AJP_uid"),grantedAuthorities);
+                    request.getHeader("AJP_uid"), grantedAuthorities);
 
             SecurityContextHolder.getContext().setAuthentication(samlAuthentication);
         }

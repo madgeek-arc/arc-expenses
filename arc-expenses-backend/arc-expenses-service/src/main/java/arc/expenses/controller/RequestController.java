@@ -1,6 +1,5 @@
 package arc.expenses.controller;
 
-import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.SearchService;
@@ -39,7 +38,7 @@ public class RequestController {
 
 
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)
-   // @PostAuthorize("returnObject.requester.email == samlAuthentication.email")
+    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public Request getById(@PathVariable("id") String id) {
         return requestService.get(id);
     }
@@ -57,11 +56,6 @@ public class RequestController {
         return requestService.criteriaSearch(from,quantity,status,searchField,stage,orderType,orderField,email);
 
     }
-
-    /*@RequestMapping(value =  "/getAllAll", method = RequestMethod.GET)
-    public List<Request> getAll() {
-        return requestService.getAll(new FacetFilter()).getResults();
-    }*/
 
     @RequestMapping(value = "/add", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,

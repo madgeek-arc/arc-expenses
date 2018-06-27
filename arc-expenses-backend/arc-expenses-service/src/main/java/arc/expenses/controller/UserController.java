@@ -1,6 +1,6 @@
 package arc.expenses.controller;
 
-import arc.expenses.config.SAMLAuthentication;
+import arc.expenses.config.SAMLAuthenticationToken;
 import gr.athenarc.domain.User;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/user")
 @Api(description = "User API  ",  tags = {"Manage users"})
+
 public class UserController {
 
     private org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(UserController.class);
@@ -33,28 +34,32 @@ public class UserController {
     @RequestMapping(value =  "/getUserInfo", method = RequestMethod.GET)
     public ResponseEntity<Object> getUserInfo() {
 
-        SAMLAuthentication authentication = (SAMLAuthentication) SecurityContextHolder.getContext().getAuthentication();
-        Map<String,Object> body = new HashMap<>();
+        if(SecurityContextHolder.getContext().getAuthentication() instanceof SAMLAuthenticationToken){
+            SAMLAuthenticationToken authentication = (SAMLAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+            Map<String,Object> body = new HashMap<>();
 
-        body.put("firstnameLatin",authentication.getFirstname());
-        body.put("lastnameLatin",authentication.getLastname());
-        body.put("email",authentication.getEmail());
-        body.put("uid",authentication.getUid());
+            body.put("firstnameLatin",authentication.getFirstname());
+            body.put("lastnameLatin",authentication.getLastname());
+            body.put("email",authentication.getEmail());
+            body.put("uid",authentication.getUid());
 
-        User user = null;
-        try {
-            user = userService.getByField("user_email",authentication.getEmail());
-            body.put("firstname",user !=null ? user.getFirstname():null);
-            body.put("lastname",user !=null ? user.getLastname():null);
-            body.put("immediateEmails",user !=null ? user.getImmediateEmails():null);
-            body.put("receiveEmails",user !=null ? user.getReceiveEmails():null);
-        } catch (Exception e) {
-            LOGGER.fatal(e);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            User user = null;
+            try {
+                user = userService.getByField("user_email",authentication.getEmail());
+                body.put("firstname",user !=null ? user.getFirstname():null);
+                body.put("lastname",user !=null ? user.getLastname():null);
+                body.put("immediateEmails",user !=null ? user.getImmediateEmails():null);
+                body.put("receiveEmails",user !=null ? user.getReceiveEmails():null);
+            } catch (Exception e) {
+                LOGGER.fatal(e);
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            String role = userService.getRole(authentication.getEmail());
+            body.put("role",role);
+            return new ResponseEntity<>(body, HttpStatus.OK);
         }
-        String role = userService.getRole(authentication.getEmail());
-        body.put("role",role);
-        return new ResponseEntity<>(body, HttpStatus.OK);
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+
     }
 
     @RequestMapping(value =  "/idp_login", method = RequestMethod.GET)

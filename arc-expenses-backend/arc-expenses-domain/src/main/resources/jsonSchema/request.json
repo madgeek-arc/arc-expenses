@@ -327,6 +327,15 @@
         "attachment": { "$ref": "#/definitions/attachment" }
       }
     },
+    "stageUploadInvoice": {
+      "type": "object",
+      "description": "stage: Upload invoice",
+      "properties": {
+        "date": { "type": "string"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
     "id": {
       "description": "The unique identifier of the request.",
       "title": "Request ID",

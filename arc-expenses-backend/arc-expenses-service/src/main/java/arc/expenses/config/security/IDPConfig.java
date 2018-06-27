@@ -1,4 +1,4 @@
-package arc.expenses.config;
+package arc.expenses.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +12,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @Configuration
 @EnableWebSecurity
 @Order(1)
-public class IDPSecurityConfig extends WebSecurityConfigurerAdapter {
+public class IDPConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     SAMLBasicFilter samlBasicFilter;

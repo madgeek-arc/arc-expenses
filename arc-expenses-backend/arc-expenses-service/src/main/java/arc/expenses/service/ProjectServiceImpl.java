@@ -1,11 +1,8 @@
 package arc.expenses.service;
 
 import arc.expenses.domain.Vocabulary;
-import eu.openminted.registry.core.domain.Paging;
-import eu.openminted.registry.core.domain.Resource;
 import gr.athenarc.domain.Project;
 import org.apache.log4j.Logger;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +13,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service("projectService")
 public class ProjectServiceImpl extends GenericService<Project> {
@@ -78,11 +72,11 @@ public class ProjectServiceImpl extends GenericService<Project> {
         try {
             connection = ARC_DataSource.getConnection();
             statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("select id ,project_acronym,project_institute from project_view");
+            ResultSet rs = statement.executeQuery("select project_id ,project_acronym,project_institute from project_view");
 
             while(rs.next()) {
                 Vocabulary vocabulary = new Vocabulary();
-                vocabulary.setProjectID(rs.getString("id"));
+                vocabulary.setProjectID(rs.getString("project_id"));
                 vocabulary.setProjectAcronym(rs.getString("project_acronym"));
                 vocabulary.setInstituteName(rs.getString("project_institute"));
                 resultSet.add(vocabulary);
