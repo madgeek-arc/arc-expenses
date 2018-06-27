@@ -39,8 +39,11 @@ public class RequestController {
 
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)
     @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
-    public Request getById(@PathVariable("id") String id) {
-        return requestService.get(id);
+    public Request getById(@PathVariable("id") String id) throws ResourceNotFoundException {
+        Request request = requestService.get(id);
+        if(request == null)
+            throw new ResourceNotFoundException();
+        return request;
     }
 
     @RequestMapping(value =  "/getAll", method = RequestMethod.GET)

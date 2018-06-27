@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import javax.servlet.http.HttpServletResponse;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
@@ -22,9 +24,6 @@ public class SessionConfig extends WebSecurityConfigurerAdapter{
     @Autowired
     SAMLBasicFilter samlBasicFilter;
 
-    @Autowired
-    CustomAccessDeniedHandler customAccessDeniedHandler;
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -33,20 +32,13 @@ public class SessionConfig extends WebSecurityConfigurerAdapter{
                     .permitAll()
                 .and()
                     .csrf()
-                    .disable()
-                .addFilterBefore(samlBasicFilter, BasicAuthenticationFilter.class)
-                .exceptionHandling().accessDeniedHandler(customAccessDeniedHandler);
+                    .disable();
     }
 
     @Autowired
     public void configure(AuthenticationManagerBuilder builder)
             throws Exception {
         builder.inMemoryAuthentication();
-    }
-
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.debug(true);
     }
 
 }

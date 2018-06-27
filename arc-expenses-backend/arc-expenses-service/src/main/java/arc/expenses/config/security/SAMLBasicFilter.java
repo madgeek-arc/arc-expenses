@@ -39,7 +39,6 @@ public class SAMLBasicFilter extends GenericFilterBean{
 
             Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
             grantedAuthorities.add(new SimpleGrantedAuthority(userService.getRole(request.getHeader("AJP_email"))));
-            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_CLIENT"));
 
             SAMLAuthenticationToken samlAuthentication = new SAMLAuthenticationToken(request.getHeader("AJP_firstname"),
                     request.getHeader("AJP_lastname"),request.getHeader("AJP_email"),
