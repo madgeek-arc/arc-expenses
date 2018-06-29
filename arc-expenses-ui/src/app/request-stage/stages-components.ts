@@ -226,7 +226,7 @@ export class StageComponent implements OnInit {
     }
 
     getUserName() {
-        return this.authService.getUserProp('firstname') + ' ' + this.authService.getUserProp('lastname');
+        return this.requester.firstname + ' ' + this.requester.lastname;
     }
 
     createAttachment(): Attachment {
@@ -693,7 +693,7 @@ export class Stage10Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage11-component',
-    templateUrl: './stages-templates/stage5b.component.html'
+    templateUrl: './stages-templates/stage11.component.html'
 })
 export class Stage11Component extends StageComponent implements OnInit {
 

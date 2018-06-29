@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DoCheck, OnInit } from '@angular/core';
 import {AuthenticationService} from '../../services/authentication.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ManageRequestsService } from '../../services/manage-requests.service';
@@ -14,7 +14,7 @@ declare const UIkit: any;
   templateUrl: './top-menu.component.html',
   styleUrls: ['./top-menu.component.scss']
 })
-export class TopMenuComponent implements OnInit {
+export class TopMenuComponent implements OnInit, DoCheck {
 
   loggedIn: boolean = false;
 
@@ -37,8 +37,13 @@ export class TopMenuComponent implements OnInit {
     }
   }
 
+  ngDoCheck() {
+      this.isUserLoggedIn();
+      this.getUserName();
+  }
+
   login() {
-    if (!this.isUserLoggedIn()) {
+    if (!this.loggedIn) {
         this.authService.loginWithState();
     }
   }
@@ -48,7 +53,7 @@ export class TopMenuComponent implements OnInit {
   }
 
   isUserLoggedIn() {
-    return (this.authService.getIsUserLoggedIn() === true);
+    this.loggedIn = (this.authService.getIsUserLoggedIn() === true);
   }
 
   getUserName() {
@@ -71,7 +76,7 @@ export class TopMenuComponent implements OnInit {
         message: ['', Validators.required]
     });
 
-    if (this.isUserLoggedIn()) {
+    if (this.loggedIn) {
       this.contactForm.get('name').setValue(this.authService.getUserProp('firstname'));
       this.contactForm.get('surname').setValue(this.authService.getUserProp('lastname'));
       this.contactForm.get('email').setValue(this.authService.getUserProp('email'));

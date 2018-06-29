@@ -73,7 +73,7 @@ export class NewRequestComponent implements OnInit, DoCheck {
     }
 
     ngDoCheck() {
-        console.log('doCheck');
+        // console.log('doCheck');
         if ( !isNullOrUndefined(this.requestType) && (this.requestType !== this.route.snapshot.paramMap.get('type')) ) {
             this.errorMessage = '';
             this.showSpinner = false;

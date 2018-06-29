@@ -25,7 +25,7 @@
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
-              <div *ngIf="requestType">
+              <div *ngIf="requestType && projects && (projects.length > 0)">
                 <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
                 <!--<div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">-->
                   <!--<div class="uk-overlay-default uk-position-cover"></div>-->
