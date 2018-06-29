@@ -92,6 +92,8 @@ export class NewRequestComponent implements OnInit, DoCheck {
             }
             this.title = this.reqTypes[this.requestType];
         }
+        
+
     }
 
     getUserInfo() {
@@ -154,9 +156,17 @@ export class NewRequestComponent implements OnInit, DoCheck {
     submitRequest() {
 
         if (this.newRequestForm.valid ) {
-            if ( (+this.newRequestForm.get('amount').value > this.lowAmountLimit) && isUndefined(this.uploadedFile) ) {
+            if ( (+this.newRequestForm.get('amount').value > this.lowAmountLimit) &&
+                 (+this.newRequestForm.get('amount').value <= this.amountLimit) &&
+                 ( this.newRequestForm.get('supplierSelectionMethod').value === 'direct' ) ) {
 
-                UIkit.modal.alert('Για αιτήματα άνω των 2.500 € η επισύναψη εγγράφων είναι υποχρεωτική.');
+                UIkit.modal.alert('Για αιτήματα άνω των 2.500 € η επιλογή προμηθευτή γίνεται μέσω διαγωνισμού ή έρευνας αγοράς.');
+
+            } else if ( ( +this.newRequestForm.get('amount').value > this.amountLimit) &&
+                ( (this.requestType !== 'trip') && (this.requestType !== 'contract') ) &&
+                ( this.newRequestForm.get('supplierSelectionMethod').value !== 'competition' ) ) {
+
+                UIkit.modal.alert('Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.');
 
             } else if ( ( (this.requestType !== 'trip') && (this.requestType !== 'contract') ) &&
                         ( (this.newRequestForm.get('supplierSelectionMethod').value !== 'competition') &&
@@ -170,11 +180,9 @@ export class NewRequestComponent implements OnInit, DoCheck {
 
                 UIkit.modal.alert('Για αναθέσεις μέσω διαγωνισμού ή έρευνας αγοράς η επισύναψη εγγράφων είναι υποχρεωτική.');
 
-            } else if ( ( +this.newRequestForm.get('amount').value > this.amountLimit) &&
-                        ( (this.requestType !== 'trip') && (this.requestType !== 'contract') ) &&
-                        ( this.newRequestForm.get('supplierSelectionMethod').value !== 'competition' ) ) {
+            } else if ( (+this.newRequestForm.get('amount').value > this.lowAmountLimit) && isUndefined(this.uploadedFile) ) {
 
-                UIkit.modal.alert('Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.');
+                UIkit.modal.alert('Για αιτήματα άνω των 2.500 € η επισύναψη εγγράφων είναι υποχρεωτική.');
 
             } else {
                 this.request = new Request();
