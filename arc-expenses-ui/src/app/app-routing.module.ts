@@ -7,6 +7,7 @@ import {AboutComponent} from './about/about.component';
 import {SignUpComponent} from './sign-up/sign-up.component';
 import {RequestStageComponent} from './request-stage/request-stage.component';
 import {AuthGuardService} from './services/auth-guard.service';
+import { ForbiddenPageComponent } from './shared/403-forbidden-page.component';
 
 const appRoutes: Routes = [
   {
@@ -39,6 +40,10 @@ const appRoutes: Routes = [
     path: 'sign-up',
     canActivate: [AuthGuardService],
     component: SignUpComponent
+  },
+  {
+      path: '403-forbidden',
+      component: ForbiddenPageComponent
   },
   {
     path: '**',

@@ -40,10 +40,7 @@ export class ManageRequestsService {
     getRequestById(requestId: string, userEmail: string): Observable<any> {
         const url = `${this.apiUrl}getById/${requestId}`;
         console.log(`calling ${url}`);
-        return this.http.get<any>(url, headerOptions)
-            .pipe(
-                catchError(this.handleError)
-            );
+        return this.http.get<any>(url, headerOptions);
     }
 
     updateRequest(updatedRequest: Request, userEmail: string): Observable<Request> {
@@ -85,9 +82,13 @@ export class ManageRequestsService {
         return this.http.post<File>(url, body, headerOptions).pipe(catchError(this.handleError));
     }
 
-    searchAllRequests(searchField: string, status: string, stage: string, from: string, quantity: string,
+    searchAllRequests(searchField: string, status: string[], stage: string, from: string, quantity: string,
                       order: string, orderField: string, email: string): Observable<Paging<Request>> {
-        let url = `${this.apiUrl}getAll?from=${from}&quantity=${quantity}&status=${status}&stage=${stage}`;
+        let statusList = '';
+        status.forEach(st => {
+            statusList = `${statusList}&status=${st}`;
+        });
+        let url = `${this.apiUrl}getAll?from=${from}&quantity=${quantity}${statusList}&stage=${stage}`;
         url += `&order=${order}&orderField=${orderField}&email=${encodeURIComponent(email)}&searchField=${searchField}`;
 
         console.log(`calling ${url}`);

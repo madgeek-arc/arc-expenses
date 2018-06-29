@@ -1,4 +1,10 @@
-// Generated using typescript-generator version 2.1.406 on 2018-06-07 16:03:04.
+// Generated using typescript-generator version 2.1.406 on 2018-06-27 15:36:39.
+
+export class Vocabulary {
+    projectID: string;
+    projectAcronym: string;
+    instituteName: string;
+}
 
 export class Attachment {
     filename: string;
@@ -31,6 +37,7 @@ export class Institute {
     accountingPayment: POI;
     accountingDirector: POI;
     diaugeia: POI;
+    suppliesOffice: POI;
 }
 
 export class Organization {
@@ -77,6 +84,7 @@ export class Request {
     stage11: Stage11;
     stage12: Stage12;
     stage13: Stage13;
+    stageUploadInvoice: StageUploadInvoice;
     id: string;
     type: string;
     archiveId: string;
@@ -85,6 +93,13 @@ export class Request {
     requesterPosition: string;
     stage: string;
     status: string;
+}
+
+export class SignatureAttachment {
+    filename: string;
+    mimetype: string;
+    size: number;
+    url: string;
 }
 
 export class Stage1 {
@@ -148,6 +163,12 @@ export class Stage5b {
     user: User;
     date: string;
     approved: boolean;
+    comment: string;
+    attachment: Attachment;
+}
+
+export class StageUploadInvoice {
+    date: string;
     comment: string;
     attachment: Attachment;
 }
@@ -228,5 +249,5 @@ export class User {
     signatureArchiveId: string;
     receiveEmails: string;
     immediateEmails: string;
-    signatureAttachment: Attachment;
+    signatureAttachment: SignatureAttachment;
 }

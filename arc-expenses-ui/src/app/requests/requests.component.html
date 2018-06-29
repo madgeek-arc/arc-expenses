@@ -79,7 +79,11 @@
                                     <div class="filterLabel">Κατάσταση:</div>
                                     <div class="inlineBlock">
                                         <select class="form-control" (change)="chooseState($event)">
-                                            <option *ngFor="let state of states" value="{{ state }}">{{stateNames[state]}}</option>
+                                            <!--<option *ngFor="let state of states" value="{{ state }}">{{stateNames[state]}}</option>-->
+                                            <option value="all">{{ stateNames['all'] }}</option>
+                                            <option value="pending">{{ stateNames['pending'] }}</option>
+                                            <option value="rejected">{{ stateNames['rejected'] }}</option>
+                                            <option value="accepted">{{ stateNames['accepted'] }}</option>
                                         </select>
                                     </div>
                                 </div>

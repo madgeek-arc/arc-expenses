@@ -3,20 +3,14 @@
         <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
             <div class="uk-width-1-1@m uk-first-column">
 
-                <h1 class="uk-h2">{{title}}</h1>
-                <!--<hr class="uk-divider-small">-->
-
-                <!--<div class="uk-margin">-->
-                <!--Paste the copied XML file below, or use one of the options to upload and preview the XML file-->
-                <!--before you submit it.-->
-                <!--</div>-->
+                <h1 class="uk-h2 uk-text-center">Error: 403 Forbidden</h1>
 
                 <!-- TOP HELP CONTENT -->
                 <help-content #topHelperContent [position]="'top'"
                               [ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
                 </help-content>
 
-                <div class="uk-container uk-margin-medium-top uk-margin-medium-bottom">
+                <div class="uk-container uk-margin-large-bottom">
                     <div class="uk-grid">
 
                         <!-- LEFT HELP CONTENT -->
@@ -27,7 +21,14 @@
                         <!-- MIDDLE -->
                         <div class=" uk-width-expand@m">
 
-                            Coming soon...
+                            <div style="font-size: 180px; color: #0055b9; line-height: 1.2;" class="uk-text-center">
+                                <strong>403</strong>
+                            </div>
+
+                            <div class="uk-text-center">
+                                Sorry, access to this resource on the server is forbidden.<br>
+                                Either check the URL, <a href="/home">go home</a>, or feel free to <a href="http://openminted.eu/support/">report this issue</a>.
+                            </div>
 
                         </div>
 

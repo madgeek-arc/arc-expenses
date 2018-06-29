@@ -30,7 +30,9 @@ export class TopMenuComponent implements OnInit {
 
   ngOnInit() {
     this.isUserLoggedIn();
-    if ( this.authService.getIsUserLoggedIn() && (!this.authService.getUserFirstName() || !this.authService.getUserLastName()) ) {
+    if ( this.authService.getIsUserLoggedIn() &&
+         (!this.authService.getUserProp('firstname') || !this.authService.getUserProp('lastname')) ) {
+        console.log('in topMenu navigating to sign-up');
         this.router.navigate(['/sign-up']);
     }
   }
@@ -46,11 +48,11 @@ export class TopMenuComponent implements OnInit {
   }
 
   isUserLoggedIn() {
-    return this.authService.getIsUserLoggedIn();
+    return (this.authService.getIsUserLoggedIn() === true);
   }
 
   getUserName() {
-    return this.authService.getUserFirstName() + ' ' + this.authService.getUserLastName();
+    return this.authService.getUserProp('firstname') + ' ' + this.authService.getUserProp('lastname');
   }
 
   onClick(id: string) {
@@ -68,9 +70,9 @@ export class TopMenuComponent implements OnInit {
     });
 
     if (this.isUserLoggedIn()) {
-      this.contactForm.get('name').setValue(this.authService.getUserFirstName());
-      this.contactForm.get('surname').setValue(this.authService.getUserLastName());
-      this.contactForm.get('email').setValue(this.authService.getUserEmail());
+      this.contactForm.get('name').setValue(this.authService.getUserProp('firstname'));
+      this.contactForm.get('surname').setValue(this.authService.getUserProp('lastname'));
+      this.contactForm.get('email').setValue(this.authService.getUserProp('email'));
     }
     UIkit.modal('#contactModal').show();
   }

@@ -27,6 +27,7 @@
             <div class=" uk-width-expand@m">
               <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
               <div *ngIf="successMessage" class="uk-alert uk-alert-success">{{ successMessage }}</div>
+              <div *ngIf="notFoundMessage" class="uk-alert">{{ notFoundMessage }}</div>
               <!--<div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">-->
               <!--<div class="uk-overlay-default uk-position-cover"></div>-->
               <!--<div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>-->
@@ -40,8 +41,8 @@
                           (canEdit === true || canEdit === false)">
 
                 <!--1st stage-->
-                <!--<span>{{ stagesMap[currentRequest.stage].title }}</span>-->
-                <div *ngIf="willShowStage('1') !== 1" class="submittedRequest">
+
+                <div *ngIf="(currentRequest.stage !== '1') || (canEdit) === false" class="submittedRequest">
                   <div class="uk-margin-bottom uk-width-1-1 uk-grid">
                     <div class="uk-width-1-2@l">
                       <span class="uk-text-bold uk-margin-small-right">Πρόγραμμα: </span>
@@ -90,7 +91,6 @@
                 </div>
 
 
-                <! -- status report for users with ROLE_USER role -->
                 <div *ngIf="!isSimpleUser &&
                             ( (currentRequest.stage2 && currentRequest.stage2.date) ||
                             ( (currentRequest.stage === '2') && (canEdit === true)) )">
@@ -100,22 +100,24 @@
 
                 <!--end of 1st stage-->
 
+
+                <!-- Submitted stages display -->
                 <div class="uk-child-width-expand uk-grid" uk-grid
                      *ngIf="( (willShowStage('2') > 1) || (willShowStage('3') > 1) || (willShowStage('4') > 1) )">
 
-                  <stage2-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left newStyle"
+                  <stage2-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
                                     *ngIf="willShowStage('2') > 1"
                                     [showStage]="willShowStage('2')"
                                     [currentStage]="currentRequest.stage2"
                                     [currentProject]="currentRequest.project"></stage2-component>
 
-                  <stage3-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left newStyle"
+                  <stage3-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
                                     *ngIf="willShowStage('3') > 1"
                                     [showStage]="willShowStage('3')"
                                     [currentStage]="currentRequest.stage3"
                                     [currentProject]="currentRequest.project"></stage3-component>
 
-                  <stage4-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left newStyle"
+                  <stage4-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
                                     *ngIf="willShowStage('4') > 1"
                                     [showStage]="willShowStage('4')"
                                     [currentStage]="currentRequest.stage4"
@@ -130,13 +132,21 @@
 
 
                 <div class="uk-child-width-expand uk-grid" uk-grid
-                     *ngIf="( (willShowStage('5a') > 1) || (willShowStage('5b') > 1) || (willShowStage('6') > 1) )">
+                     *ngIf="( (willShowStage('5a') > 1) || (willShowStage('UploadInvoice') > 1) ||
+                              (willShowStage('5b') > 1) || (willShowStage('6') > 1) )">
 
                   <stage5a-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
                                      *ngIf="willShowStage('5a') > 1"
                                      [showStage]="willShowStage('5a')"
                                      [currentStage]="currentRequest.stage5a"
                                      [currentProject]="currentRequest.project"></stage5a-component>
+
+                  <stageUploadInvoice-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                     *ngIf="willShowStage('UploadInvoice') > 1"
+                                     [showStage]="willShowStage('UploadInvoice')"
+                                     [currentStage]="currentRequest.stageUploadInvoice"
+                                     [currentProject]="currentRequest.project"
+                                     [requester]="currentRequest.requester"></stageUploadInvoice-component>
 
                   <stage5b-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
                                      *ngIf="willShowStage('5b') > 1"
@@ -216,75 +226,16 @@
 
 
 
-                <div class="uk-margin-medium-top">
-                  <!--<hr>-->
+                <!-- Create/Edit pending stage -->
+                <div class="uk-margin-medium-top" *ngIf="(currentRequest.stage !== '1') && (willShowStage(currentRequest.stage) === 1)">
+                  <hr>
 
-                  <stage2-component *ngIf="willShowStage('2') === 1" [showStage]="1"
-                                    [currentStage]="currentRequest.stage2" [currentProject]="currentRequest.project"
-                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                    (emitFile)="getUploadedFile($event)"></stage2-component>
+                  <app-stage-loader [stages]="stageLoaderItemList"
+                                    (emitGoBack)="getRequestToGoBack($event)"
+                                    (emitStage)="getSubmittedStage($event)"
+                                    (emitFile)="getUploadedFile($event)"
+                                    (newValues)="getNewSupplierAndAmount($event)"></app-stage-loader>
 
-                  <stage3-component *ngIf="willShowStage('3') === 1" [showStage]="1"
-                                    [currentStage]="currentRequest.stage3" [currentProject]="currentRequest.project"
-                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                    (emitFile)="getUploadedFile($event)"></stage3-component>
-
-                  <stage4-component *ngIf="willShowStage('4') === 1" [showStage]="1"
-                                    [currentStage]="currentRequest.stage4" [currentProject]="currentRequest.project"
-                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                    (emitFile)="getUploadedFile($event)"></stage4-component>
-
-                  <stage5a-component *ngIf="willShowStage('5a') === 1" [showStage]="1"
-                                     [currentStage]="currentRequest.stage5a" [currentProject]="currentRequest.project"
-                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                     (emitFile)="getUploadedFile($event)"></stage5a-component>
-
-                  <stage5b-component *ngIf="willShowStage('5b') === 1" [showStage]="1"
-                                     [currentStage]="currentRequest.stage5b" [currentProject]="currentRequest.project"
-                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                     [oldSupplierAndAmount]="sendInfoToStage5b"
-                                     (newValues)="getNewSupplierAndAmount($event)"
-                                     (emitFile)="getUploadedFile($event)"></stage5b-component>
-
-                  <stage6-component *ngIf="willShowStage('6') === 1" [showStage]="1"
-                                    [currentStage]="currentRequest.stage6" [currentProject]="currentRequest.project"
-                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                    (emitFile)="getUploadedFile($event)"></stage6-component>
-
-                  <stage7-component *ngIf="willShowStage('7') === 1" [showStage]="1"
-                                    [currentStage]="currentRequest.stage7" [currentProject]="currentRequest.project"
-                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                    (emitFile)="getUploadedFile($event)"></stage7-component>
-
-                  <stage8-component *ngIf="willShowStage('8') === 1" [showStage]="1"
-                                    [currentStage]="currentRequest.stage8" [currentProject]="currentRequest.project"
-                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                    (emitFile)="getUploadedFile($event)"></stage8-component>
-
-                  <stage9-component *ngIf="willShowStage('9') === 1" [showStage]="1"
-                                    [currentStage]="currentRequest.stage9" [currentProject]="currentRequest.project"
-                                    (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                    (emitFile)="getUploadedFile($event)"></stage9-component>
-
-                  <stage10-component *ngIf="willShowStage('10') === 1" [showStage]="1"
-                                     [currentStage]="currentRequest.stage10" [currentProject]="currentRequest.project"
-                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                     (emitFile)="getUploadedFile($event)"></stage10-component>
-
-                  <stage11-component *ngIf="willShowStage('11') === 1" [showStage]="1"
-                                     [currentStage]="currentRequest.stage11" [currentProject]="currentRequest.project"
-                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                     (emitFile)="getUploadedFile($event)"></stage11-component>
-
-                  <stage12-component *ngIf="willShowStage('12') === 1" [showStage]="1"
-                                     [currentStage]="currentRequest.stage12" [currentProject]="currentRequest.project"
-                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                     (emitFile)="getUploadedFile($event)"></stage12-component>
-
-                  <stage13-component *ngIf="willShowStage('13') === 1" [showStage]="1"
-                                     [currentStage]="currentRequest.stage13" [currentProject]="currentRequest.project"
-                                     (emitGoBack)="getRequestToGoBack($event)" (emitStage)="getSubmittedStage($event)"
-                                     (emitFile)="getUploadedFile($event)"></stage13-component>
                 </div>
 
 

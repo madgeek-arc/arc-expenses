@@ -26,6 +26,7 @@ export class RequestsComponent implements OnInit {
 
   searchTerm: string;
   statusChoice: string;
+  statusList: string[];
   stageChoice: string;
   currentPage: number;
   itemsPerPage: number;
@@ -33,7 +34,7 @@ export class RequestsComponent implements OnInit {
   orderField: string;
   totalPages: number;
 
-  stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', review: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
+  stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', under_review: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
   states = statesList;
   stages = stageIds;
   stagesMap = stagesDescriptionMap;
@@ -58,6 +59,7 @@ export class RequestsComponent implements OnInit {
       this.keywordField = this.fb.group({ keyword: [''] });
       this.searchTerm = '';
       this.statusChoice = 'all';
+      this.statusList = ['all'];
       this.stageChoice = 'all';
       this.currentPage = 0;
       this.itemsPerPage = 10;
@@ -76,13 +78,13 @@ export class RequestsComponent implements OnInit {
     this.showSpinner = true;
     const currentOffset = this.currentPage * this.itemsPerPage;
     this.requestService.searchAllRequests(this.searchTerm,
-                                          this.statusChoice,
+                                          this.statusList,
                                           this.stageChoice,
                                           currentOffset.toString(),
                                           this.itemsPerPage.toString(),
                                           this.order,
                                           this.orderField,
-                                          this.authService.getUserEmail()).subscribe(
+                                          this.authService.getUserProp('email')).subscribe(
         res => {
             if (res && !isNull(res)) {
                 this.searchResults = res;
@@ -176,10 +178,15 @@ export class RequestsComponent implements OnInit {
 
     chooseState(event: any) {
       this.statusChoice = event.target.value;
+      this.statusList = [];
+      this.statusList.push(this.stageChoice);
+      if (this.stageChoice === 'pending') {
+          this.statusList.push('under_review');
+      }
       console.log(`this.statusChoice is ${this.statusChoice}`);
       this.keywordField.get('keyword').setValue('');
       this.searchTerm = '';
-        this.currentPage = 0;
+      this.currentPage = 0;
       this.getListOfRequests();
     }
 
@@ -191,7 +198,7 @@ export class RequestsComponent implements OnInit {
     }
 
     getStatusAsString( status: string ) {
-      if ( (status === 'pending') || (status === 'review') ) {
+      if ( (status === 'pending') || (status === 'under_review') ) {
           return 'σε εξέλιξη';
       } else if (status === 'accepted') {
           return 'ολοκληρωθηκε';

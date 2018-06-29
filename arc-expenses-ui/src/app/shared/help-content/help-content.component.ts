@@ -19,7 +19,7 @@ import { Content, PageContent } from '../../domain/page-content';
 
 export class HelpContentComponent implements OnInit {
 
-    @Input('position')
+    @Input()
     position: string;
 
     contents: Content[];
