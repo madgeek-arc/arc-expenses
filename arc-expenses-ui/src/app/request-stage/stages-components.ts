@@ -580,7 +580,7 @@ export class Stage6Component extends StageComponent implements OnInit {
 
 @Component ({
     selector: 'stage7-component',
-    templateUrl: './stages-components.html'
+    templateUrl: './stages-templates/stage7.component.html'
 })
 export class Stage7Component extends StageComponent implements OnInit {
 

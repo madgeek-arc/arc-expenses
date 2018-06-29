@@ -82,7 +82,7 @@ export class NewRequestComponent implements OnInit, DoCheck {
             if (this.requestType !== 'services_contract') {
                 this.createForm();
                 if ( isNullOrUndefined(this.projects) || (this.projects.length === 0) ) {
-                    this.getProject();
+                    this.getProjects();
                 }
                 if ( isNullOrUndefined(this.currentUser) ) {
                     this.getUserInfo();
@@ -92,7 +92,6 @@ export class NewRequestComponent implements OnInit, DoCheck {
             }
             this.title = this.reqTypes[this.requestType];
         }
-        
 
     }
 

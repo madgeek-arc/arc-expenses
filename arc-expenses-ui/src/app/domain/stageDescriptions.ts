@@ -60,7 +60,7 @@ export const analiftheiYpoxrewsiDesc = {
 
 export const checkRegularityDesc = {
     id: 'checkRegularity',
-    label: 'Έγινε έλεγχος κανονικότητας;',
+    label: 'Έγινε έλεγχος κανονικότητας',
     type: 'checkbox',
     description: '',
     required: true
@@ -154,7 +154,7 @@ export const stagesDescriptionMap = {
     },
     '7': {
         title: 'Καταχώρηση συνοδευτικού υλικού', prev: ['6'], next: ['8'], canGoBack: true,
-        stageFields: [checkRegularityDesc, checkLegalityDesc, commentDesc]
+        stageFields: [commentDesc]
     },
     '8': {
         title: 'Έλεγχος από ομάδα ελέγχου', prev: ['7'], next: ['9'], canGoBack: true,
@@ -162,7 +162,7 @@ export const stagesDescriptionMap = {
     },
     '9': {
         title: 'Έλεγχος από Π.Ο.Υ', prev: ['8'], next: ['10'], canGoBack: true,
-        stageFields: [commentDesc]
+        stageFields: [checkRegularityDesc, checkLegalityDesc, commentDesc]
     },
     '10': {
         title: 'Έλεγχος Διατάκτη', prev: ['9'], next: ['11'], canGoBack: true,
