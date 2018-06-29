@@ -34,6 +34,7 @@ import { StagesLoaderComponent } from './request-stage/stages-dynamic-load/stage
 import { SharedComponentsModule } from './shared/shared-components.module';
 import { AuthenticationInterceptor } from './services/authentication-interceptor';
 import { ForbiddenPageComponent } from './shared/403-forbidden-page.component';
+import { ManageUserService } from './services/manage-user.service';
 
 registerLocaleData(localeEL);
 
@@ -93,6 +94,7 @@ const stagesList = [
         HelpContentService,
         ManageRequestsService,
         ManageProjectService,
+        ManageUserService,
         AuthenticationService,
         AuthGuardService
     ],

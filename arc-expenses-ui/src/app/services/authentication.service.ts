@@ -230,6 +230,7 @@ export class AuthenticationService {
             lastnameLatin: this.getUserProp('lastnameLatin'),
             receiveEmails: receiveEmails,
             immediateEmails: immediateEmails,
+            signatureArchiveId: this.getUserProp('signatureArchiveId'),
             signatureAttachment: attachment
         };
 

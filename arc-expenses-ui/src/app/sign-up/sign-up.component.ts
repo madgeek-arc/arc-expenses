@@ -5,6 +5,7 @@ import {Router} from '@angular/router';
 import { Attachment } from '../domain/operation';
 import { isNullOrUndefined } from 'util';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
+import { ManageUserService } from '../services/manage-user.service';
 
 @Component({
   selector: 'app-sign-up',
@@ -26,7 +27,10 @@ export class SignUpComponent implements OnInit {
   userAttachment = new Attachment();
   signatureFilename = '';
 
-  constructor(private fb: FormBuilder, private authService: AuthenticationService, private router: Router) {}
+  constructor(private fb: FormBuilder,
+              private authService: AuthenticationService,
+              private userService: ManageUserService,
+              private router: Router) {}
 
   ngOnInit() {
       /* load page only if the user is logged in */
@@ -115,14 +119,14 @@ export class SignUpComponent implements OnInit {
     uploadFile() {
         this.errorMessage = '';
         this.showSpinner = true;
-        /*this.requestService.uploadAttachment<string>(this.authService.getUserProp('signatureArchiveId'), 'user', this.uploadedFile)
+        this.userService.uploadSignature<string>(this.authService.getUserProp('email'), this.uploadedFile)
             .subscribe(
                 event => {
                     // console.log('uploadAttachment responded: ', JSON.stringify(event));
                     if (event.type === HttpEventType.UploadProgress) {
                         console.log('uploadAttachment responded: ', event);
                     } else if ( event instanceof HttpResponse) {
-                        console.log('final event:', event.body);
+                        console.log('file url is:', event.body);
                         this.userAttachment.url = event.body;
                     }
                 },
@@ -135,7 +139,7 @@ export class SignUpComponent implements OnInit {
                     console.log('ready to update Request');
                     this.updateUser();
                 }
-            );*/
+            );
         this.updateUser();
     }
 

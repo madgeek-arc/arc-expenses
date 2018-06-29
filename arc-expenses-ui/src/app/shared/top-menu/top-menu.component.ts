@@ -52,7 +52,9 @@ export class TopMenuComponent implements OnInit {
   }
 
   getUserName() {
-    return this.authService.getUserProp('firstname') + ' ' + this.authService.getUserProp('lastname');
+      if ( this.authService.getUserProp('firstname') && this.authService.getUserProp('lastname')) {
+          return this.authService.getUserProp('firstname') + ' ' + this.authService.getUserProp('lastname');
+      }
   }
 
   onClick(id: string) {
