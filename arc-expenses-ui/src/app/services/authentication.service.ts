@@ -46,8 +46,8 @@ export class AuthenticationService {
         this.removeUserProperties();
 
         console.log('logging out, going /home');
-        console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.hostname}`);
-        window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.hostname}`;
+        console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}`);
+        window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}`;
     }
 
     public tryLogin() {
