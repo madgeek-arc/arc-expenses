@@ -46,6 +46,12 @@ public class JavaMailer {
     @Value("${mail.smtp.sasl:false}")
     private String mailSASL;
 
+    @Value("${mail.noreply.email:no-reply@athena-innovation.gr}")
+    private String noReplyMail;
+
+    @Value("${mail.noreply.from:Athena Research & Innovation Center}")
+    private String noReplyFrom;
+
 
     private Properties properties;
     private static Logger logger = LogManager.getLogger(JavaMailer.class);
@@ -66,7 +72,7 @@ public class JavaMailer {
 
         try {
             MimeMessage msg = new MimeMessage(session);
-            msg.setFrom(address);
+            msg.setFrom(new InternetAddress(noReplyMail, noReplyFrom));
             if (mailDebug) {
                 msg.setRecipients(Message.RecipientType.TO, debugAddress);
                 msg.setText(text + debugText(to));
@@ -87,6 +93,8 @@ public class JavaMailer {
 
         } catch (MessagingException mex) {
             logger.error("sendEmail failed, exception: " + mex);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
     }
 
@@ -126,7 +134,7 @@ public class JavaMailer {
 
         try {
             MimeMessage msg = new MimeMessage(session);
-            msg.setFrom(address);
+            msg.setFrom(new InternetAddress(noReplyMail, noReplyFrom));
             if (mailDebug) {
                 msg.setRecipients(Message.RecipientType.TO, debugAddress);
                 msg.setText(text + debugText(addressListToString(mailList)));
@@ -147,6 +155,8 @@ public class JavaMailer {
 
         } catch (MessagingException mex) {
             logger.error("sendEmail failed, exception: " + mex);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
     }
 
@@ -155,7 +165,7 @@ public class JavaMailer {
 
         try {
             MimeMessage msg = new MimeMessage(session);
-            msg.setFrom(address);
+            msg.setFrom(new InternetAddress(noReplyMail, noReplyFrom));
             if (mailDebug) {
                 msg.setRecipients(Message.RecipientType.TO, address);
             } else {
@@ -180,6 +190,8 @@ public class JavaMailer {
 
         } catch (MessagingException mex) {
             logger.error("sendEmail failed, exception: " + mex);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
     }
 
