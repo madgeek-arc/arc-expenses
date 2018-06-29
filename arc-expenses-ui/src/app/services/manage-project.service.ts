@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Project} from '../domain/operation';
+import { Project, Vocabulary } from '../domain/operation';
 import {catchError} from 'rxjs/operators';
 import {Observable} from 'rxjs/Observable';
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
@@ -38,10 +38,19 @@ export class ManageProjectService {
     }
 
 
-    getAllProjectsNames(): Observable<string[]> {
+    /*getAllProjectsNames(): Observable<string[]> {
         const url = `${this.apiUrl}getAllProjectNames`;
         console.log(`calling ${url}`);
         return this.http.get<string[]>(url, headerOptions)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }*/
+
+    getAllProjectsNames(): Observable<Vocabulary[]> {
+        const url = `${this.apiUrl}getAllProjectNames`;
+        console.log(`calling ${url}`);
+        return this.http.get<Vocabulary[]>(url, headerOptions)
             .pipe(
                 catchError(this.handleError)
             );

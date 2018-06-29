@@ -4,9 +4,15 @@ import { ActivatedRoute } from '@angular/router';
 import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { isNullOrUndefined, isUndefined } from 'util';
-import {HttpEventType, HttpResponse} from '@angular/common/http';
+import { HttpErrorResponse, HttpEventType, HttpResponse } from '@angular/common/http';
 import { requestTypes, stageIds, stagesDescriptionMap, stagesIfLowCost } from '../domain/stageDescriptions';
 import { printRequestPage } from './print-request-function';
+import { StageItem } from './stages-dynamic-load/stage-item';
+import {
+    Stage10Component, Stage11Component, Stage12Component, Stage13Component,
+    Stage2Component, Stage3Component, Stage4Component, Stage5aComponent,
+    Stage5bComponent, Stage6Component, Stage7Component, Stage8Component, Stage9Component, StageUploadInvoiceComponent
+} from './stages-components';
 
 @Component({
     selector: 'app-request-stage',
@@ -15,6 +21,7 @@ import { printRequestPage } from './print-request-function';
 })
 export class RequestStageComponent implements OnInit {
     errorMessage: string;
+    notFoundMessage: string;
     successMessage: string;
     showSpinner: boolean;
 
@@ -31,10 +38,31 @@ export class RequestStageComponent implements OnInit {
     wentBackOneStage: boolean;
     stages: string[];
     stagesMap = stagesDescriptionMap;
-    stateNames = {pending: 'βρίσκεται σε εξέλιξη', review: 'βρίσκεται σε εξέλιξη', rejected: 'έχει απορριφθεί', accepted: 'έχει ολοκληρωθεί'};
+    stateNames = {
+        pending: 'βρίσκεται σε εξέλιξη', under_review: 'βρίσκεται σε εξέλιξη', rejected: 'έχει απορριφθεί', accepted: 'έχει ολοκληρωθεί'
+    };
     reqTypes = requestTypes;
 
     sendInfoToStage5b: string[];
+
+    stageLoaderItemList: StageItem[];
+
+    componentPerStage = {
+        '2': Stage2Component,
+        '3': Stage3Component,
+        '4': Stage4Component,
+        '5a': Stage5aComponent,
+        'UploadInvoice': StageUploadInvoiceComponent,
+        '5b': Stage5bComponent,
+        '6': Stage6Component,
+        '7': Stage7Component,
+        '8': Stage8Component,
+        '9': Stage9Component,
+        '10': Stage10Component,
+        '11': Stage11Component,
+        '12': Stage12Component,
+        '13': Stage13Component,
+    };
 
     constructor(private route: ActivatedRoute,
                 private requestService: ManageRequestsService,
@@ -51,38 +79,42 @@ export class RequestStageComponent implements OnInit {
         this.showSpinner = true;
         this.requestId = this.route.snapshot.paramMap.get('id');
         this.errorMessage = '';
+        this.notFoundMessage = '';
 
         /*call api to get request info or throw errorMessage*/
-        this.requestService.getRequestById(this.requestId, this.authService.getUserEmail()).subscribe(
+        this.requestService.getRequestById(this.requestId, this.authService.getUserProp('email')).subscribe(
             res => {
                 this.currentRequest = res;
                 console.log(`The archiveid of the currentRequest is ${res.archiveId}`);
             },
             error => {
                 console.log(error);
-                this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την ανάκτηση του αιτήματος.';
                 this.showSpinner = false;
+                console.log('error status is', error.status);
+                if (error instanceof HttpErrorResponse) {
+                    if (error.status === 404) {
+                        this.notFoundMessage = 'Το αίτημα που ζητήσατε δεν βρέθηκε.';
+                    } else {
+                        this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την ανάκτηση του αιτήματος.';
+                    }
+                }
             },
             () => {
-                if ( isNullOrUndefined(this.currentRequest) ) {
-                    this.showSpinner = false;
-                    this.errorMessage = 'Το αίτημα που ζητήσατε δεν βρέθηκε.';
+                if (this.currentRequest.stage1.amountInEuros > this.lowAmountLimit) {
+                    this.stages = stageIds;
                 } else {
-                    if (this.currentRequest.stage1.amountInEuros > this.lowAmountLimit) {
-                        this.stages = stageIds;
-                    } else {
-                        this.stages = stagesIfLowCost;
-                    }
-                    this.checkIfStageIs5b();
-                    this.getIfUserCanEditRequest();
+                    this.stages = stagesIfLowCost;
                 }
+                this.checkIfStageIs5b();
+                this.getIfUserCanEditRequest();
             }
         );
     }
 
     checkIfStageIs5b() {
-        if ( (this.currentRequest.stage === '5b') &&
-            (this.currentRequest.stage1.supplierSelectionMethod === 'Διαγωνισμός') ) {
+        if ( ((this.currentRequest.stage === '5b') &&
+              (this.currentRequest.stage1.supplierSelectionMethod === 'Διαγωνισμός')) ||
+              (this.currentRequest.stage === 'UploadInvoice')) {
             this.sendInfoToStage5b = [];
             this.sendInfoToStage5b.push('');
             this.sendInfoToStage5b.push('');
@@ -97,7 +129,7 @@ export class RequestStageComponent implements OnInit {
 
     getIfUserCanEditRequest() {
         this.errorMessage = '';
-        this.requestService.isEditable(this.currentRequest, this.authService.getUserEmail()).subscribe(
+        this.requestService.isEditable(this.currentRequest, this.authService.getUserProp('email')).subscribe(
             res => this.canEdit = res,
             error => {
                 console.log(error);
@@ -161,17 +193,7 @@ export class RequestStageComponent implements OnInit {
         this.currentStageName = 'stage' + this.currentRequest.stage;
         console.log(`submitting as ${this.currentStageName}`);
         this.currentRequest[this.currentStageName] = newStage;
-        /*if (newStage['approved']) {
-            if (this.currentRequest.stage === '13') {
-                this.currentRequest.status = 'accepted';
-            } else {
-                this.currentRequest.status = 'pending';
-            }
-        } else if (this.currentRequest.stage === '6' || this.currentRequest.stage === '11' || (this.wentBackOneStage === true)) {
-            this.currentRequest.status = 'pending';
-        } else {
-            this.currentRequest.status = 'rejected';
-        }*/
+
         const submittedStage = this.currentRequest.stage;
         if (this.wentBackOneStage === true) {
             this.currentRequest.stage = this.getPreviousStage(this.currentRequest.stage);
@@ -181,7 +203,7 @@ export class RequestStageComponent implements OnInit {
 
         if (this.currentRequest.stage === submittedStage) {
             if ( ((this.stages.indexOf(this.currentRequest.stage) === (this.stages.length - 1)) && (newStage['approved'] === true)) ||
-                 ((this.currentRequest.stage === '6') && (this.currentRequest.type === 'contract')) ) {
+                ((this.currentRequest.stage === '6') && (this.currentRequest.type === 'contract')) ) {
 
                 this.currentRequest.status = 'accepted';
             } else {
@@ -189,12 +211,11 @@ export class RequestStageComponent implements OnInit {
                 this.currentRequest.status = 'rejected';
             }
         } else {
-            /*if ( this.wentBackOneStage === true ) {
-                this.currentRequest.status = 'review';
+            if ( this.wentBackOneStage === true ) {
+                this.currentRequest.status = 'under_review';
             } else {
                 this.currentRequest.status = 'pending';
-            }*/
-            this.currentRequest.status = 'pending';
+            }
         }
 
         this.checkIfStageIs5b();
@@ -232,7 +253,7 @@ export class RequestStageComponent implements OnInit {
         }
         console.log(`sending ${JSON.stringify(this.currentRequest[this.currentStageName], null, 1)} to updateRequest`);
         /*update this.currentRequest*/
-        this.requestService.updateRequest(this.currentRequest, this.authService.getUserEmail()).subscribe (
+        this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email')).subscribe (
             res => console.log(`update Request responded: ${res.id}, status=${res.status}, stage=${res.stage}`),
             error => {
                 console.log(error);
@@ -285,6 +306,17 @@ export class RequestStageComponent implements OnInit {
             (this.currentRequest.status !== 'accepted') &&
             ( (this.authService.getUserRole() === 'ROLE_ADMIN') || (this.canEdit === true) ) ) {
 
+            this.stageLoaderItemList = [
+                new StageItem(  this.componentPerStage[stage],
+                    {
+                        showStage: 1,
+                        currentStage: this.currentRequest['stage' + stage],
+                        currentProject: this.currentRequest.project,
+                        oldSupplierAndAmount: this.sendInfoToStage5b,
+                        requester: this.currentRequest.requester
+                    }),
+            ];
+
             return 1;
 
         } else {
@@ -302,16 +334,17 @@ export class RequestStageComponent implements OnInit {
                     if ( (stage === this.currentRequest.stage) && (this.stages.indexOf(stage) > 0)) {
 
                         const prevStageField = 'stage' + this.stages[this.stages.indexOf(stage) - 1];
-                        if ( !isNullOrUndefined(this.currentRequest[prevStageField]) &&
-                             !isNullOrUndefined(this.currentRequest[prevStageField].date) &&
-                             (this.currentRequest[prevStageField].date > this.currentRequest[stageField].date) ) {
+                        if (!isNullOrUndefined(this.currentRequest[prevStageField]) &&
+                            !isNullOrUndefined(this.currentRequest[prevStageField].date) &&
+                            (this.currentRequest[prevStageField].date > this.currentRequest[stageField].date) ) {
+
                             return 4;
                         }
                     }
 
-                    if ((!isUndefined(this.currentRequest[stageField]['approved']) &&
-                            this.currentRequest[stageField]['approved'] === true) ||
-                        (stage === '6') || (stage === '11')) {
+                if (( !isUndefined(this.currentRequest[stageField]['approved']) &&
+                      this.currentRequest[stageField]['approved'] === true ) ||
+                    (stage === 'UploadInvoice') || (stage === '6') || (stage === '11')) {
 
                         return 2;
 

@@ -12,11 +12,14 @@ export class AuthGuardService implements CanActivate {
 
     canActivate (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
         console.log('in authGuard, current url is:', state.url);
-        if ( (getCookie('arc_currentUser') != null) && this.authenticationService.getIsUserLoggedIn() ) {
+
+        if ( (getCookie('arc_currentUser') !== null) && (getCookie('arc_currentUser') !== '') &&
+             this.authenticationService.getIsUserLoggedIn() ) {
+
             return true;
         }
 
-        if ( getCookie('arc_currentUser') != null ) { return true; }
+        if ( (getCookie('arc_currentUser') !== null) && (getCookie('arc_currentUser') !== '') ) { return true; }
 
         // Store the attempted URL for redirecting
         if ( !sessionStorage.getItem('state.location') ) {

@@ -4,6 +4,7 @@ import {AuthenticationService} from '../services/authentication.service';
 import {Router} from '@angular/router';
 import { Attachment } from '../domain/operation';
 import { isNullOrUndefined } from 'util';
+import { HttpEventType, HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-sign-up',
@@ -23,24 +24,22 @@ export class SignUpComponent implements OnInit {
 
   uploadedFile: File;
   userAttachment = new Attachment();
+  signatureFilename = '';
 
   constructor(private fb: FormBuilder, private authService: AuthenticationService, private router: Router) {}
 
   ngOnInit() {
       /* load page only if the user is logged in */
-      if (this.authService.getUserEmail()) {
-          /* load page only if firstname or lastname doesn't exist */
-          /*if (this.authService.getUserFirstName() && this.authService.getUserLastName()) {
-              this.router.navigate(['/home']);
-          }*/
+      if (this.authService.getUserProp('email')) {
+
           this.createForm();
       } else {
+
           this.router.navigate(['/home']);
       }
   }
 
   createForm () {
-      console.log(this.firstnameLatin, this.lastnameLatin, this.userEmail);
       this.signUpForm = this.fb.group( {
           name: ['', Validators.required],
           surname: ['', Validators.required],
@@ -51,28 +50,29 @@ export class SignUpComponent implements OnInit {
           immediateEmails: ['']
       });
       this.addUserInfoToForm();
-      /*this.signUpForm.get('nameLatin').disable();
-      this.signUpForm.get('surnameLatin').disable();
-      this.signUpForm.get('email').disable();*/
   }
 
     addUserInfoToForm () {
-      this.signUpForm.get('name').setValue(this.authService.getUserFirstName());
-      this.signUpForm.get('surname').setValue(this.authService.getUserLastName());
-      this.signUpForm.get('nameLatin').setValue(this.authService.getUserFirstNameInLatin());
-      this.signUpForm.get('surnameLatin').setValue(this.authService.getUserLastNameInLatin());
-      this.signUpForm.get('email').setValue(this.authService.getUserEmail());
-      this.signUpForm.get('receiveEmails').setValue(this.authService.getUserReceiveEmails());
-      this.signUpForm.get('immediateEmails').setValue(this.authService.getUserImmediateEmails());
+      this.signUpForm.get('name').setValue(this.authService.getUserProp('firstname'));
+      this.signUpForm.get('surname').setValue(this.authService.getUserProp('lastname'));
+      this.signUpForm.get('nameLatin').setValue(this.authService.getUserProp('firstnameLatin'));
+      this.signUpForm.get('surnameLatin').setValue(this.authService.getUserProp('lastnameLatin'));
+      this.signUpForm.get('email').setValue(this.authService.getUserProp('email'));
+      this.signUpForm.get('receiveEmails').setValue(this.authService.getUserProp('receiveEmails'));
+      this.signUpForm.get('immediateEmails').setValue(this.authService.getUserProp('immediateEmails'));
 
       this.signUpForm.get('nameLatin').disable();
       this.signUpForm.get('surnameLatin').disable();
       this.signUpForm.get('email').disable();
       this.toggleImmediateEmailsDisable();
-      if (!this.authService.getUserFirstName() || !this.authService.getUserLastName()) {
+      if (!this.authService.getUserProp('firstname') || !this.authService.getUserProp('lastname')) {
           this.signUpForm.get('receiveEmails').setValue(true);
           this.signUpForm.get('immediateEmails').setValue(true);
           this.signUpForm.get('immediateEmails').enable();
+      }
+      if ( !isNullOrUndefined(this.authService.getSignatureAttachment()) ) {
+          this.userAttachment = this.authService.getSignatureAttachment();
+          this.signatureFilename = this.userAttachment.filename;
       }
     }
 
@@ -97,77 +97,81 @@ export class SignUpComponent implements OnInit {
         return tempAttachment;
     }
 
+    submitChanges() {
+        if (this.signUpForm.valid) {
+            if (this.uploadedFile) {
+                // SEND IT SOMEWHERE AND UPDATE USER
+                this.userAttachment = this.createAttachment();
+                this.uploadFile();
+            } else {
+                this.updateUser();
+            }
+        } else {
+            this.errorMessage = 'Είναι απαραίτητο να συμπληρώσετε το όνομα και το επίθετό σας στα ελληνικά.';
+            this.showSpinner = false;
+        }
+    }
+
+    uploadFile() {
+        this.errorMessage = '';
+        this.showSpinner = true;
+        /*this.requestService.uploadAttachment<string>(this.authService.getUserProp('signatureArchiveId'), 'user', this.uploadedFile)
+            .subscribe(
+                event => {
+                    // console.log('uploadAttachment responded: ', JSON.stringify(event));
+                    if (event.type === HttpEventType.UploadProgress) {
+                        console.log('uploadAttachment responded: ', event);
+                    } else if ( event instanceof HttpResponse) {
+                        console.log('final event:', event.body);
+                        this.userAttachment.url = event.body;
+                    }
+                },
+                error => {
+                    console.log(error);
+                    this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών';
+                    this.showSpinner = false;
+                },
+                () => {
+                    console.log('ready to update Request');
+                    this.updateUser();
+                }
+            );*/
+        this.updateUser();
+    }
+
     updateUser() {
       this.errorMessage = '';
       this.showSpinner = true;
-      if (this.signUpForm.valid) {
-          if (this.uploadedFile) {
-              // SEND IT SOMEWHERE AND UPDATE USER
-              this.userAttachment = this.createAttachment();
-          }
 
-          this.authService.updateUserInfo( this.signUpForm.get('name').value,
-                                           this.signUpForm.get('surname').value,
-                                           (this.signUpForm.get('receiveEmails').value).toString(),
-                                           (this.signUpForm.get('immediateEmails').value).toString(),
-                                           this.userAttachment ).subscribe(
-              user => console.log(`updateUser responded: ${JSON.stringify(user)}`),
-              error => {
-                  this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών';
-                  this.showSpinner = false;
-              },
-              () => {
-                  this.errorMessage = '';
-                  this.showSpinner = false;
-                  if ( !isNullOrUndefined(sessionStorage.getItem('state.location')) &&
-                      (sessionStorage.getItem('state.location') !== '/sign-up') ) {
-                      const state = sessionStorage.getItem('state.location');
-                      sessionStorage.removeItem('state.location');
-                      console.log('in sign-up returning to', state);
-                      this.router.navigate([state]);
-                  } else {
-                      this.router.navigate(['/home']);
-                  }
+      this.authService.updateUserInfo( this.signUpForm.get('name').value,
+                                       this.signUpForm.get('surname').value,
+                                       (this.signUpForm.get('receiveEmails').value).toString(),
+                                       (this.signUpForm.get('immediateEmails').value).toString(),
+                                       this.userAttachment ).subscribe(
+          user => console.log(`updateUser responded: ${JSON.stringify(user)}`),
+          error => {
+              this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών';
+              this.showSpinner = false;
+          },
+          () => {
+              this.errorMessage = '';
+              this.showSpinner = false;
+              if ( !isNullOrUndefined(sessionStorage.getItem('state.location')) &&
+                  (sessionStorage.getItem('state.location') !== '/sign-up') ) {
+                  const state = sessionStorage.getItem('state.location');
+                  sessionStorage.removeItem('state.location');
+                  console.log('in sign-up returning to', state);
+                  this.router.navigate([state]);
+              } else {
+                  this.router.navigate(['/home']);
               }
-          );
-      } else {
-          this.errorMessage = 'Είναι απαραίτητο να συμπληρώσετε το όνομα και το επίθετό σας στα ελληνικά.';
-          this.showSpinner = false;
-      }
+          }
+      );
     }
 
 
     getUploadedFile(file: File) {
         this.uploadedFile = file;
-    }
-
-  continueToHome() {
-      this.errorMessage = '';
-      if ( this.authService.getUserFirstName() && this.authService.getUserLastName() ) {
-          this.router.navigate(['/home']);
-      } else {
-          this.errorMessage = 'Είναι απαραίτητο να αποθηκεύσετε το όνομα και το επίθετό σας στα ελληνικά.';
-      }
-  }
-
-  getFirstNameInLatin() {
-      return this.authService.getUserFirstNameInLatin();
-  }
-
-    getLastNameInLatin() {
-        return this.authService.getUserLastNameInLatin();
-    }
-
-    getUserEmail() {
-        return this.authService.getUserEmail();
-    }
-
-    getLastName() {
-      return this.authService.getUserLastName();
-    }
-
-    getFirstName() {
-      return this.authService.getUserFirstName();
     }
 
 }

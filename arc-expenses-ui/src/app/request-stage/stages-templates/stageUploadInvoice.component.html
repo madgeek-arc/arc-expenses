@@ -3,7 +3,7 @@
     <div *ngIf="showStage > 1" class="uk-form-controls">
         <!--<h5>{{ stageTitle }}</h5>-->
         <div>
-            {{ submittedStageResult }} ({{ getDelegateName() }})
+            {{ submittedStageResult }} ({{ getUserName() }})
             στις {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
         </div>
         <div *ngIf="currentStage['comment']">
@@ -36,7 +36,7 @@
         <div *ngIf="oldSupplierAndAmount"
              class="uk-grid uk-margin-small-top">
 
-            <label class="uk-width-1-3">Ποσό (σε EUR) (*)</label>
+            <label class="uk-width-1-3">Τελικό ποσό (σε EUR) (*)</label>
             <div class="uk-width-expand">
                 <input class="uk-form-controls uk-input"
                        type="text"
@@ -59,11 +59,7 @@
         </app-stage-form-upload-file>
 
         <!--BUTTONS-->
-        <button class="uk-button uk-button-primary" (click)="emitNewValues(true)">Εγκρίνεται</button>
-
-        <button class="uk-button uk-button-primary" (click)="emitNewValues(false)">Απορρίπτεται</button>
-
-        <button class="uk-button uk-button-primary" (click)="emitNewValuesAndGoBack()">Επιστροφή στο προηγούμενο στάδιο</button>
+        <button class="uk-button uk-button-primary" (click)="submitForm()">Υποβολή</button>
 
     </div>
 </div>

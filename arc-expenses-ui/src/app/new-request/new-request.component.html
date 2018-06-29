@@ -25,14 +25,14 @@
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
-              <div *ngIf="requestType && (requestType !== '')">
+              <div *ngIf="requestType">
                 <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
                 <!--<div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">-->
                   <!--<div class="uk-overlay-default uk-position-cover"></div>-->
                   <!--<div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>-->
                 <!--</div>-->
                 <div *ngIf="requestType === 'services_contract'">Coming soon...</div>
-                <div *ngIf="(requestType !== 'services_contract') && newRequestForm && currentUser && projects"
+                <div *ngIf="(requestType !== 'services_contract') && newRequestForm && currentUser && projects && (projects.length > 0)"
                             [formGroup]="newRequestForm" class="uk-form-horizontal">
                   <fieldset data-uk-margin>
                     <legend class="uk-margin-medium-bottom">Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>
@@ -67,7 +67,7 @@
                         <div *ngIf="searchTerm" class="uk-nav uk-padding-small uk-width-large uk-position-absolute" style="background-color: white">
                           <ul>
                             <li *ngFor="let project of projects | filterByTerm: searchTerm">
-                              <a (click)="updateProgramInput(project)">{{project}}</a>
+                              <a (click)="updateProgramInput(project)">{{ project.projectAcronym }} ({{ project.instituteName }})</a>
                             </li>
                           </ul>
                         </div>
