@@ -179,8 +179,8 @@ export class RequestsComponent implements OnInit {
     chooseState(event: any) {
       this.statusChoice = event.target.value;
       this.statusList = [];
-      this.statusList.push(this.stageChoice);
-      if (this.stageChoice === 'pending') {
+      this.statusList.push(this.statusChoice);
+      if (this.statusChoice === 'pending') {
           this.statusList.push('under_review');
       }
       console.log(`this.statusChoice is ${this.statusChoice}`);
