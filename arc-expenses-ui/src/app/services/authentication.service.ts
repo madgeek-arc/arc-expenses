@@ -46,12 +46,13 @@ export class AuthenticationService {
         this.removeUserProperties();
 
         console.log('logging out, going /home');
-        console.log(`${this.baseUrl}/Shibboleth.sso/Logout?return=${this.baseUrl}`);
-        window.location.href = `${this.baseUrl}/Shibboleth.sso/Logout?return=${this.baseUrl}`;
+        console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.hostname}`);
+        window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.hostname}`;
     }
 
     public tryLogin() {
-        console.log('entering tryLogin -> state.location is:', sessionStorage.getItem('state.location'), getCookie('arc_currentUser'));
+        console.log('entering tryLogin -> state.location is:', sessionStorage.getItem('state.location'));
+        console.log('cookie is:', getCookie('arc_currentUser'));
         if (getCookie('arc_currentUser')) {
             console.log(`I got the cookie!`);
 
