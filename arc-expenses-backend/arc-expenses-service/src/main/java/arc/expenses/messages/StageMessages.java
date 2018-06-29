@@ -19,9 +19,9 @@ import java.util.*;
 
 @Component
 public class StageMessages {
-    public enum UserType {USER, POI, nextPOI}
+    public enum UserType {USER, previousPOI, nextPOI}
 
-    public enum RequestState {INITIALIZED, ACCEPTED, ACCEPTED_DIAVGEIA, REVIEW, REJECTED, COMPLETED}
+    public enum RequestState {INITIALIZED, ACCEPTED, INVOICE, ACCEPTED_DIAVGEIA, REVIEW, REJECTED, COMPLETED}
 
     UserServiceImpl userServiceImpl;
 
@@ -38,20 +38,16 @@ public class StageMessages {
     public List<EmailMessage> createStageMessages(String prevStage, String nextStage, Request request) {
         List<EmailMessage> emails = new ArrayList<>();
         String transition = null;
-        String subject = "[ARC-REQUEST] Αίτηση " + request.getId();
+        String subject = "[ARC-REQUEST] Αίτημα " + request.getId();
         RequestState state = RequestState.ACCEPTED;
 
         logger.info("Request Link: " + url + request.getId());
 
         if ("rejected".equals(request.getStatus())) {
-//            emails.add(new EmailMessage(request.getRequester().getEmail(), subject, messageTemplates(
-//                    null, null, request, UserType.USER, RequestState.REJECTED,
-//                    request.getStage1().getRequestDate())));
             state = RequestState.REJECTED;
             transition = "rejected";
 
-        } else if (RequestWrapper.stageUnderReview(prevStage, nextStage)) {
-//        } else if ("review".equals(request.getStatus())) {
+        } else if ("under_review".equals(request.getStatus())) {
             // TODO: add explicitly cases requiring special handling
             switch (nextStage) {
                 case "1":
@@ -77,14 +73,32 @@ public class StageMessages {
                 emails.addAll(getEmailMessages(request, UserType.nextPOI, state, subject));
                 break;
 
+            case "5a->UplodInvoice":
+                // email to USER
+                emails.addAll(getEmailMessages(request, UserType.USER, RequestState.INVOICE, subject));
+                // email to previousPOI and delegates
+                emails.addAll(getEmailMessages(request, UserType.previousPOI, state, subject));
+//                // email to nextPOI and delegates
+//                emails.addAll(getEmailMessages(request, UserType.nextPOI, state, subject));
+                break;
+
+            case "UploadInvoice<-8":
+                // email to USER
+                emails.addAll(getEmailMessages(request, UserType.USER, RequestState.INVOICE, subject));
+                // email to previousPOI and delegates
+                emails.addAll(getEmailMessages(request, UserType.previousPOI, state, subject));
+//                // email to nextPOI and delegates
+//                emails.addAll(getEmailMessages(request, UserType.nextPOI, state, subject));
+                break;
+
             case "6->7":
                 if (state == RequestState.ACCEPTED) {
                     state = RequestState.ACCEPTED_DIAVGEIA;
                 }
                 // email to USER
                 emails.addAll(getEmailMessages(request, UserType.USER, state, subject));
-                // email to POI and delegates
-                emails.addAll(getEmailMessages(request, UserType.POI, state, subject));
+                // email to previousPOI and delegates
+                emails.addAll(getEmailMessages(request, UserType.previousPOI, state, subject));
                 // email to nextPOI and delegates
                 emails.addAll(getEmailMessages(request, UserType.nextPOI, state, subject));
                 break;
@@ -97,15 +111,15 @@ public class StageMessages {
                     // email to USER
                     emails.addAll(getEmailMessages(request, UserType.USER, state, subject));
                 }
-                // email to POI and delegates
-                emails.addAll(getEmailMessages(request, UserType.POI, state, subject));
+                // email to previousPOI and delegates
+                emails.addAll(getEmailMessages(request, UserType.previousPOI, state, subject));
                 break;
 
             case "1<-":
                 // email to USER
                 emails.addAll(getEmailMessages(request, UserType.USER, state, subject));
-                // email to POI and delegates
-                emails.addAll(getEmailMessages(request, UserType.POI, state, subject));
+                // email to previousPOI and delegates
+                emails.addAll(getEmailMessages(request, UserType.previousPOI, state, subject));
                 break;
 
 //            case "12<-13":
@@ -113,8 +127,8 @@ public class StageMessages {
 //                break;
 
             case "<-":
-                // email to POI and delegates
-                emails.addAll(getEmailMessages(request, UserType.POI, state, subject));
+                // email to previousPOI and delegates
+                emails.addAll(getEmailMessages(request, UserType.previousPOI, state, subject));
                 // email to nextPOI and delegates
                 emails.addAll(getEmailMessages(request, UserType.nextPOI, state, subject));
                 break;
@@ -123,12 +137,14 @@ public class StageMessages {
                 // email to USER
                 emails.addAll(getEmailMessages(request, UserType.USER, state, subject));
                 // email to POIs and delegates
-                emails.addAll(getEmailMessages(request, UserType.POI, state, subject));
+                emails.addAll(getEmailMessages(request, UserType.previousPOI, state, subject));
                 break;
 
+            case "UploadInvoice->8":
+                // probably default case works // TODO check this !!!
             default:
                 // email to POIs and delegates
-                emails.addAll(getEmailMessages(request, UserType.POI, state, subject));
+                emails.addAll(getEmailMessages(request, UserType.previousPOI, state, subject));
                 // email to nextPOI and delegates
                 emails.addAll(getEmailMessages(request, UserType.nextPOI, state, subject));
         }
@@ -182,10 +198,9 @@ public class StageMessages {
 
         if (type == UserType.USER) {
             User user = appStages.getUser(completedStage); // get User of completed stage (previous stage)
-            List<POI> poi = appStages.getPersonsOfInterest(completedStage); // get POIs of completed stage (previous stage)
             messages.add(new EmailMessage(request.getRequester().getEmail(), subject,
                     messageTemplates(user.getFirstname(), user.getLastname(), request, type, state, date)));
-        } else if (type == UserType.POI) {
+        } else if (type == UserType.previousPOI) {
             User user = appStages.getUser(completedStage); // get User of completed stage (previous stage)
             List<POI> poi = appStages.getPersonsOfInterest(completedStage); // get POIs of completed stage (previous stage)
             List<String> addresses = new ArrayList<>();
@@ -214,68 +229,312 @@ public class StageMessages {
 
     private String messageTemplates(String firstname, String lastname, Request request, UserType type,
                                     RequestState state, String date_secs) {
+        String subject;
         String messageText = null;
         String date = "";
         String id = request.getId();
         RequestWrapper appStages = new RequestWrapper(request);
+        StringBuilder stringBuilder = new StringBuilder();
         if (date_secs != null) {
             date = new SimpleDateFormat("dd/MM/yyyy").format(new Date(Long.parseLong(date_secs))).toString();
         }
         String link = createLink(id);
+        // TODO:
+//        switch (state) {
+//            case INITIALIZED:
+//                switch (type) {
+//                    case USER:
+//                        stringBuilder
+//                                .append("Αγαπητέ χρήστη,\n\n")
+//                                .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+//                                .append(id)
+//                                .append(" έχει υποβληθεί επιτυχώς.");
+//                        break;
+//
+//                    case nextPOI:
+//
+//                        break;
+//                }
+//                break;
+//
+//            case INVOICE:
+//                stringBuilder
+//                        .append("Αγαπητέ χρήστη,\n\n")
+//                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+//                        .append(id)
+//                        .append(" έχει εγκριθεί από τις διοικητικές υπηρεσίες του κέντρου.\n")
+//                        .append("Μπορείτε να προχωρήσετε στην πραγματοποίηση της δαπάνης και παρακαλείστε να να μεταφορτώσετε το τιμολόγιό σας στο σύστημα.");
+//                break;
+//
+//            case ACCEPTED_DIAVGEIA:
+//                switch (type) {
+//                    case USER:
+//                        stringBuilder
+//                                .append("Αγαπητέ χρήστη,\n\n")
+//                                .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+//                                .append(id)
+//                                .append(" έχει εγκριθεί από τον επιστημονικό\n")
+//                                .append("υπεύθυνο και έχει προωθηθεί στις διοικητικές υπηρεσίες του κέντρου για επεξεργασία.");
+//                        break;
+//
+//                    case previousPOI:
+//
+//                        break;
+//
+//                    case nextPOI:
+//
+//                        break;
+//                }
+//                break;
+//
+//            case REVIEW:
+//                switch (type) {
+//                    case USER:
+//                        stringBuilder
+//                                .append("Αγαπητέ χρήστη,\n\n")
+//                                .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+//                                .append(id)
+//                                .append(" έχει επιστραφεί από τον επιστημονικό\n")
+//                                .append("υπεύθυνο για να προβείτε στις απαραίτητες διορθώσεις.");
+//                        break;
+//
+//                    case previousPOI:
+//
+//                        break;
+//
+//                    case nextPOI:
+//
+//                        break;
+//                }
+//                break;
+//
+//            case REJECTED:
+//                switch (type) {
+//                    case USER:
+//                        stringBuilder
+//                                .append("Αγαπητέ χρήστη,\n\n")
+//                                .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+//                                .append(id)
+//                                .append(" έχει απορριφθεί.");
+//                        break;
+//
+//                    case previousPOI:
+//
+//                        break;
+//                }
+//                break;
+//
+//            case COMPLETED:
+//                switch (type) {
+//                    case USER:
+//                        stringBuilder
+//                                .append("Αγαπητέ χρήστη,\n\n")
+//                                .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+//                                .append(id)
+//                                .append(" έχει ολοκληρωθεί.\n");
+//                        break;
+//
+//                    case previousPOI:
+//
+//                        break;
+//                }
+//                break;
+//
+//            case ACCEPTED:
+//
+//            default:
+//                if (type == UserType.previousPOI) {
+//
+//                } else if (type == UserType.nextPOI) {
+//
+//                } else if (type == UserType.USER) {
+//                    stringBuilder
+//                            .append("Αγαπητέ χρήστη,\n\n")
+//                            .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+//                            .append(id)
+//                            .append(" έχει εγκριθεί από τον επιστημονικό\n")
+//                            .append("υπεύθυνο και έχει προωθηθεί στις διοικητικές υπηρεσίες του κέντρου για επεξεργασία.");
+//                }
+//                break;
+//        }
         if (type == UserType.USER) {
             if (state == RequestState.INITIALIZED) {
-                messageText = "Το αίτημά σας, με κωδικό " + id + ", υποβλήθηκε επιτυχώς στις " + date;
+                subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" έχει υποβληθεί επιτυχώς.");
             } else if (state == RequestState.ACCEPTED) {
-                messageText = "Το αίτημά σας εγκρίθηκε από τον επιστημονικό υπεύθυνο: " + firstname + " " + lastname;
+                subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" έχει εγκριθεί από τον επιστημονικό\n")
+                        .append("υπεύθυνο και έχει προωθηθεί στις διοικητικές υπηρεσίες του κέντρου για επεξεργασία.");
+            } else if (state == RequestState.INVOICE) {
+                subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" έχει εγκριθεί από τις διοικητικές υπηρεσίες του κέντρου.\n")
+                        .append("Μπορείτε να προχωρήσετε στην πραγματοποίηση της δαπάνης και παρακαλείστε να να μεταφορτώσετε το τιμολόγιό σας στο σύστημα.");
             } else if (state == RequestState.ACCEPTED_DIAVGEIA) {
-                messageText = "Το αίτημά σας με κωδικό " + id + " εγκρίθηκε από τον υπεύθυνο της Διαύγειας, " +
-                        firstname + " " + lastname + " στις " + date + ". \nΜπορείτε να προχωρήσετε με τις αγορές σας.";
+                subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" έχει εγκριθεί από τον επιστημονικό\n")
+                        .append("υπεύθυνο και έχει προωθηθεί στις διοικητικές υπηρεσίες του κέντρου για επεξεργασία.");
+
             } else if (state == RequestState.COMPLETED) {
-                messageText = "Το αίτημά σας με κωδικό " + id + " ελέγχθηκε κι εγκρίθηκε επιτυχώς!";
+                subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" έχει ολοκληρωθεί.\n");
+
             } else if (state == RequestState.REJECTED) {
-                messageText = "Το αίτημά σας με κωδικό " + id + " απορρίφθηκε.";
+                subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" έχει απορριφθεί.");
+                if (appStages.getComment(request.getStage()) != null) {
+                    stringBuilder
+                            .append("\n\nΑιτία: ")
+                            .append(appStages.getComment(request.getStage()));
+                }
+
             } else if (state == RequestState.REVIEW) {
-                messageText = "Tο αίτημα σας με κωδικό " + id + ", επιστράφηκε στο αρχικό στάδιο από τον/την " + firstname +
-                        " " + lastname;
-                messageText += "\n\nΣχόλια: " + appStages.getComment(appStages.getNextStage());
+                subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" έχει επιστραφεί από τον επιστημονικό\n")
+                        .append("υπεύθυνο για να προβείτε στις απαραίτητες διορθώσεις.");
+
+                if (appStages.getComment(request.getStage()) != null) {
+                    stringBuilder
+                            .append("\n\nΣχόλια: ")
+                            .append(appStages.getComment(request.getStage()));
+                }
             }
-        } else if (type == UserType.POI) {
-            if (state == RequestState.INITIALIZED) {
-                messageText = "Νέο αίτημα με κωδικό " + id + " από τον/την " + firstname + " " + lastname;
-            } else if (state == RequestState.ACCEPTED) {
-                messageText = "Εγκρίθηκε το αίτημα με κωδικό " + id + " από τον/την " + firstname + " " + lastname;
+        } else if (type == UserType.previousPOI) {
+            subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
+            if (state == RequestState.ACCEPTED) {
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" προχώρησε στο επόμενο στάδιο.");
+
             } else if (state == RequestState.ACCEPTED_DIAVGEIA) {
-                messageText = "Το αίτημά με κωδικό " + id + " εγκρίθηκε από τον υπεύθυνο της Διαύγειας, " +
-                        firstname + " " + lastname + " στις " + date + ".";
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" προχώρησε στο επόμενο στάδιο.");
+
             } else if (state == RequestState.COMPLETED) {
-                messageText = "Ολοκληρώθηκε το αίτημα με κωδικό " + id + " από τον/την " + firstname + " " + lastname;
+                subject = "[ARC-ν.4485] Διεκπεραίωση του αιτήματος " + request.getId();
+                stringBuilder.append("Ολοκληρώθηκε το αίτημα με κωδικό ");
+                stringBuilder.append(id);
+                stringBuilder.append(" από τον/την ");
+                stringBuilder.append(firstname);
+                stringBuilder.append(" ");
+                stringBuilder.append(lastname);
             } else if (state == RequestState.REJECTED) {
-                messageText = "Απορρίφθηκε το αίτημα με κωδικό " + id + " από τον/την " + firstname + " " + lastname;
-                // TODO @spring.Resource to load (use .xml not .properties)
-//                messageText = "Απορρίφθηκε το αίτημα με κωδικό {{id}} από τον/την {{firstname}} {{lastname}}";
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" έχει απορριφθεί.");
+                if (appStages.getComment(request.getStage()) != null) {
+                    stringBuilder
+                            .append("\n\nΑιτία: ")
+                            .append(appStages.getComment(request.getStage()));
+                }
+
             } else if (state == RequestState.REVIEW) {
-                messageText = "Tο αίτημα με κωδικό " + id + ", επιστράφηκε για επανέλεγχο από τον/την " + firstname +
-                        " " + lastname;
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" έχει επιστραφεί \n")
+                        .append("για να προβείτε στις απαραίτητες διορθώσεις.");
+                if (appStages.getComment(request.getStage()) != null) {
+                    stringBuilder
+                            .append("\n\nΣχόλιο: ")
+                            .append(appStages.getComment(request.getStage()));
+                }
             }
         } else if (type == UserType.nextPOI) {
+            subject = "[ARC-ν.4485] Αναμονή ενεργειών για το αιτήμα " + request.getId();
             if (state == RequestState.INITIALIZED) {
-                messageText = "Nέα αίτηση υποβλήθηκε στο σύστημα από τον/την " + firstname + " " + lastname +
-                        ". Κωδικός αίτησης: " + id;
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("έχει υποβληθεί ένα νέο αίτημα με αριθμό πρωτοκόλλου ")
+                        .append(id);
             } else if (state == RequestState.ACCEPTED) {
-                messageText = "Νέο αίτημα προς έλεγχο με κωδικό " + id;
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" βρίσκεται σε αναμονή για τις ενέργειές σας.");
+
             } else if (state == RequestState.ACCEPTED_DIAVGEIA) {
-                messageText = "Το αίτημά με κωδικό " + id + " εγκρίθηκε από τον υπεύθυνο της Διαύγειας, " +
-                        firstname + " " + lastname + " στις " + date + ".";
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" βρίσκεται σε αναμονή για τις ενέργειές σας.");
             } else if (state == RequestState.REVIEW) {
-                messageText = "Το αίτημα με κωδικό " + id + " βρίσκεται υπό επανέλεγχο";
+                subject = "[ARC-ν.4485] Επανέλεγχος αιτήματος " + request.getId();
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
+                        .append(id)
+                        .append(" βρίσκεται υπό επανέλεγχο.");
+                if (appStages.getComment(request.getStage()) != null) {
+                    stringBuilder
+                            .append("\n\nΣχόλιο: ")
+                            .append(appStages.getComment(request.getStage()));
+                }
             } else if (state == RequestState.COMPLETED) {
-                messageText = "";
+                stringBuilder.append("");
             } else if (state == RequestState.REJECTED) {
-                messageText = "";
+                stringBuilder.append("");
             }
         }
-        return messageText + "\n\nΓια να μεταβείτε στη σελίδα του αιτήματος, πατήστε τον παρακάτω σύνδεσμο:\n"
-                + createLink(id);
+
+        return stringBuilder.toString() + getRequestInfo(request);
+    }
+
+    private String getRequestInfo(Request request) {
+        StringBuilder requestInfo = new StringBuilder();
+
+        requestInfo
+                .append("\nΑριθμός πρωτοκόλου: ")
+                .append(request.getId())
+                .append("\nΈργο: ")
+                .append(request.getProject().getAcronym())
+                .append("\nΗμερομηνία: ")
+                .append(request.getStage1().getRequestDate())
+                .append("\nΠοσό: ")
+                .append(request.getStage1().getAmountInEuros())
+                .append("\nΘέμα: ")
+                .append(request.getStage1().getSubject())
+                .append("\n\nΜπορείτε να παρακολουθήσετε την εξέλιξή του ακολουθώντας τον ακόλουθο σύνδεσμο: ")
+                .append(createLink(request.getId()));
+
+        return requestInfo.toString();
     }
 
     private String createLink(String id) {

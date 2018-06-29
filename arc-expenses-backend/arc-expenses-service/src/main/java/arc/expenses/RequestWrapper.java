@@ -110,6 +110,9 @@ public class RequestWrapper implements StageInterface {
             case "5b":
                 stageUser = request.getStage5b().getUser();
                 break;
+            case "UploadInvoice":
+                stageUser = request.getRequester();
+                break;
             case "6":
                 stageUser = request.getStage6().getUser();
                 break;
@@ -161,6 +164,9 @@ public class RequestWrapper implements StageInterface {
                 break;
             case "5a":
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDirector());
+                break;
+            case "UploadInvoice":
+                personsOfInterest = null;
                 break;
             case "5b":
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio());
@@ -220,6 +226,9 @@ public class RequestWrapper implements StageInterface {
             case "5b":
                 date = request.getStage5b().getDate();
                 break;
+            case "UploadInvoice":
+                date = request.getStageUploadInvoice().getDate();
+                break;
             case "6":
                 date = request.getStage6().getDate();
                 break;
@@ -274,6 +283,9 @@ public class RequestWrapper implements StageInterface {
                 break;
             case "5b":
                 comment = request.getStage5b().getComment();
+                break;
+            case "UploadInvoice":
+                comment = request.getStageUploadInvoice().getComment();
                 break;
             case "6":
                 comment = request.getStage6().getComment();
