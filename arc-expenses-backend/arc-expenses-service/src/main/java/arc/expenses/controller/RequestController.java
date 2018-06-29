@@ -49,7 +49,7 @@ public class RequestController {
     @RequestMapping(value =  "/getAll", method = RequestMethod.GET)
     public Paging<Request> getAll(@RequestParam(value = "from",required=false,defaultValue = "0") String from,
                          @RequestParam(value = "quantity",required=false,defaultValue = "10") String quantity,
-                         @RequestParam(value = "status") String status,
+                         @RequestParam(value = "status") List<String> status,
                          @RequestParam(value = "searchField") String searchField,
                          @RequestParam(value = "stage") String stage,
                          @RequestParam(value = "order",required=false,defaultValue = "ASC") String orderType,

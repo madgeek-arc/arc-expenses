@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import arc.expenses.service.UserServiceImpl;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,5 +77,11 @@ public class UserController {
     @RequestMapping(value =  "/getUsersWithImmediateEmailPreference", method = RequestMethod.GET)
     public List<User> getUsersWithImmediateEmailPreference() {
         return userService.getUsersWithImmediateEmailPreference();
+    }
+
+    @RequestMapping(value = "/store/uploadSignatureFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> upLoadSignatureFile(@RequestParam("email") String email,
+                                             @RequestParam("file") MultipartFile file) throws IOException {
+        return userService.upLoadSignatureFile(email,file);
     }
 }

@@ -28,6 +28,8 @@ public class RequestServiceImpl extends GenericService<Request> {
     @Autowired
     private StoreRestConfig storeRestConfig;
 
+
+
     private Logger LOGGER = Logger.getLogger(RequestServiceImpl.class);
 
     public RequestServiceImpl() {
@@ -89,16 +91,16 @@ public class RequestServiceImpl extends GenericService<Request> {
         return null;
     }
 
-    public String createWhereClause(String email, String status,String searchField,String stage) {
+    public String createWhereClause(String email, List<String> status, String searchField, String stage) {
 
-        String whereClause = "";
-        String status_clause = "";
-        String search_clause = "";
-        String user_clause = "";
-        String stage_clause = "";
+        StringBuilder status_clause = new StringBuilder();
+        StringBuilder search_clause = new StringBuilder();
+        StringBuilder user_clause = new StringBuilder();
+        StringBuilder stage_clause = new StringBuilder();
+        StringBuilder whereClause = new StringBuilder();
 
 
-        user_clause += " ( request_requester = " + email + " or " +
+        user_clause.append(" ( request_requester = " + email + " or " +
                              " request_project_operator =  "+ email + " or " +
                              " request_project_operator_delegates = " + email + " or " +
                              " request_project_scientificCoordinator = " + email + " or " +
@@ -115,30 +117,43 @@ public class RequestServiceImpl extends GenericService<Request> {
                              " request_organization_director = " + email + " or " +
                              " request_institute_director = " + email + " or " +
                              " request_organization_director_delegate =  " + email + " or "+
-                             " request_institute_director_delegate =  " + email + " ) ";
-        whereClause += user_clause;
+                             " request_institute_director_delegate =  " + email + " ) ");
 
-        if(!status.equals("all"))
-            status_clause += " and  (   request_status = " + status + " ) ";
-        whereClause+=status_clause;
+        whereClause.append(user_clause);
+
+        if(!status.get(0).equals("all")){
+
+            status_clause.append(" and ( request_status = ").append(status.get(0));
+            if(status.get(0).equals("pending"))
+                status_clause.append(" or request_status = under_review");
+
+            for(int i=1;i<status.size();i++){
+                if(status.get(i).equals("pending"))
+                    status_clause.append(" or request_status = under_review");
+                status_clause.append(" or request_status = ").append(status.get(i));
+            }
+            status_clause.append(")");
+        }
+
+        whereClause.append(status_clause);
 
         if(!stage.equals("all"))
-            stage_clause += " and (  request_stage = " + stage + " ) ";
+            stage_clause.append(" and  request_stage = ").append(stage);
 
-        whereClause+=stage_clause;
+        whereClause.append(stage_clause);
 
         if(!searchField.equals(""))
-            search_clause+= " and searchableArea = " + searchField;
-        whereClause += search_clause;
+            search_clause.append(" and searchableArea = ").append(searchField);
+        whereClause.append(search_clause);
 
         
-        return whereClause;
+        return whereClause.toString();
     }
 
 
     public Paging<Request> criteriaSearch(String from, String quantity,
-                                          String status, String searchField,
-                                          String stage,String orderType,
+                                          List<String> status, String searchField,
+                                          String stage, String orderType,
                                           String orderField, String email) {
 
         Paging<Resource> rs = searchService.cqlQuery(

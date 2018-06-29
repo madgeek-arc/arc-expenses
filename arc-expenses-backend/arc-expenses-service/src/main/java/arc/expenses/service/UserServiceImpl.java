@@ -1,5 +1,6 @@
 package arc.expenses.service;
 
+import arc.expenses.config.StoreRestConfig;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.store.restclient.StoreRESTClient;
@@ -8,10 +9,14 @@ import org.apache.log4j.Logger;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,6 +33,9 @@ public class UserServiceImpl extends GenericService<User> {
 
     @Autowired
     private StoreRESTClient storeRESTClient;
+
+    @Autowired
+    private StoreRestConfig storeRestConfig;
 
     @Value("${user.signature.archiveID}")
     private String DS_ARCHIVE;
@@ -140,6 +148,21 @@ public class UserServiceImpl extends GenericService<User> {
 
     public String getSignatureArchiveID() {
         return DS_ARCHIVE;
+    }
+
+    public ResponseEntity<Object> upLoadSignatureFile(String email,MultipartFile file) {
+
+        if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(DS_ARCHIVE,email).getResponse()))
+            storeRESTClient.deleteFile(DS_ARCHIVE,email);
+
+        try {
+            storeRESTClient.storeFile(file.getBytes(),DS_ARCHIVE,email);
+        } catch (IOException e) {
+            LOGGER.info(e);
+            return new ResponseEntity<>("ERROR", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/downloadFile/?filename="+DS_ARCHIVE+"/"+email,
+                HttpStatus.OK);
     }
 
 }
