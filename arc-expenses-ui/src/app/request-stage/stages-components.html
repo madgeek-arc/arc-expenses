@@ -67,16 +67,8 @@
         <!--BUTTONS-->
         <div *ngIf="stageId !== '6' && stageId !== '11'">
             <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Εγκρίνεται</button>
-
-            <!-- NOT USED ANYMORE -->
-            <!--<button *ngIf="willShowButtonTo5a"
-                    class="uk-button uk-button-primary" (click)="forwardRequest('5a', true)">Προωθείται προς τον Γενικό Διευθυντή</button>
-            <button *ngIf="willShowButtonTo5b"
-                    class="uk-button uk-button-primary" (click)="forwardRequest('5b', willShowButtonTo5a)">
-                {{ willShowButtonTo5a ? 'Προωθείται προς το Διοικητικό Συμβούλιο': 'Εγκρίνεται' }}</button>-->
-
             <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>
-            <button *ngIf="stageId !== '2'" class="uk-button uk-button-primary" (click)="goBackOneStage()">Επιστροφή στο προηγούμενο στάδιο</button>
+            <button class="uk-button uk-button-primary" (click)="goBackOneStage()">Επιστροφή στο προηγούμενο στάδιο</button>
         </div>
         <div *ngIf="stageId === '6' || stageId === '11'">
             <button class="uk-button uk-button-primary" (click)="submitForm()">Προώθηση αιτήματος</button>
@@ -84,16 +76,6 @@
         </div>
         <div><span class="uk-text-small">Ημερομηνία: {{ getCurrentDateString() }}</span></div>
 
-        <!-- MODAL -->
-        <!-- NOT USED ANYMORE -->
-        <!--<div id="nextStage" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body">
-                <h4 class="uk-modal-title uk-h4">Προώθηση αιτήματος</h4>
-                <div class="uk-modal-body">Το αίτημα θα σταλεί προς έγκριση {{ nextStageDelegate }}</div>
-                <button class="uk-button uk-button-primary" type="button" (click)="onConfirm($event)">Επιβεβαίωση</button>
-                <button class="uk-button uk-button-primary uk-modal-close" type="button">Άκυρο</button>
-            </div>
-        </div>-->
     </div>
 </div>
 

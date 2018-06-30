@@ -73,28 +73,37 @@ export class Stage1FormComponent implements OnInit {
         console.log(this.updateStage1Form);
         this.errorMessage = '';
         if (this.updateStage1Form.valid ) {
-            if ( (+this.updateStage1Form.get('amount').value > this.lowAmountLimit) && isNullOrUndefined(this.currentRequest.stage1.attachment) ) {
-                this.errorMessage = 'Για αιτήματα άνω των 2.500 € η επισύναψη εγγράφων είναι υποχρεωτική.';
+            if ( (+this.updateStage1Form.get('amount').value > this.lowAmountLimit) &&
+                (+this.updateStage1Form.get('amount').value <= this.amountLimit) &&
+                ( this.updateStage1Form.get('supplierSelectionMethod').value === this.selMethods['direct'] ) ) {
+
+                this.errorMessage = 'Για αιτήματα άνω των 2.500 € η επιλογή προμηθευτή γίνεται μέσω διαγωνισμού ή έρευνας αγοράς.';
+
+            } else if ( (+this.updateStage1Form.get('amount').value > this.amountLimit) &&
+                ( ((this.currentRequest.type !== 'trip') && (this.currentRequest.type !== 'contract')) &&
+                    (this.updateStage1Form.get('supplierSelectionMethod').value !== this.selMethods['Διαγωνισμός']) ) ) {
+
+                this.errorMessage = 'Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.';
             } else if ( (this.currentRequest.type !== 'trip') && (this.currentRequest.type !== 'contract') &&
-                ( this.updateStage1Form.get('supplierSelectionMethod').value !== 'competition' ) &&
+                ( this.updateStage1Form.get('supplierSelectionMethod').value !== this.selMethods['competition'] ) &&
                 !this.updateStage1Form.get('supplier').value ) {
 
                 this.errorMessage = 'Είναι υποχρεωτικό να προσθέσετε πληροφορίες για τον προμηθευτή.';
-            } else if ( (( this.updateStage1Form.get('supplierSelectionMethod').value !== 'direct' ) &&
+            } else if ( (( this.updateStage1Form.get('supplierSelectionMethod').value !== this.selMethods['direct'] ) &&
                 ( (this.currentRequest.type !== 'trip') && (this.currentRequest.type !== 'contract') )) &&
                 (isNullOrUndefined(this.uploadedFile) && isNullOrUndefined(this.currentRequest.stage1.attachment) )) {
 
                 this.errorMessage = 'Για αναθέσεις μέσω διαγωνισμού ή έρευνας αγοράς η επισύναψη εγγράφων είναι υποχρεωτική.';
-            } else if ( (+this.updateStage1Form.get('amount').value > this.amountLimit) &&
-                ( ((this.currentRequest.type !== 'trip') && (this.currentRequest.type !== 'contract')) &&
-                    (this.updateStage1Form.get('supplierSelectionMethod').value !== 'competition') ) ) {
+            } else if ( (+this.updateStage1Form.get('amount').value > this.lowAmountLimit) &&
+                        isNullOrUndefined(this.currentRequest.stage1.attachment) &&
+                        isNullOrUndefined(this.uploadedFile) ) {
 
-                this.errorMessage = 'Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.';
+                this.errorMessage = 'Για αιτήματα άνω των 2.500 € η επισύναψη εγγράφων είναι υποχρεωτική.';
             } else {
                 this.currentRequest.stage1.requestDate = Date.now().toString();
                 this.currentRequest.stage1.subject = this.updateStage1Form.get('requestText').value;
                 this.currentRequest.stage1.supplier = this.updateStage1Form.get('supplier').value;
-                this.currentRequest.stage1.supplierSelectionMethod = this.selMethods[this.updateStage1Form.get('supplierSelectionMethod').value];
+                this.currentRequest.stage1.supplierSelectionMethod = this.updateStage1Form.get('supplierSelectionMethod').value;
                 this.currentRequest.stage1.amountInEuros = +this.updateStage1Form.get('amount').value;
                 if ( !isNullOrUndefined(this.uploadedFile) ) {
                     this.currentRequest.stage1.attachment = new Attachment();
@@ -126,7 +135,7 @@ export class Stage1FormComponent implements OnInit {
 
     checkIfSupplierIsRequired() {
         if (this.updateStage1Form.get('supplierSelectionMethod').value) {
-            this.setIsSupplierReq( (this.updateStage1Form.get('supplierSelectionMethod').value !== 'competition' ) );
+            this.setIsSupplierReq( (this.updateStage1Form.get('supplierSelectionMethod').value !== 'Διαγωνισμός' ) );
         }
     }
 

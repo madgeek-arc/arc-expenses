@@ -35,9 +35,9 @@
                     name="ssm" (change)="checkIfSupplierIsRequired()">
 
                 <option value="">-- επιλέξτε τρόπο --</option>
-                <option value="direct">{{ selMethods['direct'] }}</option>
-                <option value="market_investigation">{{ selMethods['market_investigation'] }}</option>
-                <option value="competition">{{ selMethods['competition'] }}</option>
+                <option value="{{ selMethods['direct'] }}">{{ selMethods['direct'] }}</option>
+                <option value="{{ selMethods['market_investigation'] }}">{{ selMethods['market_investigation'] }}</option>
+                <option value="{{ selMethods['competition'] }}">{{ selMethods['competition'] }}</option>
             </select>
         </div>
         <div class="uk-width-1-2@l">
