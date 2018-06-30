@@ -151,6 +151,9 @@ export class AuthenticationService {
         const user = JSON.parse(sessionStorage.getItem('userInfo'));
         if ( !isNullOrUndefined(user) && !isNullOrUndefined(user[property]) && (user[property] !== 'null') ) {
             /*console.log('read', property, 'it is:', user[property]);*/
+            if ( (property === 'immediateEmails') || (property === 'receiveEmails') ) {
+                return (user[property] === 'true');
+            }
             return user[property];
         }
         return null;
