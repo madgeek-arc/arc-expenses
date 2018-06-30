@@ -65,8 +65,6 @@ export class NewRequestComponent implements OnInit, DoCheck {
 
 
     ngOnInit() {
-        this.projects = [];
-        this.chosenProject = new Project();
         this.requestType = this.route.snapshot.paramMap.get('type');
         this.getUserInfo();
         this.getProjects();
@@ -82,9 +80,11 @@ export class NewRequestComponent implements OnInit, DoCheck {
             if (this.requestType !== 'services_contract') {
                 this.createForm();
                 if ( isNullOrUndefined(this.projects) || (this.projects.length === 0) ) {
+                    console.log('reloading projects');
                     this.getProjects();
                 }
                 if ( isNullOrUndefined(this.currentUser) ) {
+                    console.log('reloading userInfo');
                     this.getUserInfo();
                 }
 
@@ -132,6 +132,9 @@ export class NewRequestComponent implements OnInit, DoCheck {
             () => {
                 this.showSpinner = false;
                 this.errorMessage = '';
+                if ( isNullOrUndefined(this.projects) || (this.projects.length === 0)) {
+                    this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την ανάκτηση των απαραίτητων πληροφοριών.';
+                }
             }
         );
     }
@@ -307,6 +310,7 @@ export class NewRequestComponent implements OnInit, DoCheck {
     getProject() {
         this.errorMessage = '';
         if (this.newRequestForm.get('program').value) {
+            this.chosenProject = new Project();
             this.showSpinner = true;
 
             this.newRequestForm.get('institute').setValue('');

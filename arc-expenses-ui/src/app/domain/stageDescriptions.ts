@@ -121,7 +121,7 @@ export const stagesIfLowCost = ['1', '2', '3', '4', '5a', 'UploadInvoice', '5b',
 export const stagesDescriptionMap = {
     '1': {
         title: 'Υποβολή αιτήματος', prev: [], next: ['2'], canGoBack: false,
-        stageFields: [commentDesc]
+        stageFields: []
     },
     '2': {
         title: 'Έγκριση επιστημονικού υπευθύνου', prev: ['1'], next: ['3'], canGoBack: true,
@@ -141,7 +141,7 @@ export const stagesDescriptionMap = {
         stageFields: [commentDesc]
     },
     'UploadInvoice': {
-        title: 'Υποβολή τιμολογίου', prev: [], next: [], canGoBack: true,
+        title: 'Υποβολή τιμολογίου', prev: ['5a'], next: ['5b', '6'], canGoBack: true,
         stageFields: [commentDesc]
     },
     '5b': {

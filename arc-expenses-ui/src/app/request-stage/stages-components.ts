@@ -255,9 +255,9 @@ export class Stage2Component extends StageComponent implements OnInit {
 
     ngOnInit () {
         this.stageFormDefinition = {
-            comment: [''],
             checkNecessity: ['', Validators.requiredTrue],
-            checkFeasibility: ['', Validators.requiredTrue]
+            checkFeasibility: ['', Validators.requiredTrue],
+            comment: ['']
         };
         this.stageId = '2';
         if (this.showStage === 2) {
@@ -286,11 +286,11 @@ export class Stage3Component extends StageComponent implements OnInit {
 
     ngOnInit () {
         this.stageFormDefinition = {
-            comment: [''],
             analiftheiYpoxrewsi: ['', Validators.requiredTrue],
             fundsAvailable: ['', Validators.requiredTrue],
             loan: [''],
-            loanSource: ['']
+            loanSource: [''],
+            comment: ['']
         };
         this.stageId = '3';
         if (this.showStage === 2) {
@@ -331,20 +331,20 @@ export class Stage4Component extends StageComponent implements OnInit {
 
     ngOnInit () {
         this.stageFormDefinition = {
-            comment: [''],
             analiftheiYpoxrewsi: ['', Validators.requiredTrue],
             fundsAvailable: ['', Validators.requiredTrue],
+            comment: ['']
         };
         this.stageId = '4';
         if (this.showStage === 2) {
             // was approved phrase
-            this.submittedStageResult = 'Εγκρίθηκε';
+            this.submittedStageResult = 'Εγκρίθηκε από τον Προϊστάμενο Οικονομικών Υπηρεσιών';
         } else if (this.showStage === 3) {
             // was not approved phrase
-            this.submittedStageResult = 'Απορρίφθηκε';
+            this.submittedStageResult = 'Απορρίφθηκε από τον Προϊστάμενο Οικονομικών Υπηρεσιών';
         } else if (this.showStage === 4) {
             // was returned phrase
-            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο';
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο από τον Προϊστάμενο Οικονομικών Υπηρεσιών';
         }
 
         super.ngOnInit();
@@ -621,13 +621,13 @@ export class Stage8Component extends StageComponent implements OnInit {
         this.stageId = '8';
         if (this.showStage === 2) {
             // was approved phrase
-            this.submittedStageResult = 'Εγκρίθηκε από τον Διευθυντή Λογιστηρίου';
+            this.submittedStageResult = 'Εγκρίθηκε από την Ομάδα Ελέγχου';
         } else if (this.showStage === 3) {
             // was not approved phrase
-            this.submittedStageResult = 'Απορρίφθηκε από τον Διευθυντή Λογιστηρίου';
+            this.submittedStageResult = 'Απορρίφθηκε από την Ομάδα Ελέγχου';
         } else if (this.showStage === 4) {
             // was returned phrase
-            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο από τον Διευθυντή Λογιστηρίου';
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο από την Ομάδα Ελέγχου';
         }
 
         super.ngOnInit();
@@ -650,13 +650,13 @@ export class Stage9Component extends StageComponent implements OnInit {
         this.stageId = '9';
         if (this.showStage === 2) {
             // was approved phrase
-            this.submittedStageResult = 'Εγκρίθηκε';
+            this.submittedStageResult = 'Εγκρίθηκε από τον Προϊστάμενο Οικονομικών Υπηρεσιών';
         } else if (this.showStage === 3) {
             // was not approved phrase
-            this.submittedStageResult = 'Απορρίφθηκε';
+            this.submittedStageResult = 'Απορρίφθηκε από τον Προϊστάμενο Οικονομικών Υπηρεσιών';
         } else if (this.showStage === 4) {
             // was returned phrase
-            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο';
+            this.submittedStageResult = 'Επεστράφη στο προηγούμενο στάδιο από τον Προϊστάμενο Οικονομικών Υπηρεσιών';
         }
 
         super.ngOnInit();
