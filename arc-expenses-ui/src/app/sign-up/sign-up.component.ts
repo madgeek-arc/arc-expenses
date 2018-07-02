@@ -178,4 +178,10 @@ export class SignUpComponent implements OnInit {
         this.uploadedFile = file;
     }
 
+    linkToFile() {
+        if (this.userAttachment && this.userAttachment.url) {
+            window.open(this.userAttachment.url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
+        }
+    }
+
 }
