@@ -32,7 +32,11 @@ public class SessionConfig extends WebSecurityConfigurerAdapter{
                     .permitAll()
                 .and()
                     .csrf()
-                    .disable();
+                    .disable()
+                .logout()
+                .deleteCookies("SESSION")
+                .invalidateHttpSession(true)
+                .logoutUrl("/logout");
     }
 
     @Autowired
