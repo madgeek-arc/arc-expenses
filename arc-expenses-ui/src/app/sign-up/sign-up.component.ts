@@ -21,10 +21,9 @@ export class SignUpComponent implements OnInit {
 
   firstnameLatin: string;
   lastnameLatin: string;
-  userEmail: string;
 
   uploadedFile: File;
-  userAttachment = new Attachment();
+  userAttachment: Attachment;
   signatureFilename = '';
 
   constructor(private fb: FormBuilder,
@@ -140,7 +139,6 @@ export class SignUpComponent implements OnInit {
                     this.updateUser();
                 }
             );
-        this.updateUser();
     }
 
     updateUser() {
@@ -176,6 +174,12 @@ export class SignUpComponent implements OnInit {
 
     getUploadedFile(file: File) {
         this.uploadedFile = file;
+    }
+
+    linkToFile() {
+        if (this.userAttachment && this.userAttachment.url) {
+            window.open(this.userAttachment.url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
+        }
     }
 
 }

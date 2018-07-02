@@ -12,6 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.UnknownHostException;
 
 
 @ControllerAdvice
@@ -32,6 +33,13 @@ public class GenericControllerAdvice {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseBody
     ServerError accessDeniedException(HttpServletRequest req, Exception ex) {
+        return new ServerError(req.getRequestURL().toString(),ex);
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UnknownHostException.class)
+    @ResponseBody
+    ServerError unknownHostException(HttpServletRequest req, Exception ex) {
         return new ServerError(req.getRequestURL().toString(),ex);
     }
 

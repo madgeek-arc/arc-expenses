@@ -97,7 +97,7 @@ export class NewRequestComponent implements OnInit, DoCheck {
 
     getUserInfo() {
         this.currentUser = new User();
-        this.currentUser.id = this.authService.getUserProp('uid');
+        this.currentUser.id = this.authService.getUserProp('id');
         this.currentUser.email = this.authService.getUserProp('email');
         this.currentUser.firstname = this.authService.getUserProp('firstname');
         this.currentUser.lastname = this.authService.getUserProp('lastname');
