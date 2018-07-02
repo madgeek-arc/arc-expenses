@@ -1,5 +1,5 @@
 import { Component, DoCheck, OnInit } from '@angular/core';
-import {AuthenticationService} from '../../services/authentication.service';
+import { AuthenticationService } from '../../services/authentication.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ManageRequestsService } from '../../services/manage-requests.service';
 import { ContactUsMail } from '../../domain/operation';
@@ -29,12 +29,10 @@ export class TopMenuComponent implements OnInit, DoCheck {
               private fb: FormBuilder, private router: Router) { }
 
   ngOnInit() {
-    this.isUserLoggedIn();
+    /*this.isUserLoggedIn();
     if ( this.authService.getIsUserLoggedIn() &&
          (!this.authService.getUserProp('firstname') || !this.authService.getUserProp('lastname')) ) {
-        console.log('in topMenu navigating to sign-up');
-        this.router.navigate(['/sign-up']);
-    }
+    }*/
   }
 
   ngDoCheck() {
@@ -53,7 +51,9 @@ export class TopMenuComponent implements OnInit, DoCheck {
   }
 
   isUserLoggedIn() {
-    this.loggedIn = (this.authService.getIsUserLoggedIn() === true);
+    this.loggedIn = ((this.authService.getIsUserLoggedIn() === true) &&
+                     this.authService.getUserProp('firstname') &&
+                     this.authService.getUserProp('lastname') );
   }
 
   getUserName() {

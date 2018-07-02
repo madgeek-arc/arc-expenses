@@ -24,7 +24,7 @@ export class SignUpComponent implements OnInit {
   userEmail: string;
 
   uploadedFile: File;
-  userAttachment = new Attachment();
+  userAttachment: Attachment;
   signatureFilename = '';
 
   constructor(private fb: FormBuilder,

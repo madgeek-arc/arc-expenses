@@ -99,6 +99,12 @@
                         <div class="uk-width-1-1">
                           <div class="uk-margin">
                             <div class="uk-form-controls uk-form-controls-text">
+                              <div *ngIf="userAttachment">
+                                <a class="uk-link uk-width-1-1@l uk-margin-small-top" (click)="linkToFile()">
+                                  Πατήστε εδώ για να κατεβάσετε το αρχείο σας
+                                </a>
+                              </div>
+                              <!--<span>Ή</span>-->
                               <app-stage-form-upload-file [uploadedFilename]="signatureFilename" (emitFile)="getUploadedFile($event)"></app-stage-form-upload-file>
                             </div>
                           </div>

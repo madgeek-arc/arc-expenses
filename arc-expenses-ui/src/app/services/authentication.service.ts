@@ -62,7 +62,8 @@ export class AuthenticationService {
                     userInfo => {
                         console.log('User is still logged in');
                         console.log(userInfo);
-                        /*this.setUserProperties(userInfo);*/
+                        this.setUserProperties(userInfo['user']);
+                        sessionStorage.setItem('role', userInfo['role']);
                         this.isLoggedIn = true;
                     },
                     () => {
@@ -80,10 +81,12 @@ export class AuthenticationService {
                 this.http.get(this.apiUrl + '/user/getUserInfo', headerOptions).subscribe(
                     userInfo => {
                         console.log(JSON.stringify(userInfo));
-                        this.isLoggedIn = true;
-                        sessionStorage.setItem('role', userInfo['role']);
-                        /*sessionStorage.setItem('role', 'ROLE_ADMIN');*/
-                        this.setUserProperties(userInfo);
+                        if ( !isNullOrUndefined(userInfo) ) {
+                            this.isLoggedIn = true;
+                            sessionStorage.setItem('role', userInfo['role']);
+                            /*sessionStorage.setItem('role', 'ROLE_ADMIN');*/
+                            this.setUserProperties(userInfo['user']);
+                        }
                     },
                     error => {
                         console.log('login error!');
@@ -94,16 +97,17 @@ export class AuthenticationService {
                         this.router.navigate(['/home']);
                     },
                     () => {
-                        console.log(`the current user is: ${this.getUserProp('firstname')} ` +
-                                    `${this.getUserProp('lastname')}, ` +
-                                    `${this.getUserProp('email')}`);
-                        /*if ( isNullOrUndefined(sessionStorage.getItem('userInfo')) ||
-                             (sessionStorage.getItem('userInfo') === 'null') ) {
+                        if ( !isNullOrUndefined( sessionStorage.getItem('userInfo') ) ) {
+                            console.log(`the current user is: ${this.getUserProp('firstname')} ` +
+                                `${this.getUserProp('lastname')}, ` +
+                                `${this.getUserProp('email')}`);
+                            /*if ( isNullOrUndefined(sessionStorage.getItem('userInfo')) ||
+                                 (sessionStorage.getItem('userInfo') === 'null') ) {
 
-                            this.removeUserProperties();
-                            deleteCookie('arc_currentUser');
-                            this.router.navigate(['/home']);
-                        } else {*/
+                                this.removeUserProperties();
+                                deleteCookie('arc_currentUser');
+                                this.router.navigate(['/home']);
+                            } else {*/
                             if ( (isNullOrUndefined(this.getUserProp('firstname')) ||
                                     (this.getUserProp('firstname') === 'null')) ||
                                 isNullOrUndefined(this.getUserProp('lastname')) ||
@@ -124,7 +128,8 @@ export class AuthenticationService {
                                 console.log(`cleared state.location - returning to state: ${state}`);
                                 this.router.navigate([state]);
                             }
-                        /*}*/
+                            /*}*/
+                        }
                     }
                 );
             } else {
