@@ -21,7 +21,6 @@ export class SignUpComponent implements OnInit {
 
   firstnameLatin: string;
   lastnameLatin: string;
-  userEmail: string;
 
   uploadedFile: File;
   userAttachment: Attachment;
@@ -140,7 +139,6 @@ export class SignUpComponent implements OnInit {
                     this.updateUser();
                 }
             );
-        this.updateUser();
     }
 
     updateUser() {

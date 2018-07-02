@@ -56,15 +56,22 @@ export class AuthenticationService {
         if (getCookie('arc_currentUser')) {
             console.log(`I got the cookie!`);
 
-            /* SETTING INTERVAL TO REFRESH SESSION TIMEOUT COUNTD */
+            /* SETTING INTERVAL TO REFRESH SESSION TIMEOUT COUNTER */
             setInterval(() => {
                 this.http.get(this.apiUrl + '/user/getUserInfo', headerOptions).subscribe (
                     userInfo => {
                         console.log('User is still logged in');
                         console.log(userInfo);
-                        this.setUserProperties(userInfo['user']);
+                        /* this.setUserProperties(userInfo['user']);
                         sessionStorage.setItem('role', userInfo['role']);
-                        this.isLoggedIn = true;
+                        this.isLoggedIn = true; */
+                        if ( isNullOrUndefined(sessionStorage.getItem('userInfo')) ) {
+                            console.log('received null userInfo');
+                            this.isLoggedIn = false;
+                            this.removeUserProperties();
+                            deleteCookie('arc_currentUser');
+                            this.router.navigate(['/home']);
+                        }
                     },
                     () => {
                         console.log(`Something went wrong -- I'm logging out!`);
