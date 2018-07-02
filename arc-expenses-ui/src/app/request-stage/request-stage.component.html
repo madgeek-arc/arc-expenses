@@ -126,10 +126,6 @@
                 </div>
 
 
-                <div *ngIf="isSimpleUser && (currentRequest.stage !== '1')" class="uk-alert uk-alert-primary uk-text-center uk-margin-top">
-                  Το αίτημά σας {{ stateNames[currentRequest.status] }}
-                </div>
-
 
                 <div class="uk-child-width-expand uk-grid" uk-grid
                      *ngIf="( (willShowStage('5a') > 1) || (willShowStage('UploadInvoice') > 1) ||
@@ -162,6 +158,9 @@
 
                 </div>
 
+                <div *ngIf="isSimpleUser && (currentRequest.stage !== '1')" class="uk-alert uk-alert-primary uk-text-center uk-margin-top">
+                  Το αίτημά σας {{ stateNames[currentRequest.status] }}
+                </div>
 
                 <div class="uk-margin-top" *ngIf="!isSimpleUser &&
                                                   ((currentRequest.stage7 && currentRequest.stage7.date) ||

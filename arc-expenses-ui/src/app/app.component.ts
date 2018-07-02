@@ -11,7 +11,7 @@ import { isNullOrUndefined } from 'util';
 export class AppComponent implements OnInit {
   title = 'app';
 
-  constructor(private router: Router, private route: ActivatedRoute,
+  constructor(private router: Router,
               private authService: AuthenticationService) {
 
       if ( isNullOrUndefined(sessionStorage.getItem('state.location')) &&
@@ -22,7 +22,6 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-      /*console.log('in app component', this.route.snapshot.url.slice(-1, 1));*/
       if (isDevMode()) {
           console.log('In development mode!');
       } else {

@@ -325,7 +325,7 @@ export class RequestStageComponent implements OnInit {
             }
             if ( !isNullOrUndefined(this.currentRequest[stageField]) && !isNullOrUndefined(this.currentRequest[stageField].date)) {
 
-                if (!this.isSimpleUser || (stage === '2')) {
+                if (!this.isSimpleUser || (stage === '2') || (stage === 'UploadInvoice') ) {
 
                     if ( this.stages.indexOf(this.currentRequest.stage) < this.stages.indexOf(stage)) {
                         return 4;
@@ -342,9 +342,9 @@ export class RequestStageComponent implements OnInit {
                         }
                     }
 
-                if (( !isUndefined(this.currentRequest[stageField]['approved']) &&
+                if ( (!isUndefined(this.currentRequest[stageField]['approved']) &&
                       this.currentRequest[stageField]['approved'] === true ) ||
-                    (stage === 'UploadInvoice') || (stage === '6') || (stage === '11')) {
+                     (stage === 'UploadInvoice') || (stage === '6') || (stage === '11') ) {
 
                         return 2;
 
@@ -360,7 +360,7 @@ export class RequestStageComponent implements OnInit {
 
     linkToFile() {
         if (this.currentRequest.stage1.attachment && this.currentRequest.stage1.attachment.url) {
-            window.open(this.currentRequest.stage1.attachment.url, '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
+            window.open(this.currentRequest.stage1.attachment.url , '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
         }
     }
 

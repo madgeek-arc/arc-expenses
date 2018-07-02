@@ -20,7 +20,7 @@ declare const UIkit: any;
     templateUrl: './new-request.component.html',
     styleUrls: ['./new-request.component.scss']
 })
-export class NewRequestComponent implements OnInit, DoCheck {
+export class NewRequestComponent implements OnInit {
 
     errorMessage: string;
     showSpinner: boolean;
@@ -65,17 +65,23 @@ export class NewRequestComponent implements OnInit, DoCheck {
 
 
     ngOnInit() {
-        this.requestType = this.route.snapshot.paramMap.get('type');
+        console.log('in new-request, request type is:', this.route.snapshot.url[this.route.snapshot.url.length - 1].path );
+        this.requestType = this.route.snapshot.url[this.route.snapshot.url.length - 1].path;
         this.getUserInfo();
         this.getProjects();
     }
 
-    ngDoCheck() {
+
+    /* Not needed anymore. [added seperate routes in routing.module] */
+    /*Can be reused without a problem but remember to add DoCheck to 'implements' */
+    /*ngDoCheck() {
         // console.log('doCheck');
-        if ( !isNullOrUndefined(this.requestType) && (this.requestType !== this.route.snapshot.paramMap.get('type')) ) {
+        if ( !isNullOrUndefined(this.requestType) &&
+            (this.requestType !== this.route.snapshot.url[this.route.snapshot.url.length - 1].path) ) {
+
             this.errorMessage = '';
             this.showSpinner = false;
-            this.requestType = this.route.snapshot.paramMap.get('type');
+            this.requestType = this.route.snapshot.url[this.route.snapshot.url.length - 1].path;
             console.log('new requestType: ', this.requestType);
             if (this.requestType !== 'services_contract') {
                 this.createForm();
@@ -93,7 +99,7 @@ export class NewRequestComponent implements OnInit, DoCheck {
             this.title = this.reqTypes[this.requestType];
         }
 
-    }
+    }*/
 
     getUserInfo() {
         this.currentUser = new User();
@@ -353,6 +359,13 @@ export class NewRequestComponent implements OnInit, DoCheck {
 
     updateSearchTerm(event: any) {
         this.searchTerm = event.target.value;
+        if ( (this.searchTerm === '') && !isNullOrUndefined(this.chosenProject) ) {
+            this.newRequestForm.get('program').setValue('');
+            this.newRequestForm.get('institute').setValue('');
+            this.newRequestForm.get('sciCoord').setValue('');
+            this.newRequestForm.get('institute').enable();
+            this.newRequestForm.get('sciCoord').enable();
+        }
     }
 
     updateProgramInput(project: Vocabulary) {

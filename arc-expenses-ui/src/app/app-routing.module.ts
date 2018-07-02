@@ -20,9 +20,24 @@ const appRoutes: Routes = [
     component: HomeComponent
   },
   {
-    path: 'new-request/:type',
+    path: 'new-request/regular',
     canActivate: [AuthGuardService],
     component: NewRequestComponent
+  },
+  {
+      path: 'new-request/trip',
+      canActivate: [AuthGuardService],
+      component: NewRequestComponent
+  },
+  {
+      path: 'new-request/contract',
+      canActivate: [AuthGuardService],
+      component: NewRequestComponent
+  },
+  {
+      path: 'new-request/services_contract',
+      canActivate: [AuthGuardService],
+      component: NewRequestComponent
   },
   {
     path: 'requests',
