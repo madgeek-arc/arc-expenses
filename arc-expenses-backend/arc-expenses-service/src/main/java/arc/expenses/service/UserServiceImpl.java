@@ -3,6 +3,7 @@ package arc.expenses.service;
 import arc.expenses.config.StoreRestConfig;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
+import eu.openminted.registry.core.service.SearchService;
 import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.User;
 import org.apache.log4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -165,4 +167,8 @@ public class UserServiceImpl extends GenericService<User> {
                 HttpStatus.OK);
     }
 
+    public boolean exists(String email) throws UnknownHostException {
+        return  searchService.searchId(resourceType.getName(),
+                new SearchService.KeyValue(String.format("%s_email", resourceType.getName()),email)) != null;
+    }
 }

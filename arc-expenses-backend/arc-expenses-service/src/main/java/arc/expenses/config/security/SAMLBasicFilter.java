@@ -2,6 +2,7 @@ package arc.expenses.config.security;
 
 import arc.expenses.config.SAMLAuthenticationToken;
 import arc.expenses.service.UserServiceImpl;
+import gr.athenarc.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -45,6 +46,7 @@ public class SAMLBasicFilter extends GenericFilterBean{
                     request.getHeader("AJP_uid"), grantedAuthorities);
 
             SecurityContextHolder.getContext().setAuthentication(samlAuthentication);
+
         }
 
 //        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
