@@ -238,7 +238,6 @@ public class StageMessages {
         if (date_secs != null) {
             date = new SimpleDateFormat("dd/MM/yyyy").format(new Date(Long.parseLong(date_secs))).toString();
         }
-        String link = createLink(id);
         // TODO:
 //        switch (state) {
 //            case INITIALIZED:
@@ -362,49 +361,38 @@ public class StageMessages {
                 subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" έχει υποβληθεί επιτυχώς.");
+                        .append("το ακόλουθο αίτημά σας έχει υποβληθεί επιτυχώς.");
             } else if (state == RequestState.ACCEPTED) {
                 subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" έχει εγκριθεί από τον επιστημονικό\n")
-                        .append("υπεύθυνο και έχει προωθηθεί στις διοικητικές υπηρεσίες του κέντρου για επεξεργασία.");
+                        .append("το ακόλουθο αίτημά σας έχει εγκριθεί από τον επιστημονικό υπεύθυνο κι\n")
+                        .append("έχει προωθηθεί στις διοικητικές υπηρεσίες του κέντρου για επεξεργασία.");
             } else if (state == RequestState.INVOICE) {
                 subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" έχει εγκριθεί από τις διοικητικές υπηρεσίες του κέντρου.\n")
-                        .append("Μπορείτε να προχωρήσετε στην πραγματοποίηση της δαπάνης και παρακαλείστε να να μεταφορτώσετε το τιμολόγιό σας στο σύστημα.");
+                        .append("το ακόλουθο αίτημά σας έχει εγκριθεί από τις διοικητικές υπηρεσίες του κέντρου.\n")
+                        .append("Μπορείτε να προχωρήσετε στην πραγματοποίηση της δαπάνης και παρακαλείστε\n")
+                        .append("να μεταφορτώσετε το τιμολόγιό σας στο σύστημα.");
             } else if (state == RequestState.ACCEPTED_DIAVGEIA) {
                 subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" έχει εγκριθεί από τον επιστημονικό\n")
-                        .append("υπεύθυνο και έχει προωθηθεί στις διοικητικές υπηρεσίες του κέντρου για επεξεργασία.");
+                        .append("το ακόλουθο αίτημά σας έχει εγκριθεί από τον επιστημονικό υπεύθυνο κι\n")
+                        .append("έχει προωθηθεί στις διοικητικές υπηρεσίες του κέντρου για επεξεργασία.");
 
             } else if (state == RequestState.COMPLETED) {
                 subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" έχει ολοκληρωθεί.\n");
+                        .append("το ακόλουθο αίτημά σας έχει ολοκληρωθεί.\n");
 
             } else if (state == RequestState.REJECTED) {
                 subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" έχει απορριφθεί.");
+                        .append("το ακόλουθο αίτημά σας έχει απορριφθεί.");
                 if (appStages.getComment(request.getStage()) != null) {
                     stringBuilder
                             .append("\n\nΑιτία: ")
@@ -415,10 +403,8 @@ public class StageMessages {
                 subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + request.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημά σας με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" έχει επιστραφεί από τον επιστημονικό\n")
-                        .append("υπεύθυνο για να προβείτε στις απαραίτητες διορθώσεις.");
+                        .append("το ακόλουθο αίτημά σας έχει επιστραφεί από τον επιστημονικό υπεύθυνο\n")
+                        .append("για να προβείτε στις απαραίτητες διορθώσεις.");
 
                 if (appStages.getComment(request.getStage()) != null) {
                     stringBuilder
@@ -431,31 +417,22 @@ public class StageMessages {
             if (state == RequestState.ACCEPTED) {
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" προχώρησε στο επόμενο στάδιο.");
+                        .append("το ακόλουθο αίτημα προχώρησε στο επόμενο στάδιο.");
 
             } else if (state == RequestState.ACCEPTED_DIAVGEIA) {
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" προχώρησε στο επόμενο στάδιο.");
+                        .append("το ακόλουθο αίτημα προχώρησε στο επόμενο στάδιο.");
 
             } else if (state == RequestState.COMPLETED) {
                 subject = "[ARC-ν.4485] Διεκπεραίωση του αιτήματος " + request.getId();
-                stringBuilder.append("Ολοκληρώθηκε το αίτημα με κωδικό ");
-                stringBuilder.append(id);
-                stringBuilder.append(" από τον/την ");
-                stringBuilder.append(firstname);
-                stringBuilder.append(" ");
-                stringBuilder.append(lastname);
+                stringBuilder
+                        .append("Αγαπητέ χρήστη,\n\n")
+                        .append("το ακόλουθο αίτημα έχει ολοκληρωθεί.");
             } else if (state == RequestState.REJECTED) {
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" έχει απορριφθεί.");
+                        .append("το ακόλουθο αίτημα έχει απορριφθεί.");
                 if (appStages.getComment(request.getStage()) != null) {
                     stringBuilder
                             .append("\n\nΑιτία: ")
@@ -465,9 +442,7 @@ public class StageMessages {
             } else if (state == RequestState.REVIEW) {
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" έχει επιστραφεί \n")
+                        .append("το ακόλουθο αίτημα με έχει επιστραφεί \n")
                         .append("για να προβείτε στις απαραίτητες διορθώσεις.");
                 if (appStages.getComment(request.getStage()) != null) {
                     stringBuilder
@@ -480,28 +455,21 @@ public class StageMessages {
             if (state == RequestState.INITIALIZED) {
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("έχει υποβληθεί ένα νέο αίτημα με αριθμό πρωτοκόλλου ")
-                        .append(id);
+                        .append("έχει υποβληθεί ένα νέο αίτημα στην πλατφόρμα και αναμένει τις ενέργειές σας.");
             } else if (state == RequestState.ACCEPTED) {
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" βρίσκεται σε αναμονή για τις ενέργειές σας.");
+                        .append("το ακόλουθο αίτημα βρίσκεται σε αναμονή για τις ενέργειές σας.");
 
             } else if (state == RequestState.ACCEPTED_DIAVGEIA) {
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" βρίσκεται σε αναμονή για τις ενέργειές σας.");
+                        .append("το ακόλουθο αίτημα με βρίσκεται σε αναμονή για τις ενέργειές σας.");
             } else if (state == RequestState.REVIEW) {
                 subject = "[ARC-ν.4485] Επανέλεγχος αιτήματος " + request.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημα με αριθμό πρωτοκόλλου ")
-                        .append(id)
-                        .append(" βρίσκεται υπό επανέλεγχο.");
+                        .append("το ακόλουθο αίτημα βρίσκεται υπό επανέλεγχο.");
                 if (appStages.getComment(request.getStage()) != null) {
                     stringBuilder
                             .append("\n\nΣχόλιο: ")
@@ -520,13 +488,18 @@ public class StageMessages {
     private String getRequestInfo(Request request) {
         StringBuilder requestInfo = new StringBuilder();
 
+        String date = null;
+        if (request.getStage1().getRequestDate() != null) {
+            date = new SimpleDateFormat("dd/MM/yyyy").format(new Date(Long.parseLong(request.getStage1().getRequestDate()))).toString();
+        }
+
         requestInfo
-                .append("\nΑριθμός πρωτοκόλου: ")
+                .append("\n\nΑριθμός πρωτοκόλου: ")
                 .append(request.getId())
                 .append("\nΈργο: ")
                 .append(request.getProject().getAcronym())
                 .append("\nΗμερομηνία: ")
-                .append(request.getStage1().getRequestDate())
+                .append(date)
                 .append("\nΠοσό: ")
                 .append(request.getStage1().getAmountInEuros())
                 .append("\nΘέμα: ")
