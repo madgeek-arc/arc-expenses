@@ -88,6 +88,7 @@ class BulkImportService {
             institute.setAccountingPayment(parser(line[5]).get(0));
             institute.setAccountingDirector(parser(line[6]).get(0));
             institute.setDiaugeia(parserPOY(line[7]));
+            institute.setSuppliesOffice(parserPOY(line[8]));
             instituteService.add(institute);
         }
 

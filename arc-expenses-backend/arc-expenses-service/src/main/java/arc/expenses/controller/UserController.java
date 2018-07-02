@@ -34,7 +34,7 @@ public class UserController {
     }
 
     @RequestMapping(value =  "/getUserInfo", method = RequestMethod.GET)
-    public ResponseEntity<Object> getUserInfo() {
+    /*public ResponseEntity<Object> getUserInfo() {
 
         if(SecurityContextHolder.getContext().getAuthentication() instanceof SAMLAuthenticationToken){
             SAMLAuthenticationToken authentication = (SAMLAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
@@ -43,7 +43,7 @@ public class UserController {
             body.put("firstnameLatin",authentication.getFirstname());
             body.put("lastnameLatin",authentication.getLastname());
             body.put("email",authentication.getEmail());
-            body.put("uid",authentication.getUid());
+
 
             User user = null;
             try {
@@ -52,6 +52,7 @@ public class UserController {
                 body.put("lastname",user !=null ? user.getLastname():null);
                 body.put("immediateEmails",user !=null ? user.getImmediateEmails():null);
                 body.put("receiveEmails",user !=null ? user.getReceiveEmails():null);
+                body.put("id",user !=null ? user.getId():null);
             } catch (Exception e) {
                 LOGGER.fatal(e);
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -60,7 +61,25 @@ public class UserController {
             body.put("role",role);
             return new ResponseEntity<>(body, HttpStatus.OK);
         }
-        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);*/
+        public ResponseEntity<Object> getUserInfo() {
+
+            if(SecurityContextHolder.getContext().getAuthentication() instanceof SAMLAuthenticationToken){
+                SAMLAuthenticationToken authentication = (SAMLAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+                Map<String,Object> body = new HashMap<>();
+                User user = null;
+                try {
+                    user = userService.getByField("user_email",authentication.getEmail());
+                    body.put("user",user);
+                    body.put("role",userService.getRole(authentication.getEmail()));
+                } catch (Exception e) {
+                    LOGGER.fatal(e);
+                    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+                return new ResponseEntity<>(body, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+
 
     }
 

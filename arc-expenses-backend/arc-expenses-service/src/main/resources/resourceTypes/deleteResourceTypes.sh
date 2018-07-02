@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in  user organization project request institute; do
+for i in   organization project request institute; do
 	psql -h $1 -Uvrasidas registry <<endOfMessage
 delete from resourcetype_indexfield where resourcetype_name ='$i';
 delete from indexfield where resourcetype_name ='$i';
