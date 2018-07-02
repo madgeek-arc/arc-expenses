@@ -183,7 +183,7 @@ export class AuthenticationService {
     setUserProperties (userInfo: any) {
         sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
 
-        /*sessionStorage.setItem('userid', userInfo['uid']);
+        /*sessionStorage.setItem('userid', userInfo['id']);
         sessionStorage.setItem('email', userInfo['email']);
         sessionStorage.setItem('firstname', userInfo['firstname']);
         sessionStorage.setItem('lastname', userInfo['lastname']);
@@ -229,7 +229,7 @@ export class AuthenticationService {
             email: this.getUserProp('email'),
             firstname: firstname,
             firstnameLatin: this.getUserProp('firstnameLatin'),
-            id: this.getUserProp('uid'),
+            id: this.getUserProp('id'),
             lastname: lastname,
             lastnameLatin: this.getUserProp('lastnameLatin'),
             receiveEmails: receiveEmails,
