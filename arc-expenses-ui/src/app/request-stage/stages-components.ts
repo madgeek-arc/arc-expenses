@@ -430,6 +430,30 @@ export class StageUploadInvoiceComponent extends StageComponent implements OnIni
         this.currentPOI = null;
     }
 
+    /*showAmount() {
+
+        if ( !isNullOrUndefined(this.oldSupplierAndAmount[1]) &&
+            this.oldSupplierAndAmount[1].includes(',')) {
+
+            const temp = this.oldSupplierAndAmount[1].replace(',', '.');
+            this.oldSupplierAndAmount[1] = temp;
+        }
+
+        if ( !isNaN(this.oldSupplierAndAmount[1]) ) {
+            this.requestedAmount = this.newRequestForm.get('amount').value.trim();
+        }
+
+        if ( this.newRequestForm.get('amount').value &&
+            (+this.newRequestForm.get('amount').value > this.lowAmountLimit) &&
+            (+this.newRequestForm.get('amount').value <= this.amountLimit) &&
+            (this.requestType === 'regular') ) {
+
+            this.showWarning = true;
+        } else {
+            this.showWarning = false;
+        }
+    }*/
+
     emitNewValues() {
         this.stageFormError = '';
         if ( !isUndefined(this.oldSupplierAndAmount) ) {

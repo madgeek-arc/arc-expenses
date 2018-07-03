@@ -387,8 +387,18 @@ export class NewRequestComponent implements OnInit {
     }
 
     showAmount() {
-        this.requestedAmount = this.newRequestForm.get('amount').value.trim();
+
+        if ( !isNullOrUndefined(this.newRequestForm.get('amount').value.trim()) &&
+             this.newRequestForm.get('amount').value.trim().includes(',')) {
+
+            const temp = this.newRequestForm.get('amount').value.replace(',', '.');
+            this.newRequestForm.get('amount').setValue(temp);
+        }
+
         this.newRequestForm.get('amount').updateValueAndValidity();
+        if ( !isNaN(this.newRequestForm.get('amount').value.trim()) ) {
+            this.requestedAmount = this.newRequestForm.get('amount').value.trim();
+        }
 
         if ( this.newRequestForm.get('amount').value &&
             (+this.newRequestForm.get('amount').value > this.lowAmountLimit) &&
@@ -402,15 +412,6 @@ export class NewRequestComponent implements OnInit {
     }
 
     checkIfTrip() {
-        /*if (this.requestType !== this.route.snapshot.paramMap.get('type')) {
-            this.requestType = this.route.snapshot.paramMap.get('type');
-            if (this.requestType !== 'services_contract') {
-                this.createForm();
-                this.checkIfSupplierIsRequired();
-            }
-            this.title = this.reqTypes[this.requestType];
-        }*/
-
         return ((this.requestType !== 'trip') && (this.requestType !== 'contract'));
     }
 
@@ -424,17 +425,5 @@ export class NewRequestComponent implements OnInit {
         }
     }
 
-    checkIfServicesContract() {
-        if (this.requestType !== this.route.snapshot.paramMap.get('type')) {
-            this.requestType = this.route.snapshot.paramMap.get('type');
-            if (this.requestType !== 'services_contract') {
-                this.createForm();
-                this.checkIfSupplierIsRequired();
-            }
-            this.title = this.reqTypes[this.requestType];
-        }
-
-        return (this.requestType === 'services_contract');
-    }
 
 }

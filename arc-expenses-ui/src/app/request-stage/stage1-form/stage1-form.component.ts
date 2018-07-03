@@ -25,6 +25,7 @@ export class Stage1FormComponent implements OnInit {
     requestedAmount: string;
     readonly amountLimit = 20000;
     readonly lowAmountLimit = 2500;
+    showWarning: boolean;
 
     selMethods = supplierSelectionMethodsMap;
     isSupplierRequired: boolean;
@@ -136,6 +137,31 @@ export class Stage1FormComponent implements OnInit {
     checkIfSupplierIsRequired() {
         if (this.updateStage1Form.get('supplierSelectionMethod').value) {
             this.setIsSupplierReq( (this.updateStage1Form.get('supplierSelectionMethod').value !== 'Διαγωνισμός' ) );
+        }
+    }
+
+    showAmount() {
+
+        if ( !isNullOrUndefined(this.updateStage1Form.get('amount').value.trim()) &&
+            this.updateStage1Form.get('amount').value.trim().includes(',')) {
+
+            const temp = this.updateStage1Form.get('amount').value.replace(',', '.');
+            this.updateStage1Form.get('amount').setValue(temp);
+        }
+
+        this.updateStage1Form.get('amount').updateValueAndValidity();
+        if ( !isNaN(this.updateStage1Form.get('amount').value.trim()) ) {
+            this.requestedAmount = this.updateStage1Form.get('amount').value.trim();
+        }
+
+        if ( this.updateStage1Form.get('amount').value &&
+            (+this.updateStage1Form.get('amount').value > this.lowAmountLimit) &&
+            (+this.updateStage1Form.get('amount').value <= this.amountLimit) &&
+            (this.currentRequest.type === 'regular') ) {
+
+            this.showWarning = true;
+        } else {
+            this.showWarning = false;
         }
     }
 

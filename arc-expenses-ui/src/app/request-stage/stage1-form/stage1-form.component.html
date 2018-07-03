@@ -42,7 +42,10 @@
         </div>
         <div class="uk-width-1-2@l">
             <label class="uk-text-bold uk-margin-small-right">Ποσό (*): </label>
-            <input class="uk-input" type="text" formControlName="amount" placeholder="0">
+            <input class="uk-input" type="text" formControlName="amount" placeholder="0" (keyup)="showAmount()">
+            <div *ngIf="showWarning" class="uk-text-primary">
+                Για ποσά μεταξύ 2.500 € και 20.000 € είναι απαραίτητο να συμπληρώσετε το ακριβές ποσό.
+            </div>
             <div class="uk-comment-body uk-text-small uk-text-muted">
                 <i>Ο δεκαδικός αριθμός θα πρέπει να είναι της μορφής: <b>1111.11</b></i>
             </div>
@@ -50,7 +53,7 @@
                  class="uk-comment-body uk-text-small uk-text-danger">
                 Ο αριθμός δεν είναι έγκυρος.
             </div>
-            <div *ngIf="requestedAmount"
+            <div *ngIf="requestedAmount && updateStage1Form.get('amount').valid"
                  class="uk-comment-body uk-text-small uk-text-muted">
                 Το ποσό είναι: {{ requestedAmount | currency: 'EUR': 'symbol-narrow' }}
             </div>

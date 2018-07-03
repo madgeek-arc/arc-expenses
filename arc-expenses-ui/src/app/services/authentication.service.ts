@@ -45,15 +45,20 @@ export class AuthenticationService {
         this.isLoggedIn = false;
         this.removeUserProperties();
 
-        console.log('logging out, going /home');
-        console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}`);
-        window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}`;
+        console.log('logging out, going /');
+        /*console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}`);
+        window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}`;*/
+
+        console.log(`${this.apiUrl}/logout`);
+        window.location.href = `${this.apiUrl}/logout`;
+
     }
 
     public tryLogin() {
         console.log('entering tryLogin -> state.location is:', sessionStorage.getItem('state.location'));
         console.log('cookie is:', getCookie('arc_currentUser'));
         if (getCookie('arc_currentUser')) {
+
             console.log(`I got the cookie!`);
 
             /* SETTING INTERVAL TO REFRESH SESSION TIMEOUT COUNTER */
@@ -82,9 +87,9 @@ export class AuthenticationService {
                     }
                 );
             }, 1000 * 60 * 5);
-            console.log('email is', this.getUserProp('email'));
-            if (!this.getUserProp('email')) {
-                console.log(`session.email wasn't found --> logging in via arc-service!`);
+            /*console.log('email is', this.getUserProp('email'));*/
+            if ( isNullOrUndefined(sessionStorage.getItem('userInfo')) ) {
+                console.log(`session.userInfo wasn't found --> logging in via arc-service!`);
                 this.http.get(this.apiUrl + '/user/getUserInfo', headerOptions).subscribe(
                     userInfo => {
                         console.log(JSON.stringify(userInfo));
@@ -105,16 +110,10 @@ export class AuthenticationService {
                     },
                     () => {
                         if ( !isNullOrUndefined( sessionStorage.getItem('userInfo') ) ) {
-                            console.log(`the current user is: ${this.getUserProp('firstname')} ` +
-                                `${this.getUserProp('lastname')}, ` +
-                                `${this.getUserProp('email')}`);
-                            /*if ( isNullOrUndefined(sessionStorage.getItem('userInfo')) ||
-                                 (sessionStorage.getItem('userInfo') === 'null') ) {
+                            console.log(`the current user is: ${this.getUserProp('firstname')}, ` +
+                                                             `${this.getUserProp('lastname')}, ` +
+                                                             `${this.getUserProp('email')}`);
 
-                                this.removeUserProperties();
-                                deleteCookie('arc_currentUser');
-                                this.router.navigate(['/home']);
-                            } else {*/
                             if ( (isNullOrUndefined(this.getUserProp('firstname')) ||
                                     (this.getUserProp('firstname') === 'null')) ||
                                 isNullOrUndefined(this.getUserProp('lastname')) ||
@@ -128,14 +127,10 @@ export class AuthenticationService {
                                 if ( !isNullOrUndefined(sessionStorage.getItem('state.location')) ) {
                                     state = sessionStorage.getItem('state.location');
                                     sessionStorage.removeItem('state.location');
-                                } else {
-                                    state = '/home';
+                                    console.log(`cleared state.location - returning to state: ${state}`);
+                                    this.router.navigate([state]);
                                 }
-
-                                console.log(`cleared state.location - returning to state: ${state}`);
-                                this.router.navigate([state]);
                             }
-                            /*}*/
                         }
                     }
                 );
@@ -147,11 +142,11 @@ export class AuthenticationService {
     }
 
     public getIsUserLoggedIn() {
-        return this.isLoggedIn;
+        return ( this.isLoggedIn && !isNullOrUndefined(getCookie('arc_currentUser')) );
     }
 
     public getUserRole() {
-        if ( this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('role')) ) {
+        if ( this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('role')) && (sessionStorage.getItem('role') !== 'null') ) {
             return sessionStorage.getItem('role');
         } else {
             return '';
