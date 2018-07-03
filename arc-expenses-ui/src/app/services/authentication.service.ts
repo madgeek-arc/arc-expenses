@@ -49,8 +49,8 @@ export class AuthenticationService {
         /*console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}`);
         window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}`;*/
 
-        console.log(`${this.apiUrl}/logout`);
-        window.location.href = `${this.apiUrl}/logout`;
+        console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${this.apiUrl}/logout`);
+        window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${this.apiUrl}/logout`;
 
     }
 
