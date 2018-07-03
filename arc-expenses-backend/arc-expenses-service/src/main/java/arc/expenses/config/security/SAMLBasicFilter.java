@@ -2,7 +2,6 @@ package arc.expenses.config.security;
 
 import arc.expenses.config.SAMLAuthenticationToken;
 import arc.expenses.service.UserServiceImpl;
-import gr.athenarc.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -49,10 +48,10 @@ public class SAMLBasicFilter extends GenericFilterBean{
 
         }
 
-//        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
-        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_uid"));
+        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
+//        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_uid"));
 
-        int expireSec = -1;
+        int expireSec = 14400;
         sessionCookie.setMaxAge(expireSec);
         sessionCookie.setPath("/");
         response.addCookie(sessionCookie);

@@ -7,11 +7,13 @@ import eu.openminted.registry.core.service.SearchService;
 import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.User;
 import org.apache.log4j.Logger;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,10 +21,6 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -31,7 +29,8 @@ import java.util.concurrent.ExecutionException;
 public class UserServiceImpl extends GenericService<User> {
 
     @Autowired
-    DataSource ARC_DataSource;
+    @Qualifier("arc.dataSource")
+    DataSource dataSource;
 
     @Autowired
     private StoreRESTClient storeRESTClient;
@@ -65,65 +64,39 @@ public class UserServiceImpl extends GenericService<User> {
 
     public String getRole(String email) {
 
-        Connection connection = null;
-        PreparedStatement statement = null;
+        String role = null;
+        int count;
 
         if(admins.contains(email))
             return "ROLE_ADMIN";
 
+        count =  new NamedParameterJdbcTemplate(dataSource)
+                .queryForObject(createQuery(),new MapSqlParameterSource("email",email),Integer.class);
 
-        try {
-            String query = createQuery();
-            connection = ARC_DataSource.getConnection();
-            statement = connection.prepareStatement(query);
+        if(count > 0)
+            return "ROLE_EXECUTIVE";
+        return "ROLE_USER";
 
-            //for(int i = 1;i<16;i++)
-            for(int i = 1;i<9;i++)
-                statement.setString(i,email);
-
-            ResultSet rs = statement.executeQuery();
-            while(rs.next())
-                if(Integer.parseInt(rs.getString("count")) > 0)
-                    return "ROLE_EXECUTIVE";
-                else
-                    return "ROLE_USER";
-
-
-            rs.close();
-            statement.close();
-            connection.close();
-
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                assert statement != null;
-                statement.close();
-                connection.close();
-            } catch (Exception e) { /* ignored */ }
-        }
-        return null;
     }
 
     private String createQuery() {
 
-        return "select count(*) from project_view " +
-                " where ? = ANY( project_operator ) or " +
-               // " project_operator_delegates = ? or " +
-                " project_scientificCoordinator = ? or " +
-                " project_organization_POI  = ? or " +
-              //  " organization_POI_delegate =  ? or " +
-                " project_institute_accountingRegistration   = ? or " +
-                " project_institute_diaugeia  = ? or " +
-                " project_institute_accountingPayment  = ? or " +
-                " project_institute_accountingDirector  = ? or " +
-              //  " project_institute_accountingDirector_delegate = ? or " +
-              //  " project_institute_accountingRegistration_delegate =  ? or " +
-              //  " project_institute_accountingPayment_delegate = ? or " +
-              //  " project_institute_diaugeia_delegate =  ? or " +
-                " project_organization_director  = ? "; //or " +
-              //  " project_organization_director_delegate = ? ";
+        return "select count(*) as count from project_view " +
+                " where :email = ANY( project_operator ) or " +
+               // " project_operator_delegates = :email or " +
+                " project_scientificCoordinator = :email or " +
+                " project_organization_POI  = :email or " +
+              //  " organization_POI_delegate =  :email or " +
+                " project_institute_accountingRegistration   = :email or " +
+                " project_institute_diaugeia  = :email or " +
+                " project_institute_accountingPayment  = :email or " +
+                " project_institute_accountingDirector  = :email or " +
+              //  " project_institute_accountingDirector_delegate = :email or " +
+              //  " project_institute_accountingRegistration_delegate =  :email or " +
+              //  " project_institute_accountingPayment_delegate = :email or " +
+              //  " project_institute_diaugeia_delegate =  :email or " +
+                " project_organization_director  = :email "; //or " +
+              //  " project_organization_director_delegate = :email ";
 
     }
 
