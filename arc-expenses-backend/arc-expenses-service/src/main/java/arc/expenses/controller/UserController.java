@@ -1,6 +1,7 @@
 package arc.expenses.controller;
 
 import arc.expenses.config.SAMLAuthenticationToken;
+import arc.expenses.service.UserServiceImpl;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.User;
 import io.swagger.annotations.Api;
@@ -10,11 +11,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import arc.expenses.service.UserServiceImpl;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,11 +28,6 @@ public class UserController {
 
     @Autowired
     UserServiceImpl userService;
-
-    @RequestMapping(value =  "/logout", method = RequestMethod.GET)
-    public String logOut() {
-        return null;
-    }
 
     @RequestMapping(value =  "/getUserInfo", method = RequestMethod.GET)
     public ResponseEntity<Object> getUserInfo() {

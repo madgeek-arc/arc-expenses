@@ -5,16 +5,19 @@ import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.store.restclient.StoreRESTClient;
+import gr.athenarc.domain.Attachment;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -27,6 +30,9 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     @Autowired
     private StoreRestConfig storeRestConfig;
+
+    @Autowired
+    StoreRESTClient storeClient;
 
 
 
@@ -237,5 +243,81 @@ public class RequestServiceImpl extends GenericService<Request> {
         return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/downloadFile/?filename="+archiveID+"/"+stage,
                 HttpStatus.OK);
     }
+
+    public InputStream downloadFile(String requestId, String stage) {
+
+        Attachment attachment = getAttachment(requestId,stage);
+        try {
+            File temp = File.createTempFile("file", "tmp");
+
+            temp.deleteOnExit();
+            storeClient.downloadFile(attachment.getUrl(), temp.getAbsolutePath());
+            return new FileInputStream(temp);
+        } catch (Exception e) {
+            LOGGER.error("error downloading file", e);
+        }
+
+        return null;
+    }
+
+    public Attachment getAttachment(String requestId, String stage) {
+        Attachment attachment = null;
+        Request request = get(requestId);
+
+        switch (stage) {
+            case "1":
+                attachment = request.getStage1().getAttachment();
+                break;
+            case "2":
+                attachment = request.getStage2().getAttachment();
+                break;
+            case "3":
+                attachment = request.getStage3().getAttachment();
+                break;
+            case "4":
+                attachment = request.getStage4().getAttachment();
+                break;
+            case "5":
+                attachment = request.getStage5().getAttachment();
+                break;
+            case "5a":
+                attachment = request.getStage5a().getAttachment();
+                break;
+            case "5b":
+                attachment = request.getStage5b().getAttachment();
+                break;
+            case "UploadInvoice":
+                attachment = request.getStageUploadInvoice().getAttachment();
+                break;
+            case "6":
+                attachment = request.getStage6().getAttachment();
+                break;
+            case "7":
+                attachment = request.getStage7().getAttachment();
+                break;
+            case "8":
+                attachment = request.getStage8().getAttachment();
+                break;
+            case "9":
+                attachment = request.getStage9().getAttachment();
+                break;
+            case "10":
+                attachment = request.getStage10().getAttachment();
+                break;
+            case "11":
+                attachment = request.getStage11().getAttachment();
+                break;
+            case "12":
+                attachment = request.getStage12().getAttachment();
+                break;
+            case "13":
+                attachment = request.getStage13().getAttachment();
+                break;
+            default:
+                return null;
+        }
+        return attachment;
+    }
+
 
 }
