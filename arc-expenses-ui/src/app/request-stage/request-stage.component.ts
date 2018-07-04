@@ -140,6 +140,7 @@ export class RequestStageComponent implements OnInit {
             () => {
                 this.showSpinner = false;
                 console.log('this.canEdit is ', this.canEdit);
+                this.successMessage = '';
             }
         );
     }
@@ -232,6 +233,7 @@ export class RequestStageComponent implements OnInit {
     getUpdatedRequest(updatedRequest: Request) {
         this.currentRequest = updatedRequest;
         this.currentRequest.stage = '2';
+        this.currentStageName = 'stage1';
         if ( !isNullOrUndefined(this.uploadedFile) ) {
             this.uploadFile();
         } else {

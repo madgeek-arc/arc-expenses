@@ -56,7 +56,7 @@ export class AuthenticationService {
 
     public tryLogin() {
         console.log('entering tryLogin -> state.location is:', sessionStorage.getItem('state.location'));
-        console.log('cookie is:', getCookie('arc_currentUser'));
+        console.log('cookie is:', JSON.stringify(getCookie('arc_currentUser')));
         if (getCookie('arc_currentUser')) {
 
             console.log(`I got the cookie!`);
@@ -134,19 +134,20 @@ export class AuthenticationService {
                         }
                     }
                 );
-            } else {
-                this.isLoggedIn = true;
             }
         }
 
     }
 
     public getIsUserLoggedIn() {
-        return ( this.isLoggedIn && !isNullOrUndefined(getCookie('arc_currentUser')) );
+        return ( !isNullOrUndefined(getCookie('arc_currentUser')) && !isNullOrUndefined(sessionStorage.getItem('userInfo')) );
     }
 
     public getUserRole() {
-        if ( this.isLoggedIn && !isNullOrUndefined(sessionStorage.getItem('role')) && (sessionStorage.getItem('role') !== 'null') ) {
+        if ( this.getIsUserLoggedIn() &&
+             !isNullOrUndefined(sessionStorage.getItem('role')) &&
+             (sessionStorage.getItem('role') !== 'null') ) {
+
             return sessionStorage.getItem('role');
         } else {
             return '';
@@ -168,7 +169,7 @@ export class AuthenticationService {
 
     getSignatureAttachment() {
         const signature: Attachment = this.getUserProp('signatureAttachment');
-        if ( this.isLoggedIn && !isNullOrUndefined(signature) ) {
+        if ( this.getIsUserLoggedIn() && !isNullOrUndefined(signature) ) {
 
             return signature;
         } else {
@@ -178,7 +179,7 @@ export class AuthenticationService {
 
     getSignatureAttachmentProp( property: string ) {
         const signature: Attachment = this.getUserProp('signatureAttachment');
-        if ( this.isLoggedIn && !isNullOrUndefined(signature) &&
+        if ( this.getIsUserLoggedIn() && !isNullOrUndefined(signature) &&
              !isNullOrUndefined(signature[property]) && (signature[property] !== 'null') ) {
 
             return signature[property];

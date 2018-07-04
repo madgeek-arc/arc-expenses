@@ -415,6 +415,7 @@ export class Stage5aComponent extends StageComponent implements OnInit {
     templateUrl: './stages-templates/stageUploadInvoice.component.html'
 })
 export class StageUploadInvoiceComponent extends StageComponent implements OnInit {
+    amountNaN: boolean;
 
     ngOnInit () {
         console.log('oldSupplierAndAmount is', this.oldSupplierAndAmount);
@@ -430,36 +431,27 @@ export class StageUploadInvoiceComponent extends StageComponent implements OnIni
         this.currentPOI = null;
     }
 
-    /*showAmount() {
+    showAmount(event: any) {
+        this.oldSupplierAndAmount[1] = event.target.value;
 
-        if ( !isNullOrUndefined(this.oldSupplierAndAmount[1]) &&
-            this.oldSupplierAndAmount[1].includes(',')) {
+        if (this.oldSupplierAndAmount[1].includes(',')) {
 
             const temp = this.oldSupplierAndAmount[1].replace(',', '.');
             this.oldSupplierAndAmount[1] = temp;
         }
 
-        if ( !isNaN(this.oldSupplierAndAmount[1]) ) {
-            this.requestedAmount = this.newRequestForm.get('amount').value.trim();
-        }
-
-        if ( this.newRequestForm.get('amount').value &&
-            (+this.newRequestForm.get('amount').value > this.lowAmountLimit) &&
-            (+this.newRequestForm.get('amount').value <= this.amountLimit) &&
-            (this.requestType === 'regular') ) {
-
-            this.showWarning = true;
-        } else {
-            this.showWarning = false;
-        }
-    }*/
+        this.amountNaN = isNaN(+this.oldSupplierAndAmount[1]);
+    }
 
     emitNewValues() {
         this.stageFormError = '';
+        this.amountNaN = isNaN(+this.oldSupplierAndAmount[1]);
+        console.log(`emitting values: amountNaN is ${this.amountNaN}`);
         if ( !isUndefined(this.oldSupplierAndAmount) ) {
 
             if (!isNullOrUndefined(this.oldSupplierAndAmount[0]) &&
                 !isNullOrUndefined(this.oldSupplierAndAmount[1]) &&
+                !this.amountNaN &&
                 (this.oldSupplierAndAmount[0].length > 0) &&
                 (this.oldSupplierAndAmount[1].length > 0)) {
 
@@ -472,8 +464,6 @@ export class StageUploadInvoiceComponent extends StageComponent implements OnIni
                 this.stageFormError = 'Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.';
             }
 
-        } else {
-            this.submitForm();
         }
     }
 
@@ -496,7 +486,10 @@ export class StageUploadInvoiceComponent extends StageComponent implements OnIni
     }
 
     updateAmount(event: any) {
-        this.oldSupplierAndAmount[1] = event.target.value;
+        this.amountNaN = isNaN(+event.target.value);
+        if (!this.amountNaN) {
+            this.oldSupplierAndAmount[1] = event.target.value;
+        }
     }
 
 }
@@ -506,6 +499,7 @@ export class StageUploadInvoiceComponent extends StageComponent implements OnIni
     templateUrl: './stages-templates/stage5b.component.html'
 })
 export class Stage5bComponent extends StageComponent implements OnInit {
+    amountNaN: boolean;
 
     ngOnInit () {
         console.log('oldSupplierAndAmount is', this.oldSupplierAndAmount);
@@ -528,20 +522,45 @@ export class Stage5bComponent extends StageComponent implements OnInit {
         this.currentPOI = this.currentProject.institute.organization.dioikitikoSumvoulio;
     }
 
+    showAmount(event: any) {
+        this.oldSupplierAndAmount[1] = event.target.value;
+
+        if (this.oldSupplierAndAmount[1].includes(',')) {
+
+            const temp = this.oldSupplierAndAmount[1].replace(',', '.');
+            this.oldSupplierAndAmount[1] = temp;
+        }
+
+        this.amountNaN = isNaN(+this.oldSupplierAndAmount[1]);
+    }
+
     emitNewValues(approved: boolean) {
         this.stageFormError = '';
         if ( !isUndefined(this.oldSupplierAndAmount) ) {
 
-            if ( !isNullOrUndefined(this.oldSupplierAndAmount[0]) &&
-                !isNullOrUndefined(this.oldSupplierAndAmount[1]) &&
-                (this.oldSupplierAndAmount[0].length > 0) &&
-                (this.oldSupplierAndAmount[1].length > 0)) {
+            if (!approved) {
+                if (!isNullOrUndefined(this.oldSupplierAndAmount[0]) ||
+                    !isNullOrUndefined(this.oldSupplierAndAmount[1]) ) {
+
+                    const newValArray = [];
+                    newValArray.push(this.oldSupplierAndAmount[0]);
+                    newValArray.push(this.oldSupplierAndAmount[1]);
+                    this.newValues.emit(newValArray);
+                }
+                this.approveRequest(approved);
+
+            } else if ( !isNullOrUndefined(this.oldSupplierAndAmount[0]) &&
+                        !isNullOrUndefined(this.oldSupplierAndAmount[1]) &&
+                        !this.amountNaN &&
+                        (this.oldSupplierAndAmount[0].length > 0) &&
+                        (this.oldSupplierAndAmount[1].length > 0) ) {
 
                 const newValArray = [];
                 newValArray.push(this.oldSupplierAndAmount[0]);
                 newValArray.push(this.oldSupplierAndAmount[1]);
                 this.newValues.emit(newValArray);
                 this.approveRequest(approved);
+
             } else {
                 this.stageFormError = 'Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.';
             }
@@ -553,7 +572,7 @@ export class Stage5bComponent extends StageComponent implements OnInit {
 
     emitNewValuesAndGoBack() {
         if ( !isUndefined(this.oldSupplierAndAmount) ) {
-            if ( !isNullOrUndefined(this.oldSupplierAndAmount[0]) ||
+            if (!isNullOrUndefined(this.oldSupplierAndAmount[0]) ||
                 !isNullOrUndefined(this.oldSupplierAndAmount[1]) ) {
 
                 const newValArray = [];
@@ -570,7 +589,10 @@ export class Stage5bComponent extends StageComponent implements OnInit {
     }
 
     updateAmount(event: any) {
-        this.oldSupplierAndAmount[1] = event.target.value;
+        this.amountNaN = isNaN(+event.target.value);
+        if (!this.amountNaN) {
+            this.oldSupplierAndAmount[1] = event.target.value;
+        }
     }
 }
 

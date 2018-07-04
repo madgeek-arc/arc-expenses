@@ -41,10 +41,16 @@
                 <input class="uk-form-controls uk-input"
                        type="text"
                        value="{{ oldSupplierAndAmount[1] }}"
+                       (keyup)="showAmount($event)"
                        (blur)="updateAmount($event)">
             </div>
-            <div class="uk-comment-body uk-text-small uk-text-muted">
+            <div *ngIf="oldSupplierAndAmount[1] && !amountNaN"
+                 class="uk-comment-body uk-text-small uk-text-muted">
                 Το ποσό είναι: {{ oldSupplierAndAmount[1] | currency: 'EUR': 'symbol-narrow' }}
+            </div>
+            <div *ngIf="amountNaN"
+                 class="uk-comment-body uk-text-small uk-text-danger">
+                Ο αριθμός δεν είναι έγκυρος.
             </div>
 
         </div>
