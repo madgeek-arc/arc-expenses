@@ -45,12 +45,12 @@ export class AuthenticationService {
         this.isLoggedIn = false;
         this.removeUserProperties();
 
-        console.log('logging out, going /');
+        console.log('logging out');
         /*console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}`);
         window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}`;*/
 
-        console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${this.apiUrl}/logout`);
-        window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${this.apiUrl}/logout`;
+        console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}/arc-expenses-service/logout`);
+        window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}/arc-expenses-service/logout`;
 
     }
 

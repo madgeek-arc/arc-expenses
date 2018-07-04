@@ -53,6 +53,7 @@ export class StageComponent implements OnInit {
 
     @Input() currentStage: any;
     @Input() currentProject: Project;
+    @Input() currentRequestId: string;
     currentPOI: POI;
 
     datePipe = new DatePipe('el');
@@ -120,7 +121,9 @@ export class StageComponent implements OnInit {
 
     linkToFile() {
         if (this.currentStage['attachment'] && this.currentStage['attachment']['url'].length > 0 ) {
-            window.open(this.currentStage['attachment']['url'], '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
+            /*window.open(this.currentStage['attachment']['url'], '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');*/
+            window.open(`https://koulis.athenarc.gr/arc-expenses-service/request/store/download?requestId=${this.currentRequestId}&stage=${this.stageId}`,
+                '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
         }
     }
 

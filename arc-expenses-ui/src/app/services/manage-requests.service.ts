@@ -76,10 +76,10 @@ export class ManageRequestsService {
         /*return this.http.request<HttpEvent<T>>('POST', url, {body: formBody, headers: headerOptions.headers, withCredentials: true});*/
     }
 
-    getAttachment (url: string): Observable<File> {
-        const body = {};
+    getAttachment (requestId: string, stage: string): Observable<any> {
+        const url = `${this.apiUrl}store/download?requestId=${requestId}&stage=${stage}`;
         console.log(`calling ${url}`);
-        return this.http.post<File>(url, body, headerOptions).pipe(catchError(this.handleError));
+        return this.http.get<any>(url, headerOptions).pipe(catchError(this.handleError));
     }
 
     searchAllRequests(searchField: string, status: string[], stage: string, from: string, quantity: string,
