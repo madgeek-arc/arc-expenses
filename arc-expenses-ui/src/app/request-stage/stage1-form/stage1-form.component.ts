@@ -82,7 +82,7 @@ export class Stage1FormComponent implements OnInit {
 
             } else if ( (+this.updateStage1Form.get('amount').value > this.amountLimit) &&
                 ( ((this.currentRequest.type !== 'trip') && (this.currentRequest.type !== 'contract')) &&
-                    (this.updateStage1Form.get('supplierSelectionMethod').value !== this.selMethods['Διαγωνισμός']) ) ) {
+                    (this.updateStage1Form.get('supplierSelectionMethod').value !== this.selMethods['competition']) ) ) {
 
                 this.errorMessage = 'Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.';
             } else if ( (this.currentRequest.type !== 'trip') && (this.currentRequest.type !== 'contract') &&

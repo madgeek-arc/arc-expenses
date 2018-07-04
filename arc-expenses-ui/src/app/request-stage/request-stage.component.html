@@ -227,7 +227,7 @@
 
                 <!-- Create/Edit pending stage -->
                 <div class="uk-margin-medium-top" *ngIf="(currentRequest.stage !== '1') && (willShowStage(currentRequest.stage) === 1)">
-                  <hr>
+                  <!--<hr>-->
 
                   <app-stage-loader [stages]="stageLoaderItemList"
                                     (emitGoBack)="getRequestToGoBack($event)"
