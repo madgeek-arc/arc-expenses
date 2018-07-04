@@ -21,26 +21,6 @@
     <mvc:resources mapping="swagger-ui.html" location="classpath:/META-INF/resources/"/>
     <mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
 
-
-   <!-- <bean id="ARC_DataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="${jdbc.driverClassName}" />
-        <property name="url" value="${jdbc.url}" />
-        <property name="username" value="${jdbc.username}" />
-        <property name="password" value="${jdbc.password}" />
-        &lt;!&ndash;<property name="maxIdle" value="10" />
-        <property name="maxActive" value="100" />
-        <property name="maxWait" value="10000" />
-        <property name="validationQuery" value="SELECT 1;" />
-        <property name="testOnBorrow" value="true" />
-        <property name="testOnReturn" value="true" />
-        <property name="testWhileIdle" value="true" />
-        <property name="timeBetweenEvictionRunsMillis" value="1200000" />
-        <property name="minEvictableIdleTimeMillis" value="1800000" />
-        <property name="numTestsPerEvictionRun" value="5" />
-        <property name="poolPreparedStatements" value="true" />
-        <property name="defaultAutoCommit" value="true" />&ndash;&gt;
-    </bean>-->
-
     <bean id="multipartResolver"  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
         <property name="maxUploadSize" value="20971520" /> <!-- 20MB -->
         <property name="maxInMemorySize" value="1048576" /> <!-- 1MB -->
