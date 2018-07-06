@@ -84,7 +84,6 @@ export class Request {
     stage11: Stage11;
     stage12: Stage12;
     stage13: Stage13;
-    stageUploadInvoice: StageUploadInvoice;
     id: string;
     type: string;
     archiveId: string;

@@ -229,17 +229,17 @@ export class NewRequestComponent implements OnInit {
                 }
                 this.request.stage6 = new Stage6();
 
-                if (this.request.stage1.amountInEuros <= this.lowAmountLimit) {
+                /*if (this.request.stage1.amountInEuros <= this.lowAmountLimit) {
                     this.request.stageUploadInvoice = new StageUploadInvoice();
-                }
+                }*/
 
                 if (this.requestType !== 'contract') {
-                    if ( this.request.stage1.amountInEuros <= this.lowAmountLimit ) {
+                    /*if ( this.request.stage1.amountInEuros <= this.lowAmountLimit ) {
                         this.request.stage8 = new Stage8();
                         this.request.stage12 = new Stage12();
                         this.request.stage13 = new Stage13();
 
-                    } else {
+                    } else {*/
                         this.request.stage7 = new Stage7();
                         this.request.stage8 = new Stage8();
                         this.request.stage9 = new Stage9();
@@ -248,7 +248,7 @@ export class NewRequestComponent implements OnInit {
                         this.request.stage12 = new Stage12();
                         this.request.stage13 = new Stage13();
 
-                    }
+                    /*}*/
                 }
 
                 window.scrollTo(0, 0);

@@ -166,16 +166,15 @@ export class StageComponent implements OnInit {
         if (this.stageForm && this.stageForm.valid ) {
             if ( (isNullOrUndefined(this.uploadedFile) && isNullOrUndefined(this.currentStage['attachment'])) &&
                  !this.choseToGoBack &&
-                 ( (this.stageId === 'UploadInvoice') || (this.stageId === '6') || (this.stageId === '11') ||
+                 ( (this.stageId === '6') || (this.stageId === '11') ||
                    ( (this.stageId === '7') && this.currentStage['approved']) ) ) {
 
                 this.stageFormError = 'Η επισύναψη εγγράφων είναι υποχρεωτική.';
 
             } else {
 
-                if (this.stageId !== 'UploadInvoice') {
-                    this.currentStage['user'] = this.createUser();
-                }
+                this.currentStage['user'] = this.createUser();
+
                 this.currentStage['date'] = Date.now().toString();
                 Object.keys(this.stageForm.controls).forEach(key => {
                     this.currentStage[key.toString()] = this.stageForm.get(key).value;

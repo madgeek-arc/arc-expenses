@@ -116,7 +116,7 @@ export class StageDescription {
 
 /* stages descriptions */
 export const stageIds = ['1', '2', '3', '4', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
-export const stagesIfLowCost = ['1', '2', '3', '4', '5a', 'UploadInvoice', '5b', '8', '6', '12', '13'];
+/*export const stagesIfLowCost = ['1', '2', '3', '4', '5a', 'UploadInvoice', '5b', '8', '6', '12', '13'];*/
 
 export const stagesDescriptionMap = {
     '1': {
@@ -140,10 +140,7 @@ export const stagesDescriptionMap = {
         title: 'Έγκριση Διατάκτη', prev: ['4'], next: ['5b', '6'], canGoBack: true,
         stageFields: [commentDesc]
     },
-    'UploadInvoice': {
-        title: 'Υποβολή τιμολογίου', prev: ['5a'], next: ['5b', '6'], canGoBack: true,
-        stageFields: [commentDesc]
-    },
+    // 'UploadInvoice': { title: 'Υποβολή τιμολογίου', prev: ['5a'], next: ['5b', '6'], canGoBack: true, stageFields: [commentDesc] },
     '5b': {
         title: 'Έγκριση Διοικητικού Συμβουλίου', prev: ['5a'], next: ['6'], canGoBack: true,
         stageFields: [commentDesc]

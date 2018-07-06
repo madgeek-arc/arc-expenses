@@ -5,7 +5,7 @@ import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { isNullOrUndefined, isUndefined } from 'util';
 import { HttpErrorResponse, HttpEventType, HttpResponse } from '@angular/common/http';
-import { requestTypes, stageIds, stagesDescriptionMap, stagesIfLowCost } from '../domain/stageDescriptions';
+import { requestTypes, stageIds, stagesDescriptionMap } from '../domain/stageDescriptions';
 import { printRequestPage } from './print-request-function';
 import { StageItem } from './stages-dynamic-load/stage-item';
 import {
@@ -100,11 +100,7 @@ export class RequestStageComponent implements OnInit {
                 }
             },
             () => {
-                if (this.currentRequest.stage1.amountInEuros > this.lowAmountLimit) {
-                    this.stages = stageIds;
-                } else {
-                    this.stages = stagesIfLowCost;
-                }
+                this.stages = stageIds;
                 this.checkIfStageIs5b();
                 this.getIfUserCanEditRequest();
             }
@@ -112,9 +108,8 @@ export class RequestStageComponent implements OnInit {
     }
 
     checkIfStageIs5b() {
-        if ( ((this.currentRequest.stage === '5b') &&
-              (this.currentRequest.stage1.supplierSelectionMethod === 'Διαγωνισμός')) ||
-              (this.currentRequest.stage === 'UploadInvoice')) {
+        if ( (this.currentRequest.stage === '5b') &&
+             (this.currentRequest.stage1.supplierSelectionMethod === 'Διαγωνισμός') ) {
             this.sendInfoToStage5b = [];
             this.sendInfoToStage5b.push('');
             this.sendInfoToStage5b.push('');
@@ -150,13 +145,13 @@ export class RequestStageComponent implements OnInit {
     }
 
     getNextStage(stage: string) {
-        if (this.currentRequest.stage1.amountInEuros > this.lowAmountLimit) {
+        /*if (this.currentRequest.stage1.amountInEuros > this.lowAmountLimit) {*/
             for (const nextStage of this.stagesMap[stage]['next']) {
                 if (!isUndefined(this.currentRequest['stage' + nextStage])) {
                     return nextStage;
                 }
             }
-        } else {
+        /*} else {
             if ( this.stages.indexOf(stage) < (this.stages.length - 1) ) {
                 for ( let i = (this.stages.indexOf(stage) + 1); i < this.stages.length; i++ ) {
                     if (!isUndefined(this.currentRequest['stage' + this.stages[i]])) {
@@ -164,19 +159,19 @@ export class RequestStageComponent implements OnInit {
                     }
                 }
             }
-        }
+        }*/
 
         return this.currentRequest.stage;
     }
 
     getPreviousStage(stage: string) {
-        if (this.currentRequest.stage1.amountInEuros > this.lowAmountLimit) {
+        /*if (this.currentRequest.stage1.amountInEuros > this.lowAmountLimit) {*/
             for (const prevStage of this.stagesMap[stage]['prev']) {
                 if (!isUndefined(this.currentRequest['stage' + prevStage])) {
                     return prevStage;
                 }
             }
-        } else {
+        /*} else {
             if ( this.stages.indexOf(stage) > 0 ) {
                 for ( let i = (this.stages.indexOf(stage) - 1); i >= 0; i-- ) {
                     if (!isUndefined(this.currentRequest['stage' + this.stages[i]])) {
@@ -184,7 +179,7 @@ export class RequestStageComponent implements OnInit {
                     }
                 }
             }
-        }
+        }*/
 
         return this.currentRequest.stage;
     }
@@ -202,6 +197,7 @@ export class RequestStageComponent implements OnInit {
             this.currentRequest.stage = this.getNextStage(this.currentRequest.stage);
         }
 
+        // if the pending stage has not changed, the request has been finalized
         if (this.currentRequest.stage === submittedStage) {
             if ( ((this.stages.indexOf(this.currentRequest.stage) === (this.stages.length - 1)) && (newStage['approved'] === true)) ||
                 ((this.currentRequest.stage === '6') && (this.currentRequest.type === 'contract')) ) {
@@ -327,7 +323,7 @@ export class RequestStageComponent implements OnInit {
             }
             if ( !isNullOrUndefined(this.currentRequest[stageField]) && !isNullOrUndefined(this.currentRequest[stageField].date)) {
 
-                if (!this.isSimpleUser || (stage === '2') || (stage === 'UploadInvoice') ) {
+                if (!this.isSimpleUser || (stage === '2') ) {
 
                     if ( this.stages.indexOf(this.currentRequest.stage) < this.stages.indexOf(stage)) {
                         return 4;
@@ -346,7 +342,7 @@ export class RequestStageComponent implements OnInit {
 
                 if ( (!isUndefined(this.currentRequest[stageField]['approved']) &&
                       this.currentRequest[stageField]['approved'] === true ) ||
-                     (stage === 'UploadInvoice') || (stage === '6') || (stage === '11') ) {
+                      (stage === '6') || (stage === '11') ) {
 
                         return 2;
 

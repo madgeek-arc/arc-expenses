@@ -131,8 +131,7 @@
 
 
                 <div class="uk-child-width-expand uk-grid" uk-grid
-                     *ngIf="( (willShowStage('5a') > 1) || (willShowStage('UploadInvoice') > 1) ||
-                              (willShowStage('5b') > 1) || (willShowStage('6') > 1) )">
+                     *ngIf="( (willShowStage('5a') > 1) || (willShowStage('5b') > 1) || (willShowStage('6') > 1) )">
 
                   <stage5a-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
                                      *ngIf="willShowStage('5a') > 1"
@@ -141,13 +140,13 @@
                                      [currentProject]="currentRequest.project"
                                      [currentRequestId]="currentRequest.id"></stage5a-component>
 
-                  <stageUploadInvoice-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                  <!--<stageUploadInvoice-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
                                      *ngIf="willShowStage('UploadInvoice') > 1"
                                      [showStage]="willShowStage('UploadInvoice')"
                                      [currentStage]="currentRequest.stageUploadInvoice"
                                      [currentProject]="currentRequest.project"
                                      [requester]="currentRequest.requester"
-                                                [currentRequestId]="currentRequest.id"></stageUploadInvoice-component>
+                                                [currentRequestId]="currentRequest.id"></stageUploadInvoice-component>-->
 
                   <stage5b-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
                                      *ngIf="willShowStage('5b') > 1"
