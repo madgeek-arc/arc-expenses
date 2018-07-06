@@ -363,7 +363,7 @@ export class RequestStageComponent implements OnInit {
     linkToFile() {
         if (this.currentRequest.stage1.attachment && this.currentRequest.stage1.attachment.url) {
             /*window.open(this.currentRequest.stage1.attachment.url , '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');*/
-            window.open(`https://koulis.athenarc.gr/arc-expenses-service/request/store/download?requestId=${this.currentRequest.id}&stage=1`,
+            window.open(`${window.location.origin}/arc-expenses-service/request/store/download?requestId=${this.currentRequest.id}&stage=1`,
                 '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
         }
     }
