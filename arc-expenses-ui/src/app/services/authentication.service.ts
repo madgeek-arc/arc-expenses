@@ -49,8 +49,11 @@ export class AuthenticationService {
         /*console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}`);
         window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}`;*/
 
-        console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}/arc-expenses-service/logout`);
-        window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}/arc-expenses-service/logout`;
+        /*console.log(`${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}/arc-expenses-service/logout`);
+        window.location.href = `${this.baseUrl}Shibboleth.sso/Logout?return=${window.location.origin}/arc-expenses-service/logout`;*/
+
+        console.log(`${this.apiUrl}/logout`);
+        window.location.href = `${this.apiUrl}/logout`;
 
     }
 
