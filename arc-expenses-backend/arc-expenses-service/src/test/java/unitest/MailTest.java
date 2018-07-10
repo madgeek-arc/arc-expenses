@@ -1,3 +1,4 @@
+/*
 package unitest;
 
 import arc.expenses.messages.MessageScheduler;
@@ -23,3 +24,4 @@ public class MailTest {
     }
 
 }
+*/

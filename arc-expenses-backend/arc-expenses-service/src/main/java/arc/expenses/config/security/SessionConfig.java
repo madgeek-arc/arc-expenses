@@ -21,8 +21,8 @@ public class SessionConfig extends WebSecurityConfigurerAdapter{
     @Autowired
     SAMLBasicFilter samlBasicFilter;
 
-    @Value("${home.url}")
-    private String homeURL;
+    @Value("${sp.url}")
+    private String SPURL;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -37,7 +37,7 @@ public class SessionConfig extends WebSecurityConfigurerAdapter{
                     .logoutUrl("/logout")
                     .deleteCookies("JSESSIONID")
                     .invalidateHttpSession(true)
-                    .logoutSuccessUrl(homeURL);
+                    .logoutSuccessUrl(SPURL);
     }
 
     @Autowired

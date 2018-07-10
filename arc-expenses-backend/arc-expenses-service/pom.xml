@@ -183,18 +183,6 @@
 
         <dependency>
             <groupId>eu.openminted</groupId>
-            <artifactId>omtd-corpus-api</artifactId>
-            <version>${corpus.api.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>eu.openminted</groupId>
-                    <artifactId>omtd-store-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>eu.openminted</groupId>
             <artifactId>omtd-store-rest-client</artifactId>
             <version>[0.0.1-SNAPSHOT, )</version>
             <exclusions>
@@ -216,6 +204,12 @@
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

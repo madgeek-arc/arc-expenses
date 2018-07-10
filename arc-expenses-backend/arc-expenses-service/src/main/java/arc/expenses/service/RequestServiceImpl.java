@@ -9,6 +9,7 @@ import gr.athenarc.domain.Attachment;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,8 @@ public class RequestServiceImpl extends GenericService<Request> {
     @Autowired
     StoreRESTClient storeClient;
 
+    @Value("#{'${admin.emails}'.split(',')}")
+    private List<String> admins;
 
 
     private Logger LOGGER = Logger.getLogger(RequestServiceImpl.class);
@@ -106,24 +109,28 @@ public class RequestServiceImpl extends GenericService<Request> {
         StringBuilder whereClause = new StringBuilder();
 
 
-        user_clause.append(" ( request_requester = " + email + " or " +
-                             " request_project_operator =  "+ email + " or " +
-                             " request_project_operator_delegates = " + email + " or " +
-                             " request_project_scientificCoordinator = " + email + " or " +
-                             " request_organization_POI = " + email + " or " +
-                             " request_organization_POΙ_delegate =  " + email+ " or "+
-                             " request_institute_accountingRegistration = " + email + " or " +
-                             " request_institute_diaugeia = " + email + " or " +
-                             " request_institute_accountingPayment = " + email + " or " +
-                             " request_institute_accountingDirector = " + email + " or " +
-                             " request_institute_accountingDirector_delegate =  " + email + " or " +
-                             " request_institute_accountingRegistration_delegate =  " + email +" or " +
-                             " request_institute_accountingPayment_delegate =  " + email +" or " +
-                             " request_institute_diaugeia_delegate =  " + email +" or " +
-                             " request_organization_director = " + email + " or " +
-                             " request_institute_director = " + email + " or " +
-                             " request_organization_director_delegate =  " + email + " or "+
-                             " request_institute_director_delegate =  " + email + " ) ");
+       // if(!admins.contains(email))
+            user_clause.append(" ( request_requester = " + email + " or " +
+                                 " request_project_operator =  "+ email + " or " +
+                                 " request_project_operator_delegates = " + email + " or " +
+                                 " request_project_scientificCoordinator = " + email + " or " +
+                                 " request_organization_POI = " + email + " or " +
+                                 " request_organization_POΙ_delegate =  " + email+ " or "+
+                                 " request_institute_accountingRegistration = " + email + " or " +
+                                 " request_institute_diaugeia = " + email + " or " +
+                                 " request_institute_accountingPayment = " + email + " or " +
+                                 " request_institute_accountingDirector = " + email + " or " +
+                                 " request_institute_accountingDirector_delegate =  " + email + " or " +
+                                 " request_institute_accountingRegistration_delegate =  " + email +" or " +
+                                 " request_institute_accountingPayment_delegate =  " + email +" or " +
+                                 " request_institute_diaugeia_delegate =  " + email +" or " +
+                                 " request_organization_director = " + email + " or " +
+                                 " request_institute_director = " + email + " or " +
+                                 " request_organization_director_delegate =  " + email + " or "+
+                                 " request_institute_director_delegate =  " + email + " ) ");
+
+
+
 
         whereClause.append(user_clause);
 
@@ -152,7 +159,9 @@ public class RequestServiceImpl extends GenericService<Request> {
             search_clause.append(" and searchableArea = ").append(searchField);
         whereClause.append(search_clause);
 
-        
+
+
+
         return whereClause.toString();
     }
 
