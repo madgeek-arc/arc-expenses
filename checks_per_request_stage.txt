@@ -1,0 +1,21 @@
+ADD/UPDATE REQUEST
+CHECKS MADE DURING THE PROCEDURE
+---------------------------------------
+Stage 1 - Initial Request submission
+- If the requested amount is over 2500 adding an attachment is required.
+- If the supplier was not chosen by direct assignment, adding an attachment is required.
+
+General rule
+In order to continue with the approval of any stage, all conditions must be met (all checkboxes must be true).
+
+Stage 5 - Director Approval
+If the requested amount is <= 10000 € -> next stage is 6
+if the requested amount is > 10000 € and <= 20000 € -> the user chooses if the next stage will be 5a or 5b
+If the requested amount is > 20000 € -> next stage is 5b
+
+Stages 6 and 11 - DIAYGEIA
+- Adding an attachment is required.
+
+Stage 7 - Collecting all files.
+- Adding an attachment is required unless the request is rejected.
+
