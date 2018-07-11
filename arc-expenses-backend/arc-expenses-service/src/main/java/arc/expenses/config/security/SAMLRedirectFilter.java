@@ -1,11 +1,10 @@
-package arc.expenses.config;
+package arc.expenses.config.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -24,6 +23,5 @@ public class SAMLRedirectFilter extends GenericFilterBean {
 
         response.sendRedirect(redirect_url);
         return;
-//        chain.doFilter(request,response);
     }
 }

@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
 
-  title = 'Athena RC Expenses Application';
+  title = 'Εφαρμογή διαχείρησης πρωτογενών αιτημάτων';
 
   constructor() { }
 

@@ -1,4 +1,4 @@
-package arc.expenses.config;
+package arc.expenses.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -12,10 +12,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @Configuration
 @EnableWebSecurity
 @Order(1)
-public class IDPSecurityConfig extends WebSecurityConfigurerAdapter {
-
-    @Autowired
-    SAMLLogoutSuccessHandler samlLogoutSuccessHandler;
+public class IDPConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     SAMLBasicFilter samlBasicFilter;
@@ -30,6 +27,5 @@ public class IDPSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatcher("/user/idp_login")
                 .addFilterBefore(samlBasicFilter, BasicAuthenticationFilter.class)
                 .addFilterAfter(samlRedirectFilter,FilterSecurityInterceptor.class);
-//        http.logout().logoutSuccessHandler(samlLogoutSuccessHandler).permitAll();
     }
 }

@@ -5,16 +5,20 @@ import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.store.restclient.StoreRESTClient;
+import gr.athenarc.domain.Attachment;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -27,6 +31,13 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     @Autowired
     private StoreRestConfig storeRestConfig;
+
+    @Autowired
+    StoreRESTClient storeClient;
+
+    @Value("#{'${admin.emails}'.split(',')}")
+    private List<String> admins;
+
 
     private Logger LOGGER = Logger.getLogger(RequestServiceImpl.class);
 
@@ -89,62 +100,81 @@ public class RequestServiceImpl extends GenericService<Request> {
         return null;
     }
 
-    public String createWhereClause(String email, String status,String searchField,String stage) {
+    public String createWhereClause(String email, List<String> status, String searchField, String stage) {
 
-        String whereClause = "";
-        String status_clause = "";
-        String search_clause = "";
-        String user_clause = "";
-        String stage_clause = "";
+        StringBuilder status_clause = new StringBuilder();
+        StringBuilder search_clause = new StringBuilder();
+        StringBuilder user_clause = new StringBuilder();
+        StringBuilder stage_clause = new StringBuilder();
+        StringBuilder whereClause = new StringBuilder();
 
 
-        user_clause += " ( request_requester = " + email + " or " +
-                             " request_project_operator =  "+ email + " or " +
-                             " request_project_operator_delegates = " + email + " or " +
-                             " request_project_scientificCoordinator = " + email + " or " +
-                             " request_organization_POΙ = " + email + " or " +
-                             " request_organization_POΙ_delegate =  " + email+ " or "+
-                             " request_institute_accountingRegistration = " + email + " or " +
-                             " request_institute_diaugeia = " + email + " or " +
-                             " request_institute_accountingPayment = " + email + " or " +
-                             " request_institute_accountingDirector = " + email + " or " +
-                             " request_institute_accountingDirector_delegate =  " + email + " or " +
-                             " request_institute_accountingRegistration_delegate =  " + email +" or " +
-                             " request_institute_accountingPayment_delegate =  " + email +" or " +
-                             " request_institute_diaugeia_delegate =  " + email +" or " +
-                             " request_organization_director = " + email + " or " +
-                             " request_institute_director = " + email + " or " +
-                             " request_organization_director_delegate =  " + email + " or "+
-                             " request_institute_director_delegate =  " + email + " ) ";
-        whereClause += user_clause;
+       // if(!admins.contains(email))
+            user_clause.append(" ( request_requester = " + email + " or " +
+                                 " request_project_operator =  "+ email + " or " +
+                                 " request_project_operator_delegates = " + email + " or " +
+                                 " request_project_scientificCoordinator = " + email + " or " +
+                                 " request_organization_POI = " + email + " or " +
+                                 " request_organization_POΙ_delegate =  " + email+ " or "+
+                                 " request_institute_accountingRegistration = " + email + " or " +
+                                 " request_institute_diaugeia = " + email + " or " +
+                                 " request_institute_accountingPayment = " + email + " or " +
+                                 " request_institute_accountingDirector = " + email + " or " +
+                                 " request_institute_accountingDirector_delegate =  " + email + " or " +
+                                 " request_institute_accountingRegistration_delegate =  " + email +" or " +
+                                 " request_institute_accountingPayment_delegate =  " + email +" or " +
+                                 " request_institute_diaugeia_delegate =  " + email +" or " +
+                                 " request_organization_director = " + email + " or " +
+                                 " request_institute_director = " + email + " or " +
+                                 " request_organization_director_delegate =  " + email + " or "+
+                                 " request_institute_director_delegate =  " + email + " ) ");
 
-        if(!status.equals("all"))
-            status_clause += " and  (   request_status = " + status + " ) ";
-        whereClause+=status_clause;
+
+
+
+        whereClause.append(user_clause);
+
+        if(!status.get(0).equals("all")){
+
+            status_clause.append(" and ( request_status = ").append(status.get(0));
+            if(status.get(0).equals("pending"))
+                status_clause.append(" or request_status = under_review");
+
+            for(int i=1;i<status.size();i++){
+                if(status.get(i).equals("pending"))
+                    status_clause.append(" or request_status = under_review");
+                status_clause.append(" or request_status = ").append(status.get(i));
+            }
+            status_clause.append(")");
+        }
+
+        whereClause.append(status_clause);
 
         if(!stage.equals("all"))
-            stage_clause += " and (  request_stage = " + stage + " ) ";
+            stage_clause.append(" and  request_stage = ").append(stage);
 
-        whereClause+=stage_clause;
+        whereClause.append(stage_clause);
 
         if(!searchField.equals(""))
-            search_clause+= " and searchableArea = " + searchField;
-        whereClause += search_clause;
+            search_clause.append(" and searchableArea = ").append(searchField);
+        whereClause.append(search_clause);
 
-        
-        return whereClause;
+
+
+
+        return whereClause.toString();
     }
 
 
     public Paging<Request> criteriaSearch(String from, String quantity,
-                                          String status, String searchField,
-                                          String stage,String orderType,
+                                          List<String> status, String searchField,
+                                          String stage, String orderType,
                                           String orderField, String email) {
 
         Paging<Resource> rs = searchService.cqlQuery(
                 this.createWhereClause(email,status,searchField,stage),"request",
                 Integer.parseInt(quantity),Integer.parseInt(from),
-                orderField, SortOrder.valueOf(orderType));
+                orderField, orderType);
 
 
         List<Request> resultSet = new ArrayList<>();
@@ -161,7 +191,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     public List<Request> getPendingRequests(String email) {
 
-        String whereCaluse = " (  ( request_project_operator =  " + email + " or  request_project_operator_delegates = " + email + " ) "
+        String whereClause = " (  ( request_project_operator =  " + email + " or  request_project_operator_delegates = " + email + " ) "
                            + "      and ( request_stage = 3 or request_stage = 7 ) "
                            + "    ) "
                            + " or ( request_project_scientificCoordinator = " + email + " and request_stage = 2 ) "
@@ -188,8 +218,8 @@ public class RequestServiceImpl extends GenericService<Request> {
                            + "    ) ";
 
         Paging<Resource> rs = searchService.cqlQuery(
-                whereCaluse,"request",
-                1000,0,"",SortOrder.ASC);
+                whereClause,"request",
+                1000,0,"", "ASC");
 
 
         List<Request> resultSet = new ArrayList<>();
@@ -222,5 +252,81 @@ public class RequestServiceImpl extends GenericService<Request> {
         return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/downloadFile/?filename="+archiveID+"/"+stage,
                 HttpStatus.OK);
     }
+
+    public InputStream downloadFile(String requestId, String stage) {
+
+        Attachment attachment = getAttachment(requestId,stage);
+        try {
+            File temp = File.createTempFile("file", "tmp");
+
+            temp.deleteOnExit();
+            storeClient.downloadFile(attachment.getUrl(), temp.getAbsolutePath());
+            return new FileInputStream(temp);
+        } catch (Exception e) {
+            LOGGER.error("error downloading file", e);
+        }
+
+        return null;
+    }
+
+    public Attachment getAttachment(String requestId, String stage) {
+        Attachment attachment = null;
+        Request request = get(requestId);
+
+        switch (stage) {
+            case "1":
+                attachment = request.getStage1().getAttachment();
+                break;
+            case "2":
+                attachment = request.getStage2().getAttachment();
+                break;
+            case "3":
+                attachment = request.getStage3().getAttachment();
+                break;
+            case "4":
+                attachment = request.getStage4().getAttachment();
+                break;
+            case "5":
+                attachment = request.getStage5().getAttachment();
+                break;
+            case "5a":
+                attachment = request.getStage5a().getAttachment();
+                break;
+            case "5b":
+                attachment = request.getStage5b().getAttachment();
+                break;
+            case "UploadInvoice":
+                attachment = request.getStageUploadInvoice().getAttachment();
+                break;
+            case "6":
+                attachment = request.getStage6().getAttachment();
+                break;
+            case "7":
+                attachment = request.getStage7().getAttachment();
+                break;
+            case "8":
+                attachment = request.getStage8().getAttachment();
+                break;
+            case "9":
+                attachment = request.getStage9().getAttachment();
+                break;
+            case "10":
+                attachment = request.getStage10().getAttachment();
+                break;
+            case "11":
+                attachment = request.getStage11().getAttachment();
+                break;
+            case "12":
+                attachment = request.getStage12().getAttachment();
+                break;
+            case "13":
+                attachment = request.getStage13().getAttachment();
+                break;
+            default:
+                return null;
+        }
+        return attachment;
+    }
+
 
 }

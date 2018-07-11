@@ -71,14 +71,19 @@
         "name": { "type": "string" },
         "POI": { "$ref": "#/definitions/personOfInterest" },
         "director": { "$ref": "#/definitions/personOfInterest" },
-        "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" }
+        "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" },
+        "inspectionTeam": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/personOfInterest" }
+        }
       },
       "required": [
         "id",
         "name",
         "POI",
         "director",
-        "dioikitikoSumvoulio"
+        "dioikitikoSumvoulio",
+        "inspectionTeam"
       ]
     },
     "institute": {
@@ -91,7 +96,8 @@
         "accountingRegistration": { "$ref": "#/definitions/personOfInterest" },
         "accountingPayment": { "$ref": "#/definitions/personOfInterest" },
         "accountingDirector": { "$ref": "#/definitions/personOfInterest" },
-        "diaugeia": { "$ref": "#/definitions/personOfInterest" }
+        "diaugeia": { "$ref": "#/definitions/personOfInterest" },
+        "suppliesOffice": { "$ref": "#/definitions/personOfInterest" }
       },
       "required": [
         "id",
@@ -318,6 +324,15 @@
         "user": { "$ref": "#/definitions/user"},
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "#/definitions/attachment" }
+      }
+    },
+    "stageUploadInvoice": {
+      "type": "object",
+      "description": "stage: Upload invoice",
+      "properties": {
+        "date": { "type": "string"},
         "comment": { "type": "string"},
         "attachment": { "$ref": "#/definitions/attachment" }
       }

@@ -37,9 +37,9 @@ public class StageResourceListener implements ResourceListener {
                 Request request = parserPool.deserialize(resource, Request.class).get();
                 logger.info("New Request added: stage = " + request.getStage() + " " + request.getStatus());
                 if (request.getStage().equals("2")) {
-                    List<EmailMessage> emails = stageMessages
-                            .createMessages(null, request.getStage(), request);
-                    emails.forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
+                    stageMessages
+                            .createStageMessages("1", request.getStage(), request)
+                            .forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -63,9 +63,9 @@ public class StageResourceListener implements ResourceListener {
                             " -> " + newRequest.getStage() + " " + newRequest.getStatus());
                     logger.info("Prev Request: " + previousRequest.toString());
                     logger.info("New Request : " + newRequest.toString());
-                    List<EmailMessage> emails = stageMessages
-                            .createMessages(previousRequest.getStage(), newRequest.getStage(), newRequest);
-                    emails.forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
+                    stageMessages
+                            .createStageMessages(previousRequest.getStage(), newRequest.getStage(), newRequest)
+                            .forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
                 }
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();

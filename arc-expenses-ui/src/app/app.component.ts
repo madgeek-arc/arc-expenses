@@ -1,18 +1,18 @@
-import {Component, isDevMode, OnInit} from '@angular/core';
-import {NavigationEnd, Router} from '@angular/router';
+import { Component, isDevMode, OnDestroy, OnInit } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 import { AuthenticationService } from './services/authentication.service';
+import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'app';
 
-  constructor(public router: Router, private authService: AuthenticationService) {
-      // URL of the SPA to redirect the user to after login
-      /*this.authService.redirectUrl = '/sign-up';*/
+  constructor(private router: Router,
+              private authService: AuthenticationService) {
 
       this.authService.tryLogin();
   }
@@ -30,9 +30,11 @@ export class AppComponent implements OnInit {
           window.scrollTo(0, 0);
       });
 
-      if ( this.authService.getIsUserLoggedIn() && (!this.authService.getUserFirstName() || !this.authService.getUserLastName()) ) {
-          this.router.navigate(['/sign-up']);
-      }
+  }
+
+  ngOnDestroy() {
+      console.log('logging out from appComponent onDestroy');
+      this.authService.logout();
   }
 
   showTop() {

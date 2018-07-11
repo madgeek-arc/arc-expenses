@@ -1,6 +1,7 @@
 <div *ngIf="showSpinner" class="whiteFilm"><i class="fa fa-spinner fa-spin fa-5x loader" aria-hidden="true"></i></div>
 <div class="uk-section-default uk-section uk-section-small uk-padding-remove-bottom" style="min-height: 325px">
   <div class="uk-container uk-container-expand">
+    <div class="tm-header-placeholder uk-margin-remove-adjacent" style="height: 84px;"></div>
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
       <div class="uk-width-1-1@m uk-first-column">
 
@@ -24,13 +25,15 @@
             <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
-              <div *ngIf="requestType && (requestType.length > 0)">
-                <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
+              <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
+              <div *ngIf="requestType && projects && (projects.length > 0)">
                 <!--<div *ngIf="showSpinner" class="uk-inline uk-position-center uk-padding-large-top">-->
                   <!--<div class="uk-overlay-default uk-position-cover"></div>-->
                   <!--<div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>-->
                 <!--</div>-->
-                <div *ngIf="newRequestForm && currentUser && projects" [formGroup]="newRequestForm" class="uk-form-horizontal">
+                <div *ngIf="requestType === 'services_contract'">Coming soon...</div>
+                <div *ngIf="(requestType !== 'services_contract') && newRequestForm && currentUser && projects && (projects.length > 0)"
+                            [formGroup]="newRequestForm" class="uk-form-horizontal">
                   <fieldset data-uk-margin>
                     <legend class="uk-margin-medium-bottom">Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>
                     <div class="uk-margin">
@@ -43,7 +46,7 @@
                           </div>
                           <div class="uk-width-1-2@s">
                             <select class="uk-select" id="request-position" formControlName="position">
-                              <option value="">-- επιλέξτε θέση στον φορέα --</option>
+                              <option value="">-- επιλέξτε θέση στον φορέα (*) --</option>
                               <option value="Ερευνητής-ΕΛΕ">Ερευνητής-ΕΛΕ</option>
                               <option value="Συνεργαζόμενος Ερευνητής">Συνεργαζόμενος Ερευνητής</option>
                               <option value="Διοικητικό Προσωπικό">Διοικητικό Προσωπικό</option>
@@ -64,7 +67,7 @@
                         <div *ngIf="searchTerm" class="uk-nav uk-padding-small uk-width-large uk-position-absolute" style="background-color: white">
                           <ul>
                             <li *ngFor="let project of projects | filterByTerm: searchTerm">
-                              <a (click)="updateProgramInput(project)">{{project}}</a>
+                              <a (click)="updateProgramInput(project)">{{ project.projectAcronym }} ({{ project.instituteName }})</a>
                             </li>
                           </ul>
                         </div>
@@ -74,7 +77,7 @@
                     <div class="uk-margin">
                       <label class="uk-form-label" for="request-institute">Ινστιτούτο / Μονάδα <span>(*)</span></label>
                       <div class="uk-form-controls">
-                        <input class="uk-input" id="request-institute" formControlName="institute" placeholder="Institute">
+                        <input class="uk-input" id="request-institute" formControlName="institute">
                       </div>
                     </div>
                     <div class="uk-margin">
@@ -83,7 +86,7 @@
                         <div class="uk-width-1-1">
                           <div class="uk-width-1-1@s">
                             <input class="uk-input uk-disabled" type="text" id="request-to"
-                                   formControlName="director">
+                                   formControlName="sciCoord">
                           </div>
                         </div>
                       </div>
@@ -101,7 +104,7 @@
                     </div>
                     <div *ngIf="checkIfTrip()" class="uk-margin">
                       <label class="uk-form-label" for="request-supplier">Προμηθευτής
-                        <span *ngIf="isSupplierRequired === true" class="uk-display-inline">(*)</span>
+                        <span class="uk-display-inline">{{ isSupplierRequired }}</span>
                       </label>
                       <div class="uk-form-controls">
                         <div class="uk-width-1-1">
@@ -118,7 +121,9 @@
                         <select class="uk-select" id="request-ssm"
                                 formControlName="supplierSelectionMethod" (change)="checkIfSupplierIsRequired()">
                           <option value="">-- επιλέξτε τρόπο --</option>
-                          <option *ngFor="let sel of selMethods" value="{{sel}}">{{sel}}</option>
+                          <option value="direct">{{ selMethods['direct'] }}</option>
+                          <option value="market_investigation">{{ selMethods['market_investigation'] }}</option>
+                          <option value="competition">{{ selMethods['competition'] }}</option>
                         </select>
                       </div>
                     </div>
@@ -130,14 +135,19 @@
                             <input class="uk-input" type="text" id="request-amount"
                                    formControlName="amount" placeholder="0" (keyup)="showAmount()" (focus)="newRequestForm.get('amount').markAsUntouched()">
                           </div>
+                          <div *ngIf="showWarning" class="uk-text-primary">
+                            Για ποσά μεταξύ 2.500 € και 20.000 € είναι απαραίτητο να συμπληρώσετε το ακριβές ποσό.
+                          </div>
                           <div class="uk-comment-body uk-text-small uk-text-muted">
                             <i>Ο δεκαδικός αριθμός θα πρέπει να είναι της μορφής: <b>1111.11</b></i>
                           </div>
-                          <div *ngIf="newRequestForm.get('amount').invalid && newRequestForm.get('amount').touched && newRequestForm.get('amount').dirty"
+                          <div *ngIf="newRequestForm.get('amount').invalid &&
+                                      newRequestForm.get('amount').touched &&
+                                      newRequestForm.get('amount').dirty"
                                class="uk-comment-body uk-text-small uk-text-danger">
                             Ο αριθμός δεν είναι έγκυρος.
                           </div>
-                          <div *ngIf="requestedAmount"
+                          <div *ngIf="requestedAmount && newRequestForm.get('amount').valid"
                                class="uk-comment-body uk-text-small uk-text-muted">
                             Το ποσό είναι: {{ requestedAmount | currency: 'EUR': 'symbol-narrow' }}
                           </div>

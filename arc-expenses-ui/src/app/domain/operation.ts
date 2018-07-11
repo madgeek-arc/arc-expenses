@@ -1,10 +1,24 @@
-// Generated using typescript-generator version 2.1.406 on 2018-05-22 15:50:40.
+// Generated using typescript-generator version 2.1.406 on 2018-06-27 15:36:39.
+
+export class Vocabulary {
+    projectID: string;
+    projectAcronym: string;
+    instituteName: string;
+}
 
 export class Attachment {
     filename: string;
     mimetype: string;
     size: number;
     url: string;
+}
+
+export class ContactUsMail {
+    name: string;
+    surname: string;
+    email: string;
+    subject: string;
+    message: string;
 }
 
 export class Delegate {
@@ -23,6 +37,7 @@ export class Institute {
     accountingPayment: POI;
     accountingDirector: POI;
     diaugeia: POI;
+    suppliesOffice: POI;
 }
 
 export class Organization {
@@ -31,6 +46,7 @@ export class Organization {
     POI: POI;
     director: POI;
     dioikitikoSumvoulio: POI;
+    inspectionTeam: POI[];
 }
 
 export class POI {
@@ -69,13 +85,20 @@ export class Request {
     stage12: Stage12;
     stage13: Stage13;
     id: string;
-    archiveId: string;
     type: string;
+    archiveId: string;
     project: Project;
     requester: User;
     requesterPosition: string;
     stage: string;
     status: string;
+}
+
+export class SignatureAttachment {
+    filename: string;
+    mimetype: string;
+    size: number;
+    url: string;
 }
 
 export class Stage1 {
@@ -139,6 +162,12 @@ export class Stage5b {
     user: User;
     date: string;
     approved: boolean;
+    comment: string;
+    attachment: Attachment;
+}
+
+export class StageUploadInvoice {
+    date: string;
     comment: string;
     attachment: Attachment;
 }
@@ -216,16 +245,8 @@ export class User {
     lastname: string;
     firstnameLatin: string;
     lastnameLatin: string;
-    receiveEmails: boolean;
-    immediateEmails: boolean;
     signatureArchiveId: string;
-    signatureAttachment: Attachment;
-}
-
-export class ContactUsMail {
-    name: string;
-    surname: string;
-    email: string;
-    subject: string;
-    message: string;
+    receiveEmails: string;
+    immediateEmails: string;
+    signatureAttachment: SignatureAttachment;
 }

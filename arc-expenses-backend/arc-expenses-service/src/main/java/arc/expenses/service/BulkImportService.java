@@ -21,7 +21,9 @@ class BulkImportService {
 
     private org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(BulkImportService.class);
 
-    private String path = "/home/panagiotis/Desktop/uploadFiles/";
+
+    @Value("${bulkImport.path}")
+    private String path;
 
     @Value("${bulkImport.operation}")
     private String bulkImportOperation;
@@ -55,6 +57,7 @@ class BulkImportService {
             organization.setPOI(parserPOY(line[2]));
             organization.setDirector(parserPOY(line[3]));
             organization.setDioikitikoSumvoulio(parserPOY(line[4]));
+            organization.setInspectionTeam(parser(line[5]));
             organizationService.add(organization);
         }
     }
@@ -85,6 +88,7 @@ class BulkImportService {
             institute.setAccountingPayment(parser(line[5]).get(0));
             institute.setAccountingDirector(parser(line[6]).get(0));
             institute.setDiaugeia(parserPOY(line[7]));
+            institute.setSuppliesOffice(parserPOY(line[8]));
             instituteService.add(institute);
         }
 

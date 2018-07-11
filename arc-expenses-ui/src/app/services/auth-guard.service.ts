@@ -3,6 +3,7 @@ import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '@angular/router';
 import {AuthenticationService} from './authentication.service';
 import { getCookie } from '../domain/cookieUtils';
+import { isNullOrUndefined } from 'util';
 
 @Injectable ()
 export class AuthGuardService implements CanActivate {
@@ -10,17 +11,21 @@ export class AuthGuardService implements CanActivate {
     constructor (private authenticationService: AuthenticationService, private router: Router) {}
 
     canActivate (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+        console.log('in authGuard, current url is:', state.url);
 
-        if ( this.authenticationService.getIsUserLoggedIn() && this.authenticationService.getUserEmail() ) { return true; }
+        if ( ((getCookie('arc_currentUser') !== null) && (getCookie('arc_currentUser') !== '')) &&
+             this.authenticationService.getIsUserLoggedIn() ) {
 
-        /*uncomment when cookie is used*/
-        if ( getCookie('arc_currentUser') != null ) { return true; }
+            return true;
+        }
+
+        if ( (getCookie('arc_currentUser') !== null) && (getCookie('arc_currentUser') !== '') ) { return true; }
 
         // Store the attempted URL for redirecting
-        /*sessionStorage.setItem('state.location', state.url);*/
+        if ( !sessionStorage.getItem('state.location') ) {
+            sessionStorage.setItem('state.location', state.url);
+        }
 
-        // Navigate to the home page page
-        // this.router.navigate(['/home']);
         console.log('in authGuard -> going to login!');
         this.authenticationService.loginWithState();
 

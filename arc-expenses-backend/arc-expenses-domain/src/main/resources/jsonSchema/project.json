@@ -42,7 +42,11 @@
         "name": { "type": "string" },
         "POI": { "$ref": "#/definitions/personOfInterest" },
         "director": { "$ref": "#/definitions/personOfInterest" },
-        "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" }
+        "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" },
+        "inspectionTeam": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/personOfInterest" }
+        }
       },
       "required": [
         "id",
@@ -62,7 +66,9 @@
         "accountingRegistration": { "$ref": "#/definitions/personOfInterest" },
         "accountingPayment": { "$ref": "#/definitions/personOfInterest" },
         "accountingDirector": { "$ref": "#/definitions/personOfInterest" },
-        "diaugeia": { "$ref": "#/definitions/personOfInterest" }
+        "diaugeia": { "$ref": "#/definitions/personOfInterest" },
+        "suppliesOffice": { "$ref": "#/definitions/personOfInterest" }
+
       },
       "required": [
         "id",

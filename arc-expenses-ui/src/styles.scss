@@ -6,6 +6,10 @@
 @import 'assets/css/theme';
 @import 'assets/css/theme.update';
 
+html {
+  color: #333;
+}
+
 .navbar-brand-athena {
   background-image: url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-symbol.svg'),url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-type-el.svg'),url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-blurb-el.svg');
   width: 453px;
@@ -29,4 +33,30 @@
 .loader {
   color: #2c318c;
   margin: 25% auto;
+}
+
+.uk-navbar-container {
+  background: #fff;
+  box-shadow: 2px 15px 50px rgba(41, 44, 61, .1);
+}
+
+.uk-navbar-container:not(.uk-sticky-below) {
+  background: #fff;
+  box-shadow: none;
+}
+
+//.uk-navbar-container:not(.uk-navbar-transparent) {
+//  background: #fff;
+//  box-shadow: 2px 15px 50px rgba(41, 44, 61, .1);
+//}
+
+.uk-navbar-dropdown-nav > li > a {
+  color: #444;
+}
+
+
+.uk-card-basic-info {
+  background: rgba(103,118,144,0.05);
+  border-radius: 2px;
+  padding: 20px 20px;
 }

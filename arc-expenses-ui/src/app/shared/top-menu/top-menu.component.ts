@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import {AuthenticationService} from '../../services/authentication.service';
+import { Component, DoCheck, OnInit } from '@angular/core';
+import { AuthenticationService } from '../../services/authentication.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ManageRequestsService } from '../../services/manage-requests.service';
 import { ContactUsMail } from '../../domain/operation';
+import { Router } from '@angular/router';
+import { requestTypes } from '../../domain/stageDescriptions';
 
 
 declare const UIkit: any;
@@ -12,7 +14,7 @@ declare const UIkit: any;
   templateUrl: './top-menu.component.html',
   styleUrls: ['./top-menu.component.scss']
 })
-export class TopMenuComponent implements OnInit {
+export class TopMenuComponent implements OnInit, DoCheck {
 
   loggedIn: boolean = false;
 
@@ -20,16 +22,26 @@ export class TopMenuComponent implements OnInit {
   modalError: string;
   showSpinner: boolean;
 
+  reqTypes = requestTypes;
+
   constructor(private authService: AuthenticationService,
               private requestService: ManageRequestsService,
-              private fb: FormBuilder) { }
+              private fb: FormBuilder, private router: Router) { }
 
   ngOnInit() {
-    this.isUserLoggedIn();
+    /*this.isUserLoggedIn();
+    if ( this.authService.getIsUserLoggedIn() &&
+         (!this.authService.getUserProp('firstname') || !this.authService.getUserProp('lastname')) ) {
+    }*/
+  }
+
+  ngDoCheck() {
+      this.isUserLoggedIn();
+      this.getUserName();
   }
 
   login() {
-    if (!this.isUserLoggedIn()) {
+    if (!this.loggedIn) {
         this.authService.loginWithState();
     }
   }
@@ -39,11 +51,15 @@ export class TopMenuComponent implements OnInit {
   }
 
   isUserLoggedIn() {
-    return this.authService.getIsUserLoggedIn();
+    this.loggedIn = ((this.authService.getIsUserLoggedIn() === true) &&
+                     this.authService.getUserProp('firstname') &&
+                     this.authService.getUserProp('lastname') );
   }
 
   getUserName() {
-    return this.authService.getUserFirstName() + ' ' + this.authService.getUserLastName();
+      if ( this.authService.getUserProp('firstname') && this.authService.getUserProp('lastname')) {
+          return this.authService.getUserProp('firstname') + ' ' + this.authService.getUserProp('lastname');
+      }
   }
 
   onClick(id: string) {
@@ -60,10 +76,10 @@ export class TopMenuComponent implements OnInit {
         message: ['', Validators.required]
     });
 
-    if (this.isUserLoggedIn()) {
-      this.contactForm.get('name').setValue(this.authService.getUserFirstName());
-      this.contactForm.get('surname').setValue(this.authService.getUserLastName());
-      this.contactForm.get('email').setValue(this.authService.getUserEmail());
+    if (this.loggedIn) {
+      this.contactForm.get('name').setValue(this.authService.getUserProp('firstname'));
+      this.contactForm.get('surname').setValue(this.authService.getUserProp('lastname'));
+      this.contactForm.get('email').setValue(this.authService.getUserProp('email'));
     }
     UIkit.modal('#contactModal').show();
   }

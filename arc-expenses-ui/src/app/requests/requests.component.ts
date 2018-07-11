@@ -4,9 +4,10 @@ import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { Paging } from '../domain/extraClasses';
 import {Router} from '@angular/router';
-import {isNull} from 'util';
+import { isNull, isNullOrUndefined } from 'util';
 import {FormBuilder, FormGroup} from '@angular/forms';
-import { stagesMap } from '../domain/stageDescriptions';
+import { requestTypes, stageIds, stagesDescriptionMap, statesList } from '../domain/stageDescriptions';
+import { printRequestPage } from '../request-stage/print-request-function';
 
 @Component({
     selector: 'app-requests',
@@ -25,6 +26,7 @@ export class RequestsComponent implements OnInit {
 
   searchTerm: string;
   statusChoice: string;
+  statusList: string[];
   stageChoice: string;
   currentPage: number;
   itemsPerPage: number;
@@ -32,11 +34,11 @@ export class RequestsComponent implements OnInit {
   orderField: string;
   totalPages: number;
 
-  stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
-  states = ['all', 'accepted', 'pending', 'rejected'];
-  stages = ['all', '1', '2', '3', '4', '5', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
-  stagesMap = stagesMap;
-  reqTypes = { regular: 'Προμήθεια', trip: 'Ταξίδι', contract: 'Σύμβαση' };
+  stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', under_review: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
+  states = statesList;
+  stages = stageIds;
+  stagesMap = stagesDescriptionMap;
+  reqTypes = requestTypes;
 
   searchResults: Paging<Request>;
 
@@ -45,7 +47,7 @@ export class RequestsComponent implements OnInit {
   keywordField: FormGroup;
 
   constructor(private requestService: ManageRequestsService,
-              private authService: AuthenticationService, private router: Router, private fb: FormBuilder) {}
+              private authService: AuthenticationService, private fb: FormBuilder) {}
 
   ngOnInit() {
       this.initializeParams();
@@ -57,10 +59,11 @@ export class RequestsComponent implements OnInit {
       this.keywordField = this.fb.group({ keyword: [''] });
       this.searchTerm = '';
       this.statusChoice = 'all';
+      this.statusList = ['all'];
       this.stageChoice = 'all';
       this.currentPage = 0;
       this.itemsPerPage = 10;
-      this.order = 'ASC';
+      this.order = 'DESC';
       this.orderField = 'creation_date';
       this.totalPages = 0;
 
@@ -75,13 +78,13 @@ export class RequestsComponent implements OnInit {
     this.showSpinner = true;
     const currentOffset = this.currentPage * this.itemsPerPage;
     this.requestService.searchAllRequests(this.searchTerm,
-                                          this.statusChoice,
+                                          this.statusList,
                                           this.stageChoice,
                                           currentOffset.toString(),
                                           this.itemsPerPage.toString(),
                                           this.order,
                                           this.orderField,
-                                          this.authService.getUserEmail()).subscribe(
+                                          this.authService.getUserProp('email')).subscribe(
         res => {
             if (res && !isNull(res)) {
                 this.searchResults = res;
@@ -106,6 +109,7 @@ export class RequestsComponent implements OnInit {
         () => {
             // this.searchTerm = 'all';
             this.showSpinner = false;
+            this.errorMessage = '';
             if (this.listOfRequests.length === 0) {
                 this.noRequests = 'Δεν βρέθηκαν σχετικά αιτήματα.';
             }
@@ -174,10 +178,15 @@ export class RequestsComponent implements OnInit {
 
     chooseState(event: any) {
       this.statusChoice = event.target.value;
+      this.statusList = [];
+      this.statusList.push(this.statusChoice);
+      if (this.statusChoice === 'pending') {
+          this.statusList.push('under_review');
+      }
       console.log(`this.statusChoice is ${this.statusChoice}`);
       this.keywordField.get('keyword').setValue('');
       this.searchTerm = '';
-        this.currentPage = 0;
+      this.currentPage = 0;
       this.getListOfRequests();
     }
 
@@ -189,13 +198,16 @@ export class RequestsComponent implements OnInit {
     }
 
     getStatusAsString( status: string ) {
-      if (status === 'pending') {
+      if ( (status === 'pending') || (status === 'under_review') ) {
           return 'σε εξέλιξη';
       } else if (status === 'accepted') {
           return 'ολοκληρωθηκε';
       } else {
           return 'απορρίφθηκε';
       }
-}
+    }
 
+    printRequest(): void {
+      printRequestPage();
+    }
 }

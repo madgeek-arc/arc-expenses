@@ -1,3 +1,4 @@
+<div class="tm-header-placeholder uk-margin-remove-adjacent" style="height: 84px;"></div>
 <div class="uk-background-norepeat uk-background-cover uk-background-fixed uk-section uk-padding-remove-bottom uk-flex uk-flex-middle"
      style="background-image: url('https://dl119.madgik.di.uoa.gr/images/Background_images/RDM6.jpg'); box-sizing: border-box; height: 200px">
      <!--style="background-image: url('./assets/imgs/omtd_home_2.jpeg'); box-sizing: border-box; height: 150px">-->
@@ -78,7 +79,11 @@
                                     <div class="filterLabel">Κατάσταση:</div>
                                     <div class="inlineBlock">
                                         <select class="form-control" (change)="chooseState($event)">
-                                            <option *ngFor="let state of states" value="{{ state }}">{{stateNames[state]}}</option>
+                                            <!--<option *ngFor="let state of states" value="{{ state }}">{{stateNames[state]}}</option>-->
+                                            <option value="all">{{ stateNames['all'] }}</option>
+                                            <option value="pending">{{ stateNames['pending'] }}</option>
+                                            <option value="rejected">{{ stateNames['rejected'] }}</option>
+                                            <option value="accepted">{{ stateNames['accepted'] }}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -88,7 +93,8 @@
                                     <div class="filterLabel">Στάδιο:</div>
                                     <div class="inlineBlock">
                                         <select class="form-control" (change)="chooseStage($event)">
-                                            <option *ngFor="let stage of stages" value="{{ stage }}">{{ stagesMap[stage] }}</option>
+                                            <option value="all" selected>Όλα</option>
+                                            <option *ngFor="let stage of stages" value="{{ stage }}">{{ stagesMap[stage].title }}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -109,7 +115,7 @@
                         </div>
                         <div class="contentAndPagerPanel">
 
-                            <div class="uk-width-1-1 uk-margin uk-padding uk-padding-remove-bottom">
+                            <div class="uk-width-1-1 uk-margin-top uk-padding-top uk-padding-remove-bottom">
                                 <!-- Paging-top -->
                                 <div class="uk-width-1-1 uk-align-center">
                                     <ul class="uk-pagination uk-padding-small uk-padding-remove-bottom">
@@ -186,7 +192,7 @@
                                                 <td>{{ req.project.institute.name }}</td>
                                                 <td>{{ req.requester.firstname }} {{ req.requester.lastname }}</td>
                                                 <td>{{ req.stage1.requestDate | date : 'dd-MM-yyyy' }}</td>
-                                                <td *ngIf="!isSimpleUser" >{{ stagesMap[req.stage] }}</td>
+                                                <td *ngIf="!isSimpleUser" >{{ stagesMap[req.stage].title }}</td>
                                                 <td>{{ getStatusAsString(req.status) }}</td>
                                             </tr>
                                         </thead>
@@ -194,7 +200,7 @@
                                 </div>
                             </div>
 
-                            <div class="uk-width-1-1 uk-margin uk-padding uk-padding-remove-top">
+                            <div class="uk-width-1-1 uk-margin-top uk-padding-top uk-padding-remove-top">
                                 <!-- Paging-bottom -->
                                 <div class="uk-width-1-1 uk-align-center">
                                     <ul class="uk-pagination uk-padding-small uk-padding-remove-top">

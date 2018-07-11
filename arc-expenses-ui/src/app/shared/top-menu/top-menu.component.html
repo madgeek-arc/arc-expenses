@@ -1,10 +1,19 @@
 <div *ngIf="showSpinner" class="whiteFilm"><i class="fa fa-spinner fa-spin fa-5x loader" aria-hidden="true"></i></div>
-<div class="tm-header uk-visible@m" uk-header="">
-    <div class="uk-navbar-container uk-sticky" uk-sticky style="">
-        <div class="uk-container uk-container-expand">
-            <nav class="uk-navbar-container" uk-navbar style="">
+<!--<div class="tm-header uk-visible@m tm-header-transparent" uk-header="">-->
+  <!--<div class="uk-navbar-container uk-sticky uk-navbar-transparent" uk-sticky="top:0" media="768"-->
+       <!--cls-active="uk-active uk-navbar-sticky" style="" animation="uk-animation-slide-top"-->
+       <!--top=".tm-header + [class*=&quot;uk-section&quot;]" cls-inactive="uk-navbar-transparent">-->
+    <!--<div class="uk-container uk-container-expand">-->
+      <!--<nav class="uk-navbar" uk-navbar="{&quot;align&quot;:&quot;left&quot;}">-->
+<div class="tm-header uk-visible@m tm-header-transparent" uk-header="">
+  <div class="uk-navbar-container uk-sticky uk-navbar-transparent" uk-sticky="top:0" media="768"
+       cls-active="uk-active uk-navbar-sticky" style="" animation="uk-animation-slide-top"
+       top=".tm-header + [class*=&quot;uk-section&quot;]" cls-inactive="uk-navbar-transparent">
+    <div class="uk-container uk-container-expand">
+      <nav class="uk-navbar" uk-navbar="{&quot;align&quot;:&quot;left&quot;}">
                 <div class="uk-navbar-left">
-                    <a [routerLink]="['home']" class="uk-navbar-item navbar-brand-athena uk-logo"></a>
+                    <a [routerLink]="['home']" class="uk-navbar-item navbar-brand-athena uk-logo" title="Αρχική Σελίδα"></a>
+                    <!--<span class="test">[TEST]</span>-->
                 </div>
                 <div class="uk-navbar-right">
                     <ul class="uk-navbar-nav">
@@ -14,15 +23,16 @@
                             </a>
                         </li>
                         <li class="uk-parent" [routerLinkActive]="['uk-active']">
-                            <a href="#" aria-expanded="false">Πρωτογενές αίτημα</a>
+                            <a aria-expanded="false">Πρωτογενές αίτημα</a>
                             <div class="uk-navbar-dropdown uk-navbar-dropdown-bottom-left" style="top: 80px; left: 106.55px;"
                                  id="newRequestMenu" (click)="onClick('newRequestMenu')">
                                 <div class="uk-navbar-dropdown-grid uk-child-width-1-1 uk-grid uk-grid-stack" uk-grid="">
                                     <div class="uk-first-column">
                                         <ul class="uk-nav uk-navbar-dropdown-nav">
-                                            <li><a [routerLink]="['new-request','regular']">Προμήθεια</a></li>
-                                            <li><a [routerLink]="['new-request','trip']">Ταξίδι</a></li>
-                                            <li><a [routerLink]="['new-request','contract']">Σύμβαση</a></li>
+                                            <li><a [routerLink]="['new-request', 'regular']">{{ reqTypes['regular'] }}</a></li>
+                                            <li><a [routerLink]="['new-request', 'trip']">{{ reqTypes['trip'] }}</a></li>
+                                            <li><a [routerLink]="['new-request', 'contract']">{{ reqTypes['contract'] }}</a></li>
+                                            <li><a [routerLink]="['new-request', 'services_contract']">{{ reqTypes['services_contract'] }}</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -40,7 +50,7 @@
                         </li>
                         <li class="uk-parent">
                             <a (click)="showContactForm()">
-                                Φόρμα Επικοινωνίας
+                                Επικοινωνία
                             </a>
                         </li>
                     </ul>
@@ -50,8 +60,8 @@
                         <li class="uk-parent uk-inline">
                             <!--<a class="loginLink uk-margin-right" [routerLink]="['sign-up']" routerLinkActive="uk-active">Είσοδος-->
                             <a class="loginLink uk-link" routerLinkActive="uk-active">
-                                <a *ngIf="!isUserLoggedIn()" class="uk-margin-right uk-link" (click)="login()">Είσοδος</a>
-                                <span *ngIf="isUserLoggedIn()" class="uk-margin-right">{{ getUserName() }}</span>
+                                <a *ngIf="!loggedIn" class="uk-margin-right uk-link" (click)="login()">Είσοδος</a>
+                                <span *ngIf="loggedIn" class="uk-margin-right">{{ getUserName() }}</span>
                                 <span class="uk-margin-small-right uk-icon">
                                     <svg height="20" ratio="1" viewBox="0 0 20 20" width="20"
                                          xmlns="http://www.w3.org/2000/svg">
@@ -62,7 +72,7 @@
                                     </svg>
                                 </span>
                             </a>
-                            <div *ngIf="isUserLoggedIn()" uk-dropdown>
+                            <div *ngIf="loggedIn" uk-dropdown>
                                 <ul class="uk-nav uk-dropdown-nav">
                                     <li><a [routerLink]="['/sign-up']">Στοιχεία χρήστη</a></li>
                                     <li><a (click)="logout()">Έξοδος</a></li>

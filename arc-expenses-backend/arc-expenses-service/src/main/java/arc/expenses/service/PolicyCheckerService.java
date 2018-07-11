@@ -25,38 +25,38 @@ public class PolicyCheckerService {
         ).collect(Collectors.toList());
     }
 
-    private boolean isScientificCoordinator(Request request, String email) {
+    public boolean isScientificCoordinator(Request request, String email) {
         return request.getProject().getScientificCoordinator().getEmail().equals(email);
     }
 
-    private boolean isAccountingDirectorOrDelegate(Request request, String email) {
+    public boolean isAccountingDirectorOrDelegate(Request request, String email) {
         return request.getProject().getInstitute().getAccountingDirector().getEmail().equals(email)
             || isDelegate(request.getProject().getInstitute().getAccountingDirector().getDelegates(),email);
     }
 
-    private boolean isAccountingPaymentOrDelegate(Request request, String email) {
+    public boolean isAccountingPaymentOrDelegate(Request request, String email) {
         return request.getProject().getInstitute().getAccountingPayment().getEmail().equals(email)
             || isDelegate(request.getProject().getInstitute().getAccountingPayment().getDelegates(),email);
     }
 
-    private boolean isAccountingRegistratorOrDelegate(Request request, String email) {
+    public boolean isAccountingRegistratorOrDelegate(Request request, String email) {
         return request.getProject().getInstitute().getAccountingRegistration().getEmail().equals(email)
             || isDelegate(request.getProject().getInstitute().getAccountingRegistration().getDelegates(),email);
     }
 
 
 
-    private boolean isInstituteDirectorOrDelegate(Request request, String email) {
+    public boolean isInstituteDirectorOrDelegate(Request request, String email) {
         return request.getProject().getInstitute().getDirector().getEmail().equals(email)
             || isDelegate(request.getProject().getInstitute().getDirector().getDelegates(),email);
     }
 
-    private boolean isPOYOrDelegate(Request request, String email) {
+    public boolean isPOYOrDelegate(Request request, String email) {
         return request.getProject().getInstitute().getOrganization().getPOI().getEmail().equals(email)
             || isDelegate(request.getProject().getInstitute().getOrganization().getPOI().getDelegates(),email);
     }
 
-    private boolean isOperatorOrDelegate(Request request, String email) {
+    public boolean isOperatorOrDelegate(Request request, String email) {
         List<POI> operators = request.getProject().getOperator();
 
         if(operators!=null){
@@ -74,7 +74,7 @@ public class PolicyCheckerService {
 
     }
 
-    private boolean isDelegate(List<Delegate> delegates, String email) {
+    public boolean isDelegate(List<Delegate> delegates, String email) {
         if(delegates!=null){
             for(Delegate delegate:delegates)
                 if(delegate.getEmail().equals(email))
@@ -83,7 +83,7 @@ public class PolicyCheckerService {
         return false;
     }
 
-    private boolean isRequestor(Request request, String email) {
+    public boolean isRequestor(Request request, String email) {
         return request.getRequester().getEmail().equals(email);
     }
 
@@ -91,6 +91,9 @@ public class PolicyCheckerService {
 
         Boolean value = false;
         switch (request.getStage()) {
+            case "1":
+                value = isRequestor(request,email);
+                break;
             case "2":
                 value =  isScientificCoordinator(request,email);
                 break;
@@ -137,17 +140,17 @@ public class PolicyCheckerService {
         return value;
     }
 
-    private Boolean isOrganizationDirectorOrDelegate(Request request, String email) {
+    public Boolean isOrganizationDirectorOrDelegate(Request request, String email) {
         return request.getProject().getInstitute().getOrganization().getDirector().getEmail().equals(email)
                 || isDelegate(request.getProject().getInstitute().getOrganization().getDirector().getDelegates(),email);
     }
 
-    private Boolean isDiaugeiaOrDelegate(Request request, String email) {
+    public Boolean isDiaugeiaOrDelegate(Request request, String email) {
         return request.getProject().getInstitute().getDiaugeia().getEmail().equals(email)
                 || isDelegate(request.getProject().getInstitute().getDiaugeia().getDelegates(), email);
     }
 
-    private Boolean isMemberOfABOrDelegates(Request request, String email) {
+    public Boolean isMemberOfABOrDelegates(Request request, String email) {
         return request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getEmail().equals(email)
                 || isDelegate(request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getDelegates(), email);
     }
