@@ -51,7 +51,7 @@
             </SSO>
 
             <!-- SAML and local-only logout. -->
-            <Logout>SAML2 Local</Logout>
+            <Logout >SAML2 Local</Logout>
             
             <!-- Extension service that generates "approximate" metadata based on SP configuration. -->
             <Handler type="MetadataGenerator" Location="/Metadata" signing="false"/>

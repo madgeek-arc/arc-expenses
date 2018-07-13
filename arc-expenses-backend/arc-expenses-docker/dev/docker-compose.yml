@@ -6,6 +6,7 @@ services:
 #    build: ../../arc-expenses-service
 #    ports:
 #      - "8009:8009"
+#      - "8380:8080"
 #    links:
 ##      - db
 ##      - elastic
@@ -43,23 +44,25 @@ services:
       restart: unless-stopped
 
 
-  idp:
-      build: idp
-      container_name: idp
-      environment:
-       - JETTY_MAX_HEAP=64m
-       - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
-       - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
-      expose:
-       - "4443"
-      networks:
-       - arcnet
-      secrets:
-       - source: idp_backchannel
-       - source: idp_browser
-       - source: idp_encryption
-       - source: idp_signing
-       - source: idp_sealer
+#  idp:
+#      build: idp
+#      container_name: idp
+#      environment:
+#       - JETTY_MAX_HEAP=64m
+#       - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
+#       - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
+#      expose:
+#       - "8443"
+#      ports:
+#       - "4443:4443"
+#      networks:
+#       - arcnet
+#      secrets:
+#       - source: idp_backchannel
+#       - source: idp_browser
+#       - source: idp_encryption
+#       - source: idp_signing
+#       - source: idp_sealer
 
 #  ldap:
 #    image: osixia/openldap:1.2.1

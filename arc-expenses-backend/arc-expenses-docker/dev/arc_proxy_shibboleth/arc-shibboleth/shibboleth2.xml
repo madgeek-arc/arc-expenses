@@ -45,7 +45,7 @@
             (Set discoveryProtocol to "WAYF" for legacy Shibboleth WAYF support.)
             You can also override entityID on /Login query string, or in RequestMap/htaccess.
 	    -->
-            <SSO entityID="https://aleka.athenarc.gr/idp/shibboleth"
+            <SSO entityID="https://marilyn.athenarc.gr:4443/idp/shibboleth"
                  discoveryProtocol="SAMLDS" discoveryURL="https://ds.example.org/DS/WAYF">
               SAML2 SAML1
             </SSO>

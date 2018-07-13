@@ -1,14 +1,14 @@
 # set overall behavior
-log4j.rootCategory=INFO, shibd_log, warn_log
+log4j.rootCategory=DEBUG, shibd_log, warn_log
 
-# fairly verbose for DEBUG, so generally leave at INFO
-log4j.category.XMLTooling.XMLObject=INFO
-log4j.category.XMLTooling.KeyInfoResolver=INFO
-log4j.category.Shibboleth.IPRange=INFO
-log4j.category.Shibboleth.PropertySet=INFO
+# fairly verbose for DEBUG, so generally leave at DEBUG
+log4j.category.XMLTooling.XMLObject=DEBUG
+log4j.category.XMLTooling.KeyDEBUGResolver=DEBUG
+log4j.category.Shibboleth.IPRange=DEBUG
+log4j.category.Shibboleth.PropertySet=DEBUG
 
 # raise for low-level tracing of SOAP client HTTP/SSL behavior
-log4j.category.XMLTooling.libcurl=INFO
+log4j.category.XMLTooling.libcurl=DEBUG
 
 # useful categories to tune independently:
 #
@@ -27,12 +27,12 @@ log4j.category.XMLTooling.libcurl=INFO
 #log4j.category.XMLTooling.StorageService=DEBUG
 
 # logs XML being signed or verified if set to DEBUG
-log4j.category.XMLTooling.Signature.Debugger=INFO, sig_log
+log4j.category.XMLTooling.Signature.Debugger=DEBUG, sig_log
 log4j.additivity.XMLTooling.Signature.Debugger=false
 
 # the tran log blocks the "default" appender(s) at runtime
-# Level should be left at INFO for this category
-log4j.category.Shibboleth-TRANSACTION=INFO, tran_log
+# Level should be left at DEBUG for this category
+log4j.category.Shibboleth-TRANSACTION=DEBUG, tran_log
 log4j.additivity.Shibboleth-TRANSACTION=false
 # uncomment to suppress particular event types
 #log4j.category.Shibboleth-TRANSACTION.AuthnRequest=WARN
