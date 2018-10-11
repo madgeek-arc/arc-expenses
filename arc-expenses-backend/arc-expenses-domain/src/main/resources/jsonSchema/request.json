@@ -35,35 +35,6 @@
         "lastname"
       ]
     },
-    "user": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "email": { "type": "string" },
-        "firstname": { "type": "string" },
-        "lastname": { "type": "string" },
-        "firstnameLatin": { "type": "string" },
-        "lastnameLatin": { "type": "string" },
-        "signatureArchiveId": { "type": "string" },
-        "receiveEmails": { "type": "string" },
-        "immediateEmails": { "type": "string" },
-        "signatureAttachment": {
-          "type": "object",
-          "properties": {
-            "filename": { "type": "string" },
-            "mimetype": { "type": "string" },
-            "size": { "type": "integer" },
-            "url": { "type": "string" }
-          }
-        }
-      },
-      "required": [
-        "id",
-        "email",
-        "firstname",
-        "lastname"
-      ]
-    },
     "organization": {
       "type": "object",
       "properties": {
@@ -133,20 +104,7 @@
         "scientificCoordinator",
         "operator"
       ]
-    },
-    "attachment": {
-      "type": "object",
-      "properties": {
-        "filename": { "type": "string" },
-        "mimetype": { "type": "string" },
-        "size": { "type": "integer" },
-        "url": { "type": "string" }
-      }
-    },
-    "required": [
-      "filename",
-      "url"
-    ]
+    }
   },
 
   "title": "Request",
@@ -161,180 +119,7 @@
         "supplier": { "type": "string" },
         "supplierSelectionMethod": { "type": "string" },
         "amountInEuros": { "type": "number" },
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage2": {
-      "type": "object",
-      "description": "stage: Scientific Coordinator's Approval",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "checkFeasibility":{"type":"boolean"},
-        "checkNecessity":{"type":"boolean"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage3": {
-      "type": "object",
-      "description": "stage: Operator's Approval",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "analiftheiYpoxrewsi": { "type": "boolean"},
-        "fundsAvailable": { "type": "boolean"},
-        "loan": {"type": "boolean"},
-        "loanSource": {"type": "string"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage4": {
-      "type": "object",
-      "description": "stage: Financial Officer's Approval",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "analiftheiYpoxrewsi": { "type": "boolean"},
-        "fundsAvailable": { "type": "boolean"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage5": {
-      "type": "object",
-      "description": "stage: Institute Director's Approval",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage5a": {
-      "type": "object",
-      "description": "stage: Executive Officer's Approval",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage5b": {
-      "type": "object",
-      "description": "stage: Administrative Council",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage6": {
-      "type": "object",
-      "description": "stage: Diavgeia",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage7": {
-      "type": "object",
-      "description": "stage: Paperwork Submission",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage8": {
-      "type": "object",
-      "description": "stage: Checking Team",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "checkRegularity": { "type": "boolean"},
-        "checkLegality": { "type": "boolean"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage9": {
-      "type": "object",
-      "description": "stage: Financial Officer's Check",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "checkRegularity": { "type": "boolean"},
-        "checkLegality": { "type": "boolean"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage10": {
-      "type": "object",
-      "description": "stage: Director's Check",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage11": {
-      "type": "object",
-      "description": "stage: Diavgeia",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage12": {
-      "type": "object",
-      "description": "stage: Accounting Registration",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stage13": {
-      "type": "object",
-      "description": "stage: Accounting Payment",
-      "properties": {
-        "user": { "$ref": "#/definitions/user"},
-        "date": { "type": "string"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
-      }
-    },
-    "stageUploadInvoice": {
-      "type": "object",
-      "description": "stage: Upload invoice",
-      "properties": {
-        "date": { "type": "string"},
-        "comment": { "type": "string"},
-        "attachment": { "$ref": "#/definitions/attachment" }
+        "attachment": { "$ref": "attachment.json" }
       }
     },
     "id": {
@@ -351,21 +136,29 @@
       "type": "string"
     },
     "project": { "$ref": "#/definitions/project" },
-    "requester": { "$ref": "#/definitions/user" },
+    "requester": { "$ref": "user.json" },
     "requesterPosition": {
       "description": "Position of the requester in the Institute.",
       "title": "Requester Position",
       "type": "string"
     },
-    "stage": {
-      "description": "Next stage of the request.",
-      "title": "Next Stage",
+    "subject": {
+      "type": "string"
+    },
+    "supplier": {
+      "type": "string"
+    },
+    "supplierSelectionMethod": {
+      "type": "string"
+    },
+    "amountInEuros": {
       "type": "string"
     },
     "status": {
-      "description": "The state of a request. accepted/rejected/pending",
-      "title": "Status",
-      "type" : "string"
+      "type": "string"
+    },
+    "attachment": {
+      "$ref": "attachment.json"
     }
   }
 }

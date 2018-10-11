@@ -1,0 +1,182 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "RequestApproval",
+  "type": "object",
+  "properties": {
+    "stage2": {
+      "type": "object",
+      "description": "stage: Scientific Coordinator's Approval",
+      "properties": {
+        "user": {
+          "$ref": "user.json"
+        },
+        "date": {
+          "type": "string"
+        },
+        "checkFeasibility": {
+          "type": "boolean"
+        },
+        "checkNecessity": {
+          "type": "boolean"
+        },
+        "approved": {
+          "type": "boolean"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "attachment": {
+          "$ref": "attachment.json"
+        }
+      }
+    },
+    "stage3": {
+      "type": "object",
+      "description": "stage: Operator's Approval",
+      "properties": {
+        "user": {
+          "$ref": "user.json"
+        },
+        "date": {
+          "type": "string"
+        },
+        "analiftheiYpoxrewsi": {
+          "type": "boolean"
+        },
+        "fundsAvailable": {
+          "type": "boolean"
+        },
+        "loan": {
+          "type": "boolean"
+        },
+        "loanSource": {
+          "type": "string"
+        },
+        "approved": {
+          "type": "boolean"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "attachment": {
+          "$ref": "attachment.json"
+        }
+      }
+    },
+    "stage4": {
+      "type": "object",
+      "description": "stage: Financial Officer's Approval",
+      "properties": {
+        "user": {
+          "$ref": "user.json"
+        },
+        "date": {
+          "type": "string"
+        },
+        "analiftheiYpoxrewsi": {
+          "type": "boolean"
+        },
+        "fundsAvailable": {
+          "type": "boolean"
+        },
+        "approved": {
+          "type": "boolean"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "attachment": {
+          "$ref": "attachment.json"
+        }
+      }
+    },
+    "stage5": {
+      "type": "object",
+      "description": "stage: Institute Director's Approval",
+      "properties": {
+        "user": {
+          "$ref": "user.json"
+        },
+        "date": {
+          "type": "string"
+        },
+        "approved": {
+          "type": "boolean"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "attachment": {
+          "$ref": "attachment.json"
+        }
+      }
+    },
+    "stage5a": {
+      "type": "object",
+      "description": "stage: Executive Officer's Approval",
+      "properties": {
+        "user": {
+          "$ref": "user.json"
+        },
+        "date": {
+          "type": "string"
+        },
+        "approved": {
+          "type": "boolean"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "attachment": {
+          "$ref": "attachment.json"
+        }
+      }
+    },
+    "stage5b": {
+      "type": "object",
+      "description": "stage: Administrative Council",
+      "properties": {
+        "user": {
+          "$ref": "user.json"
+        },
+        "date": {
+          "type": "string"
+        },
+        "approved": {
+          "type": "boolean"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "attachment": {
+          "$ref": "attachment.json"
+        }
+      }
+    },
+    "stage6": {
+      "type": "object",
+      "description": "stage: Diavgeia",
+      "properties": {
+        "user": {
+          "$ref": "user.json"
+        },
+        "date": {
+          "type": "string"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "attachment": {
+          "$ref": "attachment.json"
+        }
+      }
+    }
+  },
+  "extends": {
+    "type" : "object",
+    "javaType" : "gr.athenarc.domain.BaseInfo"},
+  "required": [
+      "id",
+      "requestId"
+    ]
+}

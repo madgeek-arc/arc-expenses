@@ -6,10 +6,18 @@
       "type": "object",
       "description": "",
       "properties": {
-        "email": { "type": "string" },
-        "firstname": { "type": "string" },
-        "lastname": { "type": "string" },
-        "hidden": { "type": "boolean" }
+        "email": {
+          "type": "string"
+        },
+        "firstname": {
+          "type": "string"
+        },
+        "lastname": {
+          "type": "string"
+        },
+        "hidden": {
+          "type": "boolean"
+        }
       },
       "required": [
         "email",
@@ -21,12 +29,20 @@
       "type": "object",
       "title": "PersonOfInterest",
       "properties": {
-        "email": { "type": "string" },
-        "firstname": { "type": "string" },
-        "lastname": { "type": "string" },
+        "email": {
+          "type": "string"
+        },
+        "firstname": {
+          "type": "string"
+        },
+        "lastname": {
+          "type": "string"
+        },
         "delegates": {
           "type": "array",
-          "items": { "$ref": "#/definitions/delegate" }
+          "items": {
+            "$ref": "#/definitions/delegate"
+          }
         }
       },
       "required": [
@@ -38,14 +54,26 @@
     "organization": {
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "POI": { "$ref": "#/definitions/personOfInterest" },
-        "director": { "$ref": "#/definitions/personOfInterest" },
-        "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "POI": {
+          "$ref": "#/definitions/personOfInterest"
+        },
+        "director": {
+          "$ref": "#/definitions/personOfInterest"
+        },
+        "dioikitikoSumvoulio": {
+          "$ref": "#/definitions/personOfInterest"
+        },
         "inspectionTeam": {
           "type": "array",
-          "items": { "$ref": "#/definitions/personOfInterest" }
+          "items": {
+            "$ref": "#/definitions/personOfInterest"
+          }
         }
       },
       "required": [
@@ -59,16 +87,33 @@
     "institute": {
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "organization": { "$ref": "#/definitions/organization" },
-        "director": { "$ref": "#/definitions/personOfInterest" },
-        "accountingRegistration": { "$ref": "#/definitions/personOfInterest" },
-        "accountingPayment": { "$ref": "#/definitions/personOfInterest" },
-        "accountingDirector": { "$ref": "#/definitions/personOfInterest" },
-        "diaugeia": { "$ref": "#/definitions/personOfInterest" },
-        "suppliesOffice": { "$ref": "#/definitions/personOfInterest" }
-
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "organization": {
+          "$ref": "#/definitions/organization"
+        },
+        "director": {
+          "$ref": "#/definitions/personOfInterest"
+        },
+        "accountingRegistration": {
+          "$ref": "#/definitions/personOfInterest"
+        },
+        "accountingPayment": {
+          "$ref": "#/definitions/personOfInterest"
+        },
+        "accountingDirector": {
+          "$ref": "#/definitions/personOfInterest"
+        },
+        "diaugeia": {
+          "$ref": "#/definitions/personOfInterest"
+        },
+        "suppliesOffice": {
+          "$ref": "#/definitions/personOfInterest"
+        }
       },
       "required": [
         "id",
@@ -84,18 +129,36 @@
     "project": {
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "acronym": { "type": "string" },
-        "institute": { "$ref": "#/definitions/institute" },
-        "parentProject":  { "type": "string" },
-        "scientificCoordinator": { "$ref": "#/definitions/personOfInterest" },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "acronym": {
+          "type": "string"
+        },
+        "institute": {
+          "$ref": "#/definitions/institute"
+        },
+        "parentProject": {
+          "type": "string"
+        },
+        "scientificCoordinator": {
+          "$ref": "#/definitions/personOfInterest"
+        },
         "operator": {
           "type": "array",
-          "items": { "$ref": "#/definitions/personOfInterest" }
+          "items": {
+            "$ref": "#/definitions/personOfInterest"
+          }
         },
-        "startDate": { "type": "string" },
-        "endDate": { "type": "string" }
+        "startDate": {
+          "type": "string"
+        },
+        "endDate": {
+          "type": "string"
+        }
       },
       "required": [
         "id",
@@ -104,19 +167,6 @@
         "scientificCoordinator",
         "operator"
       ]
-    },
-    "attachment": {
-      "type": "object",
-      "properties": {
-        "filename": { "type": "string" },
-        "mimetype": { "type": "string" },
-        "size": { "type": "integer" },
-        "url": { "type": "string" }
-      }
-    },
-    "required": [
-      "filename",
-      "url"
-    ]
+    }
   }
 }

@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "title": "RequestPayment",
+  "type": "object",
+  "extends": {
+    "type" : "object",
+    "javaType" : "gr.athenarc.domain.BaseInfo"
+  },
+  "properties": {
+    "stage7": {
+      "type": "object",
+      "description": "stage: Paperwork Submission",
+      "properties": {
+        "user": { "$ref": "user.json"},
+        "date": { "type": "string"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "attachment.json" }
+      }
+    },
+    "stage8": {
+      "type": "object",
+      "description": "stage: Checking Team",
+      "properties": {
+        "user": { "$ref": "user.json"},
+        "date": { "type": "string"},
+        "checkRegularity": { "type": "boolean"},
+        "checkLegality": { "type": "boolean"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "attachment.json" }
+      }
+    },
+    "stage9": {
+      "type": "object",
+      "description": "stage: Financial Officer's Check",
+      "properties": {
+        "user": { "$ref": "user.json"},
+        "date": { "type": "string"},
+        "checkRegularity": { "type": "boolean"},
+        "checkLegality": { "type": "boolean"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "attachment.json" }
+      }
+    },
+    "stage10": {
+      "type": "object",
+      "description": "stage: Director's Check",
+      "properties": {
+        "user": { "$ref": "user.json"},
+        "date": { "type": "string"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "attachment.json" }
+      }
+    },
+    "stage11": {
+      "type": "object",
+      "description": "stage: Diavgeia",
+      "properties": {
+        "user": { "$ref": "user.json"},
+        "date": { "type": "string"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "attachment.json" }
+      }
+    },
+    "stage12": {
+      "type": "object",
+      "description": "stage: Accounting Registration",
+      "properties": {
+        "user": { "$ref": "user.json"},
+        "date": { "type": "string"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "attachment.json" }
+      }
+    },
+    "stage13": {
+      "type": "object",
+      "description": "stage: Accounting Payment",
+      "properties": {
+        "user": { "$ref": "user.json"},
+        "date": { "type": "string"},
+        "approved": { "type": "boolean"},
+        "comment": { "type": "string"},
+        "attachment": { "$ref": "attachment.json" }
+      }
+    }
+  },
+  "required": [
+    "id",
+    "requestId"
+  ]
+}

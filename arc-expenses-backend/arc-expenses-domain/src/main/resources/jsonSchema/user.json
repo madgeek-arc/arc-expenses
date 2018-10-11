@@ -12,14 +12,8 @@
     "signatureArchiveId": { "type": "string" },
     "receiveEmails": { "type": "string" },
     "immediateEmails": { "type": "string" },
-    "attachment": {
-      "type": "object",
-      "properties": {
-        "filename": { "type": "string" },
-        "mimetype": { "type": "string" },
-        "size": { "type": "integer" },
-        "url": { "type": "string" }
-      }
+    "signatureAttachment": {
+      "ref":"attachment.json"
     }
   },
   "required": [
