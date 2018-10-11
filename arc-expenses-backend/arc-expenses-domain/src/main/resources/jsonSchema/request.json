@@ -136,29 +136,14 @@
       "type": "string"
     },
     "project": { "$ref": "#/definitions/project" },
-    "requester": { "$ref": "user.json" },
+    "user": { "$ref": "user.json" },
     "requesterPosition": {
       "description": "Position of the requester in the Institute.",
       "title": "Requester Position",
       "type": "string"
     },
-    "subject": {
-      "type": "string"
-    },
-    "supplier": {
-      "type": "string"
-    },
-    "supplierSelectionMethod": {
-      "type": "string"
-    },
-    "amountInEuros": {
-      "type": "string"
-    },
     "status": {
       "type": "string"
-    },
-    "attachment": {
-      "$ref": "attachment.json"
     }
   }
 }

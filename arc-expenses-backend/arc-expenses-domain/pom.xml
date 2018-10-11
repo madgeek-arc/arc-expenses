@@ -86,6 +86,32 @@
                 <version>0.5.1</version>
                 <executions>
                     <execution>
+                        <id>AttachmentJsonSchema</id>
+                        <configuration>
+                            <sourceDirectory>${basedir}/src/main/resources/jsonSchema/attachment.json</sourceDirectory>
+                            <targetPackage>${project.groupId}.domain</targetPackage>
+                            <outputDirectory>target/generated-sources/jsonSchema</outputDirectory>
+                            <useLongIntegers>true</useLongIntegers>
+                            <includeConstructors>true</includeConstructors>
+                        </configuration>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>UserJsonSchema</id>
+                        <configuration>
+                            <sourceDirectory>${basedir}/src/main/resources/jsonSchema/user.json</sourceDirectory>
+                            <targetPackage>${project.groupId}.domain</targetPackage>
+                            <outputDirectory>target/generated-sources/jsonSchema</outputDirectory>
+                            <useLongIntegers>true</useLongIntegers>
+                            <includeConstructors>true</includeConstructors>
+                        </configuration>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                    <execution>
                         <id>RequestJsonSchema</id>
                         <configuration>
                             <sourceDirectory>${basedir}/src/main/resources/jsonSchema/request.json</sourceDirectory>
@@ -115,32 +141,6 @@
                         <id>RequestPaymentJsonSchema</id>
                         <configuration>
                             <sourceDirectory>${basedir}/src/main/resources/jsonSchema/requestPayment.json</sourceDirectory>
-                            <targetPackage>${project.groupId}.domain</targetPackage>
-                            <outputDirectory>target/generated-sources/jsonSchema</outputDirectory>
-                            <useLongIntegers>true</useLongIntegers>
-                            <includeConstructors>true</includeConstructors>
-                        </configuration>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>UserJsonSchema</id>
-                        <configuration>
-                            <sourceDirectory>${basedir}/src/main/resources/jsonSchema/user.json</sourceDirectory>
-                            <targetPackage>${project.groupId}.domain</targetPackage>
-                            <outputDirectory>target/generated-sources/jsonSchema</outputDirectory>
-                            <useLongIntegers>true</useLongIntegers>
-                            <includeConstructors>true</includeConstructors>
-                        </configuration>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>AttachmentJsonSchema</id>
-                        <configuration>
-                            <sourceDirectory>${basedir}/src/main/resources/jsonSchema/attachment.json</sourceDirectory>
                             <targetPackage>${project.groupId}.domain</targetPackage>
                             <outputDirectory>target/generated-sources/jsonSchema</outputDirectory>
                             <useLongIntegers>true</useLongIntegers>
