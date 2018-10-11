@@ -15,9 +15,5 @@
     "url": {
       "type": "string"
     }
-  },
-  "required": [
-    "filename",
-    "url"
-  ]
+  }
 }

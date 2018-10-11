@@ -49,7 +49,7 @@ public class UserController {
                     u.setSignatureArchiveId(userService.getSignatureArchiveID());
                     u.setImmediateEmails("true");
                     u.setReceiveEmails("true");
-                    u.setSignatureAttachment(null);
+                    u.setAttachment(null);
                     user = userService.add(u);
                 }
                 body.put("user",user);

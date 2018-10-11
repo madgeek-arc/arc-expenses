@@ -1,11 +1,13 @@
 package arc.expenses.service;
 
 import arc.expenses.config.StoreRestConfig;
+import arc.expenses.domain.RequestSummary;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.Attachment;
+import gr.athenarc.domain.BaseInfo;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,7 +102,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         return null;
     }
 
-    public String createWhereClause(String email, List<String> status, String searchField, String stage) {
+    public String createWhereClause(String email, List<String> status, String searchField, List<String> stage) {
 
         StringBuilder status_clause = new StringBuilder();
         StringBuilder search_clause = new StringBuilder();
@@ -109,7 +111,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         StringBuilder whereClause = new StringBuilder();
 
 
-       // if(!admins.contains(email))
+        if(!admins.contains(email))
             user_clause.append(" ( request_requester = " + email + " or " +
                                  " request_project_operator =  "+ email + " or " +
                                  " request_project_operator_delegates = " + email + " or " +
@@ -135,8 +137,10 @@ public class RequestServiceImpl extends GenericService<Request> {
         whereClause.append(user_clause);
 
         if(!status.get(0).equals("all")){
+            if(user_clause.length() != 0)
+                status_clause.append(" and " );
+            status_clause.append("( request_status = ").append(status.get(0));
 
-            status_clause.append(" and ( request_status = ").append(status.get(0));
             if(status.get(0).equals("pending"))
                 status_clause.append(" or request_status = under_review");
 
@@ -150,37 +154,45 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         whereClause.append(status_clause);
 
-        if(!stage.equals("all"))
-            stage_clause.append(" and  request_stage = ").append(stage);
 
+        if(!stage.get(0).equals("all")){
+            if(status_clause.length()!=0)
+                stage_clause.append("and");
+            stage_clause.append(" ( request_stage = ").append(stage.get(0));
+            for(int i=1;i<stage.size();i++)
+                stage_clause.append(" or request_status = ").append(stage.get(i));
+            stage_clause.append(")");
+        }
         whereClause.append(stage_clause);
 
-        if(!searchField.equals(""))
-            search_clause.append(" and searchableArea = ").append(searchField);
+        if(!searchField.equals("")){
+            if(stage_clause.length()!=0 || status_clause.length()!=0)
+                search_clause.append("and ");
+            search_clause.append(" searchableArea = ").append(searchField);
+        }
         whereClause.append(search_clause);
-
-
-
-
         return whereClause.toString();
     }
 
 
-    public Paging<Request> criteriaSearch(String from, String quantity,
-                                          List<String> status, String searchField,
-                                          String stage, String orderType,
-                                          String orderField, String email) {
+    public Paging<RequestSummary> criteriaSearch(String from, String quantity,
+                                                 List<String> status, String searchField,
+                                                 List<String> stage, String orderType,
+                                                 String orderField, String email) {
 
         Paging<Resource> rs = searchService.cqlQuery(
-                this.createWhereClause(email,status,searchField,stage),"request",
+                this.createWhereClause(email,status,searchField,stage),"requestGroup",
                 Integer.parseInt(quantity),Integer.parseInt(from),
                 orderField, orderType);
 
 
-        List<Request> resultSet = new ArrayList<>();
+        List<RequestSummary> resultSet = new ArrayList<>();
         for(Resource resource:rs.getResults()) {
             try {
-                resultSet.add(parserPool.deserialize(resource,typeParameterClass).get());
+                RequestSummary requestSummary = new RequestSummary();
+                requestSummary.setBaseInfo(parserPool.deserialize(resource, BaseInfo.class).get());
+                requestSummary.setRequest(get(requestSummary.getBaseInfo().getRequestId()));
+                resultSet.add(requestSummary);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
@@ -273,58 +285,58 @@ public class RequestServiceImpl extends GenericService<Request> {
         Attachment attachment = null;
         Request request = get(requestId);
 
-        switch (stage) {
-            case "1":
-                attachment = request.getStage1().getAttachment();
-                break;
-            case "2":
-                attachment = request.getStage2().getAttachment();
-                break;
-            case "3":
-                attachment = request.getStage3().getAttachment();
-                break;
-            case "4":
-                attachment = request.getStage4().getAttachment();
-                break;
-            case "5":
-                attachment = request.getStage5().getAttachment();
-                break;
-            case "5a":
-                attachment = request.getStage5a().getAttachment();
-                break;
-            case "5b":
-                attachment = request.getStage5b().getAttachment();
-                break;
-            case "UploadInvoice":
-                attachment = request.getStageUploadInvoice().getAttachment();
-                break;
-            case "6":
-                attachment = request.getStage6().getAttachment();
-                break;
-            case "7":
-                attachment = request.getStage7().getAttachment();
-                break;
-            case "8":
-                attachment = request.getStage8().getAttachment();
-                break;
-            case "9":
-                attachment = request.getStage9().getAttachment();
-                break;
-            case "10":
-                attachment = request.getStage10().getAttachment();
-                break;
-            case "11":
-                attachment = request.getStage11().getAttachment();
-                break;
-            case "12":
-                attachment = request.getStage12().getAttachment();
-                break;
-            case "13":
-                attachment = request.getStage13().getAttachment();
-                break;
-            default:
-                return null;
-        }
+//        switch (stage) {
+//            case "1":
+//                attachment = request.getStage1().getAttachment();
+//                break;
+//            case "2":
+//                attachment = request.getStage2().getAttachment();
+//                break;
+//            case "3":
+//                attachment = request.getStage3().getAttachment();
+//                break;
+//            case "4":
+//                attachment = request.getStage4().getAttachment();
+//                break;
+//            case "5":
+//                attachment = request.getStage5().getAttachment();
+//                break;
+//            case "5a":
+//                attachment = request.getStage5a().getAttachment();
+//                break;
+//            case "5b":
+//                attachment = request.getStage5b().getAttachment();
+//                break;
+//            case "UploadInvoice":
+//                attachment = request.getStageUploadInvoice().getAttachment();
+//                break;
+//            case "6":
+//                attachment = request.getStage6().getAttachment();
+//                break;
+//            case "7":
+//                attachment = request.getStage7().getAttachment();
+//                break;
+//            case "8":
+//                attachment = request.getStage8().getAttachment();
+//                break;
+//            case "9":
+//                attachment = request.getStage9().getAttachment();
+//                break;
+//            case "10":
+//                attachment = request.getStage10().getAttachment();
+//                break;
+//            case "11":
+//                attachment = request.getStage11().getAttachment();
+//                break;
+//            case "12":
+//                attachment = request.getStage12().getAttachment();
+//                break;
+//            case "13":
+//                attachment = request.getStage13().getAttachment();
+//                break;
+//            default:
+//                return null;
+//        }
         return attachment;
     }
 

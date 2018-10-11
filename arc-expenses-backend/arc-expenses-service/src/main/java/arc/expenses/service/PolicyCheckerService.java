@@ -1,5 +1,6 @@
 package arc.expenses.service;
 
+import arc.expenses.domain.RequestSummary;
 import gr.athenarc.domain.Delegate;
 import gr.athenarc.domain.POI;
 import gr.athenarc.domain.Request;
@@ -84,13 +85,14 @@ public class PolicyCheckerService {
     }
 
     public boolean isRequestor(Request request, String email) {
-        return request.getRequester().getEmail().equals(email);
+        return request.getUser().getEmail().equals(email);
     }
 
-    public boolean updateFilter(Request request, String email) {
+    public boolean updateFilter(RequestSummary requestSummary, String email) {
 
         Boolean value = false;
-        switch (request.getStage()) {
+        Request request = requestSummary.getRequest();
+        switch (requestSummary.getBaseInfo().getStage()) {
             case "1":
                 value = isRequestor(request,email);
                 break;

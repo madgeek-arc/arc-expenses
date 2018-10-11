@@ -26,5 +26,5 @@
   "name": "user",
   "aliasGroup" : null,
   "payloadType": "json",
-  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/master/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/user.json"
+  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/new-schema/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/user.json"
 }

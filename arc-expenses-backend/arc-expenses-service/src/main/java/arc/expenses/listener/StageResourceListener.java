@@ -1,15 +1,19 @@
 package arc.expenses.listener;
-import eu.openminted.registry.core.domain.Resource;
-import eu.openminted.registry.core.monitor.ResourceListener;
-import gr.athenarc.domain.Request;
+
 import arc.expenses.mail.JavaMailer;
 import arc.expenses.messages.StageMessages;
+import arc.expenses.utils.Converter;
+import arc.expenses.utils.ParserPool;
+import eu.openminted.registry.core.domain.Resource;
+import eu.openminted.registry.core.monitor.ResourceListener;
+import gr.athenarc.domain.BaseInfo;
+import gr.athenarc.domain.RequestApproval;
+import gr.athenarc.domain.RequestPayment;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import arc.expenses.utils.ParserPool;
 
 import java.util.concurrent.ExecutionException;
 
@@ -33,15 +37,15 @@ public class StageResourceListener implements ResourceListener {
     public void resourceAdded(Resource resource) {
         logger.debug("Adding a resource");
 
-        if (resource.getResourceType().getName().equals("request")) {
+        if (resource.getResourceType().getName().equals("requestApproval")) {
             try {
-                Request request = parserPool.deserialize(resource, Request.class).get();
-                logger.info("New Request added: stage = " + request.getStage() + " " + request.getStatus());
-                if (request.getStage().equals("2")) {
+                BaseInfo baseInfo = Converter.toBaseInfo(parserPool.deserialize(resource, RequestApproval.class).get());
+                logger.info("New Request added: stage = " + baseInfo.getStage() + " " + baseInfo.getStatus());
+                //if (baseInfo.getStage().equals("2")) {
                     stageMessages
-                            .createStageMessages("1", request.getStage(), request)
+                            .createStageMessages("1", baseInfo.getStage(), baseInfo)
                             .forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
-                }
+               // }
             } catch (InterruptedException | ExecutionException e) {
                 logger.error(e);
             }
@@ -53,24 +57,59 @@ public class StageResourceListener implements ResourceListener {
     public void resourceUpdated(Resource previousResource, Resource newResource) {
         logger.info("Updating a resource");
 
-        if ("request".equals(newResource.getResourceType().getName())) {
+        /*if ("requestPayment".equals(newResource.getResourceType().getName())) {
             try {
-                Request previousRequest = parserPool.deserialize(previousResource, Request.class).get();
-                Request newRequest = parserPool.deserialize(newResource, Request.class).get();
-                if (!previousRequest.getStage().equals(newRequest.getStage()) ||
-                        !previousRequest.getStatus().equals(newRequest.getStatus())) {
-                    logger.debug("Stage changed: " + previousRequest.getStage() + " " + previousRequest.getStatus() +
-                            " -> " + newRequest.getStage() + " " + newRequest.getStatus());
-                    logger.debug("Prev Request: " + previousRequest.toString());
-                    logger.debug("New Request : " + newRequest.toString());
+                RequestPayment previousRequestPayment = parserPool.deserialize(previousResource, RequestPayment.class).get();
+                RequestPayment newRequestPayment = parserPool.deserialize(newResource, RequestPayment.class).get();
+                if (!previousRequestPayment.getStage().equals(newRequestPayment.getStage()) ||
+                        !previousRequestPayment.getStatus().equals(newRequestPayment.getStatus())) {
+                    logger.debug("Stage changed: " + previousRequestPayment.getStage() + " " + previousRequestPayment.getStatus() +
+                            " -> " + newRequestPayment.getStage() + " " + newRequestPayment.getStatus());
+                    logger.debug("Prev Request: " + previousRequestPayment.toString());
+                    logger.debug("New Request : " + newRequestPayment.toString());
                     stageMessages
-                            .createStageMessages(previousRequest.getStage(), newRequest.getStage(), newRequest)
+                            .createStageMessages(previousRequestPayment.getStage(), newRequestPayment.getStage(), newRequestPayment)
                             .forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
                 }
             } catch (InterruptedException | ExecutionException e) {
                 logger.error(e);
             }
+        }*/
+
+        BaseInfo previousBaseInfo = null;
+        BaseInfo newBaseInfo = null;
+
+        if( "requestPayment".equals(newResource.getResourceType().getName())){
+            try {
+                previousBaseInfo = Converter.toBaseInfo(parserPool.deserialize(previousResource, RequestPayment.class).get());
+                newBaseInfo = Converter.toBaseInfo(parserPool.deserialize(newResource, RequestPayment.class).get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
         }
+        if( "requestApproval".equals(newResource.getResourceType().getName())){
+            try {
+                previousBaseInfo = Converter.toBaseInfo(parserPool.deserialize(previousResource, RequestApproval.class).get());
+                newBaseInfo = Converter.toBaseInfo(parserPool.deserialize(newResource, RequestApproval.class).get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if(previousBaseInfo != null && newBaseInfo != null){
+            if (!previousBaseInfo.getStage().equals(newBaseInfo.getStage()) ||
+                    !previousBaseInfo.getStatus().equals(newBaseInfo.getStatus())) {
+                logger.debug("Stage changed: " + previousBaseInfo.getStage() + " " + previousBaseInfo.getStatus() +
+                        " -> " + newBaseInfo.getStage() + " " + newBaseInfo.getStatus());
+                logger.debug("Prev Request: " + previousBaseInfo.toString());
+                logger.debug("New Request : " + newBaseInfo.toString());
+                stageMessages
+                        .createStageMessages(previousBaseInfo.getStage(), newBaseInfo.getStage(), newBaseInfo)
+                        .forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
+            }
+        }
+
+
     }
 
     @Async

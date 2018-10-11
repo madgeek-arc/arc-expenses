@@ -1,0 +1,29 @@
+{
+  "indexFields": [
+    {
+      "name": "payment_id",
+      "path": "$.id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_id",
+      "path": "$.id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "status",
+      "path": "$.status",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "stage",
+      "path": "$.stage",
+      "type": "java.lang.String"
+    }
+  ],
+  "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
+  "name": "payment",
+  "aliasGroup" : "requestGroup",
+  "payloadType": "json",
+  "schemaUrl":"https://raw.githubusercontent.com/madgeek-arc/arc-expenses/new-schema/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/requestPayment.json"
+}
