@@ -88,9 +88,5 @@
         "attachment": { "$ref": "attachment.json" }
       }
     }
-  },
-  "required": [
-    "id",
-    "requestId"
-  ]
+  }
 }

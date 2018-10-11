@@ -174,9 +174,5 @@
   },
   "extends": {
     "type" : "object",
-    "javaType" : "gr.athenarc.domain.BaseInfo"},
-  "required": [
-      "id",
-      "requestId"
-    ]
+    "javaType" : "gr.athenarc.domain.BaseInfo"}
 }
