@@ -37,5 +37,13 @@ public class EmailMessage {
     public void setText(String text) {
         this.text = text;
     }
+
+    @Override
+    public String toString() {
+
+        return "\n#########################################################################################\n" +
+               String.format("\nTo:%s\nSubject:%s\n%s\n",recipient,subject,text) +
+               "#########################################################################################\n";
+    }
 }
 

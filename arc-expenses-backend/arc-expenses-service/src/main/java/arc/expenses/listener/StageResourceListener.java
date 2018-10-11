@@ -2,22 +2,22 @@ package arc.expenses.listener;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.monitor.ResourceListener;
 import gr.athenarc.domain.Request;
-import arc.expenses.mail.EmailMessage;
 import arc.expenses.mail.JavaMailer;
 import arc.expenses.messages.StageMessages;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import arc.expenses.utils.ParserPool;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
 @Component
 public class StageResourceListener implements ResourceListener {
 
-    private Logger logger = Logger.getLogger(StageResourceListener.class);
+    final private static Logger logger = LogManager.getLogger(StageResourceListener.class);
 
     @Autowired
     ParserPool parserPool;
@@ -28,10 +28,11 @@ public class StageResourceListener implements ResourceListener {
     @Autowired
     StageMessages stageMessages;
 
+    @Async
     @Override
     public void resourceAdded(Resource resource) {
-        // TODO
-        logger.info("Adding a resource");
+        logger.debug("Adding a resource");
+
         if (resource.getResourceType().getName().equals("request")) {
             try {
                 Request request = parserPool.deserialize(resource, Request.class).get();
@@ -41,14 +42,13 @@ public class StageResourceListener implements ResourceListener {
                             .createStageMessages("1", request.getStage(), request)
                             .forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
+            } catch (InterruptedException | ExecutionException e) {
+                logger.error(e);
             }
         }
     }
 
+    @Async
     @Override
     public void resourceUpdated(Resource previousResource, Resource newResource) {
         logger.info("Updating a resource");
@@ -59,20 +59,21 @@ public class StageResourceListener implements ResourceListener {
                 Request newRequest = parserPool.deserialize(newResource, Request.class).get();
                 if (!previousRequest.getStage().equals(newRequest.getStage()) ||
                         !previousRequest.getStatus().equals(newRequest.getStatus())) {
-                    logger.info("Stage changed: " + previousRequest.getStage() + " " + previousRequest.getStatus() +
+                    logger.debug("Stage changed: " + previousRequest.getStage() + " " + previousRequest.getStatus() +
                             " -> " + newRequest.getStage() + " " + newRequest.getStatus());
-                    logger.info("Prev Request: " + previousRequest.toString());
-                    logger.info("New Request : " + newRequest.toString());
+                    logger.debug("Prev Request: " + previousRequest.toString());
+                    logger.debug("New Request : " + newRequest.toString());
                     stageMessages
                             .createStageMessages(previousRequest.getStage(), newRequest.getStage(), newRequest)
                             .forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
                 }
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                logger.error(e);
             }
         }
     }
 
+    @Async
     @Override
     public void resourceDeleted(Resource resource) {
         // TODO
