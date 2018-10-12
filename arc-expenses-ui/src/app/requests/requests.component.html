@@ -209,7 +209,7 @@
                                             <tr class="uk-link" *ngFor="let req of listOfRequests"
                                                 (click)="navigateToRequestPage(req.baseInfo)"
                                                 title="Μετάβαση στην σελίδα του αιτήματος">
-                                                <td>{{ req.baseInfo.id }}</td>
+                                                <td>{{ req.request.id }}</td>
                                                 <td>{{ reqTypes[req.request.type] }}</td>
                                                 <td>{{ req.request.project.acronym }}</td>
                                                 <td>{{ req.request.project.institute.name }}</td>
