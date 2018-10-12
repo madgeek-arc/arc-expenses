@@ -1,16 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {
-    Attachment, Project, Request, Stage1, Stage2, Stage5a, Stage10, Stage5b, Stage4,
-    Stage6, Stage7, Stage8, Stage9, Stage3, Stage11, Stage12, Stage13, User, Vocabulary, RequestApproval
-} from '../domain/operation';
-import {ManageRequestsService} from '../services/manage-requests.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Attachment, Project, Request, Stage1, Stage2, Stage3, Stage5a, Stage5b, Stage4,
+         Stage6, User, Vocabulary, RequestApproval } from '../domain/operation';
+import { ManageRequestsService } from '../services/manage-requests.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import {AuthenticationService} from '../services/authentication.service';
-import {DatePipe} from '@angular/common';
-import {ManageProjectService} from '../services/manage-project.service';
+import { AuthenticationService } from '../services/authentication.service';
+import { DatePipe } from '@angular/common';
+import { ManageProjectService } from '../services/manage-project.service';
 import { isNullOrUndefined, isUndefined } from 'util';
-import {HttpEventType, HttpResponse} from '@angular/common/http';
+import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { requestTypes, supplierSelectionMethodsMap } from '../domain/stageDescriptions';
 
 declare const UIkit: any;

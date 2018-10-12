@@ -138,7 +138,7 @@ export class RequestsComponent implements OnInit {
     const currentOffset = this.currentPage * this.itemsPerPage;
     this.requestService.searchAllRequestSummaries(this.searchTerm,
                                                   this.statusList,
-                                                  this.stagesChoice[0],
+                                                  this.stagesChoice,
                                                   currentOffset.toString(),
                                                   this.itemsPerPage.toString(),
                                                   this.order,
@@ -410,24 +410,14 @@ export class RequestsComponent implements OnInit {
     }
 
 
-    chooseStage(stage: string) {
+    chooseStage(stage: string, event: any) {
         if ( !this.isSimpleUser ) {
-            const stage_i = this.stages.findIndex(x => x === stage);
-            const stageChoices = <FormArray>this.filtersForm.controls['stageChoices'];
-            const chooseStage = (stageChoices.at(stage_i).get('stage').value === 'true');
-            if (chooseStage) {
-                if (this.stagesChoice.some(x => x === 'all')) {
-                    this.stagesChoice = [];
-                }
-                this.stagesChoice.push(stage);
-            } else {
-                const i = this.stagesChoice.findIndex(x => x === stage);
-                this.stagesChoice.splice(i, 1);
-                if (this.stagesChoice.length === 0) {
-                    this.stagesChoice.push('all');
-                }
+            this.getStageChoices();
+            console.log('after getStageChoices list is', JSON.stringify(this.stagesChoice));
+            if (this.stagesChoice.length === 0) {
+                this.stagesChoice.push('all');
+                console.log('stagesChoice is', JSON.stringify(this.stagesChoice));
             }
-            console.log(`this.stagesChoice is ${this.stagesChoice}`);
             this.keywordField.get('keyword').setValue('');
             this.searchTerm = '';
             this.currentPage = 0;
@@ -435,31 +425,18 @@ export class RequestsComponent implements OnInit {
         }
     }
 
-    chooseState(state: string, chooseStage: boolean) {
-        if (chooseStage) {
-            if (this.statusList.some(x => x === 'all')) {
-                this.statusList = [];
-            }
-            this.statusList.push(state);
-            if (state === 'pending') {
-                this.statusList.push('under_review');
-            }
-        } else {
-            let i = this.statusList.findIndex(x => x === state);
-            this.stagesChoice.splice(i, 1);
-            if (state === 'pending') {
-                i = this.statusList.findIndex(x => x === 'under_review');
-                this.stagesChoice.splice(i, 1);
-            }
-            if (this.stagesChoice.length === 0) {
-                this.stagesChoice.push('all');
-            }
-        }
-        console.log(`chosen status is ${this.statusList}`);
-        this.keywordField.get('keyword').setValue('');
-        this.searchTerm = '';
-        this.currentPage = 0;
-        this.getListOfRequests();
+    chooseState() {
+      this.getStatusChoices();
+      console.log('after getStatusChoices list is', JSON.stringify(this.statusList));
+      if (this.statusList.length === 0) {
+          this.statusList.push('all');
+          console.log('statusList is', JSON.stringify(this.statusList));
+      }
+
+      this.keywordField.get('keyword').setValue('');
+      this.searchTerm = '';
+      this.currentPage = 0;
+      this.getListOfRequests();
     }
 
     getIfUserCanEdit(requestId: string, project: Project, stage: string) {

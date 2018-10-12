@@ -140,13 +140,9 @@ export class ManageRequestsService {
     }
 
     searchAllRequestSummaries(searchField: string, status: string[],
-                              stage: string, from: string, quantity: string,
+                              stage: string[], from: string, quantity: string,
                               order: string, orderField: string, email: string): Observable<Paging<RequestSummary>> {
-        let statusList = '';
-        status.forEach(st => {
-            statusList = `${statusList}&status=${st}`;
-        });
-        let url = `${this.apiUrl}getAll?from=${from}&quantity=${quantity}${statusList}&stage=${stage}`;
+        let url = `${this.apiUrl}getAll?from=${from}&quantity=${quantity}&status${JSON.stringify(status)}&stage=${JSON.stringify(stage)}`;
         url += `&order=${order}&orderField=${orderField}&email=${encodeURIComponent(email)}&searchField=${searchField}`;
 
         console.log(`calling ${url}`);

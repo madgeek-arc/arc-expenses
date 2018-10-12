@@ -61,22 +61,22 @@
                        <div>
                            <div [formGroupName]="'0'">
                                <label for="pending">
-                                   <input class="uk-checkbox" type="checkbox" formControlName="status" id="pending" #pending
-                                          (change)="chooseState('pending', (pending.value==='true'))">
+                                   <input class="uk-checkbox" type="checkbox" formControlName="status" id="pending"
+                                          (change)="chooseState('pending', $event)">
                                    &nbsp;{{ stateNames['pending'] }}
                                </label>
                            </div>
                            <div [formGroupName]="'1'">
                                <label for="rejected">
-                                   <input class="uk-checkbox" type="checkbox" formControlName="status" id="rejected" #rejected
-                                          (change)="chooseState('rejected', (rejected.value === 'true'))">
+                                   <input class="uk-checkbox" type="checkbox" formControlName="status" id="rejected"
+                                          (change)="chooseState('rejected', $event)">
                                    &nbsp;{{ stateNames['rejected'] }}
                                </label>
                            </div>
                            <div [formGroupName]="'2'">
                                <label for="accepted">
-                                   <input class="uk-checkbox" type="checkbox" formControlName="status" id="accepted" #accepted
-                                          (change)="chooseState('rejected', (accepted.value === 'true'))">
+                                   <input class="uk-checkbox" type="checkbox" formControlName="status" id="accepted"
+                                          (change)="chooseState('rejected', $event)">
                                    &nbsp;{{ stateNames['accepted'] }}
                                </label>
                            </div>
@@ -90,7 +90,7 @@
                            <div [formGroupName]="stage_i">
                                <label for="stage_{{ stage_i }}">
                                    <input class="uk-checkbox" type="checkbox" formControlName="stage" id="stage_{{ stage_i }}"
-                                          (change)="chooseStage(stage)">
+                                          (change)="chooseStage(stage, $event)">
                                    &nbsp;{{ stagesMap[stage] }}
                                </label>
                            </div>
@@ -119,7 +119,7 @@
                         <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
                     </div>
 
-                    <!-- TODO:uncomment when done -->
+                    <!-- TODO:uncomment when search is working -->
                     <!--<div *ngIf="searchResults">-->
                     <div>
                         <div class="uk-grid page-controls uk-flex-right">
