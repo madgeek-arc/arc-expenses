@@ -111,66 +111,68 @@ public class RequestServiceImpl extends GenericService<Request> {
         StringBuilder whereClause = new StringBuilder();
 
 
-        if(!admins.contains(email))
+        if(!admins.contains(email)) {
             user_clause.append(" ( request_requester = " + email + " or " +
-                                 " request_project_operator =  "+ email + " or " +
-                                 " request_project_operator_delegates = " + email + " or " +
-                                 " request_project_scientificCoordinator = " + email + " or " +
-                                 " request_organization_POI = " + email + " or " +
-                                 " request_organization_POΙ_delegate =  " + email+ " or "+
-                                 " request_institute_accountingRegistration = " + email + " or " +
-                                 " request_institute_diaugeia = " + email + " or " +
-                                 " request_institute_accountingPayment = " + email + " or " +
-                                 " request_institute_accountingDirector = " + email + " or " +
-                                 " request_institute_accountingDirector_delegate =  " + email + " or " +
-                                 " request_institute_accountingRegistration_delegate =  " + email +" or " +
-                                 " request_institute_accountingPayment_delegate =  " + email +" or " +
-                                 " request_institute_diaugeia_delegate =  " + email +" or " +
-                                 " request_organization_director = " + email + " or " +
-                                 " request_institute_director = " + email + " or " +
-                                 " request_organization_director_delegate =  " + email + " or "+
-                                 " request_institute_director_delegate =  " + email + " ) ");
-
-
-
-
-        whereClause.append(user_clause);
+                    " request_project_operator =  " + email + " or " +
+                    " request_project_operator_delegates = " + email + " or " +
+                    " request_project_scientificCoordinator = " + email + " or " +
+                    " request_organization_POI = " + email + " or " +
+                    " request_organization_POΙ_delegate =  " + email + " or " +
+                    " request_institute_accountingRegistration = " + email + " or " +
+                    " request_institute_diaugeia = " + email + " or " +
+                    " request_institute_accountingPayment = " + email + " or " +
+                    " request_institute_accountingDirector = " + email + " or " +
+                    " request_institute_accountingDirector_delegate =  " + email + " or " +
+                    " request_institute_accountingRegistration_delegate =  " + email + " or " +
+                    " request_institute_accountingPayment_delegate =  " + email + " or " +
+                    " request_institute_diaugeia_delegate =  " + email + " or " +
+                    " request_organization_director = " + email + " or " +
+                    " request_institute_director = " + email + " or " +
+                    " request_organization_director_delegate =  " + email + " or " +
+                    " request_institute_director_delegate =  " + email + " ) ");
+            whereClause.append(user_clause);
+        }
 
         if(!status.get(0).equals("all")){
             if(user_clause.length() != 0)
                 status_clause.append(" and " );
-            status_clause.append("( request_status = ").append(status.get(0));
+            status_clause.append("( status = ").append(status.get(0));
 
             if(status.get(0).equals("pending"))
-                status_clause.append(" or request_status = under_review");
+                status_clause.append(" or status = under_review");
 
             for(int i=1;i<status.size();i++){
                 if(status.get(i).equals("pending"))
-                    status_clause.append(" or request_status = under_review");
-                status_clause.append(" or request_status = ").append(status.get(i));
+                    status_clause.append(" or status = under_review");
+                status_clause.append(" or status = ").append(status.get(i));
             }
             status_clause.append(")");
+            whereClause.append(status_clause);
         }
-
-        whereClause.append(status_clause);
-
 
         if(!stage.get(0).equals("all")){
-            if(status_clause.length()!=0)
-                stage_clause.append("and");
-            stage_clause.append(" ( request_stage = ").append(stage.get(0));
-            for(int i=1;i<stage.size();i++)
-                stage_clause.append(" or request_status = ").append(stage.get(i));
-            stage_clause.append(")");
-        }
-        whereClause.append(stage_clause);
 
-        if(!searchField.equals("")){
+            if(user_clause.length() != 0 || status_clause.length()!=0)
+                stage_clause.append("and");
+
+            stage_clause.append(" ( stage = ").append(stage.get(0));
+            for(int i=1;i<stage.size();i++)
+                stage_clause.append(" or stage = ").append(stage.get(i));
+            stage_clause.append(")");
+            whereClause.append(stage_clause);
+        }
+
+
+        if(searchField!=null && !searchField.equals("")){
             if(stage_clause.length()!=0 || status_clause.length()!=0)
                 search_clause.append("and ");
             search_clause.append(" searchableArea = ").append(searchField);
+            whereClause.append(search_clause);
         }
-        whereClause.append(search_clause);
+
+        if(whereClause.length() == 0)
+            whereClause.append("status = accepted or status = pending or status = under_review");
+
         return whereClause.toString();
     }
 
@@ -180,11 +182,11 @@ public class RequestServiceImpl extends GenericService<Request> {
                                                  List<String> stage, String orderType,
                                                  String orderField, String email) {
 
+
         Paging<Resource> rs = searchService.cqlQuery(
                 this.createWhereClause(email,status,searchField,stage),"requestGroup",
                 Integer.parseInt(quantity),Integer.parseInt(from),
                 orderField, orderType);
-
 
         List<RequestSummary> resultSet = new ArrayList<>();
         for(Resource resource:rs.getResults()) {

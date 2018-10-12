@@ -54,7 +54,7 @@ public class RequestController {
 
 
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)
-    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
+    //@PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public Request getById(@PathVariable("id") String id) throws ResourceNotFoundException {
         Request request = requestService.get(id);
         if(request == null)
@@ -66,7 +66,7 @@ public class RequestController {
     public Paging<RequestSummary> getAll(@RequestParam(value = "from",required=false,defaultValue = "0") String from,
                                          @RequestParam(value = "quantity",required=false,defaultValue = "10") String quantity,
                                          @RequestParam(value = "status") List<String> status,
-                                         @RequestParam(value = "searchField") String searchField,
+                                         @RequestParam(value = "searchField",required=false) String searchField,
                                          @RequestParam(value = "stage") List<String> stage,
                                          @RequestParam(value = "order",required=false,defaultValue = "ASC") String orderType,
                                          @RequestParam(value = "orderField") String orderField,
