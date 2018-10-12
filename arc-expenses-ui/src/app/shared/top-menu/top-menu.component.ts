@@ -3,7 +3,6 @@ import { AuthenticationService } from '../../services/authentication.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ManageRequestsService } from '../../services/manage-requests.service';
 import { ContactUsMail } from '../../domain/operation';
-import { Router } from '@angular/router';
 import { requestTypes } from '../../domain/stageDescriptions';
 
 
@@ -17,6 +16,7 @@ declare const UIkit: any;
 export class TopMenuComponent implements OnInit, DoCheck {
 
   loggedIn: boolean = false;
+  isAdmin: boolean = false;
 
   contactForm: FormGroup;
   modalError: string;
@@ -26,17 +26,13 @@ export class TopMenuComponent implements OnInit, DoCheck {
 
   constructor(private authService: AuthenticationService,
               private requestService: ManageRequestsService,
-              private fb: FormBuilder, private router: Router) { }
+              private fb: FormBuilder) { }
 
-  ngOnInit() {
-    /*this.isUserLoggedIn();
-    if ( this.authService.getIsUserLoggedIn() &&
-         (!this.authService.getUserProp('firstname') || !this.authService.getUserProp('lastname')) ) {
-    }*/
-  }
+  ngOnInit() { }
 
   ngDoCheck() {
       this.isUserLoggedIn();
+      this.isUserAdmin();
       this.getUserName();
   }
 
@@ -60,6 +56,10 @@ export class TopMenuComponent implements OnInit, DoCheck {
       if ( this.authService.getUserProp('firstname') && this.authService.getUserProp('lastname')) {
           return this.authService.getUserProp('firstname') + ' ' + this.authService.getUserProp('lastname');
       }
+  }
+
+  isUserAdmin() {
+      this.isAdmin = ( this.authService.getUserRole() === 'ROLE_ADMIN' );
   }
 
   onClick(id: string) {

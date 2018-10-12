@@ -13,6 +13,14 @@ export class Attachment {
     url: string;
 }
 
+export class BaseInfo {
+    id: string;
+    requestId: string;
+    creationDate: string;
+    stage: string;
+    status: string;
+}
+
 export class ContactUsMail {
     name: string;
     surname: string;
@@ -70,6 +78,16 @@ export class Project {
 
 export class Request {
     stage1: Stage1;
+    id: string;
+    type: string;
+    archiveId: string;
+    project: Project;
+    user: User;
+    requesterPosition: string;
+    requestStatus: string;
+}
+
+export class RequestApproval extends BaseInfo {
     stage2: Stage2;
     stage3: Stage3;
     stage4: Stage4;
@@ -77,6 +95,9 @@ export class Request {
     stage5a: Stage5a;
     stage5b: Stage5b;
     stage6: Stage6;
+}
+
+export class RequestPayment extends BaseInfo {
     stage7: Stage7;
     stage8: Stage8;
     stage9: Stage9;
@@ -84,21 +105,11 @@ export class Request {
     stage11: Stage11;
     stage12: Stage12;
     stage13: Stage13;
-    id: string;
-    type: string;
-    archiveId: string;
-    project: Project;
-    requester: User;
-    requesterPosition: string;
-    stage: string;
-    status: string;
 }
 
-export class SignatureAttachment {
-    filename: string;
-    mimetype: string;
-    size: number;
-    url: string;
+export class RequestSummary {
+    baseInfo: BaseInfo;
+    request: Request;
 }
 
 export class Stage1 {
@@ -248,5 +259,15 @@ export class User {
     signatureArchiveId: string;
     receiveEmails: string;
     immediateEmails: string;
-    signatureAttachment: SignatureAttachment;
+    attachment: Attachment;
 }
+
+
+
+export class SignatureAttachment {
+    filename: string;
+    mimetype: string;
+    size: number;
+    url: string;
+}
+

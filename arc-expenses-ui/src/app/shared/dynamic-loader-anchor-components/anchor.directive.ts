@@ -1,8 +1,8 @@
 import { Directive, ViewContainerRef } from '@angular/core';
 
 @Directive({
-    selector: '[stage-host]'
+    selector: '[anchor-host]'
 })
-export class StageDirective {
+export class AnchorDirective {
     constructor(public viewContainerRef: ViewContainerRef) {}
 }

@@ -38,30 +38,10 @@ export class ManageProjectService {
     }
 
 
-    /*getAllProjectsNames(): Observable<string[]> {
-        const url = `${this.apiUrl}getAllProjectNames`;
-        console.log(`calling ${url}`);
-        return this.http.get<string[]>(url, headerOptions)
-            .pipe(
-                catchError(this.handleError)
-            );
-    }*/
-
     getAllProjectsNames(): Observable<Vocabulary[]> {
         const url = `${this.apiUrl}getAllProjectNames`;
         console.log(`calling ${url}`);
         return this.http.get<Vocabulary[]>(url, headerOptions)
-            .pipe(
-                catchError(this.handleError)
-            );
-    }
-
-    /*getProjectByAcronym(acronym: string, institute:string): Observable<Project> {*/
-    getProjectByAcronym(acronym: string): Observable<Project> {
-        /*const url = `${this.apiUrl}getByAcronym/${acronym}/${institute}`;*/
-        const url = `${this.apiUrl}getByAcronym/${acronym}`;
-        console.log(`calling ${url}`);
-        return this.http.get<Project>(url, headerOptions)
             .pipe(
                 catchError(this.handleError)
             );

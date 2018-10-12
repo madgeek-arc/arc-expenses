@@ -75,6 +75,12 @@
                             <div *ngIf="loggedIn" uk-dropdown>
                                 <ul class="uk-nav uk-dropdown-nav">
                                     <li><a [routerLink]="['/sign-up']">Στοιχεία χρήστη</a></li>
+                                    <li *ngIf="isAdmin">
+                                        <a [routerLink]="['/admin']">Επεγεργασία εγγραφών</a>
+                                    </li>
+                                    <!--<li *ngIf="isAdmin">
+                                        <a>Έργα</a>
+                                    </li>-->
                                     <li><a (click)="logout()">Έξοδος</a></li>
                                 </ul>
                             </div>
@@ -143,8 +149,7 @@
     </div>
 </div>
 
-<!-- Όνομα, Επώνυμο, email, Θέμα, Μήνυμα
-     name, surname, email, subject, message -->
+<!-- Φόρμα επικοινωνίας -->
 <div id="contactModal" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
         <h4 class="uk-modal-title uk-h4">Φόρμα Επικοινωνίας</h4>

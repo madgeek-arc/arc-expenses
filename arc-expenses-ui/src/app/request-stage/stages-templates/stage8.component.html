@@ -1,11 +1,15 @@
 <div *ngIf="showStage > 0" class="uk-width-1-1 uk-margin-bottom">
     <!--<hr>-->
+
+    <!-- STAGE RESULT DISPLAY -->
     <div *ngIf="showStage > 1" class="uk-form-controls">
         <!--<h5>{{ stageTitle }}</h5>-->
         <div>
             {{ submittedStageResult }} ({{ getDelegateName() }})
             στις {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
         </div>
+
+        <!-- display a checkbox value -->
         <div class="uk-grid uk-margin-small-top">
             <div class="uk-width-expand">
                 <input class="uk-form-controls uk-checkbox"
@@ -20,6 +24,8 @@
                 <label class="uk-width-1-3">Έγινε έλεγχος κανονικότητας</label>
             </div>
         </div>
+
+        <!-- display a checkbox value -->
         <div class="uk-grid uk-margin-small-top">
             <div class="uk-width-expand">
                 <span>
@@ -32,26 +38,39 @@
                 <label class="uk-width-1-3">Έγινε έλεγχος νομιμότητας</label>
             </div>
         </div>
+
+        <!-- display a long text value -->
         <div *ngIf="currentStage['comment']">
             <span class="uk-text-bold uk-margin-small-right">Σχόλια: </span>
             <span> {{ currentStage['comment'] }} </span>
         </div>
+
+        <!-- display link to attachment -->
         <div *ngIf="currentStage['attachment']">
             <a class="uk-link uk-width-1-1@l uk-margin-small-top" (click)="linkToFile()">
                 Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία
             </a>
         </div>
     </div>
+    <!-- END OF STAGE RESULT DISPLAY -->
+
+    <!-- STAGE FORM -->
     <div *ngIf="(showStage === 1) && stageForm" [formGroup]="stageForm" class="uk-form-controls stageForm">
         <h5>{{ stageTitle }}</h5>
 
         <div *ngIf="stageFormError" class="uk-alert uk-alert-danger">{{ stageFormError }}</div>
+
+        <!-- FORM CONTROLS -->
+
+        <!-- add a checkbox -->
         <div class="uk-grid uk-margin-small-top">
             <label class="uk-width-1-3">Έγινε έλεγχος κανονικότητας;</label>
             <div class="uk-width-expand">
                 <input class="uk-form-controls uk-checkbox" type="checkbox" formControlName="checkRegularity">
             </div>
         </div>
+
+        <!-- add a checkbox -->
         <div class="uk-grid uk-margin-small-top">
             <label class="uk-width-1-3">Έγινε έλεγχος νομιμότητας;</label>
             <div class="uk-width-expand">
@@ -75,7 +94,12 @@
 
         <button class="uk-button uk-button-primary" (click)="goBackOneStage()">Επιστροφή στο προηγούμενο στάδιο</button>
 
-        <div><span class="uk-text-small">Ημερομηνία: {{ getCurrentDateString() }}</span></div>
+        <!-- CURRENT DATE DISPLAY -->
+        <div>
+            <span class="uk-text-small">Ημερομηνία: {{ getCurrentDateString() }}</span>
+        </div>
 
     </div>
+    <!-- END OF STAGE FORM -->
+
 </div>

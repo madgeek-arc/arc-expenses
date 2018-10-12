@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
 
-export class StageItem {
+export class AnchorItem {
     constructor(public component: Type<any>, public data: any) {}
 }

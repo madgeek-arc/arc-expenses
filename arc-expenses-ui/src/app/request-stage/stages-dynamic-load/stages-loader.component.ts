@@ -1,16 +1,16 @@
 import { Component, ComponentFactoryResolver, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { StageDirective } from './stage.directive';
-import { StageItem } from './stage-item';
-import { StageInterfaceComponent } from './stage-interface.component';
+import { AnchorInterfaceComponent } from '../../shared/dynamic-loader-anchor-components/anchor-interface.component';
+import {AnchorItem} from '../../shared/dynamic-loader-anchor-components/anchor-item';
+import {AnchorDirective} from '../../shared/dynamic-loader-anchor-components/anchor.directive';
 
 @Component({
     selector: 'app-stage-loader',
-    template: `<ng-template stage-host></ng-template>`
+    template: `<ng-template anchor-host></ng-template>`
 })
 export class StagesLoaderComponent implements OnInit {
-    @Input() stages: StageItem[] = [];
+    @Input() stages: AnchorItem[] = [];
     currentIndex = -1;
-    @ViewChild(StageDirective) stageHost: StageDirective;
+    @ViewChild(AnchorDirective) stageHost: AnchorDirective;
 
     @Output() emitStage: EventEmitter<any> = new EventEmitter<any>();
     @Output() emitFile: EventEmitter<File> = new EventEmitter<File>();
@@ -27,9 +27,9 @@ export class StagesLoaderComponent implements OnInit {
 
     loadComponent() {
         this.currentIndex = (this.currentIndex + 1) % this.stages.length;
-        const stageItem = this.stages[this.currentIndex];
+        const anchorItem = this.stages[this.currentIndex];
 
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(stageItem.component);
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(anchorItem.component);
 
         const viewContainerRef = this.stageHost.viewContainerRef;
         viewContainerRef.clear();
@@ -40,6 +40,6 @@ export class StagesLoaderComponent implements OnInit {
         componentRef.instance['emitGoBack'].subscribe(emitted => this.emitGoBack.emit(emitted));
         componentRef.instance['newValues'].subscribe(emitted => this.newValues.emit(emitted));
 
-        (<StageInterfaceComponent>componentRef.instance).data = stageItem.data;
+        (<AnchorInterfaceComponent>componentRef.instance).data = anchorItem.data;
     }
 }

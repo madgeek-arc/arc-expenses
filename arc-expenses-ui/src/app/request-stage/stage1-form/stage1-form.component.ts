@@ -81,18 +81,21 @@ export class Stage1FormComponent implements OnInit {
                 this.errorMessage = 'Για αιτήματα άνω των 2.500 € η επιλογή προμηθευτή γίνεται μέσω διαγωνισμού ή έρευνας αγοράς.';
 
             } else if ( (+this.updateStage1Form.get('amount').value > this.amountLimit) &&
-                ( ((this.currentRequest.type !== 'trip') && (this.currentRequest.type !== 'contract')) &&
-                    (this.updateStage1Form.get('supplierSelectionMethod').value !== this.selMethods['competition']) ) ) {
+                        ( ((this.currentRequest.type !== 'trip') &&
+                            (this.currentRequest.type !== 'contract') ) &&
+                            (this.updateStage1Form.get('supplierSelectionMethod').value !== this.selMethods['competition']) ) ) {
 
                 this.errorMessage = 'Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.';
             } else if ( (this.currentRequest.type !== 'trip') && (this.currentRequest.type !== 'contract') &&
-                ( this.updateStage1Form.get('supplierSelectionMethod').value !== this.selMethods['competition'] ) &&
-                !this.updateStage1Form.get('supplier').value ) {
+                        ( this.updateStage1Form.get('supplierSelectionMethod').value !== this.selMethods['competition'] ) &&
+                        !this.updateStage1Form.get('supplier').value ) {
 
                 this.errorMessage = 'Είναι υποχρεωτικό να προσθέσετε πληροφορίες για τον προμηθευτή.';
             } else if ( (( this.updateStage1Form.get('supplierSelectionMethod').value !== this.selMethods['direct'] ) &&
-                ( (this.currentRequest.type !== 'trip') && (this.currentRequest.type !== 'contract') )) &&
-                (isNullOrUndefined(this.uploadedFile) && isNullOrUndefined(this.currentRequest.stage1.attachment) )) {
+                         ((this.currentRequest.type !== 'trip') &&
+                          (this.currentRequest.type !== 'contract') )) &&
+                        (isNullOrUndefined(this.uploadedFile) &&
+                         isNullOrUndefined(this.currentRequest.stage1.attachment) )) {
 
                 this.errorMessage = 'Για αναθέσεις μέσω διαγωνισμού ή έρευνας αγοράς η επισύναψη εγγράφων είναι υποχρεωτική.';
             } else if ( (+this.updateStage1Form.get('amount').value > this.lowAmountLimit) &&
@@ -113,12 +116,6 @@ export class Stage1FormComponent implements OnInit {
                     this.currentRequest.stage1.attachment.size = this.uploadedFile.size;
                     this.currentRequest.stage1.attachment.url = '';
                     this.emitFile.emit(this.uploadedFile);
-                }
-                this.currentRequest.stage = '2';
-                this.currentRequest.status = 'pending';
-
-                if ( (this.currentRequest.stage1.amountInEuros > this.amountLimit) && isUndefined(this.currentRequest.stage5b) ) {
-                    this.currentRequest.stage5b = new Stage5b();
                 }
 
                 this.emitRequest.emit(this.currentRequest);

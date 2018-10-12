@@ -9,7 +9,9 @@ import { environment } from '../../environments/environment';
 import { isNullOrUndefined } from 'util';
 
 const headerOptions = {
-    headers: new HttpHeaders().set('Content-Type', 'application/json').set('Accept', 'application/json'),
+    headers: new HttpHeaders()
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json'),
     withCredentials: true
 };
 
@@ -21,7 +23,6 @@ export class AuthenticationService {
 
     private apiUrl: string = environment.API_ENDPOINT;
     private loginUrl: string = environment.API_ENDPOINT + '/user/idp_login';
-    private baseUrl: string = environment.HOME_URL;
 
     // store the URL so we can redirect after logging in
     public redirectUrl: string;
@@ -171,7 +172,7 @@ export class AuthenticationService {
     }
 
     getSignatureAttachment() {
-        const signature: Attachment = this.getUserProp('signatureAttachment');
+        const signature: Attachment = this.getUserProp('attachment');
         if ( this.getIsUserLoggedIn() && !isNullOrUndefined(signature) ) {
 
             return signature;
@@ -181,7 +182,7 @@ export class AuthenticationService {
     }
 
     getSignatureAttachmentProp( property: string ) {
-        const signature: Attachment = this.getUserProp('signatureAttachment');
+        const signature: Attachment = this.getUserProp('attachment');
         if ( this.getIsUserLoggedIn() && !isNullOrUndefined(signature) &&
              !isNullOrUndefined(signature[property]) && (signature[property] !== 'null') ) {
 
@@ -214,7 +215,7 @@ export class AuthenticationService {
             receiveEmails: receiveEmails,
             immediateEmails: immediateEmails,
             signatureArchiveId: this.getUserProp('signatureArchiveId'),
-            signatureAttachment: attachment
+            attachment: attachment
         };
 
         console.log(`sending: ${JSON.stringify(updatedUser)}`);

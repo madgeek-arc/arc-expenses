@@ -13,20 +13,8 @@
                 <div [formGroup]="keywordField" class="uk-align-center uk-margin-top">
                   <input class="uk-input uk-width-2-3 uk-search-field"
                          placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο" formControlName="keyword">
-                  <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="getSearchResults()"><i class="fas fa-search"></i> Αναζήτηση</button>
+                  <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="getSearchResults()"><i class="fa fa-search"></i> Αναζήτηση</button>
                 </div>
-                <!--<ul *ngIf="urlParameters && urlParameters.length>0"-->
-                    <!--class="facets-selected cf uk-width-medium-9-10">-->
-                  <!--<ng-template ngFor let-urlParameter [ngForOf]="urlParameters">-->
-                    <!--<ng-template [ngIf]="urlParameter.key!='from'">-->
-                      <!--<li *ngFor="let facet of urlParameter.values" class="search-tag">-->
-                        <!--<span class="title">{{urlParameter.key}}:</span> {{facet}} <a-->
-                        <!--(click)="deselectFacet(urlParameter.key, facet)"-->
-                        <!--data-role="remove"></a>-->
-                      <!--</li>-->
-                    <!--</ng-template>-->
-                  <!--</ng-template>-->
-                <!--</ul>-->
               </div>
             </div>
           </div>
@@ -52,11 +40,69 @@
           <div class="uk-grid">
 
             <!-- LEFT HELP CONTENT -->
-            <aside-help-content #leftHelperContent [position]="'left'"
+            <!--<aside-help-content #leftHelperContent [position]="'left'"
                                 [ngClass]="leftHelperContent.isPresent()?'tm-sidebar uk-width-1-4@m uk-first-column':'clear-style'">
-            </aside-help-content>
+            </aside-help-content>-->
+          <div>
+            <div [formGroup]="filtersForm"
+                 class="uk-card uk-card-body uk-card-secondary sidemenu uk-margin-bottom">
 
-            <!-- MIDDLE -->
+                <div class="uk-margin-bottom">
+                    <label for="req-phase" class="filterLabel">Φάση:</label>
+                    <select id="req-phase" class="form-control" (change)="choosePhase($event)">
+                        <option value="0" [selected]="phaseId===0">Όλες</option>
+                        <option value="1" [selected]="phaseId===1">Πρώτη φάση</option>
+                        <option value="2" [selected]="phaseId===2">Δεύτερη φάση</option>
+                    </select>
+                </div>
+                <div class="uk-margin-bottom">
+                   <div formArrayName="statusChoices" class="show-options uk-inline">
+                       <div class="filterLabel">Κατάσταση:</div>
+                       <div>
+                           <div [formGroupName]="'0'">
+                               <label for="pending">
+                                   <input class="uk-checkbox" type="checkbox" formControlName="status" id="pending" #pending
+                                          (change)="chooseState('pending', (pending.value==='true'))">
+                                   &nbsp;{{ stateNames['pending'] }}
+                               </label>
+                           </div>
+                           <div [formGroupName]="'1'">
+                               <label for="rejected">
+                                   <input class="uk-checkbox" type="checkbox" formControlName="status" id="rejected" #rejected
+                                          (change)="chooseState('rejected', (rejected.value === 'true'))">
+                                   &nbsp;{{ stateNames['rejected'] }}
+                               </label>
+                           </div>
+                           <div [formGroupName]="'2'">
+                               <label for="accepted">
+                                   <input class="uk-checkbox" type="checkbox" formControlName="status" id="accepted" #accepted
+                                          (change)="chooseState('rejected', (accepted.value === 'true'))">
+                                   &nbsp;{{ stateNames['accepted'] }}
+                               </label>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+               <div *ngIf="!isSimpleUser" class="uk-margin-bottom ">
+                   <div formArrayName="stageChoices" class="show-options uk-inline">
+                       <div class="filterLabel">Στάδιο:</div>
+                       <div *ngFor="let stage of stages; let stage_i = index">
+                           <div [formGroupName]="stage_i">
+                               <label for="stage_{{ stage_i }}">
+                                   <input class="uk-checkbox" type="checkbox" formControlName="stage" id="stage_{{ stage_i }}"
+                                          (change)="chooseStage(stage)">
+                                   &nbsp;{{ stagesMap[stage] }}
+                               </label>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+               <button class="uk-button uk-button-default" type="reset" (click)="clearFilterControls()">Καθάρισμα επιλογών</button>
+
+           </div>
+          </div>
+
+              <!-- MIDDLE -->
             <div class=" uk-width-expand@m">
 
                 <!--<div class="uk-form-horizontal uk-margin-large">-->
@@ -72,33 +118,11 @@
                         <div class="uk-overlay-default uk-position-cover"></div>
                         <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
                     </div>
-                    <div *ngIf="searchResults">
+
+                    <!-- TODO:uncomment when done -->
+                    <!--<div *ngIf="searchResults">-->
+                    <div>
                         <div class="uk-grid page-controls uk-flex-right">
-                            <div class="uk-margin-bottom ">
-                                <div class="show-options uk-inline">
-                                    <div class="filterLabel">Κατάσταση:</div>
-                                    <div class="inlineBlock">
-                                        <select class="form-control" (change)="chooseState($event)">
-                                            <!--<option *ngFor="let state of states" value="{{ state }}">{{stateNames[state]}}</option>-->
-                                            <option value="all">{{ stateNames['all'] }}</option>
-                                            <option value="pending">{{ stateNames['pending'] }}</option>
-                                            <option value="rejected">{{ stateNames['rejected'] }}</option>
-                                            <option value="accepted">{{ stateNames['accepted'] }}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div *ngIf="!isSimpleUser" class="uk-margin-bottom ">
-                                <div class="show-options uk-inline">
-                                    <div class="filterLabel">Στάδιο:</div>
-                                    <div class="inlineBlock">
-                                        <select class="form-control" (change)="chooseStage($event)">
-                                            <option value="all" selected>Όλα</option>
-                                            <option *ngFor="let stage of stages" value="{{ stage }}">{{ stagesMap[stage].title }}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="uk-margin-bottom ">
                                 <div class="show-options uk-inline">
                                     <div class="filterLabel">Αιτήσεις ανά σελίδα:</div>
@@ -179,21 +203,28 @@
                                                     </a>
                                                 </th>
                                                 <th><span class="uk-margin-right">Κατασταση</span></th>
+                                                <th></th>
                                             </tr>
                                             <tr *ngIf="noRequests">
-                                                <td colspan="7" class="uk-alert uk-width-1-1">{{noRequests}}</td>
+                                                <td colspan="8" class="uk-alert uk-width-1-1">{{noRequests}}</td>
                                             </tr>
                                             <tr class="uk-link" *ngFor="let req of listOfRequests"
-                                                [routerLink]="['request-stage', req.id]"
+                                                [routerLink]="['request-stage', req.baseInfo.id]"
                                                 title="Μετάβαση στην σελίδα του αιτήματος">
-                                                <td>{{ req.id }}</td>
-                                                <td>{{ reqTypes[req.type] }}</td>
-                                                <td>{{ req.project.acronym }}</td>
-                                                <td>{{ req.project.institute.name }}</td>
-                                                <td>{{ req.requester.firstname }} {{ req.requester.lastname }}</td>
-                                                <td>{{ req.stage1.requestDate | date : 'dd-MM-yyyy' }}</td>
-                                                <td *ngIf="!isSimpleUser" >{{ stagesMap[req.stage].title }}</td>
-                                                <td>{{ getStatusAsString(req.status) }}</td>
+                                                <td>{{ req.baseInfo.id }}</td>
+                                                <td>{{ reqTypes[req.request.type] }}</td>
+                                                <td>{{ req.request.project.acronym }}</td>
+                                                <td>{{ req.request.project.institute.name }}</td>
+                                                <td>{{ req.request.user.firstname }} {{ req.request.user.lastname }}</td>
+                                                <td>{{ req.request.stage1.requestDate | date : 'dd-MM-yyyy' }}</td>
+                                                <td *ngIf="!isSimpleUser" >{{ stagesMap[req.baseInfo.stage] }}</td>
+                                                <td>{{ getStatusAsString(req.baseInfo.status) }}</td>
+                                                <td>
+                                                    <a *ngIf="getIfUserCanEdit(req.request.id, req.request.project, req.baseInfo.stage)"
+                                                        (click)="navigateToRequestPage(req.baseInfo)">
+                                                           <i class="fa fa-pencil"></i>
+                                                    </a>
+                                                </td>
                                             </tr>
                                         </thead>
                                     </table>

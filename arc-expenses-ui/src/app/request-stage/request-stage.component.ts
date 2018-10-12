@@ -1,18 +1,25 @@
 import { Component, OnInit } from '@angular/core';
-import { Request } from '../domain/operation';
-import { ActivatedRoute } from '@angular/router';
+import {
+    BaseInfo,
+    Request,
+    RequestApproval,
+    RequestPayment,
+    RequestSummary,
+    Stage10,
+    Stage11,
+    Stage12, Stage13,
+    Stage5b, Stage7, Stage8, Stage9
+} from '../domain/operation';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { isNullOrUndefined, isUndefined } from 'util';
 import { HttpErrorResponse, HttpEventType, HttpResponse } from '@angular/common/http';
-import { requestTypes, stageIds, stagesDescriptionMap } from '../domain/stageDescriptions';
+import { approvalStages, requestTypes, stageIds } from '../domain/stageDescriptions';
 import { printRequestPage } from './print-request-function';
-import { StageItem } from './stages-dynamic-load/stage-item';
-import {
-    Stage10Component, Stage11Component, Stage12Component, Stage13Component,
-    Stage2Component, Stage3Component, Stage4Component, Stage5aComponent,
-    Stage5bComponent, Stage6Component, Stage7Component, Stage8Component, Stage9Component, StageUploadInvoiceComponent
-} from './stages-components';
+import { AnchorItem } from '../shared/dynamic-loader-anchor-components/anchor-item';
+import { RequestInfo } from '../domain/requestInfoClasses';
+import { mergeMap, switchMap, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-request-stage',
@@ -25,6 +32,7 @@ export class RequestStageComponent implements OnInit {
     successMessage: string;
     showSpinner: boolean;
 
+    readonly amountLimit = 20000;
     readonly lowAmountLimit = 2500;
 
     uploadedFile: File;
@@ -33,38 +41,23 @@ export class RequestStageComponent implements OnInit {
     isSimpleUser: boolean;
     requestId: string;
     currentRequest: Request;
+    currentRequestApproval: RequestApproval;
+    currentRequestPayments: RequestPayment[] = [];
     currentStageName: string;
     canEdit: boolean = false;
     wentBackOneStage: boolean;
     stages: string[];
-    stagesMap = stagesDescriptionMap;
     stateNames = {
         pending: 'βρίσκεται σε εξέλιξη', under_review: 'βρίσκεται σε εξέλιξη', rejected: 'έχει απορριφθεί', accepted: 'έχει ολοκληρωθεί'
     };
     reqTypes = requestTypes;
 
-    sendInfoToStage5b: string[];
+    currentRequestInfo: RequestInfo;
 
-    stageLoaderItemList: StageItem[];
-
-    componentPerStage = {
-        '2': Stage2Component,
-        '3': Stage3Component,
-        '4': Stage4Component,
-        '5a': Stage5aComponent,
-        'UploadInvoice': StageUploadInvoiceComponent,
-        '5b': Stage5bComponent,
-        '6': Stage6Component,
-        '7': Stage7Component,
-        '8': Stage8Component,
-        '9': Stage9Component,
-        '10': Stage10Component,
-        '11': Stage11Component,
-        '12': Stage12Component,
-        '13': Stage13Component,
-    };
+    stageLoaderItemList: AnchorItem[];
 
     constructor(private route: ActivatedRoute,
+                private router: Router,
                 private requestService: ManageRequestsService,
                 private authService: AuthenticationService) {
     }
@@ -82,10 +75,15 @@ export class RequestStageComponent implements OnInit {
         this.notFoundMessage = '';
 
         /*call api to get request info or throw errorMessage*/
-        this.requestService.getRequestById(this.requestId, this.authService.getUserProp('email')).subscribe(
-            res => {
-                this.currentRequest = res;
-                console.log(`The archiveid of the currentRequest is ${res.archiveId}`);
+        const result = this.requestService.getRequestApprovalById(this.requestId).pipe(
+                            tap(res => this.currentRequestApproval = res),
+                            mergeMap( res =>
+                                this.requestService.getRequestById(res.requestId, this.authService.getUserProp('email'))
+                            ));
+        result.subscribe(
+            req => {
+                this.currentRequest = req;
+                console.log(`The archiveid of the currentRequest is ${req.archiveId}`);
             },
             error => {
                 console.log(error);
@@ -100,31 +98,47 @@ export class RequestStageComponent implements OnInit {
                 }
             },
             () => {
-                this.stages = stageIds;
+                this.stages = ['1'].concat(approvalStages);
+                this.currentRequestInfo = new RequestInfo(this.currentRequest.id, this.currentRequest.project);
                 this.checkIfStageIs5b();
                 this.getIfUserCanEditRequest();
+                if ((this.currentRequest.type !== 'contract') &&
+                    (this.currentRequestApproval.status === 'accepted')) {
+                    this.getRequestPayments();
+                }
+
             }
         );
     }
 
     checkIfStageIs5b() {
-        if ( (this.currentRequest.stage === '5b') &&
+        if ( (this.currentRequestApproval.stage === '5b') &&
              (this.currentRequest.stage1.supplierSelectionMethod === 'Διαγωνισμός') ) {
-            this.sendInfoToStage5b = [];
-            this.sendInfoToStage5b.push('');
-            this.sendInfoToStage5b.push('');
+
+            this.currentRequestInfo.supplier = '';
+            this.currentRequestInfo.requestedAmount = '';
             if ( !isNullOrUndefined(this.currentRequest.stage1.supplier) ) {
-                this.sendInfoToStage5b[0] = this.currentRequest.stage1.supplier;
+                this.currentRequestInfo.supplier = this.currentRequest.stage1.supplier;
             }
             if ( !isNullOrUndefined(this.currentRequest.stage1.amountInEuros) ) {
-                this.sendInfoToStage5b[1] = (this.currentRequest.stage1.amountInEuros).toString();
+                this.currentRequestInfo.requestedAmount = (this.currentRequest.stage1.amountInEuros).toString();
             }
         }
     }
 
     getIfUserCanEditRequest() {
         this.errorMessage = '';
-        this.requestService.isEditable(this.currentRequest, this.authService.getUserProp('email')).subscribe(
+        this.canEdit = null;
+        const newBasicInfo = new BaseInfo();
+        newBasicInfo.creationDate = this.currentRequestApproval.creationDate;
+        newBasicInfo.requestId = this.currentRequestApproval.requestId;
+        newBasicInfo.id = this.currentRequestApproval.id;
+        newBasicInfo.stage = this.currentRequestApproval.stage;
+        newBasicInfo.status = this.currentRequestApproval.status;
+        const newSummary = new RequestSummary();
+        newSummary.request = this.currentRequest;
+        newSummary.baseInfo = newBasicInfo;
+        this.requestService.isEditable(newSummary, this.authService.getUserProp('email')).subscribe(
             res => this.canEdit = res,
             error => {
                 console.log(error);
@@ -136,100 +150,111 @@ export class RequestStageComponent implements OnInit {
                 this.showSpinner = false;
                 console.log('this.canEdit is ', this.canEdit);
                 this.successMessage = '';
+                this.updateShowStageFields();
             }
         );
     }
 
+    getRequestPayments() {
+        this.errorMessage = '';
+        this.requestService.getPaymentsOfRequest(this.currentRequest.id).subscribe(
+            res => this.currentRequestPayments = res.results,
+            error => {
+                console.log(error);
+                this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την ανάκτηση του αιτήματος.';
+                this.showSpinner = false;
+            },
+            () => this.showSpinner = false
+        );
+    }
+
     getRequestToGoBack(event: any) {
+        console.log('will go back');
         this.wentBackOneStage = true;
     }
 
     getNextStage(stage: string) {
-        /*if (this.currentRequest.stage1.amountInEuros > this.lowAmountLimit) {*/
-            for (const nextStage of this.stagesMap[stage]['next']) {
-                if (!isUndefined(this.currentRequest['stage' + nextStage])) {
-                    return nextStage;
-                }
+        for (const nextStage of this.currentRequestInfo[stage]['next']) {
+            if (!isUndefined(this.currentRequestApproval['stage' + nextStage])) {
+                return nextStage;
             }
-        /*} else {
-            if ( this.stages.indexOf(stage) < (this.stages.length - 1) ) {
-                for ( let i = (this.stages.indexOf(stage) + 1); i < this.stages.length; i++ ) {
-                    if (!isUndefined(this.currentRequest['stage' + this.stages[i]])) {
-                        return this.stages[i];
-                    }
-                }
-            }
-        }*/
+        }
 
-        return this.currentRequest.stage;
+        return this.currentRequestApproval.stage;
     }
 
     getPreviousStage(stage: string) {
-        /*if (this.currentRequest.stage1.amountInEuros > this.lowAmountLimit) {*/
-            for (const prevStage of this.stagesMap[stage]['prev']) {
-                if (!isUndefined(this.currentRequest['stage' + prevStage])) {
-                    return prevStage;
-                }
+        for (const prevStage of this.currentRequestInfo[stage]['prev']) {
+            if (!isUndefined(this.currentRequestApproval['stage' + prevStage])) {
+                return prevStage;
             }
-        /*} else {
-            if ( this.stages.indexOf(stage) > 0 ) {
-                for ( let i = (this.stages.indexOf(stage) - 1); i >= 0; i-- ) {
-                    if (!isUndefined(this.currentRequest['stage' + this.stages[i]])) {
-                        return this.stages[i];
-                    }
-                }
-            }
-        }*/
+        }
 
-        return this.currentRequest.stage;
+        return this.currentRequestApproval.stage;
     }
 
     getSubmittedStage(newStage: any) {
         console.log(`got ${JSON.stringify(newStage, null, 1)}`);
-        this.currentStageName = 'stage' + this.currentRequest.stage;
+        this.currentStageName = 'stage' + this.currentRequestApproval.stage;
         console.log(`submitting as ${this.currentStageName}`);
-        this.currentRequest[this.currentStageName] = newStage;
+        this.currentRequestApproval[this.currentStageName] = newStage;
 
-        const submittedStage = this.currentRequest.stage;
-        if (this.wentBackOneStage === true) {
-            this.currentRequest.stage = this.getPreviousStage(this.currentRequest.stage);
+        const submittedStage = this.currentRequestApproval.stage;
+        if (this.wentBackOneStage) {
+            if (submittedStage === '2') {
+                this.currentRequestApproval.stage = '1';
+            } else {
+                this.currentRequestApproval.stage = this.getPreviousStage(this.currentRequestApproval.stage);
+            }
         } else {
-            this.currentRequest.stage = this.getNextStage(this.currentRequest.stage);
+            this.currentRequestApproval.stage = this.getNextStage(this.currentRequestApproval.stage);
         }
 
-        // if the pending stage has not changed, the request has been finalized
-        if (this.currentRequest.stage === submittedStage) {
-            if ( ((this.stages.indexOf(this.currentRequest.stage) === (this.stages.length - 1)) && (newStage['approved'] === true)) ||
-                ((this.currentRequest.stage === '6') && (this.currentRequest.type === 'contract')) ) {
-
-                this.currentRequest.status = 'accepted';
+        // if the pending stage has not changed, the requestApproval has been finalized
+        if (this.currentRequestApproval.stage === submittedStage) {
+            if (this.stages.indexOf(this.currentRequestApproval.stage) === (this.stages.length - 1)) {
+                if (this.currentRequest.type === 'contract') {
+                    this.currentRequestApproval.status = 'accepted';
+                    this.currentRequest.requestStatus = 'accepted';
+                } else {
+                    this.currentRequestApproval.status = 'accepted';
+                    this.currentRequestApproval.stage = '7';
+                }
             } else {
-
-                this.currentRequest.status = 'rejected';
+                this.currentRequestApproval.status = 'rejected';
+                this.currentRequest.requestStatus = 'rejected';
             }
         } else {
             if ( this.wentBackOneStage === true ) {
-                this.currentRequest.status = 'under_review';
+                this.currentRequestApproval.status = 'under_review';
             } else {
-                this.currentRequest.status = 'pending';
+                this.currentRequestApproval.status = 'pending';
             }
         }
 
         this.checkIfStageIs5b();
         this.wentBackOneStage = false;
-        console.log('submitted status:', this.currentRequest.status);
+        console.log('submitted status:', this.currentRequestApproval.status);
+        console.log('next stage:', this.currentRequestApproval.stage);
 
         if ( !isNullOrUndefined(this.uploadedFile) ) {
             this.uploadFile();
         } else {
-            this.submitRequest();
+            // TODO:: ALSO UPDATE REQUEST STATUS IF NECESSARY
+            this.submitRequestApproval();
         }
     }
 
     getUpdatedRequest(updatedRequest: Request) {
         this.currentRequest = updatedRequest;
-        this.currentRequest.stage = '2';
+        this.currentRequestApproval.stage = '2';
+        this.currentRequestApproval.status = 'pending';
         this.currentStageName = 'stage1';
+
+        if ( (this.currentRequest.stage1.amountInEuros > this.amountLimit) &&
+             isUndefined(this.currentRequestApproval.stage5b) ) {
+            this.currentRequestApproval.stage5b = new Stage5b();
+        }
         if ( !isNullOrUndefined(this.uploadedFile) ) {
             this.uploadFile();
         } else {
@@ -245,14 +270,14 @@ export class RequestStageComponent implements OnInit {
 
         if ( !isNullOrUndefined(this.uploadedFile) ) {
 
-            this.currentRequest[this.currentStageName]['attachment']['url'] = this.uploadedFileURL;
+            this.currentRequest.stage1['attachment']['url'] = this.uploadedFileURL;
             this.uploadedFileURL = '';
             this.uploadedFile = null;
         }
-        console.log(`sending ${JSON.stringify(this.currentRequest[this.currentStageName], null, 1)} to updateRequest`);
+        console.log(`sending ${JSON.stringify(this.currentRequest.stage1, null, 1)} to updateRequest`);
         /*update this.currentRequest*/
         this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email')).subscribe (
-            res => console.log(`update Request responded: ${res.id}, status=${res.status}, stage=${res.stage}`),
+            res => console.log(`update Request responded: ${res.id}, status=${res.requestStatus}, stage=2`),
             error => {
                 console.log(error);
                 this.showSpinner = false;
@@ -261,8 +286,40 @@ export class RequestStageComponent implements OnInit {
             () => {
                 this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
                 this.showSpinner = false;
-                /*this.router.navigate(['requests/request-stage', this.currentRequest.id]);*/
-                /*window.location.href = '/requests/request-stage/' + this.currentRequest.id;*/
+                this.requestService.updateRequestApproval(this.currentRequestApproval)
+                    .subscribe(
+                        res => this.currentRequestApproval = res,
+                        error => console.log(error),
+                        () => this.getIfUserCanEditRequest()
+                    );
+            }
+        );
+    }
+
+    submitRequestApproval() {
+        window.scrollTo(0, 0);
+        this.showSpinner = true;
+        this.errorMessage = '';
+        this.successMessage = '';
+
+        if ( !isNullOrUndefined(this.uploadedFile) ) {
+
+            this.currentRequestApproval[this.currentStageName]['attachment']['url'] = this.uploadedFileURL;
+            this.uploadedFileURL = '';
+            this.uploadedFile = null;
+        }
+        console.log(`sending ${JSON.stringify(this.currentRequestApproval[this.currentStageName], null, 1)} to updateRequestApproval`);
+        /*update this.currentRequest*/
+        this.requestService.updateRequestApproval(this.currentRequestApproval).subscribe (
+            res => console.log(`update RequestApproval responded: ${res.id}, status=${res.status}, stage=${res.stage}`),
+            error => {
+                console.log(error);
+                this.showSpinner = false;
+                this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών.';
+            },
+            () => {
+                this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
+                this.showSpinner = false;
                 this.getIfUserCanEditRequest();
             }
         );
@@ -290,8 +347,11 @@ export class RequestStageComponent implements OnInit {
                 },
                 () => {
                     console.log('ready to update Request');
-                    // this.showSpinner = false;
-                    this.submitRequest();
+                    if (this.currentStageName === 'stage1') {
+                        this.submitRequest();
+                    } else {
+                        this.submitRequestApproval();
+                    }
                 }
             );
     }
@@ -299,21 +359,22 @@ export class RequestStageComponent implements OnInit {
 
     willShowStage(stage: string) {
         const stageField = 'stage' + stage;
-        if ( (stage === this.currentRequest.stage) &&
-            (this.currentRequest.status !== 'rejected') &&
-            (this.currentRequest.status !== 'accepted') &&
-            ( (this.authService.getUserRole() === 'ROLE_ADMIN') || (this.canEdit === true) ) ) {
+        if ( (stage === this.currentRequestApproval.stage) &&
+             (this.currentRequestApproval.status !== 'rejected') &&
+             (this.currentRequestApproval.status !== 'accepted') &&
+             ( (this.authService.getUserRole() === 'ROLE_ADMIN') || (this.canEdit === true) ) ) {
 
-            this.stageLoaderItemList = [
-                new StageItem(  this.componentPerStage[stage],
-                    {
-                        showStage: 1,
-                        currentStage: this.currentRequest['stage' + stage],
-                        currentProject: this.currentRequest.project,
-                        oldSupplierAndAmount: this.sendInfoToStage5b,
-                        requester: this.currentRequest.requester
-                    }),
-            ];
+            if (this.currentRequestApproval.stage !== '1') {
+                this.stageLoaderItemList = [
+                    new AnchorItem(
+                        this.currentRequestInfo[stage]['stageComponent'],
+                        {
+                            currentStage: this.currentRequestApproval['stage' + stage],
+                            currentRequestInfo: this.currentRequestInfo
+                        }
+                    ),
+                ];
+            }
 
             return 1;
 
@@ -321,28 +382,29 @@ export class RequestStageComponent implements OnInit {
             if (stage === '1') {
                 return 2;
             }
-            if ( !isNullOrUndefined(this.currentRequest[stageField]) && !isNullOrUndefined(this.currentRequest[stageField].date)) {
+            if ( !isNullOrUndefined(this.currentRequestApproval[stageField]) &&
+                 !isNullOrUndefined(this.currentRequestApproval[stageField].date)) {
 
                 if (!this.isSimpleUser || (stage === '2') ) {
 
-                    if ( this.stages.indexOf(this.currentRequest.stage) < this.stages.indexOf(stage)) {
+                    if ( this.stages.indexOf(this.currentRequestApproval.stage) < this.stages.indexOf(stage)) {
                         return 4;
                     }
 
-                    if ( (stage === this.currentRequest.stage) && (this.stages.indexOf(stage) > 0)) {
+                    if ( (stage === this.currentRequestApproval.stage) && (this.stages.indexOf(stage) > 0)) {
 
                         const prevStageField = 'stage' + this.stages[this.stages.indexOf(stage) - 1];
-                        if (!isNullOrUndefined(this.currentRequest[prevStageField]) &&
-                            !isNullOrUndefined(this.currentRequest[prevStageField].date) &&
-                            (this.currentRequest[prevStageField].date > this.currentRequest[stageField].date) ) {
+                        if (!isNullOrUndefined(this.currentRequestApproval[prevStageField]) &&
+                            !isNullOrUndefined(this.currentRequestApproval[prevStageField].date) &&
+                            (this.currentRequestApproval[prevStageField].date > this.currentRequestApproval[stageField].date) ) {
 
                             return 4;
                         }
                     }
 
-                if ( (!isUndefined(this.currentRequest[stageField]['approved']) &&
-                      this.currentRequest[stageField]['approved'] === true ) ||
-                      (stage === '6') || (stage === '11') ) {
+                if ( (!isUndefined(this.currentRequestApproval[stageField]['approved']) &&
+                      this.currentRequestApproval[stageField]['approved'] === true ) ||
+                      (stage === '6') ) {
 
                         return 2;
 
@@ -354,6 +416,12 @@ export class RequestStageComponent implements OnInit {
         }
 
         return 0;
+    }
+
+    updateShowStageFields() {
+        for ( let i = 1; i < this.stages.length; i++ ) {
+            this.currentRequestInfo[this.stages[i]].showStage = this.willShowStage(this.stages[i]);
+        }
     }
 
     linkToFile() {
@@ -377,6 +445,44 @@ export class RequestStageComponent implements OnInit {
 
     printRequest(): void {
         printRequestPage();
+    }
+
+    createRequestPayment() {
+        const newRequestPayment = new RequestPayment();
+        newRequestPayment.id = '';
+        newRequestPayment.requestId = this.currentRequest.id;
+        newRequestPayment.creationDate = Date.now().toString();
+        newRequestPayment.stage = '7';
+        newRequestPayment.status = 'pending';
+        newRequestPayment.stage7 = new Stage7();
+        newRequestPayment.stage8 = new Stage8();
+        newRequestPayment.stage9 = new Stage9();
+        newRequestPayment.stage10 = new Stage10();
+        newRequestPayment.stage11 = new Stage11();
+        newRequestPayment.stage12 = new Stage12();
+        newRequestPayment.stage13 = new Stage13();
+
+        this.requestService.addRequestPayment(newRequestPayment).subscribe(
+            res => {
+                    console.log(JSON.stringify(res));
+                    this.router.navigate(['/requests/request-stage-payment', res.id]);
+                },
+            error => console.log(error)
+        );
+    }
+
+    getStatusAsString( status: string ) {
+        if ( (status === 'pending') || (status === 'under_review') ) {
+            return 'σε εξέλιξη';
+        } else if (status === 'accepted') {
+            return 'ολοκληρωθηκε';
+        } else {
+            return 'απορρίφθηκε';
+        }
+    }
+
+    userIsAdmin() {
+        return (this.authService.getUserRole() === 'ROLE_ADMIN');
     }
 
 }

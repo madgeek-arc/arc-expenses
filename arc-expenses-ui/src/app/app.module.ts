@@ -15,9 +15,9 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { StageFormComponent, StageFormUploadFileComponent } from './shared/stage-form/stage-form.component';
 import { RequestStageComponent } from './request-stage/request-stage.component';
 import {
-    Stage2Component, Stage3Component, StageComponent, Stage4Component, Stage5Component,
-    Stage6Component, Stage7Component, Stage8Component, Stage9Component, Stage10Component, Stage11Component,
-    Stage12Component, Stage5aComponent, Stage5bComponent, Stage13Component, StageUploadInvoiceComponent
+    Stage2Component, Stage3Component, StageComponent, Stage4Component, Stage6Component,
+    Stage7Component, Stage8Component, Stage9Component, Stage10Component, Stage11Component,
+    Stage12Component, Stage5aComponent, Stage5bComponent, Stage13Component
 } from './request-stage/stages-components';
 import { ManageRequestsService } from './services/manage-requests.service';
 import {AuthenticationService} from './services/authentication.service';
@@ -29,12 +29,20 @@ import { CommonModule, registerLocaleData } from '@angular/common';
 import localeEL from '@angular/common/locales/el';
 import { FilterByTerm } from './shared/search-term.pipe';
 import { Stage1FormComponent } from './request-stage/stage1-form/stage1-form.component';
-import { StageDirective } from './request-stage/stages-dynamic-load/stage.directive';
+import { AnchorDirective } from './shared/dynamic-loader-anchor-components/anchor.directive';
 import { StagesLoaderComponent } from './request-stage/stages-dynamic-load/stages-loader.component';
 import { SharedComponentsModule } from './shared/shared-components.module';
 import { AuthenticationInterceptor } from './services/authentication-interceptor';
 import { ForbiddenPageComponent } from './shared/403-forbidden-page.component';
 import { ManageUserService } from './services/manage-user.service';
+import {AdminPageComponent} from './admin-page/admin-page.component';
+import {ManageResourcesService} from './services/manage-resources.service';
+import {EditProjectComponent} from './admin-page/edit-resources-forms/edit-project.component';
+import {EditInstituteComponent} from './admin-page/edit-resources-forms/edit-institute.component';
+import {EditOrganizationComponent} from './admin-page/edit-resources-forms/edit-organization.component';
+import {EditPersonComponent} from './admin-page/edit-resources-forms/edit-person.component';
+import {EditResourcesComponent} from './admin-page/edit-resources-forms/edit-resources.components';
+import { RequestStagePaymentComponent } from './request-stage/request-stage-payment/request-stage-payment.component';
 
 registerLocaleData(localeEL);
 
@@ -43,9 +51,7 @@ const stagesList = [
     Stage2Component,
     Stage3Component,
     Stage4Component,
-    Stage5Component,
     Stage5aComponent,
-    StageUploadInvoiceComponent,
     Stage5bComponent,
     Stage6Component,
     Stage7Component,
@@ -57,10 +63,19 @@ const stagesList = [
     Stage13Component
 ];
 
+const editResourcesForms = [
+    EditResourcesComponent,
+    EditProjectComponent,
+    EditInstituteComponent,
+    EditOrganizationComponent,
+    EditPersonComponent
+];
+
 @NgModule({
     declarations: [
         AppComponent,
         TopMenuComponent,
+        AdminPageComponent,
         NewRequestComponent,
         HomeComponent,
         RequestsComponent,
@@ -69,12 +84,14 @@ const stagesList = [
         StageFormComponent,
         StageFormUploadFileComponent,
         RequestStageComponent,
+        RequestStagePaymentComponent,
         Stage1FormComponent,
         FilterByTerm,
-        StageDirective,
+        AnchorDirective,
         StagesLoaderComponent,
         ForbiddenPageComponent,
-        ...stagesList
+        ...stagesList,
+        ...editResourcesForms
     ],
     imports: [
         CommonModule,
@@ -92,6 +109,7 @@ const stagesList = [
         },
         { provide: LOCALE_ID, useValue: 'el' },
         HelpContentService,
+        ManageResourcesService,
         ManageRequestsService,
         ManageProjectService,
         ManageUserService,
@@ -99,7 +117,8 @@ const stagesList = [
         AuthGuardService
     ],
     entryComponents: [
-        ...stagesList
+        ...stagesList,
+        ...editResourcesForms
     ],
     bootstrap: [AppComponent]
 })

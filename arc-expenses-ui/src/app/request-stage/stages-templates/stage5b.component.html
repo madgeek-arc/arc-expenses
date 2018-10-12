@@ -1,52 +1,62 @@
 <div *ngIf="showStage > 0" class="uk-width-1-1 uk-margin-bottom">
     <!--<hr>-->
+
+    <!-- STAGE RESULT DISPLAY -->
     <div *ngIf="showStage > 1" class="uk-form-controls">
         <!--<h5>{{ stageTitle }}</h5>-->
         <div>
             {{ submittedStageResult }} ({{ getDelegateName() }})
             στις {{ currentStage['date'] | date : 'dd-MM-yyyy' }}
         </div>
+
+        <!-- display a long text value -->
         <div *ngIf="currentStage['comment']">
             <span class="uk-text-bold uk-margin-small-right">Σχόλια: </span>
             <span> {{ currentStage['comment'] }} </span>
         </div>
+
+        <!-- display link to attachment -->
         <div *ngIf="currentStage['attachment']">
             <a class="uk-link uk-width-1-1@l uk-margin-small-top" (click)="linkToFile()">
                 Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία
             </a>
         </div>
     </div>
+    <!-- END OF STAGE RESULT DISPLAY -->
+
+    <!-- STAGE FORM -->
     <div *ngIf="(showStage === 1) && stageForm" [formGroup]="stageForm" class="uk-form-controls stageForm">
         <h5>{{ stageTitle }}</h5>
 
         <div *ngIf="stageFormError" class="uk-alert uk-alert-danger">{{ stageFormError }}</div>
 
-        <div *ngIf="oldSupplierAndAmount"
+        <!-- EXTRA FIELDS (if needed) -->
+        <div *ngIf="showExtraFields"
              class="uk-grid uk-margin-small-top">
 
             <label class="uk-width-1-3">Προμηθευτής (*)</label>
             <div class="uk-width-expand">
                 <input class="uk-form-controls uk-input"
                        type="text"
-                       value="{{ oldSupplierAndAmount[0] }}"
+                       value="{{ currentRequestInfo.supplier }}"
                        (blur)="updateSupplier($event)">
             </div>
 
         </div>
-        <div *ngIf="oldSupplierAndAmount"
+        <div *ngIf="showExtraFields"
              class="uk-grid uk-margin-small-top">
 
             <label class="uk-width-1-3">Ποσό (σε EUR) (*)</label>
             <div class="uk-width-expand">
                 <input class="uk-form-controls uk-input"
                        type="text"
-                       value="{{ oldSupplierAndAmount[1] }}"
+                       value="{{ currentRequestInfo.requestedAmount }}"
                        (keyup)="showAmount($event)"
                        (blur)="updateAmount($event)">
             </div>
-            <div *ngIf="oldSupplierAndAmount[1] && !amountNaN"
+            <div *ngIf="currentRequestInfo.requestedAmount && !amountNaN"
                  class="uk-comment-body uk-text-small uk-text-muted">
-                Το ποσό είναι: {{ oldSupplierAndAmount[1] | currency: 'EUR': 'symbol-narrow' }}
+                Το ποσό είναι: {{ currentRequestInfo.requestedAmount | currency: 'EUR': 'symbol-narrow' }}
             </div>
             <div *ngIf="amountNaN"
                  class="uk-comment-body uk-text-small uk-text-danger">
@@ -71,8 +81,12 @@
 
         <button class="uk-button uk-button-primary" (click)="emitNewValuesAndGoBack()">Επιστροφή στο προηγούμενο στάδιο</button>
 
-        <div><span class="uk-text-small">Ημερομηνία: {{ getCurrentDateString() }}</span></div>
+        <!-- CURRENT DATE DISPLAY -->
+        <div>
+            <span class="uk-text-small">Ημερομηνία: {{ getCurrentDateString() }}</span>
+        </div>
 
     </div>
-</div>
+    <!-- END OF STAGE FORM -->
 
+</div>

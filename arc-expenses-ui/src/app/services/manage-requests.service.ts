@@ -3,10 +3,10 @@
 * */
 
 import { Injectable } from '@angular/core';
-import { Request } from '../domain/operation';
+import { Request, RequestApproval, RequestPayment, RequestSummary } from '../domain/operation';
 import { Observable } from 'rxjs/Observable';
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpHeaders, HttpRequest } from '@angular/common/http';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import { Paging } from '../domain/extraClasses';
 import { ContactUsMail } from '../domain/operation';
@@ -18,7 +18,6 @@ const headerOptions = {
 };
 
 
-
 @Injectable()
 export class ManageRequestsService {
 
@@ -27,7 +26,7 @@ export class ManageRequestsService {
     constructor(private http: HttpClient) {}
 
     addRequest(newRequest: Request): Observable<Request> {
-        const url = `${this.apiUrl}add`;
+        const url = `${this.apiUrl}addRequest`;
         console.log(`calling ${url}`);
         console.log(`sending ${JSON.stringify(newRequest)}`);
 
@@ -37,10 +36,50 @@ export class ManageRequestsService {
             );
     }
 
-    getRequestById(requestId: string, userEmail: string): Observable<any> {
+    addRequestApproval(newRequestApproval: RequestApproval): Observable<RequestApproval> {
+        const url = `${this.apiUrl}addRequestApproval`;
+        console.log(`calling ${url}`);
+        console.log(`sending ${JSON.stringify(newRequestApproval)}`);
+
+        return this.http.post<RequestApproval>(url, JSON.stringify(newRequestApproval), headerOptions)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    addRequestPayment(newRequestPayment: RequestPayment): Observable<RequestPayment> {
+        const url = `${this.apiUrl}addRequestPayment`;
+        console.log(`calling ${url}`);
+        console.log(`sending ${JSON.stringify(newRequestPayment)}`);
+
+        return this.http.post<RequestPayment>(url, JSON.stringify(newRequestPayment), headerOptions)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    getRequestById(requestId: string, userEmail: string): Observable<Request> {
         const url = `${this.apiUrl}getById/${requestId}`;
         console.log(`calling ${url}`);
-        return this.http.get<any>(url, headerOptions);
+        return this.http.get<Request>(url, headerOptions);
+    }
+
+    getRequestApprovalById(requestApproval: string): Observable<RequestApproval> {
+        const url = `${this.apiUrl}approval/getById/${requestApproval}`;
+        console.log(`calling ${url}`);
+        return this.http.get<RequestApproval>(url, headerOptions);
+    }
+
+    getRequestPaymentById(requestPaymentId: string): Observable<RequestPayment> {
+        const url = `${this.apiUrl}payment/getById/${requestPaymentId}`;
+        console.log(`calling ${url}`);
+        return this.http.get<RequestPayment>(url, headerOptions);
+    }
+
+    getPaymentsOfRequest(requestId: string): Observable<Paging<RequestPayment>> {
+        const url = `${this.apiUrl}payments/getByRequestId/${requestId}`;
+        console.log(`calling ${url}`);
+        return this.http.get<Paging<RequestPayment>>(url, headerOptions);
     }
 
     updateRequest(updatedRequest: Request, userEmail: string): Observable<Request> {
@@ -52,7 +91,25 @@ export class ManageRequestsService {
             );
     }
 
-    isEditable(req: Request, email: string): Observable<boolean> {
+    updateRequestApproval(updatedRequestApproval: RequestApproval): Observable<RequestApproval> {
+        const url = `${this.apiUrl}updateRequestApproval`;
+        console.log(`calling ${url}`);
+        return this.http.post<RequestApproval>(url, updatedRequestApproval, headerOptions)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    updateRequestPayment(updatedRequestPayment: RequestPayment): Observable<RequestPayment> {
+        const url = `${this.apiUrl}updateRequestPayment`;
+        console.log(`calling ${url}`);
+        return this.http.post<RequestPayment>(url, updatedRequestPayment, headerOptions)
+            .pipe(
+                catchError(this.handleError)
+            );
+    }
+
+    isEditable(req: RequestSummary, email: string): Observable<boolean> {
         const url = `${this.apiUrl}isEditable?email=${encodeURIComponent(email)}`;
         console.log(`calling ${url}`);
         // console.log(`sending ${JSON.stringify(req)}`);
@@ -82,8 +139,9 @@ export class ManageRequestsService {
         return this.http.get<any>(url, headerOptions).pipe(catchError(this.handleError));
     }
 
-    searchAllRequests(searchField: string, status: string[], stage: string, from: string, quantity: string,
-                      order: string, orderField: string, email: string): Observable<Paging<Request>> {
+    searchAllRequestSummaries(searchField: string, status: string[],
+                              stage: string, from: string, quantity: string,
+                              order: string, orderField: string, email: string): Observable<Paging<RequestSummary>> {
         let statusList = '';
         status.forEach(st => {
             statusList = `${statusList}&status=${st}`;
@@ -92,7 +150,7 @@ export class ManageRequestsService {
         url += `&order=${order}&orderField=${orderField}&email=${encodeURIComponent(email)}&searchField=${searchField}`;
 
         console.log(`calling ${url}`);
-        return this.http.get<Paging<Request>>(url, headerOptions).pipe(
+        return this.http.get<Paging<RequestSummary>>(url, headerOptions).pipe(
             catchError(this.handleError)
         );
     }

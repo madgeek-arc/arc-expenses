@@ -1,0 +1,172 @@
+<div *ngIf="showSpinner" class="whiteFilm"><i class="fa fa-spinner fa-spin fa-5x loader" aria-hidden="true"></i></div>
+<div class="uk-section-default uk-section uk-section-small uk-padding-remove-bottom" style="min-height: 325px">
+    <div class="uk-container uk-container-expand">
+        <div class="tm-header-placeholder uk-margin-remove-adjacent" style="height: 84px;"></div>
+        <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid="">
+            <div class="uk-width-1-1@m uk-first-column">
+
+                <h1 class="uk-h3 uk-heading-bullet uk-padding-small">
+                    Αίτημα {{currentRequest ? currentRequest.id : ''}}
+                    <span *ngIf="currentRequest" class="uk-text-small">[{{ reqTypes[currentRequest.type] }}]</span></h1>
+
+                <!-- TODO: activate printing functionality -->
+                <!--<button class="uk-button uk-button-small" (click)="printRequest()">Εκτύπωση</button>-->
+
+                <!-- TOP HELP CONTENT -->
+                <help-content #topHelperContent [position]="'top'"
+                              [ngClass]="topHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
+                </help-content>
+
+                <div class="uk-container uk-container-expand uk-margin-medium-top uk-margin-medium-bottom">
+                    <div class="uk-grid">
+
+                        <!-- LEFT HELP CONTENT -->
+                        <aside-help-content #leftHelperContent [position]="'left'"
+                                            [ngClass]="leftHelperContent.isPresent()?'tm-sidebar uk-width-1-4@m uk-first-column':'clear-style'">
+                        </aside-help-content>
+
+                        <!-- MIDDLE -->
+                        <div class=" uk-width-expand@m">
+                            <div *ngIf="errorMessage" class="uk-alert uk-alert-danger">{{ errorMessage }}</div>
+                            <div *ngIf="successMessage" class="uk-alert uk-alert-success">{{ successMessage }}</div>
+                            <div *ngIf="notFoundMessage" class="uk-alert">{{ notFoundMessage }}</div>
+
+                            <div id="printable-section"
+                                 *ngIf="!showSpinner && currentRequest && currentRequestPayment &&
+                                        (canEdit === true || canEdit === false)">
+
+                                <!--1st stage-->
+
+                                <div class="submittedRequest">
+                                    <div class="uk-margin-bottom uk-width-1-1 uk-grid">
+                                        <div class="uk-width-1-2@l">
+                                            <span class="uk-text-bold uk-margin-small-right">Πρόγραμμα: </span>
+                                            <span>{{ currentRequest.project.acronym }} ({{currentRequest.project.institute.name}})</span>
+                                        </div>
+                                        <div class="uk-width-1-2@l">
+                                            <span class="uk-text-bold uk-margin-small-right">Ημερομηνία υποβολής: </span>
+                                            <span>{{ currentRequest.stage1.requestDate | date : 'dd-MM-yyyy' }}</span>
+                                        </div>
+                                        <div class="uk-width-1-1@l">
+                                            <span class="uk-text-bold uk-margin-small-right">Από: </span>
+                                            <span>
+                                              {{ currentRequest.user.firstname }} {{ currentRequest.user.lastname }}
+                                               ({{ currentRequest.requesterPosition }})
+                                              </span>
+                                        </div>
+
+                                        <div *ngIf="(currentRequest.type !== 'trip') && (currentRequest.type !== 'contract')" class="uk-width-1-2@l">
+                                            <span class="uk-text-bold uk-margin-small-right">Προμηθευτής: </span>
+                                            <span>{{ currentRequest.stage1.supplier }} ({{ currentRequest.stage1.supplierSelectionMethod }})</span>
+                                        </div>
+                                        <div class="uk-width-1-2@l">
+                                            <span class="uk-text-bold uk-margin-small-right">Ποσό: </span>
+                                            <span>{{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>
+                                        </div>
+
+                                        <div class="uk-width-1-1@l">
+                                            <span class="uk-text-bold uk-margin-small-right">Θέμα:</span>
+                                            <span>{{ currentRequest.stage1.subject }}</span>
+                                        </div>
+
+                                        <div *ngIf="currentRequest.stage1.attachment">
+                                            <a class="uk-link uk-width-1-1@l uk-margin-small-top" (click)="linkToFile()">
+                                                Πατήστε εδώ για να κατεβάσετε τα σχετικά αρχεία
+                                            </a>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="uk-margin uk-margin-remove-left">
+                                        <a [routerLink]="['request-stage',currentRequest.id+'-a1']">Μετάβαση στην σελίδα έγκρισης της ανάληψης υποχρέωσης δαπάνης</a>
+                                    </div>
+                                </div>
+
+                                <hr>
+                                <div class="uk-margin-top" *ngIf="((currentRequestPayment.stage7 && currentRequestPayment.stage7.date) ||
+                                                                  ( (currentRequestPayment.stage === '7') && ((canEdit === true) || userIsAdmin())) )">
+                                  <h4>Εξόφληση Δαπάνης</h4>
+                                </div>
+
+                                <!-- PHASE 2  -->
+
+                                <div class="uk-child-width-expand uk-grid" uk-grid
+                                     *ngIf="((currentRequestInfo['7'].showStage > 1) ||
+                                             (currentRequestInfo['8'].showStage > 1) ||
+                                             (currentRequestInfo['9'].showStage > 1) )">
+
+                                  <stage7-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                                    *ngIf="currentRequestInfo['7'].showStage > 1"
+                                                    [data]="{currentStage: currentRequestPayment.stage7, currentRequestInfo: currentRequestInfo}"></stage7-component>
+
+                                  <stage8-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                                    *ngIf="currentRequestInfo['8'].showStage > 1"
+                                                    [data]="{currentStage: currentRequestPayment.stage8, currentRequestInfo: currentRequestInfo}"></stage8-component>
+
+                                  <stage9-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                                    *ngIf="currentRequestInfo['9'].showStage > 1"
+                                                    [data]="{currentStage: currentRequestPayment.stage9, currentRequestInfo: currentRequestInfo}"></stage9-component>
+                                </div>
+
+                                <div class="uk-child-width-expand uk-grid" uk-grid
+                                     *ngIf="((currentRequestInfo['10'].showStage > 1) ||
+                                             (currentRequestInfo['11'].showStage > 1) )">
+                                  <stage10-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                                     *ngIf="currentRequestInfo['10'].showStage > 1"
+                                                     [data]="{currentStage: currentRequestPayment.stage10, currentRequestInfo: currentRequestInfo}"></stage10-component>
+
+                                  <stage11-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                                     *ngIf="currentRequestInfo['11'].showStage > 1"
+                                                     [data]="{currentStage: currentRequestPayment.stage11, currentRequestInfo: currentRequestInfo}"></stage11-component>
+                                </div>
+
+
+                                <div class="uk-child-width-expand uk-grid" uk-grid
+                                     *ngIf="((currentRequestInfo['12'].showStage > 1) ||
+                                             (currentRequestInfo['13'].showStage > 1) )">
+                                  <stage12-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                                     *ngIf="currentRequestInfo['12'].showStage > 1"
+                                                     [data]="{currentStage: currentRequestPayment.stage12, currentRequestInfo: currentRequestInfo}"></stage12-component>
+
+                                  <stage13-component class="uk-card uk-card-body uk-card-basic-info uk-margin-left"
+                                                     *ngIf="currentRequestInfo['13'].showStage > 1"
+                                                     [data]="{currentStage: currentRequestPayment.stage13, currentRequestInfo: currentRequestInfo}"></stage13-component>
+                                </div>
+
+
+
+                                <!-- Create/Edit pending stage -->
+                                <div class="uk-margin-medium-top" *ngIf="currentRequestInfo[currentRequestPayment.stage].showStage === 1">
+                                    <!--<hr>-->
+
+                                    <app-stage-loader [stages]="stageLoaderItemList"
+                                                      (emitGoBack)="getRequestToGoBack($event)"
+                                                      (emitStage)="getSubmittedStage($event)"
+                                                      (emitFile)="getUploadedFile($event)"></app-stage-loader>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT HELP CONTENT -->
+                        <aside-help-content #rightHelperContent [position]="'right'"
+                                            [ngClass]="rightHelperContent.isPresent()?'tm-sidebar uk-width-1-4@m uk-first-column':'clear-style'">
+                        </aside-help-content>
+
+                    </div>
+                </div>
+
+
+                <!-- BOTTOM HELP CONTENT -->
+                <help-content #bottomHelperContent [position]="'bottom'"
+                              [ngClass]="bottomHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
+                </help-content>
+
+
+            </div>
+        </div>
+    </div>
+</div>

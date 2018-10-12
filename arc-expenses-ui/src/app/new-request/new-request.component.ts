@@ -1,8 +1,8 @@
-import { Component, DoCheck, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {
     Attachment, Project, Request, Stage1, Stage2, Stage5a, Stage10, Stage5b, Stage4,
-    Stage5, Stage6, Stage7, Stage8, Stage9, Stage3, Stage11, Stage12, Stage13, User, Vocabulary, StageUploadInvoice
+    Stage6, Stage7, Stage8, Stage9, Stage3, Stage11, Stage12, Stage13, User, Vocabulary, RequestApproval
 } from '../domain/operation';
 import {ManageRequestsService} from '../services/manage-requests.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,7 +11,7 @@ import {DatePipe} from '@angular/common';
 import {ManageProjectService} from '../services/manage-project.service';
 import { isNullOrUndefined, isUndefined } from 'util';
 import {HttpEventType, HttpResponse} from '@angular/common/http';
-import { requestTypes, supplierSelectionMethods, supplierSelectionMethodsMap } from '../domain/stageDescriptions';
+import { requestTypes, supplierSelectionMethodsMap } from '../domain/stageDescriptions';
 
 declare const UIkit: any;
 
@@ -42,6 +42,7 @@ export class NewRequestComponent implements OnInit {
     searchTerm: string = '';
 
     request: Request;
+    requestApproval: RequestApproval;
 
     projects: Vocabulary[] = [];
     chosenProgramID: string;
@@ -71,36 +72,6 @@ export class NewRequestComponent implements OnInit {
         this.getProjects();
     }
 
-
-    /* Not needed anymore. [added seperate routes in routing.module] */
-    /*Can be reused without a problem but remember to add DoCheck to 'implements' */
-    /*ngDoCheck() {
-        // console.log('doCheck');
-        if ( !isNullOrUndefined(this.requestType) &&
-            (this.requestType !== this.route.snapshot.url[this.route.snapshot.url.length - 1].path) ) {
-
-            this.errorMessage = '';
-            this.showSpinner = false;
-            this.requestType = this.route.snapshot.url[this.route.snapshot.url.length - 1].path;
-            console.log('new requestType: ', this.requestType);
-            if (this.requestType !== 'services_contract') {
-                this.createForm();
-                if ( isNullOrUndefined(this.projects) || (this.projects.length === 0) ) {
-                    console.log('reloading projects');
-                    this.getProjects();
-                }
-                if ( isNullOrUndefined(this.currentUser) ) {
-                    console.log('reloading userInfo');
-                    this.getUserInfo();
-                }
-
-                this.checkIfSupplierIsRequired();
-            }
-            this.title = this.reqTypes[this.requestType];
-        }
-
-    }*/
-
     getUserInfo() {
         this.currentUser = new User();
         this.currentUser.id = this.authService.getUserProp('id');
@@ -113,12 +84,11 @@ export class NewRequestComponent implements OnInit {
 
         console.log('current type is:', this.requestType);
         this.title = this.reqTypes[this.requestType];
-        if (this.requestType !== 'services_contract') {
-            this.createForm();
-            if ( this.requestType === 'regular') {
-                this.isSupplierRequired = '(*)';
-            }
+        this.createForm();
+        if ( this.requestType === 'regular') {
+            this.isSupplierRequired = '(*)';
         }
+
     }
 
     getProjects() {
@@ -170,20 +140,19 @@ export class NewRequestComponent implements OnInit {
 
                 UIkit.modal.alert('Για αιτήματα άνω των 2.500 € η επιλογή προμηθευτή γίνεται μέσω διαγωνισμού ή έρευνας αγοράς.');
 
-            } else if ( ( +this.newRequestForm.get('amount').value > this.amountLimit) &&
-                ( (this.requestType !== 'trip') && (this.requestType !== 'contract') ) &&
-                ( this.newRequestForm.get('supplierSelectionMethod').value !== 'competition' ) ) {
+            } else if ( ( +this.newRequestForm.get('amount').value > this.amountLimit) && this.checkIfTrip() &&
+                        ( this.newRequestForm.get('supplierSelectionMethod').value !== 'competition' ) ) {
 
                 UIkit.modal.alert('Για ποσά άνω των 20.000 € οι αναθέσεις πρέπει να γίνονται μέσω διαγωνισμού.');
 
-            } else if ( ( (this.requestType !== 'trip') && (this.requestType !== 'contract') ) &&
+            } else if ( this.checkIfTrip() &&
                         ( (this.newRequestForm.get('supplierSelectionMethod').value !== 'competition') &&
                           !this.newRequestForm.get('supplier').value )) {
 
                 UIkit.modal.alert('Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.');
 
             } else if ( (( this.newRequestForm.get('supplierSelectionMethod').value !== 'direct' ) &&
-                         ( (this.requestType !== 'trip') && (this.requestType !== 'contract') )) &&
+                           this.checkIfTrip() ) &&
                           isUndefined(this.uploadedFile)  ) {
 
                 UIkit.modal.alert('Για αναθέσεις μέσω διαγωνισμού ή έρευνας αγοράς η επισύναψη εγγράφων είναι υποχρεωτική.');
@@ -197,13 +166,13 @@ export class NewRequestComponent implements OnInit {
                 this.request.id = '';
                 this.request.type = this.requestType;
                 this.request.project = this.chosenProject;
-                this.request.requester = this.currentUser;
+                this.request.user = this.currentUser;
                 this.request.requesterPosition = this.newRequestForm.get('position').value;
                 this.request.stage1 = new Stage1();
                 /*this.request.stage1.requestDate = this.datePipe.transform(Date.now(), 'dd/MM/yyyy');*/
                 this.request.stage1.requestDate = Date.now().toString();
                 this.request.stage1.subject = this.newRequestForm.get('requestText').value;
-                if ( (this.requestType !== 'trip') && (this.requestType !== 'contract') ) {
+                if ( this.checkIfTrip() ) {
                     this.request.stage1.supplier = this.newRequestForm.get('supplier').value;
                     this.request.stage1.supplierSelectionMethod = this.selMethods[this.newRequestForm.get('supplierSelectionMethod').value];
                 }
@@ -215,47 +184,34 @@ export class NewRequestComponent implements OnInit {
                     this.request.stage1.attachment.size = this.uploadedFile.size;
                     this.request.stage1.attachment.url = '';
                 }
-                this.request.stage = '2';
-                this.request.status = 'pending';
-                this.request.stage2 = new Stage2();
-                this.request.stage3 = new Stage3();
-                this.request.stage4 = new Stage4();
-                // this.request.stage5 = new Stage5();
-                this.request.stage5a = new Stage5a();
+                this.request.requestStatus = 'pending';
 
-                if ( (this.request.stage1.amountInEuros > this.amountLimit) ||
+                this.requestApproval = new RequestApproval();
+                this.requestApproval.id = '';
+                this.requestApproval.creationDate = Date.now().toString();
+                this.requestApproval.stage = '2';
+                this.requestApproval.status = 'pending';
+                this.requestApproval.stage2 = new Stage2();
+                this.requestApproval.stage3 = new Stage3();
+                this.requestApproval.stage4 = new Stage4();
+                this.requestApproval.stage5a = new Stage5a();
+
+                if ( (this.requestType === 'contract') || (this.requestType === 'services_contract') ||
+                     (this.request.stage1.amountInEuros > this.amountLimit) ||
                      (this.request.stage1.supplierSelectionMethod === 'Διαγωνισμός') ) {
-                    this.request.stage5b = new Stage5b();
+                    this.requestApproval.stage5b = new Stage5b();
                 }
-                this.request.stage6 = new Stage6();
-
-                /*if (this.request.stage1.amountInEuros <= this.lowAmountLimit) {
-                    this.request.stageUploadInvoice = new StageUploadInvoice();
-                }*/
-
-                if (this.requestType !== 'contract') {
-                    /*if ( this.request.stage1.amountInEuros <= this.lowAmountLimit ) {
-                        this.request.stage8 = new Stage8();
-                        this.request.stage12 = new Stage12();
-                        this.request.stage13 = new Stage13();
-
-                    } else {*/
-                        this.request.stage7 = new Stage7();
-                        this.request.stage8 = new Stage8();
-                        this.request.stage9 = new Stage9();
-                        this.request.stage10 = new Stage10();
-                        this.request.stage11 = new Stage11();
-                        this.request.stage12 = new Stage12();
-                        this.request.stage13 = new Stage13();
-
-                    /*}*/
-                }
+                this.requestApproval.stage6 = new Stage6();
 
                 window.scrollTo(0, 0);
                 this.showSpinner = true;
                 this.errorMessage = '';
                 this.requestService.addRequest(this.request).subscribe (
-                    res => {this.request = res; console.log(res); },
+                    res => {
+                            this.request = res;
+                            this.requestApproval.requestId = this.request.id;
+                            console.log(res);
+                        },
                     error => {
                         console.log(error);
                         UIkit.modal.alert('Παρουσιάστηκε πρόβλημα με την υποβολή της φόρμας.');
@@ -265,8 +221,7 @@ export class NewRequestComponent implements OnInit {
                         if (this.uploadedFile) {
                             this.uploadFile();
                         } else {
-                            this.showSpinner = false;
-                            this.router.navigate(['/requests']);
+                            this.submitRequestApproval();
                         }
                     }
                 );
@@ -275,6 +230,21 @@ export class NewRequestComponent implements OnInit {
         } else {
             UIkit.modal.alert('Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.');
         }
+    }
+
+    submitRequestApproval() {
+        this.requestService.addRequestApproval(this.requestApproval).subscribe(
+            res => this.requestApproval = res,
+            error => {
+                console.log(error);
+                this.showSpinner = false;
+                UIkit.modal.alert('Παρουσιάστηκε πρόβλημα με την υποβολή της φόρμας.');
+            },
+            () => {
+                this.showSpinner = false;
+                this.router.navigate(['/requests']);
+            }
+        );
     }
 
     uploadFile() {
@@ -298,15 +268,14 @@ export class NewRequestComponent implements OnInit {
                 () => {
                     console.log('ready to update Request');
                     this.requestService.updateRequest(this.request, this.authService.getUserProp('email')).subscribe(
-                        res => console.log('updated new request: ', res.status, res.stage, res.stage1),
+                        res => console.log('updated new request: ', res.requestStatus, res.stage1),
                         error => {
                             console.log('from update new request', error);
                             this.showSpinner = false;
                             UIkit.modal.alert('Παρουσιάστηκε πρόβλημα με την επισύναψη του αρχείου.');
                         },
                         () => {
-                            this.showSpinner = false;
-                            this.router.navigate(['/requests']);
+                            this.submitRequestApproval();
                         }
                     );
                 }
@@ -412,7 +381,8 @@ export class NewRequestComponent implements OnInit {
     }
 
     checkIfTrip() {
-        return ((this.requestType !== 'trip') && (this.requestType !== 'contract'));
+        return ((this.requestType !== 'trip') &&
+                (this.requestType !== 'contract'));
     }
 
     checkIfSupplierIsRequired() {
