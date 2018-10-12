@@ -119,7 +119,9 @@
         "supplier": { "type": "string" },
         "supplierSelectionMethod": { "type": "string" },
         "amountInEuros": { "type": "number" },
-        "attachment": { "$ref": "attachment.json" }
+        "attachment": {
+          "javaType": "gr.athenarc.domain.Attachment"
+        }
       }
     },
     "id": {
@@ -137,7 +139,6 @@
     },
     "project": { "$ref": "#/definitions/project" },
     "user": {
-      "type": "object",
       "javaType": "gr.athenarc.domain.User" },
     "requesterPosition": {
       "description": "Position of the requester in the Institute.",

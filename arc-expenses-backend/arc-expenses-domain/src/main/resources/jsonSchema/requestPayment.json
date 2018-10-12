@@ -13,13 +13,11 @@
       "description": "stage: Paperwork Submission",
       "properties": {
         "user": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.Attachment"
         }
       }
@@ -29,7 +27,6 @@
       "description": "stage: Checking Team",
       "properties": {
         "user": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "checkRegularity": { "type": "boolean"},
@@ -37,7 +34,6 @@
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.Attachment"
         }
       }
@@ -47,7 +43,6 @@
       "description": "stage: Financial Officer's Check",
       "properties": {
         "user": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "checkRegularity": { "type": "boolean"},
@@ -55,7 +50,6 @@
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.Attachment"
         }
       }
@@ -65,13 +59,11 @@
       "description": "stage: Director's Check",
       "properties": {
         "user": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.Attachment"
         }
       }
@@ -81,12 +73,10 @@
       "description": "stage: Diavgeia",
       "properties": {
         "user": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "comment": { "type": "string"},
         "attachment": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.Attachment"
         }
       }
@@ -96,13 +86,11 @@
       "description": "stage: Accounting Registration",
       "properties": {
         "user": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.Attachment"
         }
       }
@@ -112,13 +100,11 @@
       "description": "stage: Accounting Payment",
       "properties": {
         "user": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": {
-          "type": "object",
           "javaType": "gr.athenarc.domain.Attachment"
         }
       }

@@ -13,7 +13,7 @@
     "receiveEmails": { "type": "string" },
     "immediateEmails": { "type": "string" },
     "attachment": {
-      "$ref": "attachment.json"
+      "javaType": "gr.athenarc.domain.Attachment"
     }
   },
   "required": [
