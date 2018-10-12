@@ -209,7 +209,7 @@
                                                 <td colspan="8" class="uk-alert uk-width-1-1">{{noRequests}}</td>
                                             </tr>
                                             <tr class="uk-link" *ngFor="let req of listOfRequests"
-                                                [routerLink]="['request-stage', req.baseInfo.id]"
+                                                (click)="navigateToRequestPage(req.baseInfo)"
                                                 title="Μετάβαση στην σελίδα του αιτήματος">
                                                 <td>{{ req.baseInfo.id }}</td>
                                                 <td>{{ reqTypes[req.request.type] }}</td>
@@ -220,10 +220,9 @@
                                                 <td *ngIf="!isSimpleUser" >{{ stagesMap[req.baseInfo.stage] }}</td>
                                                 <td>{{ getStatusAsString(req.baseInfo.status) }}</td>
                                                 <td>
-                                                    <a *ngIf="getIfUserCanEdit(req.request.id, req.request.project, req.baseInfo.stage)"
-                                                        (click)="navigateToRequestPage(req.baseInfo)">
+                                                    <span *ngIf="getIfUserCanEdit(req.request.id, req.request.project, req.baseInfo.stage)">
                                                            <i class="fa fa-pencil"></i>
-                                                    </a>
+                                                    </span>
                                                 </td>
                                             </tr>
                                         </thead>
