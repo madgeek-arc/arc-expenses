@@ -43,10 +43,9 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         String maxID = getMaxID();
         if(maxID == null)
             return requestId+"-a1";
-        else{
-            String number[] = maxID.split("-a");
-            return requestId+"-a"+number[0]+1;
-        }
+        else
+            return requestId+"-a"+(Integer.valueOf(maxID.split("-a")[1])+1);
+
     }
 
 

@@ -5,6 +5,7 @@ import arc.expenses.service.PolicyCheckerService;
 import arc.expenses.service.RequestApprovalServiceImpl;
 import arc.expenses.service.RequestPaymentServiceImpl;
 import arc.expenses.service.RequestServiceImpl;
+import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.SearchService;
@@ -172,7 +173,7 @@ public class RequestController {
     }
 
     @RequestMapping(value =  "/approval/getById/{id}", method = RequestMethod.GET)
-    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
+    //@PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public RequestApproval getApprovalById(@PathVariable("id") String id) throws ResourceNotFoundException {
         RequestApproval requestApproval = requestApprovalService.get(id);
         if(requestApproval == null)
@@ -181,7 +182,7 @@ public class RequestController {
     }
 
     @RequestMapping(value =  "/payment/getById/{id}", method = RequestMethod.GET)
-    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
+    //@PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public RequestPayment getPaymentById(@PathVariable("id") String id) throws ResourceNotFoundException {
         RequestPayment requestPayment = requestPaymentService.get(id);
         if(requestPayment == null)
@@ -189,4 +190,9 @@ public class RequestController {
         return requestPayment;
     }
 
+    @RequestMapping(value =  "/payments/getByRequestId/{request_id}", method = RequestMethod.GET)
+    //@PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
+    public Browsing<RequestPayment> getPaymentsByRequestId(@PathVariable("request_id") String request_id) throws Exception {
+        return requestPaymentService.getPayments(request_id);
+    }
 }

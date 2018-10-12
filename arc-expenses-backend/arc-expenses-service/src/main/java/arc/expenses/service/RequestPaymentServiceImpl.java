@@ -31,10 +31,25 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
 
     public Browsing<RequestPayment> getPayments(String id) throws Exception {
-        FacetFilter facetFilter = new FacetFilter();
-        facetFilter.setResourceType(getResourceType());
-        facetFilter.addFilter("request_id",id);
-        return getAll(facetFilter);
+        FacetFilter filter = new FacetFilter();
+        filter.setResourceType(getResourceType());
+        filter.addFilter("request_id",id);
+
+        filter.setKeyword("");
+        filter.setFrom(0);
+        filter.setQuantity(1000);
+
+        Map<String,Object> sort = new HashMap<>();
+        Map<String,Object> order = new HashMap<>();
+
+        String orderDirection = "desc";
+        String orderField = "creation_date";
+
+        order.put("order",orderDirection);
+        sort.put(orderField, order);
+        filter.setOrderBy(sort);
+
+        return getAll(filter);
     }
 
     public List<RequestPayment> getPayments(List<String> stage, List<String> status, String requestID) throws Exception {
@@ -45,10 +60,8 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         String maxID = getMaxID();
         if(maxID == null)
             return requestId+"-p1";
-        else{
-            String number[] = maxID.split("-p");
-            return requestId+"-p"+number[0]+1;
-        }
+        else
+            return requestId+"-p"+(Integer.valueOf(maxID.split("-p")[1])+1);
     }
 
 
@@ -66,11 +79,9 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         String orderDirection = "desc";
         String orderField = "creation_date";
 
-        if (orderField != null) {
-            order.put("order",orderDirection);
-            sort.put(orderField, order);
-            filter.setOrderBy(sort);
-        }
+        order.put("order",orderDirection);
+        sort.put(orderField, order);
+        filter.setOrderBy(sort);
 
         try {
             List rs = searchService.search(filter).getResults();

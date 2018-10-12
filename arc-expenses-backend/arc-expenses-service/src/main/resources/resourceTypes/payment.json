@@ -7,7 +7,7 @@
     },
     {
       "name": "request_id",
-      "path": "$.id",
+      "path": "$.requestId",
       "type": "java.lang.String"
     },
     {
