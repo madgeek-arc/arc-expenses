@@ -136,7 +136,9 @@
       "type": "string"
     },
     "project": { "$ref": "#/definitions/project" },
-    "user": { "$ref": "user.json" },
+    "user": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.User" },
     "requesterPosition": {
       "description": "Position of the requester in the Institute.",
       "title": "Requester Position",

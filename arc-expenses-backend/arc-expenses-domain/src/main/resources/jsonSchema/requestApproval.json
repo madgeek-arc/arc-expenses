@@ -8,8 +8,8 @@
       "description": "stage: Scientific Coordinator's Approval",
       "properties": {
         "user": {
-          "$ref": "user.json"
-        },
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": {
           "type": "string"
         },
@@ -26,7 +26,8 @@
           "type": "string"
         },
         "attachment": {
-          "$ref": "attachment.json"
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -35,8 +36,8 @@
       "description": "stage: Operator's Approval",
       "properties": {
         "user": {
-          "$ref": "user.json"
-        },
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": {
           "type": "string"
         },
@@ -59,7 +60,8 @@
           "type": "string"
         },
         "attachment": {
-          "$ref": "attachment.json"
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -68,8 +70,8 @@
       "description": "stage: Financial Officer's Approval",
       "properties": {
         "user": {
-          "$ref": "user.json"
-        },
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": {
           "type": "string"
         },
@@ -86,7 +88,8 @@
           "type": "string"
         },
         "attachment": {
-          "$ref": "attachment.json"
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -95,8 +98,8 @@
       "description": "stage: Institute Director's Approval",
       "properties": {
         "user": {
-          "$ref": "user.json"
-        },
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": {
           "type": "string"
         },
@@ -107,7 +110,8 @@
           "type": "string"
         },
         "attachment": {
-          "$ref": "attachment.json"
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -116,8 +120,8 @@
       "description": "stage: Executive Officer's Approval",
       "properties": {
         "user": {
-          "$ref": "user.json"
-        },
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": {
           "type": "string"
         },
@@ -128,7 +132,8 @@
           "type": "string"
         },
         "attachment": {
-          "$ref": "attachment.json"
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -137,8 +142,8 @@
       "description": "stage: Administrative Council",
       "properties": {
         "user": {
-          "$ref": "user.json"
-        },
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": {
           "type": "string"
         },
@@ -149,7 +154,8 @@
           "type": "string"
         },
         "attachment": {
-          "$ref": "attachment.json"
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -158,8 +164,8 @@
       "description": "stage: Diavgeia",
       "properties": {
         "user": {
-          "$ref": "user.json"
-        },
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": {
           "type": "string"
         },
@@ -167,12 +173,16 @@
           "type": "string"
         },
         "attachment": {
-          "$ref": "attachment.json"
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     }
+
   },
   "extends": {
-    "type" : "object",
-    "javaType" : "gr.athenarc.domain.BaseInfo"}
+    "type": "object",
+    "javaType": "gr.athenarc.domain.BaseInfo"
+  }
+
 }

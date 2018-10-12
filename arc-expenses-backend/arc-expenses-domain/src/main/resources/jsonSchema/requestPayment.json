@@ -12,80 +12,115 @@
       "type": "object",
       "description": "stage: Paperwork Submission",
       "properties": {
-        "user": { "$ref": "user.json"},
+        "user": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
-        "attachment": { "$ref": "attachment.json" }
+        "attachment": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
+        }
       }
     },
     "stage8": {
       "type": "object",
       "description": "stage: Checking Team",
       "properties": {
-        "user": { "$ref": "user.json"},
+        "user": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "checkRegularity": { "type": "boolean"},
         "checkLegality": { "type": "boolean"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
-        "attachment": { "$ref": "attachment.json" }
+        "attachment": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
+        }
       }
     },
     "stage9": {
       "type": "object",
       "description": "stage: Financial Officer's Check",
       "properties": {
-        "user": { "$ref": "user.json"},
+        "user": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "checkRegularity": { "type": "boolean"},
         "checkLegality": { "type": "boolean"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
-        "attachment": { "$ref": "attachment.json" }
+        "attachment": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
+        }
       }
     },
     "stage10": {
       "type": "object",
       "description": "stage: Director's Check",
       "properties": {
-        "user": { "$ref": "user.json"},
+        "user": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
-        "attachment": { "$ref": "attachment.json" }
+        "attachment": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
+        }
       }
     },
     "stage11": {
       "type": "object",
       "description": "stage: Diavgeia",
       "properties": {
-        "user": { "$ref": "user.json"},
+        "user": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "comment": { "type": "string"},
-        "attachment": { "$ref": "attachment.json" }
+        "attachment": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
+        }
       }
     },
     "stage12": {
       "type": "object",
       "description": "stage: Accounting Registration",
       "properties": {
-        "user": { "$ref": "user.json"},
+        "user": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
-        "attachment": { "$ref": "attachment.json" }
+        "attachment": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
+        }
       }
     },
     "stage13": {
       "type": "object",
       "description": "stage: Accounting Payment",
       "properties": {
-        "user": { "$ref": "user.json"},
+        "user": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
-        "attachment": { "$ref": "attachment.json" }
+        "attachment": {
+          "type": "object",
+          "javaType": "gr.athenarc.domain.Attachment"
+        }
       }
     }
   }
