@@ -451,9 +451,9 @@ export class RequestsComponent implements OnInit {
 
     navigateToRequestPage(baseInfo: BaseInfo) {
       if (baseInfo.id.includes('a')) {
-          this.router.navigate(['request-stage', baseInfo.id]);
+          this.router.navigate(['/requests/request-stage', baseInfo.id]);
       } else {
-          this.router.navigate(['request-stage-payment', baseInfo.id]);
+          this.router.navigate(['/requests/request-stage-payment', baseInfo.id]);
       }
     }
 

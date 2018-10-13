@@ -212,7 +212,7 @@
                           </div>
                         </div>
 
-                        <div *ngIf="canEdit === true">
+                        <div *ngIf="( (canEdit === true) || userIsAdmin() )">
                           <button (click)="createRequestPayment()">Προσθήκη Νέας Περαίωσης</button>
                         </div>
                       </div>
