@@ -443,8 +443,8 @@ export class RequestsComponent implements OnInit {
       const newRequestInfo = new RequestInfo(requestId, project);
       return ((this.authService.getUserRole() === 'ROLE_ADMIN') ||
               (newRequestInfo[stage].stagePOIs.some(
-                  x => ( x.email === this.authService.getUserProp('email') ||
-                                  x.delegates.some(y => y.email === this.authService.getUserProp('email')))
+                  x => ((x.email === this.authService.getUserProp('email')) ||
+                                   x.delegates.some(y => y.email === this.authService.getUserProp('email')))
                                  )
               ) );
     }
