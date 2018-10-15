@@ -145,7 +145,7 @@
       "title": "Requester Position",
       "type": "string"
     },
-    "status": {
+    "requestStatus": {
       "type": "string"
     }
   }
