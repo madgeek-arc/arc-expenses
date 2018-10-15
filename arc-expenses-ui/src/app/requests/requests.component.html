@@ -1,6 +1,6 @@
 <div class="tm-header-placeholder uk-margin-remove-adjacent" style="height: 84px;"></div>
 <div class="uk-background-norepeat uk-background-cover uk-background-fixed uk-section uk-padding-remove-bottom uk-flex uk-flex-middle"
-     style="background-image: url('https://dl119.madgik.di.uoa.gr/images/Background_images/RDM6.jpg'); box-sizing: border-box; height: 200px">
+     style="background-image: url('./assets/imgs/background-arcexpenses.jpeg'); box-sizing: border-box; height: 200px">
      <!--style="background-image: url('./assets/imgs/omtd_home_2.jpeg'); box-sizing: border-box; height: 150px">-->
   <div class="uk-position-cover"></div>
   <div class="uk-width-1-1">
@@ -13,7 +13,8 @@
                 <div [formGroup]="keywordField" class="uk-align-center uk-margin-top">
                   <input class="uk-input uk-width-2-3 uk-search-field"
                          placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο" formControlName="keyword">
-                  <button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="getSearchResults()"><i class="fa fa-search"></i> Αναζήτηση</button>
+                  <button class="uk-button uk-button-secondary" (click)="getSearchResults()"><i class="fa fa-search"></i> Αναζήτηση</button>
+                  <button class="uk-button uk-button-default" (click)="initializeParams()">Καθάρισμα επιλογών</button>
                 </div>
               </div>
             </div>
@@ -44,39 +45,57 @@
                                 [ngClass]="leftHelperContent.isPresent()?'tm-sidebar uk-width-1-4@m uk-first-column':'clear-style'">
             </aside-help-content>-->
           <div>
-            <div [formGroup]="filtersForm"
-                 class="uk-card uk-card-body uk-card-secondary sidemenu uk-margin-bottom">
 
+              <!-- FILTERS SIDEMENU -->
+            <div [formGroup]="filtersForm"
+                 class="uk-card uk-card-body uk-card-default sidemenu uk-margin-bottom">
+
+                <div class="uk-margin-bottom"><h6 class="uk-heading-bullet">Φίλτρα Αναζήτησης</h6></div>
                 <div class="uk-margin-bottom">
-                    <label for="req-phase" class="filterLabel">Φάση:</label>
-                    <select id="req-phase" class="form-control" (change)="choosePhase($event)">
-                        <option value="0" [selected]="phaseId===0">Όλες</option>
-                        <option value="1" [selected]="phaseId===1">Πρώτη φάση</option>
-                        <option value="2" [selected]="phaseId===2">Δεύτερη φάση</option>
-                    </select>
+                    <div formArrayName="phases" class="show-options uk-inline">
+                        <label class="filterLabel uk-text-bold uk-margin-large-bottom" for="selectAllPhases">
+                            <input class="uk-checkbox" type="checkbox" id="selectAllPhases" [checked]="allPhasesSelected"
+                                   (change)="toggleSearchAllPhases($event)">&nbsp;&nbsp;Φάση</label>
+                        <div>
+                            <div [formGroupName]="'0'">
+                                <label for="phase1">
+                                    <input class="uk-checkbox" type="checkbox" formControlName="phase" id="phase1"
+                                           (change)="choosePhase()">&nbsp;&nbsp;Πρώτη φάση
+                                </label>
+                            </div>
+                            <div [formGroupName]="'1'">
+                                <label for="phase2">
+                                    <input class="uk-checkbox" type="checkbox" formControlName="phase" id="phase2"
+                                           (change)="choosePhase()">&nbsp;&nbsp;Δεύτερη φάση
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="uk-margin-bottom">
                    <div formArrayName="statusChoices" class="show-options uk-inline">
-                       <div class="filterLabel">Κατάσταση:</div>
+                       <label class="filterLabel uk-text-bold uk-margin-large-bottom" for="selectAllStatus">
+                           <input class="uk-checkbox" type="checkbox" id="selectAllStatus" [checked]="allStatusSelected"
+                                  (change)="toggleSearchAllStatuses($event)">&nbsp;&nbsp;Κατάσταση</label>
                        <div>
                            <div [formGroupName]="'0'">
                                <label for="pending">
                                    <input class="uk-checkbox" type="checkbox" formControlName="status" id="pending"
-                                          (change)="chooseState('pending', $event)">
+                                          (change)="chooseState()">
                                    &nbsp;{{ stateNames['pending'] }}
                                </label>
                            </div>
                            <div [formGroupName]="'1'">
                                <label for="rejected">
                                    <input class="uk-checkbox" type="checkbox" formControlName="status" id="rejected"
-                                          (change)="chooseState('rejected', $event)">
+                                          (change)="chooseState()">
                                    &nbsp;{{ stateNames['rejected'] }}
                                </label>
                            </div>
                            <div [formGroupName]="'2'">
                                <label for="accepted">
                                    <input class="uk-checkbox" type="checkbox" formControlName="status" id="accepted"
-                                          (change)="chooseState('rejected', $event)">
+                                          (change)="chooseState()">
                                    &nbsp;{{ stateNames['accepted'] }}
                                </label>
                            </div>
@@ -85,7 +104,9 @@
                </div>
                <div *ngIf="!isSimpleUser" class="uk-margin-bottom ">
                    <div formArrayName="stageChoices" class="show-options uk-inline">
-                       <div class="filterLabel">Στάδιο:</div>
+                       <label class="filterLabel uk-text-bold uk-margin-large-bottom" for="selectAllStages">
+                           <input class="uk-checkbox" type="checkbox" id="selectAllStages" [checked]="allStagesSelected"
+                                  (change)="toggleSearchAllStages($event)">&nbsp;&nbsp;Στάδιο</label>
                        <div *ngFor="let stage of stages; let stage_i = index">
                            <div [formGroupName]="stage_i">
                                <label for="stage_{{ stage_i }}">
@@ -97,7 +118,6 @@
                        </div>
                    </div>
                </div>
-               <button class="uk-button uk-button-default" type="reset" (click)="clearFilterControls()">Καθάρισμα επιλογών</button>
 
            </div>
           </div>
@@ -118,11 +138,11 @@
                         <div class="uk-overlay-default uk-position-cover"></div>
                         <div uk-spinner="ratio: 2" class="uk-overlay uk-dark"></div>
                     </div>
-
                     <div *ngIf="searchResults">
+                        <div class="uk-float-left">A=Ανάληψη, Π=Περαίωση</div>
                         <div class="uk-grid page-controls uk-flex-right">
                             <div class="uk-margin-bottom ">
-                                <div class="show-options uk-inline">
+                                <div class="uk-inline">
                                     <div class="filterLabel">Αιτήσεις ανά σελίδα:</div>
                                     <div class="inlineBlock">
                                         <select id="req-pagesize" class="form-control" (change)="getItemsPerPage($event)">
@@ -173,8 +193,8 @@
                                     <table class="uk-table uk-table-hover uk-table-divider">
                                         <thead>
                                             <tr>
-                                                <th>Αρ.Πρωτοκολλου</th>
-                                                <th>Ειδος</th>
+                                                <th></th>
+                                                <th>Αρ.Πρωτ./Ειδος</th>
                                                 <th><a (click)="sortBy('request_project')" title="Ταξινόμηση με βάση το ακρώνυμο του έργου">
                                                     Εργο&nbsp;
                                                     <span *ngIf="orderField && (orderField === 'request_project')"
@@ -201,27 +221,25 @@
                                                     </a>
                                                 </th>
                                                 <th><span class="uk-margin-right">Κατασταση</span></th>
-                                                <th></th>
                                             </tr>
                                             <tr *ngIf="noRequests">
                                                 <td colspan="8" class="uk-alert uk-width-1-1">{{noRequests}}</td>
                                             </tr>
                                             <tr class="uk-link" *ngFor="let req of listOfRequests"
-                                                (click)="navigateToRequestPage(req.baseInfo)"
-                                                title="Μετάβαση στην σελίδα του αιτήματος">
-                                                <td>{{ req.request.id }}</td>
-                                                <td>{{ reqTypes[req.request.type] }}</td>
+                                                routerLink="/requests/{{(req.baseInfo.id).includes('a')? 'request-stage':'request-stage-payment'}}/{{req.baseInfo.id}}"
+                                                title="Μετάβαση στην σελίδα του αιτήματος" [style.backgroundColor]="getTrStyle(req)">
+                                                <td>{{ req.baseInfo.id.includes('a') ? 'Α': 'Π' }}</td>
+                                                <td>{{ req.request.id }}/<br>{{ reqTypes[req.request.type] }}</td>
                                                 <td>{{ req.request.project.acronym }}</td>
                                                 <td>{{ req.request.project.institute.name }}</td>
                                                 <td>{{ req.request.user.firstname }} {{ req.request.user.lastname }}</td>
                                                 <td>{{ req.request.stage1.requestDate | date : 'dd-MM-yyyy' }}</td>
-                                                <td *ngIf="!isSimpleUser" >{{ stagesMap[req.baseInfo.stage] }}</td>
+                                                <td *ngIf="!isSimpleUser">{{ stagesMap[req.baseInfo.stage]}}</td>
                                                 <td>{{ getStatusAsString(req.baseInfo.status) }}</td>
-                                                <td>
-                                                    <span *ngIf="getIfUserCanEdit(req.request.id, req.request.project, req.baseInfo.stage)">
-                                                           <i class="fa fa-pencil"></i>
-                                                    </span>
-                                                </td>
+                                                <!--<td>
+                                                    <span *ngIf="getIfUserCanEdit(req.request.id, req.request.project, req.baseInfo.stage)"
+                                                          uk-icon="icon: pencil"></span>
+                                                </td>-->
                                             </tr>
                                         </thead>
                                     </table>
@@ -249,40 +267,4 @@
                                         <li class="uk-margin-auto-left">
                                             <a class="uk-link uk-link-muted" (click)="goToNextPage()">
                                                 Next
-                                                <span class="uk-margin-small-left uk-pagination-next uk-icon" uk-pagination-next="">
-                                                    <svg width="7" height="12" viewBox="0 0 7 12" xmlns="http://www.w3.org/2000/svg"
-                                                         icon="pagination-next" ratio="1"></svg>
-                                                </span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- RIGHT HELP CONTENT -->
-            <aside-help-content #rightHelperContent [position]="'right'"
-                                [ngClass]="rightHelperContent.isPresent()?'tm-sidebar uk-width-1-4@m uk-first-column':'clear-style'">
-            </aside-help-content>
-
-          </div>
-        </div>
-
-
-        <!-- BOTTOM HELP CONTENT -->
-        <help-content #bottomHelperContent [position]="'bottom'"
-                      [ngClass]="bottomHelperContent.isPresent()?'uk-margin-medium-top uk-margin-medium-bottom':'clear-style'">
-        </help-content>
-
-
-      </div>
-    </div>
-  </div>
-</div>
+                                                <span c

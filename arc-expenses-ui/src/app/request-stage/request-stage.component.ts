@@ -213,12 +213,9 @@ export class RequestStageComponent implements OnInit {
         // if the pending stage has not changed, the requestApproval has been finalized
         if (this.currentRequestApproval.stage === submittedStage) {
             if (this.stages.indexOf(this.currentRequestApproval.stage) === (this.stages.length - 1)) {
+                this.currentRequestApproval.status = 'accepted';
                 if (this.currentRequest.type === 'contract') {
-                    this.currentRequestApproval.status = 'accepted';
                     this.currentRequest.requestStatus = 'accepted';
-                } else {
-                    this.currentRequestApproval.status = 'accepted';
-                    this.currentRequestApproval.stage = '7';
                 }
             } else {
                 this.currentRequestApproval.status = 'rejected';
@@ -276,7 +273,7 @@ export class RequestStageComponent implements OnInit {
         }
         console.log(`sending ${JSON.stringify(this.currentRequest.stage1, null, 1)} to updateRequest`);
         /*update this.currentRequest*/
-        this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email')).subscribe (
+        this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email')).subscribe(
             res => console.log(`update Request responded: ${res.id}, status=${res.requestStatus}, stage=2`),
             error => {
                 console.log(error);
@@ -287,7 +284,7 @@ export class RequestStageComponent implements OnInit {
                 this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
                 this.showSpinner = false;
                 this.requestService.updateRequestApproval(this.currentRequestApproval)
-                    .subscribe(
+                    .subscribe (
                         res => this.currentRequestApproval = res,
                         error => console.log(error),
                         () => this.getIfUserCanEditRequest()
@@ -321,6 +318,9 @@ export class RequestStageComponent implements OnInit {
                 this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
                 this.showSpinner = false;
                 this.getIfUserCanEditRequest();
+                if (this.currentRequestApproval.status === 'accepted') {
+                    this.createRequestPayment();
+                }
             }
         );
     }
