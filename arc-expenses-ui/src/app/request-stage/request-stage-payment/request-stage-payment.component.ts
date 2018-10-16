@@ -10,6 +10,7 @@ import { mergeMap, tap } from 'rxjs/operators';
 import { HttpErrorResponse, HttpEventType, HttpResponse } from '@angular/common/http';
 import { isNullOrUndefined, isUndefined } from 'util';
 import { printRequestPage } from '../print-request-function';
+import { forkJoin } from 'rxjs/observable/forkJoin';
 
 @Component({
     selector: 'request-stage-payment',
@@ -34,6 +35,7 @@ export class RequestStagePaymentComponent implements OnInit {
     currentStageName: string;
     canEdit: boolean = false;
     wentBackOneStage: boolean;
+    requestNeedsUpdate: boolean;
     stages: string[];
     stateNames = {
         pending: 'βρίσκεται σε εξέλιξη', under_review: 'βρίσκεται σε εξέλιξη', rejected: 'έχει απορριφθεί', accepted: 'έχει ολοκληρωθεί'
@@ -138,7 +140,6 @@ export class RequestStagePaymentComponent implements OnInit {
                 return nextStage;
             }
         }
-
         return this.currentRequestPayment.stage;
     }
 
@@ -148,7 +149,6 @@ export class RequestStagePaymentComponent implements OnInit {
                 return prevStage;
             }
         }
-
         return this.currentRequestPayment.stage;
     }
 
@@ -172,10 +172,12 @@ export class RequestStagePaymentComponent implements OnInit {
 
                 this.currentRequestPayment.status = 'accepted';
                 this.currentRequest.requestStatus = 'accepted';
+                this.requestNeedsUpdate = true;
             } else {
 
                 this.currentRequestPayment.status = 'rejected';
                 this.currentRequest.requestStatus = 'rejected';
+                this.requestNeedsUpdate = true;
             }
         } else {
             if ( this.wentBackOneStage === true ) {
@@ -191,7 +193,12 @@ export class RequestStagePaymentComponent implements OnInit {
         if ( !isNullOrUndefined(this.uploadedFile) ) {
             this.uploadFile();
         } else {
-            this.submitRequestPayment();
+            if (this.requestNeedsUpdate) {
+                this.requestNeedsUpdate = false;
+                this.submitRequestAndPayment();
+            } else {
+                this.submitRequestPayment();
+            }
         }
     }
 
@@ -202,7 +209,6 @@ export class RequestStagePaymentComponent implements OnInit {
         this.successMessage = '';
 
         if ( !isNullOrUndefined(this.uploadedFile) ) {
-
             this.currentRequestPayment[this.currentStageName]['attachment']['url'] = this.uploadedFileURL;
             this.uploadedFileURL = '';
             this.uploadedFile = null;
@@ -246,10 +252,42 @@ export class RequestStagePaymentComponent implements OnInit {
                 },
                 () => {
                     console.log('ready to update RequestPayment');
-                    this.submitRequestPayment();
+                    if (this.requestNeedsUpdate) {
+                        this.submitRequestAndPayment();
+                    } else {
+                        this.submitRequestPayment();
+                    }
                 }
             );
     }
+
+    submitRequestAndPayment() {
+        if ( !isNullOrUndefined(this.uploadedFile) ) {
+            this.currentRequestPayment[this.currentStageName]['attachment']['url'] = this.uploadedFileURL;
+            this.uploadedFileURL = '';
+            this.uploadedFile = null;
+        }
+
+        const updateRequest = this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email'));
+        const updateRequestPayment = this.requestService.updateRequestPayment(this.currentRequestPayment);
+        forkJoin(updateRequest, updateRequestPayment).subscribe(
+            res => {
+                this.currentRequest = res[0];
+                this.currentRequestPayment = res[1];
+            },
+            error => {
+                console.log(error);
+                this.showSpinner = false;
+                this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών.';
+            },
+            () => {
+                this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
+                this.showSpinner = false;
+                this.getIfUserCanEditRequest();
+            }
+        );
+    }
+
 
 
     willShowStage(stage: string) {

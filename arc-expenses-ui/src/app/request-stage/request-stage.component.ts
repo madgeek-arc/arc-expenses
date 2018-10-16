@@ -1,14 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {
-    BaseInfo,
-    Request,
-    RequestApproval,
-    RequestPayment,
-    RequestSummary,
-    Stage10,
-    Stage11,
-    Stage12, Stage13,
-    Stage5b, Stage7, Stage8, Stage9
+import { BaseInfo, Request, RequestApproval, RequestPayment, RequestSummary,
+    Stage10, Stage11, Stage12, Stage13, Stage5b, Stage7, Stage8, Stage9
 } from '../domain/operation';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ManageRequestsService } from '../services/manage-requests.service';
@@ -19,7 +11,8 @@ import { approvalStages, requestTypes, stageIds } from '../domain/stageDescripti
 import { printRequestPage } from './print-request-function';
 import { AnchorItem } from '../shared/dynamic-loader-anchor-components/anchor-item';
 import { RequestInfo } from '../domain/requestInfoClasses';
-import { mergeMap, switchMap, tap } from 'rxjs/operators';
+import { mergeMap, tap } from 'rxjs/operators';
+import { forkJoin } from 'rxjs/observable/forkJoin';
 
 @Component({
     selector: 'app-request-stage',
@@ -46,6 +39,7 @@ export class RequestStageComponent implements OnInit {
     currentStageName: string;
     canEdit: boolean = false;
     wentBackOneStage: boolean;
+    requestNeedsUpdate: boolean;
     stages: string[];
     stateNames = {
         pending: 'βρίσκεται σε εξέλιξη', under_review: 'βρίσκεται σε εξέλιξη', rejected: 'έχει απορριφθεί', accepted: 'έχει ολοκληρωθεί'
@@ -98,7 +92,7 @@ export class RequestStageComponent implements OnInit {
                 }
             },
             () => {
-                this.stages = ['1'].concat(approvalStages);
+                this.stages = approvalStages;
                 this.currentRequestInfo = new RequestInfo(this.currentRequest.id, this.currentRequest.project);
                 this.checkIfStageIs5b();
                 this.getIfUserCanEditRequest();
@@ -216,10 +210,12 @@ export class RequestStageComponent implements OnInit {
                 this.currentRequestApproval.status = 'accepted';
                 if (this.currentRequest.type === 'contract') {
                     this.currentRequest.requestStatus = 'accepted';
+                    this.requestNeedsUpdate = true;
                 }
             } else {
                 this.currentRequestApproval.status = 'rejected';
                 this.currentRequest.requestStatus = 'rejected';
+                this.requestNeedsUpdate = true;
             }
         } else {
             if ( this.wentBackOneStage === true ) {
@@ -237,8 +233,12 @@ export class RequestStageComponent implements OnInit {
         if ( !isNullOrUndefined(this.uploadedFile) ) {
             this.uploadFile();
         } else {
-            // TODO:: ALSO UPDATE REQUEST STATUS IF NECESSARY
-            this.submitRequestApproval();
+            if (this.requestNeedsUpdate) {
+                this.requestNeedsUpdate = false;
+                this.updateRequestAndApproval();
+            } else {
+                this.submitRequestApproval();
+            }
         }
     }
 
@@ -273,7 +273,7 @@ export class RequestStageComponent implements OnInit {
         }
         console.log(`sending ${JSON.stringify(this.currentRequest.stage1, null, 1)} to updateRequest`);
         /*update this.currentRequest*/
-        this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email')).subscribe(
+        /*this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email')).subscribe(
             res => console.log(`update Request responded: ${res.id}, status=${res.requestStatus}, stage=2`),
             error => {
                 console.log(error);
@@ -290,7 +290,8 @@ export class RequestStageComponent implements OnInit {
                         () => this.getIfUserCanEditRequest()
                     );
             }
-        );
+        );*/
+        this.updateRequestAndApproval();
     }
 
     submitRequestApproval() {
@@ -306,9 +307,41 @@ export class RequestStageComponent implements OnInit {
             this.uploadedFile = null;
         }
         console.log(`sending ${JSON.stringify(this.currentRequestApproval[this.currentStageName], null, 1)} to updateRequestApproval`);
-        /*update this.currentRequest*/
+
+        /*update this.currentRequestApproval*/
         this.requestService.updateRequestApproval(this.currentRequestApproval).subscribe (
             res => console.log(`update RequestApproval responded: ${res.id}, status=${res.status}, stage=${res.stage}`),
+            error => {
+                console.log(error);
+                this.showSpinner = false;
+                this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών.';
+            },
+            () => {
+                this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
+                this.showSpinner = false;
+                this.getIfUserCanEditRequest();
+                if (this.currentRequestApproval.status === 'accepted') {
+                    this.createRequestPayment();
+                }
+            }
+        );
+    }
+
+    updateRequestAndApproval() {
+        if ( (!isNullOrUndefined(this.uploadedFile)) && (this.currentStageName !== 'stage1') ) {
+
+            this.currentRequestApproval[this.currentStageName]['attachment']['url'] = this.uploadedFileURL;
+            this.uploadedFileURL = '';
+            this.uploadedFile = null;
+        }
+
+        const updateRequest = this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email'));
+        const updateRequestApproval = this.requestService.updateRequestApproval(this.currentRequestApproval);
+        forkJoin(updateRequest, updateRequestApproval).subscribe(
+            res => {
+                this.currentRequest = res[0];
+                this.currentRequestApproval = res[1];
+            },
             error => {
                 console.log(error);
                 this.showSpinner = false;
@@ -349,6 +382,9 @@ export class RequestStageComponent implements OnInit {
                     console.log('ready to update Request');
                     if (this.currentStageName === 'stage1') {
                         this.submitRequest();
+                    } else if (this.requestNeedsUpdate) {
+                        this.requestNeedsUpdate = false;
+                        this.updateRequestAndApproval();
                     } else {
                         this.submitRequestApproval();
                     }

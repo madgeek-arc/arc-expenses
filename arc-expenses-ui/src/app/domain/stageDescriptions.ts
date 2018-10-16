@@ -104,7 +104,7 @@ export class StageDescription {
 
 /* stages descriptions */
 export const stageIds = ['1', '2', '3', '4', '5a', '5b', '6', '7', '8', '9', '10', '11', '12', '13'];
-export const approvalStages = ['2', '3', '4', '5a', '5b', '6'];
+export const approvalStages = ['1', '2', '3', '4', '5a', '5b', '6'];
 export const paymentStages = ['7', '8', '9', '10', '11', '12', '13'];
 /*export const stagesIfLowCost = ['1', '2', '3', '4', '5a', 'UploadInvoice', '5b', '8', '6', '12', '13'];*/
 
