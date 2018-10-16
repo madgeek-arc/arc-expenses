@@ -39,7 +39,7 @@ export class RequestsComponent implements OnInit {
     totalPages: number;
 
     stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', under_review: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
-    stages = approvalStages.concat(paymentStages);
+    stages: string[] = [];
     stagesMap = stageTitles;
     reqTypes = requestTypes;
     projects: Vocabulary[] = [];
@@ -71,6 +71,7 @@ export class RequestsComponent implements OnInit {
     }
 
     initializeParams() {
+        this.stages = approvalStages.concat(paymentStages);
         this.initializeFiltersForm();
         this.keywordField = this.fb.group({ keyword: [''] });
         this.searchTerm = '';
@@ -88,9 +89,9 @@ export class RequestsComponent implements OnInit {
 
     initializeFiltersForm() {
         this.filtersForm = this.fb.group({
-            phases: this.createFormArray({phase: ['']}, 2),
-            statusChoices: this.createFormArray({status: ['']}, 3),
-            stageChoices: this.createFormArray({stage: ['']}, this.stages.length)
+            phases: this.createFormArray({phase: [false]}, 2),
+            statusChoices: this.createFormArray({status: [false]}, 3),
+            stageChoices: this.createFormArray({stage:[false]}, this.stages.length)
         });
         // projects: this.createProjectsArray(),
         // institutes: this.createInstitutesArray()
@@ -106,16 +107,16 @@ export class RequestsComponent implements OnInit {
 
     createStatusArray() {
         const newArray = this.fb.array([]);
-        newArray.push(this.fb.group({status: ['']}));
-        newArray.push(this.fb.group({status: ['']}));
-        newArray.push(this.fb.group({status: ['']}));
+        newArray.push(this.fb.group({status: [false]}));
+        newArray.push(this.fb.group({status: [false]}));
+        newArray.push(this.fb.group({status: [false]}));
         return <FormArray>newArray;
     }
 
     createStagesArray() {
         const newArray = this.fb.array([]);
         for (let i = 0; i < this.stages.length; i++) {
-            newArray.push(this.fb.group({stage: ['']}));
+            newArray.push(this.fb.group({stage: [false]}));
         }
         return <FormArray>newArray;
     }
@@ -123,7 +124,7 @@ export class RequestsComponent implements OnInit {
     createProjectsArray() {
         const newArray = this.fb.array([]);
         for (let i = 0; i < this.projects.length; i++) {
-            newArray.push(this.fb.group({project: ['']}));
+            newArray.push(this.fb.group({project: [false]}));
         }
         return <FormArray>newArray;
     }
@@ -228,24 +229,21 @@ export class RequestsComponent implements OnInit {
         this.stagesChoice = [];
         if (this.phaseId === 0) {
             this.stages = approvalStages.concat(paymentStages);
-            this.stagesChoice.push('all');
         } else if (this.phaseId === 1) {
             this.stages = approvalStages;
-            this.stagesChoice = this.stages;
         } else {
             this.stages = paymentStages;
-            this.stagesChoice = this.stages;
         }
         this.setAllStageValues(false);
-        this.initFormArray('stageChoices',{stage:['']}, this.stages.length);
+        this.initFormArray('stageChoices',{stage: [false]}, this.stages.length);
         this.currentPage = 0;
         this.getListOfRequests();
     }
 
     initFormArray(arrayName: string, definition: any, length: number) {
-        let formArray = this.filtersForm.controls[arrayName] as FormArray;
+        const formArray = <FormArray>this.filtersForm.controls[arrayName];
         formArray.controls = [];
-        for (let i=0; i < length; i++) {
+        for (let i = 0; i < length; i++) {
             formArray.push(this.fb.group(definition));
         }
         console.log('formArray length is', formArray.length);
@@ -341,9 +339,7 @@ export class RequestsComponent implements OnInit {
         this.setAllStageValues(false);
         this.stages = [];
         this.stages = approvalStages.concat(paymentStages);
-        this.stagesChoice = [];
-        this.stagesChoice.push('all');
-        this.initFormArray('stageChoices',{stage:['']}, this.stages.length);
+        this.initFormArray('stageChoices',{ stage: [false]}, this.stages.length);
         this.currentPage = 0;
         this.getListOfRequests();
     }
@@ -402,7 +398,8 @@ export class RequestsComponent implements OnInit {
             const stageChoices = <FormArray>this.filtersForm.controls['stageChoices'];
             console.log('this.stages is', JSON.stringify(this.stages));
             console.log('stage array length is', stageChoices.length);
-            stageChoices.controls.map( (x, i) => { if ( x.get('stage').value === true ) { this.stagesChoice.push(this.stages[i]); } });
+            console.log('stage array is', JSON.stringify(stageChoices.value));
+            stageChoices.controls.map( (x, i) => { if ( x.get('stage').value ) { this.stagesChoice.push(this.stages[i]); } });
             if ((this.stagesChoice.length === 0) || (this.stagesChoice.length === this.stages.length)) {
                 console.log('stagesChoice length is', this.stagesChoice.length);
                 this.allStagesSelected = (this.stagesChoice.length === this.stages.length);

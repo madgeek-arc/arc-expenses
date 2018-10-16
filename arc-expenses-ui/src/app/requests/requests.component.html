@@ -47,7 +47,7 @@
           <div>
 
               <!-- FILTERS SIDEMENU -->
-            <div [formGroup]="filtersForm"
+            <div *ngIf="filtersForm" [formGroup]="filtersForm"
                  class="uk-card uk-card-body uk-card-default sidemenu uk-margin-bottom">
 
                 <div class="uk-margin-bottom"><h6 class="uk-heading-bullet">Φίλτρα Αναζήτησης</h6></div>
@@ -102,17 +102,17 @@
                        </div>
                    </div>
                </div>
-               <div *ngIf="!isSimpleUser" class="uk-margin-bottom ">
+               <div *ngIf="!isSimpleUser && stages" class="uk-margin-bottom ">
                    <div formArrayName="stageChoices" class="show-options uk-inline">
                        <label class="filterLabel uk-text-bold uk-margin-large-bottom" for="selectAllStages">
                            <input class="uk-checkbox" type="checkbox" id="selectAllStages" [checked]="allStagesSelected"
                                   (change)="toggleSearchAllStages($event)">&nbsp;&nbsp;Στάδιο</label>
-                       <div *ngFor="let stage of stages; let stage_i = index">
+                       <div *ngFor="let stage of filtersForm.controls['stageChoices'].controls; let stage_i = index">
                            <div [formGroupName]="stage_i">
                                <label for="stage_{{ stage_i }}">
                                    <input class="uk-checkbox" type="checkbox" formControlName="stage" id="stage_{{ stage_i }}"
-                                          (change)="chooseStage(stage, $event)">
-                                   &nbsp;{{ stagesMap[stage] }}
+                                          (change)="chooseStage()">
+                                   &nbsp;{{ stagesMap[stages[stage_i]] }}
                                </label>
                            </div>
                        </div>
