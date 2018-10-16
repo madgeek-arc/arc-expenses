@@ -7,17 +7,12 @@
     },
     {
       "name": "request_requester",
-      "path": "$.requester.email",
+      "path": "$.user.email",
       "type": "java.lang.String"
     },
     {
       "name": "request_status",
       "path": "$.status",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_stage",
-      "path": "$.stage",
       "type": "java.lang.String"
     },
     {
@@ -138,7 +133,7 @@
   ],
   "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
   "name": "request",
-  "aliasGroup" : null,
+  "aliasGroup" : "requestGroup",
   "payloadType": "json",
   "schemaUrl":"https://raw.githubusercontent.com/madgeek-arc/arc-expenses/new-schema/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/request.json"
 }
