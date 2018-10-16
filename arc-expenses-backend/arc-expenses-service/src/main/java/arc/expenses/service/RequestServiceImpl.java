@@ -11,12 +11,15 @@ import gr.athenarc.domain.BaseInfo;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -36,6 +39,16 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     @Autowired
     StoreRESTClient storeClient;
+
+    @Autowired
+    RequestApprovalServiceImpl requestApprovalService;
+
+    @Autowired
+    RequestPaymentServiceImpl requestPaymentService;
+
+    @Autowired
+    @Qualifier("arc.dataSource")
+    DataSource dataSource;
 
     @Value("#{'${admin.emails}'.split(',')}")
     private List<String> admins;
@@ -177,31 +190,178 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
 
-    public Paging<RequestSummary> criteriaSearch(String from, String quantity,
-                                                 List<String> status, String searchField,
-                                                 List<String> stage, String orderType,
-                                                 String orderField, String email) {
+    public Paging criteriaSearch(String from, String quantity,
+                                 List<String> status, String searchField,
+                                 List<String> stage, String orderType,
+                                 String orderField, String email) {
+//        /*GET ALL REQUESTS*/
+//        Paging rs_requests = null;
+//        if(searchField!= null || orderField.equals("project") || orderField.equals("institute")){
+//            rs_requests = searchService.cqlQuery(
+//                    this.createWhereClause(email,Arrays.asList("all"),searchField,Arrays.asList("all")),"request",
+//                    Integer.parseInt(quantity),Integer.parseInt(from),
+//                    orderField, orderType);
+//        }else{
+//            rs_requests =  searchService.cqlQuery(
+//                    this.createWhereClause(email,Arrays.asList("all"),searchField,Arrays.asList("all")),"request",
+//                    Integer.parseInt(quantity),Integer.parseInt(from),
+//                    "creation_date", "ASC");
+//        }
+//
+//        /*GET ALL PAYMENTS,APPROVALS*/
+//        Paging rs_group = null;
+//        if(searchField == null || orderField.equals("stage") || orderField.equals("status") || orderField.equals("creation_date")){
+//            rs_group = searchService.cqlQuery(
+//                    this.createWhereClause(email,status,searchField,stage),"requestGroup",
+//                    Integer.parseInt(quantity),Integer.parseInt(from),
+//                    orderField, orderType);
+//        }else{
+//            rs_group =  searchService.cqlQuery(
+//                    this.createWhereClause(email,status,searchField,stage),"requestGroup",
+//                    Integer.parseInt(quantity),Integer.parseInt(from),
+//                    "creation_date", "ASC");
+//        }
+//
+//        if(orderField.equals("project") || orderField.equals("institute"))
+//            return this.requestJoinGroup(rs_requests,from,quantity);
+//        else
+//            return this.groupJoinRequest(rs_group,from,quantity);
+
+        String query = "select * " +
+                       "from request_view r, payment_view p, approval_view a " +
+                       "where r.request_id = p.request_id and r.request_id = a.request_id " ;
+
+        StringBuilder user_clause = this.getUserClause(email);
+        if(user_clause.length()!=0)
+            query+= " and " + user_clause.toString();
+
+        StringBuilder stage_clause = this.getStageClause(stage);
+        if( stage_clause.length()!=0)
+            query+= " and  " + stage_clause.toString();
+
+        StringBuilder status_clause = this.getStatusClause(status);
+        if(status_clause.length()!=0)
+            query+= " and " + status_clause.toString();
+
+        query +=  "  order by r.request_"+orderField + " "  + orderType +
+                  "  limit " + quantity +
+                  "  offset " + from;
 
 
-        Paging<Resource> rs = searchService.cqlQuery(
-                this.createWhereClause(email,status,searchField,stage),"requestGroup",
-                Integer.parseInt(quantity),Integer.parseInt(from),
-                orderField, orderType);
+        System.out.println(query);
 
-        List<RequestSummary> resultSet = new ArrayList<>();
-        for(Resource resource:rs.getResults()) {
+//        return new JdbcTemplate(dataSource)
+//                .query(query);
+        return null;
+
+    }
+
+    private StringBuilder getStatusClause(List<String> status) {
+        StringBuilder status_clause = new StringBuilder();
+        StringBuilder in_clause = new StringBuilder();
+
+        if(!status.get(0).equals("all")){
+            status_clause.append("p.status in ");
+
+            in_clause.append("(");
+            for(int i=0;i<status.size();i++){
+                if(status.get(i).equals("pending"))
+                    in_clause.append(" under_review, ");
+                in_clause.append(status.get(i)).append(",");
+            }
+            in_clause.deleteCharAt(in_clause.length()-1);
+            in_clause.append(")");
+
+            status_clause.append(in_clause.toString());
+            status_clause.append("and a.status in " + in_clause.toString());
+        }
+        return status_clause;
+    }
+
+    private StringBuilder getStageClause(List<String> stage) {
+
+        StringBuilder stage_clause = new StringBuilder();
+        StringBuilder in_clause = new StringBuilder();
+
+        if(!stage.get(0).equals("all")){
+            stage_clause.append("p.stage in ");
+            in_clause.append("(");
+            for(int i=0;i<stage.size();i++)
+                in_clause.append(stage.get(i)).append(",");
+            in_clause.deleteCharAt(in_clause.length()-1);
+            in_clause.append(")");
+
+            stage_clause.append(in_clause.toString());
+            stage_clause.append("and a.stage in ").append(in_clause.toString());
+        }
+        return stage_clause;
+    }
+
+    private StringBuilder getUserClause(String email) {
+
+        StringBuilder user_clause = new StringBuilder();
+
+        if(!admins.contains(email)) {
+            user_clause.append(" ( r.request_requester = " + email + " or " +
+                    " r.request_project_operator =  " + email + " or " +
+                    " r.request_project_operator_delegates = " + email + " or " +
+                    " r.request_project_scientificCoordinator = " + email + " or " +
+                    " r.request_organization_POI = " + email + " or " +
+                    " r.request_organization_POΙ_delegate =  " + email + " or " +
+                    " r.request_institute_accountingRegistration = " + email + " or " +
+                    " r.request_institute_diaugeia = " + email + " or " +
+                    " r.request_institute_accountingPayment = " + email + " or " +
+                    " r.request_institute_accountingDirector = " + email + " or " +
+                    " r.request_institute_accountingDirector_delegate =  " + email + " or " +
+                    " r.request_institute_accountingRegistration_delegate =  " + email + " or " +
+                    " r.request_institute_accountingPayment_delegate =  " + email + " or " +
+                    " r.request_institute_diaugeia_delegate =  " + email + " or " +
+                    " r.request_organization_director = " + email + " or " +
+                    " r.request_institute_director = " + email + " or " +
+                    " r.request_organization_director_delegate =  " + email + " or " +
+                    " r.request_institute_director_delegate =  " + email + " ) ");
+        }
+        return user_clause;
+    }
+
+    /*private Paging<RequestSummary> groupJoinRequest(Paging<Resource> rs_group,String from,String quantity) {
+        List<RequestSummary> rs = new ArrayList<>();
+        for(Resource resource:rs_group.getResults()) {
             try {
                 RequestSummary requestSummary = new RequestSummary();
                 requestSummary.setBaseInfo(parserPool.deserialize(resource, BaseInfo.class).get());
                 requestSummary.setRequest(get(requestSummary.getBaseInfo().getRequestId()));
-                resultSet.add(requestSummary);
+                rs.add(requestSummary);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
-        return new Paging<>(rs.getTotal(),rs.getFrom(),rs.getTo(),resultSet,rs.getOccurrences());
-
+        return new Paging<RequestSummary>(rs.size(),Integer.parseInt(from),Integer.parseInt(quantity),rs,null);
     }
+
+    private Paging<RequestSummary> requestJoinGroup(Paging<Resource> rs_requests,String from,String quantity) {
+
+        List<RequestSummary> rs = new ArrayList<>();
+        for(Resource resource:rs_requests.getResults()) {
+            try {
+                RequestSummary requestSummary = new RequestSummary();
+                Request request = parserPool.deserialize(resource, Request.class).get();
+                requestSummary.setBaseInfo(requestApprovalService.get(request.getApprovalId()));
+
+                rs.add(requestSummary);
+
+                for(String paymentID: request.getPaymentId()){
+                    RequestSummary summary = new RequestSummary();
+                    summary.setRequest(request);
+                    summary.setBaseInfo(requestPaymentService.get(paymentID));
+                    rs.add(summary);
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+        return new Paging<RequestSummary>(rs.size(),Integer.parseInt(from),Integer.parseInt(quantity),rs,null);
+    }*/
 
     public List<Request> getPendingRequests(String email) {
 
@@ -252,19 +412,35 @@ public class RequestServiceImpl extends GenericService<Request> {
         return storeRESTClient.createArchive().getResponse();
     }
 
-    public ResponseEntity<Object> upLoadFile(String archiveID,String stage, MultipartFile file) {
+    public ResponseEntity<Object> upLoadFile(String mode,String id,
+                                             String archiveID,String stage, MultipartFile file) {
 
-        if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(archiveID,stage).getResponse()))
-            storeRESTClient.deleteFile(archiveID,stage);
+        String fileName = id+"_"+stage;
+        if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(archiveID,fileName).getResponse()))
+            storeRESTClient.deleteFile(archiveID,fileName);
 
         try {
-            storeRESTClient.storeFile(file.getBytes(),archiveID,stage);
+            storeRESTClient.storeFile(file.getBytes(),archiveID,fileName);
         } catch (IOException e) {
             LOGGER.info(e);
             return new ResponseEntity<>("ERROR",HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/downloadFile/?filename="+archiveID+"/"+stage,
+        return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/download/?filename="+archiveID+"/"+stage,
                 HttpStatus.OK);
+
+
+//        if(mode.equals("payment")){
+//
+//        }else if(mode.equals("approval")){
+//
+//        }else{
+//
+//        }
+
+
+
+
+
     }
 
     public InputStream downloadFile(String requestId, String stage) {

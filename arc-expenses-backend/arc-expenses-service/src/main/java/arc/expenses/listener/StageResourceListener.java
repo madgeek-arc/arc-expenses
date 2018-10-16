@@ -37,7 +37,7 @@ public class StageResourceListener implements ResourceListener {
     public void resourceAdded(Resource resource) {
         logger.debug("Adding a resource");
 
-        if (resource.getResourceType().getName().equals("requestApproval")) {
+        if (resource.getResourceType().getName().equals("approval")) {
             try {
                 BaseInfo baseInfo = Converter.toBaseInfo(parserPool.deserialize(resource, RequestApproval.class).get());
                 logger.info("New Request added: stage = " + baseInfo.getStage() + " " + baseInfo.getStatus());
@@ -79,7 +79,7 @@ public class StageResourceListener implements ResourceListener {
         BaseInfo previousBaseInfo = null;
         BaseInfo newBaseInfo = null;
 
-        if( "requestPayment".equals(newResource.getResourceType().getName())){
+        if( "payment".equals(newResource.getResourceType().getName())){
             try {
                 previousBaseInfo = Converter.toBaseInfo(parserPool.deserialize(previousResource, RequestPayment.class).get());
                 newBaseInfo = Converter.toBaseInfo(parserPool.deserialize(newResource, RequestPayment.class).get());
@@ -87,7 +87,7 @@ public class StageResourceListener implements ResourceListener {
                 e.printStackTrace();
             }
         }
-        if( "requestApproval".equals(newResource.getResourceType().getName())){
+        if( "approval".equals(newResource.getResourceType().getName())){
             try {
                 previousBaseInfo = Converter.toBaseInfo(parserPool.deserialize(previousResource, RequestApproval.class).get());
                 newBaseInfo = Converter.toBaseInfo(parserPool.deserialize(newResource, RequestApproval.class).get());

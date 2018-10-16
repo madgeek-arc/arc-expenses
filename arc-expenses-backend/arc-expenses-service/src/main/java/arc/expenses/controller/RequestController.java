@@ -63,7 +63,7 @@ public class RequestController {
     }
 
     @RequestMapping(value =  "/getAll", method = RequestMethod.GET)
-    public Paging<RequestSummary> getAll(@RequestParam(value = "from",required=false,defaultValue = "0") String from,
+    public Paging<RequestSummary> getAllRequests(@RequestParam(value = "from",required=false,defaultValue = "0") String from,
                                          @RequestParam(value = "quantity",required=false,defaultValue = "10") String quantity,
                                          @RequestParam(value = "status") List<String> status,
                                          @RequestParam(value = "searchField",required=false) String searchField,
@@ -113,16 +113,18 @@ public class RequestController {
         return requestService.getPendingRequests(email);
     }
 
-    @RequestMapping(value = "/store/uploadFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> uploadFile(@RequestParam("archiveID") String archiveID,
-                                             @RequestParam("stage") String stage,
-                                             @RequestParam("file") MultipartFile file) throws IOException {
-        return requestService.upLoadFile(archiveID,stage,file);
+    @RequestMapping(value = "/store/{mode}/uploadFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> uploadFile(@PathVariable("mode") String mode,
+                                             @RequestParam("id") String id,
+                                                @RequestParam("archiveID") String archiveID,
+                                                @RequestParam("stage") String stage,
+                                                @RequestParam("file") MultipartFile file) throws IOException {
+        return requestService.upLoadFile(mode,id, archiveID,stage,file);
     }
 
-    @RequestMapping(value = "/store/download", method = RequestMethod.GET)
+    @RequestMapping(value = "/store/{mode}/download", method = RequestMethod.GET)
     @ResponseBody
-    @PreAuthorize("@annotationChecks.validateDownload(#requestId,authentication.principal)")
+    //@PreAuthorize("@annotationChecks.validateDownload(#requestId,authentication.principal)")
     public void downloadFile(@RequestParam("requestId") String requestId,
                              @RequestParam("stage") String stage,
                              HttpServletResponse response) throws IOException, ResourceNotFoundException {
