@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BaseInfo, Request, RequestApproval, RequestPayment, RequestSummary, Stage5b } from '../../domain/operation';
+import { BaseInfo, Request, RequestPayment, RequestSummary, Stage5b } from '../../domain/operation';
 import { paymentStages, requestTypes, stageIds } from '../../domain/stageDescriptions';
 import { RequestInfo } from '../../domain/requestInfoClasses';
 import { AnchorItem } from '../../shared/dynamic-loader-anchor-components/anchor-item';
@@ -45,8 +45,6 @@ export class RequestStagePaymentComponent implements OnInit {
     currentRequestInfo: RequestInfo;
 
     stageLoaderItemList: AnchorItem[];
-
-    updateApprovalToo: boolean;
 
     constructor(private route: ActivatedRoute,
                 private router: Router,
@@ -135,9 +133,12 @@ export class RequestStagePaymentComponent implements OnInit {
     }
 
     getNextStage(stage: string) {
-        for (const nextStage of this.currentRequestInfo[stage]['next']) {
-            if (!isUndefined(this.currentRequestPayment['stage' + nextStage])) {
-                return nextStage;
+        if (isUndefined(this.currentRequestPayment['stage' + stage]['approved']) ||
+            (this.currentRequestPayment['stage' + stage]['approved'] === true)) {
+            for (const nextStage of this.currentRequestInfo[stage]['next']) {
+                if (!isUndefined(this.currentRequestPayment['stage' + nextStage])) {
+                    return nextStage;
+                }
             }
         }
         return this.currentRequestPayment.stage;
@@ -176,8 +177,10 @@ export class RequestStagePaymentComponent implements OnInit {
             } else {
 
                 this.currentRequestPayment.status = 'rejected';
-                this.currentRequest.requestStatus = 'rejected';
-                this.requestNeedsUpdate = true;
+                if (this.currentRequest.type !== 'services_contract') {
+                    this.currentRequest.requestStatus = 'rejected';
+                    this.requestNeedsUpdate = true;
+                }
             }
         } else {
             if ( this.wentBackOneStage === true ) {
@@ -213,7 +216,7 @@ export class RequestStagePaymentComponent implements OnInit {
             this.uploadedFileURL = '';
             this.uploadedFile = null;
         }
-        console.log(`sending ${JSON.stringify(this.currentRequestPayment[this.currentStageName], null, 1)} to updateRequestApproval`);
+        console.log(`sending ${JSON.stringify(this.currentRequestPayment[this.currentStageName], null, 1)} to updateRequestPayment`);
         /*update this.currentRequest*/
         this.requestService.updateRequestPayment(this.currentRequestPayment).subscribe (
             res => console.log(`update RequestPayment responded: ${res.id}, status=${res.status}, stage=${res.stage}`),
@@ -234,7 +237,7 @@ export class RequestStagePaymentComponent implements OnInit {
         this.showSpinner = true;
         this.errorMessage = '';
         this.requestService.uploadAttachment<string>(this.currentRequest.archiveId, this.currentStageName, this.uploadedFile)
-            .subscribe(
+            .subscribe (
                 event => {
                     // console.log('uploadAttachment responded: ', JSON.stringify(event));
                     if (event.type === HttpEventType.UploadProgress) {

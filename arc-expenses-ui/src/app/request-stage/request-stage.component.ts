@@ -7,7 +7,7 @@ import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { isNullOrUndefined, isUndefined } from 'util';
 import { HttpErrorResponse, HttpEventType, HttpResponse } from '@angular/common/http';
-import { approvalStages, requestTypes, stageIds } from '../domain/stageDescriptions';
+import { approvalStages, requestTypes, stageIds, stageTitles } from '../domain/stageDescriptions';
 import { printRequestPage } from './print-request-function';
 import { AnchorItem } from '../shared/dynamic-loader-anchor-components/anchor-item';
 import { RequestInfo } from '../domain/requestInfoClasses';
@@ -41,6 +41,7 @@ export class RequestStageComponent implements OnInit {
     wentBackOneStage: boolean;
     requestNeedsUpdate: boolean;
     stages: string[];
+    stagesMap = stageTitles;
     stateNames = {
         pending: 'βρίσκεται σε εξέλιξη', under_review: 'βρίσκεται σε εξέλιξη', rejected: 'έχει απορριφθεί', accepted: 'έχει ολοκληρωθεί'
     };
@@ -168,9 +169,12 @@ export class RequestStageComponent implements OnInit {
     }
 
     getNextStage(stage: string) {
-        for (const nextStage of this.currentRequestInfo[stage]['next']) {
-            if (!isUndefined(this.currentRequestApproval['stage' + nextStage])) {
-                return nextStage;
+        if (isUndefined(this.currentRequestApproval['stage' + stage]['approved']) ||
+            (this.currentRequestApproval['stage' + stage]['approved'] === true)) {
+            for (const nextStage of this.currentRequestInfo[ stage ][ 'next' ]) {
+                if (!isUndefined(this.currentRequestApproval[ 'stage' + nextStage ])) {
+                    return nextStage;
+                }
             }
         }
 
@@ -320,7 +324,7 @@ export class RequestStageComponent implements OnInit {
                 this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
                 this.showSpinner = false;
                 this.getIfUserCanEditRequest();
-                if (this.currentRequestApproval.status === 'accepted') {
+                if ((this.currentRequestApproval.status === 'accepted') && (this.currentRequest.type !== 'contract')) {
                     this.createRequestPayment();
                 }
             }
@@ -351,7 +355,7 @@ export class RequestStageComponent implements OnInit {
                 this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
                 this.showSpinner = false;
                 this.getIfUserCanEditRequest();
-                if (this.currentRequestApproval.status === 'accepted') {
+                if ((this.currentRequestApproval.status === 'accepted') && (this.currentRequest.type !== 'contract')) {
                     this.createRequestPayment();
                 }
             }

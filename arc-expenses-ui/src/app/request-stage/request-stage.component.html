@@ -161,8 +161,14 @@
 
                 <!-- Message to a simpleUser -->
                 <div *ngIf="isSimpleUser && (currentRequestApproval.stage !== '1')" class="uk-alert uk-alert-primary uk-text-center uk-margin-top">
-                  Το αίτημά σας {{ stateNames[currentRequest.requestStatus] }}
+                  Το αίτημά σας {{ stateNames[currentRequest.requestStatus] }}.
                     <!-- TODO: add message about payments?? -->
+                </div>
+
+                <!-- Message to Executive user -->
+                <div *ngIf=" (currentRequest.requestStatus === 'accepted') || (currentRequest.requestStatus === 'rejected')"
+                     class="uk-alert uk-alert-primary uk-text-center uk-margin-top">
+                  Το αίτημα {{ stateNames[currentRequest.requestStatus] }}.
                 </div>
 
                 <hr>
@@ -182,7 +188,7 @@
                     <div *ngIf="(currentRequestPayments && (currentRequestPayments.length > 0))">
 
                       <!-- Link to Payment -->
-                      <div *ngIf="currentRequest.type !== 'services_contract'">
+                      <div *ngIf="(currentRequest.type !== 'services_contract')">
                           <a [routerLink]="['/requests/request-stage-payment', currentRequestPayments[0].id]">Προβολή Περαίωσης</a>
                       </div>
 
@@ -203,8 +209,8 @@
                                 <tr class="uk-link" *ngFor="let payment of currentRequestPayments"
                                     [routerLink]="['/requests/request-stage-payment', payment.id]"
                                     title="Μετάβαση στην σελίδα της περαίωσης">
-                                  <td>{{ payment.creationDate }}</td>
-                                  <td>{{ payment.stage }}</td>
+                                  <td>{{ payment.creationDate | date : 'dd-MM-yyyy' }}</td>
+                                  <td>{{ stagesMap[payment.stage] }}</td>
                                   <td>{{ getStatusAsString(payment.status) }}</td>
                                 </tr>
                               </tbody>
@@ -213,7 +219,8 @@
                         </div>
 
                         <div *ngIf="( (canEdit === true) || userIsAdmin() )">
-                          <button (click)="createRequestPayment()">Προσθήκη Νέας Περαίωσης</button>
+                          <button class="uk-button uk-button-primary"
+                                  (click)="createRequestPayment()">Προσθήκη Νέας Περαίωσης</button>
                         </div>
                       </div>
                     </div>
