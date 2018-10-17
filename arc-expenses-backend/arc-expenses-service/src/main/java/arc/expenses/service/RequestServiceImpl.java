@@ -8,12 +8,9 @@ import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.Attachment;
-import gr.athenarc.domain.BaseInfo;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
-import org.javatuples.Quintet;
 import org.javatuples.Sextet;
-import org.javatuples.Triplet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -309,7 +306,7 @@ public class RequestServiceImpl extends GenericService<Request> {
             if(sextet.getValue1().contains("a"))
                 requestSummary.setBaseInfo(Converter.toBaseInfo(requestApprovalService.get(sextet.getValue1())));
             else
-                requestSummary.setBaseInfo(Converter.toBaseInfo(requestPaymentService.get(sextet.getValue2())));
+                requestSummary.setBaseInfo(Converter.toBaseInfo(requestPaymentService.get(sextet.getValue1())));
 
             requestSummary.setRequest(get(requestSummary.getBaseInfo().getRequestId()));
             rs.add(requestSummary);
@@ -500,10 +497,10 @@ public class RequestServiceImpl extends GenericService<Request> {
         return storeRESTClient.createArchive().getResponse();
     }
 
-    public ResponseEntity<Object> upLoadFile(String mode,String id,
+    public ResponseEntity<Object> upLoadFile(
                                              String archiveID,String stage, MultipartFile file) {
 
-        String fileName = id+"_"+stage;
+        String fileName = stage;
         if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(archiveID,fileName).getResponse()))
             storeRESTClient.deleteFile(archiveID,fileName);
 

@@ -113,16 +113,16 @@ public class RequestController {
         return requestService.getPendingRequests(email);
     }
 
-    @RequestMapping(value = "/store/{mode}/uploadFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> uploadFile(@PathVariable("mode") String mode,
-                                             @RequestParam("id") String id,
+    @RequestMapping(value = "/store/uploadFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> uploadFile(
+
                                                 @RequestParam("archiveID") String archiveID,
                                                 @RequestParam("stage") String stage,
                                                 @RequestParam("file") MultipartFile file) throws IOException {
-        return requestService.upLoadFile(mode,id, archiveID,stage,file);
+        return requestService.upLoadFile(archiveID,stage,file);
     }
 
-    @RequestMapping(value = "/store/{mode}/download", method = RequestMethod.GET)
+    @RequestMapping(value = "/store/download", method = RequestMethod.GET)
     @ResponseBody
     //@PreAuthorize("@annotationChecks.validateDownload(#requestId,authentication.principal)")
     public void downloadFile(@RequestParam("requestId") String requestId,
