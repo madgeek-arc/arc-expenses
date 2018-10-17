@@ -2,6 +2,7 @@ package arc.expenses.service;
 
 import arc.expenses.config.StoreRestConfig;
 import arc.expenses.domain.RequestSummary;
+import arc.expenses.utils.Converter;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
@@ -10,12 +11,16 @@ import gr.athenarc.domain.Attachment;
 import gr.athenarc.domain.BaseInfo;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
+import org.javatuples.Quintet;
+import org.javatuples.Sextet;
+import org.javatuples.Triplet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -190,7 +195,7 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
 
-    public Paging criteriaSearch(String from, String quantity,
+    public Paging<RequestSummary> criteriaSearch(String from, String quantity,
                                  List<String> status, String searchField,
                                  List<String> stage, String orderType,
                                  String orderField, String email) {
@@ -227,72 +232,155 @@ public class RequestServiceImpl extends GenericService<Request> {
 //        else
 //            return this.groupJoinRequest(rs_group,from,quantity);
 
-        String query = "select * " +
-                       "from request_view r, payment_view p, approval_view a " +
-                       "where r.request_id = p.request_id and r.request_id = a.request_id " ;
+//        String query = "select r.request_id , a.approval_id , p.payment_id " +
+//                       "from request_view r, payment_view p, approval_view a " +
+//                       "where r.request_id = p.request_id and r.request_id = a.request_id " ;
+
+        String query =  " ( select distinct(r.request_id) as request_id ,a.approval_id as id,creation_date ," +
+                        "   r.request_project as request_project , r.request_institute as request_institute , a.stage as request_stage" +
+                        " from request_view r , approval_view a , resource res  " +
+                        " where r.request_id = a.request_id  and res.fk_name = 'approval' " +
+                        " and a.id  = res.id  and a.stage = (select data.value as value from resource ," +
+                                                           " json_each_text(resource.payload::json) as data " +
+                                                           " where fk_name = 'approval' and key = 'stage' and id = a.id) ";
+
+
 
         StringBuilder user_clause = this.getUserClause(email);
         if(user_clause.length()!=0)
             query+= " and " + user_clause.toString();
 
-        StringBuilder stage_clause = this.getStageClause(stage);
+        StringBuilder stage_clause = this.getStageClause("a",stage);
         if( stage_clause.length()!=0)
             query+= " and  " + stage_clause.toString();
 
-        StringBuilder status_clause = this.getStatusClause(status);
+        StringBuilder status_clause = this.getStatusClause("a",status);
         if(status_clause.length()!=0)
             query+= " and " + status_clause.toString();
 
-        query +=  "  order by r.request_"+orderField + " "  + orderType +
+        StringBuilder keyword_clause = this.getKeywordClause(searchField);
+        if(keyword_clause.length()!=0)
+            query+= " and " + keyword_clause.toString();
+
+
+
+        query+=" )" +
+               " union " +
+               " ( select distinct(r.request_id) as request_id,p.payment_id as id,creation_date ," +
+               " r.request_project as request_project , r.request_institute as request_institute , p.stage as request_stage" +
+               " from request_view r , payment_view p , resource res  " +
+               " where r.request_id = p.request_id  and res.fk_name = 'payment' " +
+               " and p.id  = res.id  and p.stage = (select data.value as value from resource ," +
+                                                  " json_each_text(resource.payload::json) as data " +
+                                                  " where fk_name = 'payment' and key = 'stage' and id = p.id ) ";
+
+        user_clause = this.getUserClause(email);
+        if(user_clause.length()!=0)
+            query+= " and " + user_clause.toString();
+
+        stage_clause = this.getStageClause("p",stage);
+        if( stage_clause.length()!=0)
+            query+= " and  " + stage_clause.toString();
+
+        status_clause = this.getStatusClause("p",status);
+        if(status_clause.length()!=0)
+            query+= " and " + status_clause.toString();
+
+        keyword_clause = this.getKeywordClause(searchField);
+        if(keyword_clause.length()!=0)
+            query+= " and " + keyword_clause.toString();
+
+        query += ")";
+        query +=  "  order by "+orderField + " "  + orderType +
                   "  limit " + quantity +
                   "  offset " + from;
 
 
         System.out.println(query);
 
-//        return new JdbcTemplate(dataSource)
-//                .query(query);
-        return null;
+        List<Sextet<String,String,String,String,String,String>> resultSet =  new JdbcTemplate(dataSource)
+                .query(query,requestSummaryMapper);
 
+
+        List<RequestSummary> rs = new ArrayList<>();
+        for(Sextet<String,String,String,String,String,String> sextet : resultSet){
+            RequestSummary requestSummary = new RequestSummary();
+
+            if(sextet.getValue1().contains("a"))
+                requestSummary.setBaseInfo(Converter.toBaseInfo(requestApprovalService.get(sextet.getValue1())));
+            else
+                requestSummary.setBaseInfo(Converter.toBaseInfo(requestPaymentService.get(sextet.getValue2())));
+
+            requestSummary.setRequest(get(requestSummary.getBaseInfo().getRequestId()));
+            rs.add(requestSummary);
+        }
+
+        return new Paging<RequestSummary>(rs.size(),Integer.parseInt(from),Integer.parseInt(quantity),rs,null);
     }
 
-    private StringBuilder getStatusClause(List<String> status) {
+    private StringBuilder getKeywordClause(String searchField) {
+
+        StringBuilder keyword_clause = new StringBuilder();
+
+
+        if(searchField.equals(""))
+            return keyword_clause;
+
+        keyword_clause.append(" ( request_requester = ")
+                .append("'").append(searchField).append("'")
+                .append(" or request_project = ")
+                .append("'").append(searchField).append("'")
+                .append(" or request_institute = ")
+                .append("'").append(searchField).append("'")
+                .append(" or request_institute_director = ")
+                .append("'").append(searchField).append("'")
+                .append(" or request_project_operator  ").append("<@  '{" + '"').append(searchField).append('"').append("}'").append(")");
+        return keyword_clause;
+    }
+
+    private RowMapper<Sextet<String,String,String,String,String,String>> requestSummaryMapper = (rs, i) ->
+            Sextet.with(rs.getString("request_id"),
+                rs.getString("id"),
+                rs.getString("creation_date"),
+                rs.getString("request_project"),
+                rs.getString("request_institute"),
+                rs.getString("request_stage"));
+
+    private StringBuilder getStatusClause(String table,List<String> status) {
         StringBuilder status_clause = new StringBuilder();
         StringBuilder in_clause = new StringBuilder();
 
         if(!status.get(0).equals("all")){
-            status_clause.append("p.status in ");
+            status_clause.append(table).append(".status in ");
 
             in_clause.append("(");
             for(int i=0;i<status.size();i++){
-                if(status.get(i).equals("pending"))
-                    in_clause.append(" under_review, ");
-                in_clause.append(status.get(i)).append(",");
+                if(status.get(i).equals("'pending'"))
+                    in_clause.append(" 'under_review', ");
+                in_clause.append("'").append(status.get(i)).append("'").append(",");
             }
             in_clause.deleteCharAt(in_clause.length()-1);
             in_clause.append(")");
 
             status_clause.append(in_clause.toString());
-            status_clause.append("and a.status in " + in_clause.toString());
         }
         return status_clause;
     }
 
-    private StringBuilder getStageClause(List<String> stage) {
+    private StringBuilder getStageClause(String table,List<String> stage) {
 
         StringBuilder stage_clause = new StringBuilder();
         StringBuilder in_clause = new StringBuilder();
 
         if(!stage.get(0).equals("all")){
-            stage_clause.append("p.stage in ");
+            stage_clause.append(table).append(".stage in ");
             in_clause.append("(");
             for(int i=0;i<stage.size();i++)
-                in_clause.append(stage.get(i)).append(",");
+                in_clause.append("'").append(stage.get(i)).append("'").append(",");
             in_clause.deleteCharAt(in_clause.length()-1);
             in_clause.append(")");
 
             stage_clause.append(in_clause.toString());
-            stage_clause.append("and a.stage in ").append(in_clause.toString());
         }
         return stage_clause;
     }
@@ -302,24 +390,24 @@ public class RequestServiceImpl extends GenericService<Request> {
         StringBuilder user_clause = new StringBuilder();
 
         if(!admins.contains(email)) {
-            user_clause.append(" ( r.request_requester = " + email + " or " +
-                    " r.request_project_operator =  " + email + " or " +
-                    " r.request_project_operator_delegates = " + email + " or " +
-                    " r.request_project_scientificCoordinator = " + email + " or " +
-                    " r.request_organization_POI = " + email + " or " +
-                    " r.request_organization_POΙ_delegate =  " + email + " or " +
-                    " r.request_institute_accountingRegistration = " + email + " or " +
-                    " r.request_institute_diaugeia = " + email + " or " +
-                    " r.request_institute_accountingPayment = " + email + " or " +
-                    " r.request_institute_accountingDirector = " + email + " or " +
-                    " r.request_institute_accountingDirector_delegate =  " + email + " or " +
-                    " r.request_institute_accountingRegistration_delegate =  " + email + " or " +
-                    " r.request_institute_accountingPayment_delegate =  " + email + " or " +
-                    " r.request_institute_diaugeia_delegate =  " + email + " or " +
-                    " r.request_organization_director = " + email + " or " +
-                    " r.request_institute_director = " + email + " or " +
-                    " r.request_organization_director_delegate =  " + email + " or " +
-                    " r.request_institute_director_delegate =  " + email + " ) ");
+            user_clause.append(" ( r.request_requester = '"  + email + "' or " +
+                    " r.request_project_operator <@ '{"+'"' + email + '"' + "}' or " +
+                    " r.request_project_operator_delegate <@ '{"+'"' + email + '"' + "}' or " +
+                    " r.request_project_scientificCoordinator = '"  + email + "' or " +
+                    " r.request_organization_POI = '"  + email + "' or " +
+                    " r.request_organization_POI_delegate <@  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_institute_accountingRegistration = '"  + email + "' or " +
+                    " r.request_institute_diaugeia = '"  + email + "' or " +
+                    " r.request_institute_accountingPayment = '"  + email + "' or " +
+                    " r.request_institute_accountingDirector = '"  + email + "' or " +
+                    " r.request_institute_accountingDirector_delegate <@  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_institute_accountingRegistration_delegate <@  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_institute_accountingPayment_delegate <@  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_institute_diaugeia_delegate <@  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_organization_director = '"  + email + "' or " +
+                    " r.request_institute_director = '"  + email + "' or " +
+                    " r.request_organization_director_delegate <@  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_institute_director_delegate <@  '{"+'"' + email + '"' + "}' ) ");
         }
         return user_clause;
     }
@@ -425,7 +513,7 @@ public class RequestServiceImpl extends GenericService<Request> {
             LOGGER.info(e);
             return new ResponseEntity<>("ERROR",HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/download/?filename="+archiveID+"/"+stage,
+        return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/download/<@filename="+archiveID+"/"+stage,
                 HttpStatus.OK);
 
 

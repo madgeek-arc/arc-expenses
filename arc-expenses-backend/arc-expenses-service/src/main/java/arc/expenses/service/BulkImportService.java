@@ -1,10 +1,7 @@
 package arc.expenses.service;
 
 import au.com.bytecode.opencsv.CSVReader;
-import gr.athenarc.domain.Institute;
-import gr.athenarc.domain.Organization;
-import gr.athenarc.domain.POI;
-import gr.athenarc.domain.Project;
+import gr.athenarc.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -63,12 +60,20 @@ class BulkImportService {
     }
 
     private POI parserPOY(String s) {
-        POI POI = new POI();
+        POI poi = new POI();
         String details[] = s.split(";");
-        POI.setEmail(details[1].trim());
-        POI.setFirstname((details[0].split(" "))[0].trim());
-        POI.setLastname((details[0].split(" "))[1].trim());
-        return POI;
+        poi.setEmail(details[1].trim());
+        poi.setFirstname((details[0].split(" "))[0].trim());
+        poi.setLastname((details[0].split(" "))[1].trim());
+
+        Delegate delegate = new Delegate();
+        delegate.setEmail("");
+        delegate.setFirstname("");
+        delegate.setLastname("");
+        List<Delegate> delegates = new ArrayList<>();
+        delegates.add(delegate);
+        poi.setDelegates(delegates);
+        return poi;
 
     }
 

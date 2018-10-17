@@ -12,7 +12,7 @@
     },
     {
       "name": "request_status",
-      "path": "$.status",
+      "path": "$.requestStatus",
       "type": "java.lang.String"
     },
     {
@@ -82,7 +82,7 @@
     },
     {
       "multivalued": true,
-      "name": "request_institue_director_delegate",
+      "name": "request_institute_director_delegate",
       "path": "$.project.institute.director.delegates[*].email",
       "type": "java.lang.String"
     },
