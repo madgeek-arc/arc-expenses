@@ -9,11 +9,12 @@ import eu.openminted.registry.core.service.ParserService;
 import eu.openminted.registry.core.service.ResourceCRUDService;
 import eu.openminted.registry.core.service.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutionException;
 
-public abstract class GenericService<T> extends AbstractGenericService<T> implements ResourceCRUDService<T> {
+public abstract class GenericService<T> extends AbstractGenericService<T> implements ResourceCRUDService<T, Authentication> {
 
 
     public GenericService(Class<T> typeParameterClass) {
@@ -35,42 +36,37 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
             Resource resource = searchService.searchId(resourceType.getName(),
                     new SearchService.KeyValue(id_field,id));
             if(resource != null)
-                return parserPool.deserialize(resource,typeParameterClass).get();
-        } catch (UnknownHostException | ExecutionException | InterruptedException e) {
+                return parserPool.deserialize(resource,typeParameterClass);
+        } catch (UnknownHostException e) {
             e.printStackTrace();
         }
         return null;
     }
 
     @Override
-    public Browsing<T> getAll(FacetFilter facetFilter) {
+    public Browsing<T> getAll(FacetFilter facetFilter, Authentication u) {
         return getResults(facetFilter);
     }
 
     @Override
-    public Browsing<T> getMy(FacetFilter facetFilter) {
+    public Browsing<T> getMy(FacetFilter facetFilter, Authentication u) {
         return null;
     }
 
     @Override
-    public T add(T t) {
+    public T add(T t, Authentication u) {
         String serialized = null;
 
-        try {
-            serialized = parserPool.serialize(t, ParserService.ParserServiceTypes.JSON).get();
-            Resource created = new Resource();
-            created.setPayload(serialized);
-            created.setResourceType(resourceType);
-            resourceService.addResource(created);
-            return t;
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        return null;
+        serialized = parserPool.serialize(t, ParserService.ParserServiceTypes.JSON);
+        Resource created = new Resource();
+        created.setPayload(serialized);
+        created.setResourceType(resourceType);
+        resourceService.addResource(created);
+        return t;
     }
 
     @Override
-    public T update(T t) throws ResourceNotFoundException {
+    public T update(T t, Authentication u) throws ResourceNotFoundException {
        return null;
     }
 
@@ -84,9 +80,9 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
         try {
             resource =  searchService.searchId(resourceType.getName(), new SearchService.KeyValue(key,value));
             if(resource != null)
-                return parserPool.deserialize(resource, typeParameterClass).get();
+                return parserPool.deserialize(resource, typeParameterClass);
             return null;
-        } catch (UnknownHostException | InterruptedException | ExecutionException e) {
+        } catch (UnknownHostException e) {
             throw new Exception("Null resource!");
         }
     }
@@ -95,13 +91,14 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
     public T update(T t,String id) throws ResourceNotFoundException {
         String serialized = null;
         try {
-            serialized = parserPool.serialize(t, ParserService.ParserServiceTypes.JSON).get();
+            serialized = parserPool.serialize(t, ParserService.ParserServiceTypes.JSON);
             Resource existing = searchService.searchId(resourceType.getName(),
                     new SearchService.KeyValue(String.format("%s_id", resourceType.getName()),id));
+            existing.setResourceType(resourceType);
             existing.setPayload(serialized);
             resourceService.updateResource(existing);
             return t;
-        } catch (InterruptedException | ExecutionException | UnknownHostException e) {
+        } catch (UnknownHostException e) {
             e.printStackTrace();
         }
         return null;
@@ -111,13 +108,14 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
     public T update(T t,String id, String fieldAsId) throws ResourceNotFoundException {
         String serialized = null;
         try {
-            serialized = parserPool.serialize(t, ParserService.ParserServiceTypes.JSON).get();
+            serialized = parserPool.serialize(t, ParserService.ParserServiceTypes.JSON);
             Resource existing = searchService.searchId(resourceType.getName(),
                     new SearchService.KeyValue(String.format("%s_"+fieldAsId, resourceType.getName()),id));
             existing.setPayload(serialized);
+            existing.setResourceType(resourceType);
             resourceService.updateResource(existing);
             return t;
-        } catch (InterruptedException | ExecutionException | UnknownHostException e) {
+        } catch ( UnknownHostException e) {
             e.printStackTrace();
         }
         return null;

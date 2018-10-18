@@ -10,6 +10,7 @@ import gr.athenarc.domain.User;
 import joptsimple.internal.Strings;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @Component
 @Configuration
 @EnableScheduling
+@ComponentScan(value = {"arc.expenses.service", "arc.expenses.messages", "arc.expenses.mail"})
 public class MessageScheduler  {
 
     private static final Logger logger = Logger.getLogger(MessageScheduler.class);
@@ -44,7 +46,7 @@ public class MessageScheduler  {
     public void scheduledEmails() {
         logger.info("Sending scheduled emails");
         List<EmailMessage> mailList = new ArrayList<>();
-        List<User> users = userService.getAll(new FacetFilter()).getResults();
+        List<User> users = userService.getAll(new FacetFilter(),null).getResults(); //TODO(Check Authentication)
 
         for (User user: users) {
             if ( "true".equals(user.getReceiveEmails()) /*&& "false".equals(user.getImmediateEmails())*/ ) {

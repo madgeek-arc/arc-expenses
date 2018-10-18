@@ -18,7 +18,6 @@ public class ProjectServiceImpl extends GenericService<Project> {
     private Logger LOGGER = Logger.getLogger(ProjectServiceImpl.class);
 
     @Autowired
-    @Qualifier("arc.dataSource")
     DataSource dataSource;
 
 

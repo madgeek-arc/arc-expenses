@@ -21,8 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -81,10 +80,10 @@ public class RequestController {
             produces = MediaType.APPLICATION_JSON_VALUE)
 
     @ResponseBody
-    synchronized Request addRequest(@RequestBody Request request) {
+    synchronized Request addRequest(@RequestBody Request request, Authentication auth) {
         request.setId(requestService.generateID());
         request.setArchiveId(requestService.createArchive());
-        return requestService.add(request);
+        return requestService.add(request, auth);
     }
 
     @RequestMapping(value = "/updateRequest", method = RequestMethod.POST,
@@ -113,19 +112,19 @@ public class RequestController {
         return requestService.getPendingRequests(email);
     }
 
-    @RequestMapping(value = "/store/{mode}/uploadFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> uploadFile(@PathVariable("mode") String mode,
-                                                @RequestParam("archiveID") String archiveID,
+    @RequestMapping(value = "/store/uploadFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> uploadFile(@RequestParam("archiveID") String archiveID,
                                                 @RequestParam("stage") String stage,
+                                             @RequestParam("mode") String mode,
                                                 @RequestParam("file") MultipartFile file) throws IOException {
         return requestService.upLoadFile(mode,archiveID,stage,file);
     }
 
-    @RequestMapping(value = "/store/{mode}/download", method = RequestMethod.GET)
+    @RequestMapping(value = "/store/download", method = RequestMethod.GET)
     @ResponseBody
     //@PreAuthorize("@annotationChecks.validateDownload(#requestId,authentication.principal)")
-    public void downloadFile(@PathVariable("mode") String mode,
-                             @RequestParam("id") String id,
+    public void downloadFile(@RequestParam("mode") String mode,
+                             @RequestParam("requestId") String id,
                              @RequestParam("stage") String stage,
                              HttpServletResponse response) throws IOException, ResourceNotFoundException {
         Attachment attachment = requestService.getAttachment(mode,id,stage);
@@ -141,11 +140,10 @@ public class RequestController {
     @RequestMapping(value = "/addRequestApproval", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-
     @ResponseBody
-    synchronized RequestApproval addRequestApproval(@RequestBody RequestApproval requestApproval) {
+    synchronized RequestApproval addRequestApproval(@RequestBody RequestApproval requestApproval, Authentication auth) {
         requestApproval.setId(requestApprovalService.generateID(requestApproval.getRequestId()));
-        return requestApprovalService.add(requestApproval);
+        return requestApprovalService.add(requestApproval,auth);
     }
 
     @RequestMapping(value = "/updateRequestApproval", method = RequestMethod.POST,
@@ -161,9 +159,9 @@ public class RequestController {
             produces = MediaType.APPLICATION_JSON_VALUE)
 
     @ResponseBody
-    synchronized RequestPayment addRequestPayment(@RequestBody RequestPayment requestPayment) {
+    synchronized RequestPayment addRequestPayment(@RequestBody RequestPayment requestPayment, Authentication auth) {
         requestPayment.setId(requestPaymentService.generateID(requestPayment.getRequestId()));
-        return requestPaymentService.add(requestPayment);
+        return requestPaymentService.add(requestPayment,auth);
     }
 
     @RequestMapping(value = "/updateRequestPayment", method = RequestMethod.POST,
@@ -194,7 +192,7 @@ public class RequestController {
 
     @RequestMapping(value =  "/payments/getByRequestId/{request_id}", method = RequestMethod.GET)
     //@PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
-    public Browsing<RequestPayment> getPaymentsByRequestId(@PathVariable("request_id") String request_id) throws Exception {
-        return requestPaymentService.getPayments(request_id);
+    public Browsing<RequestPayment> getPaymentsByRequestId(@PathVariable("request_id") String request_id, Authentication auth) throws Exception {
+        return requestPaymentService.getPayments(request_id,auth);
     }
 }

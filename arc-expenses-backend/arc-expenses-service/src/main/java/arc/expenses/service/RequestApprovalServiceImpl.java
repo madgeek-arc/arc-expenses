@@ -71,15 +71,13 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
 
         try {
             List rs = searchService.search(filter).getResults();
-            String approval = null;
+            Resource approval = null;
             if(rs.size() > 0) {
-                approval = ((Resource) rs.get(0)).getPayload();
-                return parserPool.deserialize(approval, RequestApproval.class).get().getId();
+                approval = ((Resource) rs.get(0));
+                return parserPool.deserialize(approval, RequestApproval.class).getId();
             }
         } catch (IOException e) {
             LOGGER.debug("Error on search controller",e);
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
         }
         return null;
     }

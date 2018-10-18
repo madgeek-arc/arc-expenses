@@ -3,16 +3,15 @@ package arc.expenses.service;
 import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Resource;
-import gr.athenarc.domain.RequestApproval;
 import gr.athenarc.domain.RequestPayment;
 import org.apache.log4j.Logger;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 @Service("requestPayment")
 public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
@@ -30,7 +29,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     private Logger LOGGER = Logger.getLogger(RequestApprovalServiceImpl.class);
 
 
-    public Browsing<RequestPayment> getPayments(String id) throws Exception {
+    public Browsing<RequestPayment> getPayments(String id, Authentication u) throws Exception {
         FacetFilter filter = new FacetFilter();
         filter.setResourceType(getResourceType());
         filter.addFilter("request_id",id);
@@ -49,7 +48,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         sort.put(orderField, order);
         filter.setOrderBy(sort);
 
-        return getAll(filter);
+        return getAll(filter,u);
     }
 
     public List<RequestPayment> getPayments(List<String> stage, List<String> status, String requestID) throws Exception {
@@ -85,15 +84,13 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
         try {
             List rs = searchService.search(filter).getResults();
-            String payment = null;
+            Resource payment;
             if(rs.size() > 0) {
-                payment = ((Resource) rs.get(0)).getPayload();
-                return parserPool.deserialize(payment, RequestPayment.class).get().getId();
+                payment = ((Resource) rs.get(0));
+                return parserPool.deserialize(payment, RequestPayment.class).getId();
             }
         } catch (IOException e) {
             LOGGER.debug("Error on search controller",e);
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
         }
         return null;
     }

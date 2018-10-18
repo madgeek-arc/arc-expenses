@@ -4,6 +4,7 @@ import gr.athenarc.domain.Organization;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import arc.expenses.service.OrganizationServiceImpl;
 
@@ -28,8 +29,8 @@ public class OrganizationController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    Organization addOrganization(@RequestBody Organization organization) {
-        return organizationService.add(organization);
+    Organization addOrganization(@RequestBody Organization organization, Authentication auth) {
+        return organizationService.add(organization, auth);
     }
 
     @RequestMapping(value =  "/getAll", method = RequestMethod.GET)

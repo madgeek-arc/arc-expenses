@@ -29,7 +29,6 @@ import java.util.concurrent.ExecutionException;
 public class UserServiceImpl extends GenericService<User> {
 
     @Autowired
-    @Qualifier("arc.dataSource")
     DataSource dataSource;
 
     @Autowired
@@ -112,11 +111,7 @@ public class UserServiceImpl extends GenericService<User> {
 
         List<User> resultSet = new ArrayList<>();
         for(Resource resource:rs.getResults()) {
-            try {
-                resultSet.add(parserPool.deserialize(resource,typeParameterClass).get());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            resultSet.add(parserPool.deserialize(resource,typeParameterClass));
         }
         return resultSet;
     }
@@ -136,7 +131,7 @@ public class UserServiceImpl extends GenericService<User> {
             LOGGER.info(e);
             return new ResponseEntity<>("ERROR", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/downloadFile/?filename="+DS_ARCHIVE+"/"+email,
+        return new ResponseEntity<>(DS_ARCHIVE+"/"+email,
                 HttpStatus.OK);
     }
 

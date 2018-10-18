@@ -55,7 +55,7 @@ class BulkImportService {
             organization.setDirector(parserPOY(line[3]));
             organization.setDioikitikoSumvoulio(parserPOY(line[4]));
             organization.setInspectionTeam(parser(line[5]));
-            organizationService.add(organization);
+            organizationService.add(organization,null); //TODO(Check for authentication here)
         }
     }
 
@@ -66,13 +66,13 @@ class BulkImportService {
         poi.setFirstname((details[0].split(" "))[0].trim());
         poi.setLastname((details[0].split(" "))[1].trim());
 
-        Delegate delegate = new Delegate();
-        delegate.setEmail("");
-        delegate.setFirstname("");
-        delegate.setLastname("");
-        List<Delegate> delegates = new ArrayList<>();
-        delegates.add(delegate);
-        poi.setDelegates(delegates);
+//        Delegate delegate = new Delegate();
+//        delegate.setEmail("");
+//        delegate.setFirstname("");
+//        delegate.setLastname("");
+//        List<Delegate> delegates = new ArrayList<>();
+//        delegates.add(delegate);
+//        poi.setDelegates(delegates);
         return poi;
 
     }
@@ -94,7 +94,7 @@ class BulkImportService {
             institute.setAccountingDirector(parser(line[6]).get(0));
             institute.setDiaugeia(parserPOY(line[7]));
             institute.setSuppliesOffice(parserPOY(line[8]));
-            instituteService.add(institute);
+            instituteService.add(institute,null); //TODO(Check for authentication here)
         }
 
     }
@@ -127,7 +127,7 @@ class BulkImportService {
             project.setOperator(parser(line[6]));
             project.setStartDate(line[7].trim());
             project.setEndDate(line[8].trim());
-            projectService.add(project);
+            projectService.add(project,null); //TODO(Check for authentication here)
         }
     }
 
