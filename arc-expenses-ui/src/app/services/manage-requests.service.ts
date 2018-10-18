@@ -118,8 +118,8 @@ export class ManageRequestsService {
         );
     }
 
-    uploadAttachment<T>(archiveid: string, stage: string, file: File): Observable<HttpEvent<T>> {
-        const url = `${this.apiUrl}store/uploadFile?archiveID=${archiveid}&stage=${stage}`;
+    uploadAttachment<T>(archiveid: string, stage: string, file: File, mode: string): Observable<HttpEvent<T>> {
+        const url = `${this.apiUrl}store/uploadFile?archiveID=${archiveid}&stage=${stage}&mode=${mode}`;
         console.log(`calling ${url}`);
 
         const formBody: FormData = new FormData();

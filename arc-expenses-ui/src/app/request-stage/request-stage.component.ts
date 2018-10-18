@@ -30,6 +30,7 @@ export class RequestStageComponent implements OnInit {
 
     uploadedFile: File;
     uploadedFileURL: string;
+    uploadMode: string;
 
     isSimpleUser: boolean;
     requestId: string;
@@ -235,6 +236,7 @@ export class RequestStageComponent implements OnInit {
         console.log('next stage:', this.currentRequestApproval.stage);
 
         if ( !isNullOrUndefined(this.uploadedFile) ) {
+            this.uploadMode = 'approval';
             this.uploadFile();
         } else {
             if (this.requestNeedsUpdate) {
@@ -257,6 +259,7 @@ export class RequestStageComponent implements OnInit {
             this.currentRequestApproval.stage5b = new Stage5b();
         }
         if ( !isNullOrUndefined(this.uploadedFile) ) {
+            this.uploadMode = 'request';
             this.uploadFile();
         } else {
             this.submitRequest();
@@ -365,7 +368,10 @@ export class RequestStageComponent implements OnInit {
     uploadFile() {
         this.showSpinner = true;
         this.errorMessage = '';
-        this.requestService.uploadAttachment<string>(this.currentRequest.archiveId, this.currentStageName, this.uploadedFile)
+        this.requestService.uploadAttachment<string>(this.currentRequest.archiveId,
+                                                     this.currentStageName,
+                                                     this.uploadedFile,
+                                                     this.uploadMode)
             .subscribe(
                 event => {
                     // console.log('uploadAttachment responded: ', JSON.stringify(event));
@@ -379,6 +385,7 @@ export class RequestStageComponent implements OnInit {
                 error => {
                     console.log(error);
                     this.uploadedFile = null;
+                    this.uploadMode = null;
                     this.showSpinner = false;
                     this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών.';
                 },

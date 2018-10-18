@@ -247,7 +247,7 @@ export class NewRequestComponent implements OnInit {
 
     uploadFile() {
         this.showSpinner = true;
-        this.requestService.uploadAttachment<string>(this.request.archiveId, 'stage1', this.uploadedFile)
+        this.requestService.uploadAttachment<string>(this.request.archiveId, 'stage1', this.uploadedFile, 'request')
             .subscribe(
                 event => {
                     // console.log('uploadAttachment responded: ', JSON.stringify(event));

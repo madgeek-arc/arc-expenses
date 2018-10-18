@@ -236,7 +236,10 @@ export class RequestStagePaymentComponent implements OnInit {
     uploadFile() {
         this.showSpinner = true;
         this.errorMessage = '';
-        this.requestService.uploadAttachment<string>(this.currentRequest.archiveId, this.currentStageName, this.uploadedFile)
+        this.requestService.uploadAttachment<string>(this.currentRequest.archiveId,
+                                                     this.currentStageName,
+                                                     this.uploadedFile,
+                                                     'payment')
             .subscribe (
                 event => {
                     // console.log('uploadAttachment responded: ', JSON.stringify(event));

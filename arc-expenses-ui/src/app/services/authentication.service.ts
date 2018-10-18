@@ -74,7 +74,8 @@ export class AuthenticationService {
                         /* this.setUserProperties(userInfo['user']);
                         sessionStorage.setItem('role', userInfo['role']);
                         this.isLoggedIn = true; */
-                        if ( isNullOrUndefined(sessionStorage.getItem('userInfo')) ) {
+                        if ( isNullOrUndefined(sessionStorage.getItem('userInfo')) ||
+                             (isNullOrUndefined(this.getUserProp('email')) ) ) {
                             console.log('received null userInfo');
                             this.isLoggedIn = false;
                             this.removeUserProperties();
@@ -118,7 +119,9 @@ export class AuthenticationService {
                                                              `${this.getUserProp('lastname')}, ` +
                                                              `${this.getUserProp('email')}`);
 
-                            if ( (isNullOrUndefined(this.getUserProp('firstname')) ||
+                            if ( isNullOrUndefined(this.getUserProp('email')) ) {
+                                this.logout();
+                            } else if ( (isNullOrUndefined(this.getUserProp('firstname')) ||
                                     (this.getUserProp('firstname') === 'null')) ||
                                 isNullOrUndefined(this.getUserProp('lastname')) ||
                                 (this.getUserProp('lastname') === 'null')) {
