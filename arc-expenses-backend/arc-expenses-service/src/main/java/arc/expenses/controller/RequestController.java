@@ -113,29 +113,29 @@ public class RequestController {
         return requestService.getPendingRequests(email);
     }
 
-    @RequestMapping(value = "/store/uploadFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> uploadFile(
-
+    @RequestMapping(value = "/store/{mode}/uploadFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> uploadFile(@PathVariable("mode") String mode,
                                                 @RequestParam("archiveID") String archiveID,
                                                 @RequestParam("stage") String stage,
                                                 @RequestParam("file") MultipartFile file) throws IOException {
-        return requestService.upLoadFile(archiveID,stage,file);
+        return requestService.upLoadFile(mode,archiveID,stage,file);
     }
 
-    @RequestMapping(value = "/store/download", method = RequestMethod.GET)
+    @RequestMapping(value = "/store/{mode}/download", method = RequestMethod.GET)
     @ResponseBody
     //@PreAuthorize("@annotationChecks.validateDownload(#requestId,authentication.principal)")
-    public void downloadFile(@RequestParam("requestId") String requestId,
+    public void downloadFile(@PathVariable("mode") String mode,
+                             @RequestParam("id") String id,
                              @RequestParam("stage") String stage,
                              HttpServletResponse response) throws IOException, ResourceNotFoundException {
-        Attachment attachment = requestService.getAttachment(requestId,stage);
+        Attachment attachment = requestService.getAttachment(mode,id,stage);
 
         if(attachment == null)
             throw new ResourceNotFoundException();
 
         response.setContentType(attachment.getMimetype());
         response.setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFilename() + "\"");
-        IOUtils.copyLarge(requestService.downloadFile(requestId,stage), response.getOutputStream());
+        IOUtils.copyLarge(requestService.downloadFile(mode,id,stage), response.getOutputStream());
     }
 
     @RequestMapping(value = "/addRequestApproval", method = RequestMethod.POST,

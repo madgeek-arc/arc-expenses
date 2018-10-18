@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static arc.expenses.messages.StageMessages.RequestState.*;
+import static arc.expenses.messages.StageMessages.UserType.USER;
+
 @Component
 public class StageMessages {
 
@@ -42,7 +45,7 @@ public class StageMessages {
     public List<EmailMessage> createStageMessages(String prevStage, String nextStage, BaseInfo baseInfo) {
         List<EmailMessage> emails = new ArrayList<>();
         String transition;
-        RequestState state = RequestState.ACCEPTED;
+        RequestState state = ACCEPTED;
 
         logger.debug("Request Link: " + url + baseInfo.getId());
 
@@ -59,7 +62,7 @@ public class StageMessages {
                 default:
                     transition = "<-";
             }
-            state = RequestState.REVIEW;
+            state = REVIEW;
         } else {
             transition = prevStage + "->" + nextStage;
         }
@@ -67,18 +70,18 @@ public class StageMessages {
         switch (transition) {
             // TODO: add explicitly cases requiring special handling
             case "1->2":
-                if (state == RequestState.ACCEPTED) {
-                    state = RequestState.INITIALIZED;
+                if (state == ACCEPTED) {
+                    state = INITIALIZED;
                 }
                 // email to USER
-                emails.addAll(getEmailMessages(baseInfo, UserType.USER, state));
+                emails.addAll(getEmailMessages(baseInfo, USER, state));
                 // email to nextPOIs and delegates
                 emails.addAll(getEmailMessages(baseInfo, UserType.nextPOI, state));
                 break;
 
             case "5a->UplodInvoice":
                 // email to USER
-                emails.addAll(getEmailMessages(baseInfo, UserType.USER, RequestState.INVOICE));
+                emails.addAll(getEmailMessages(baseInfo, USER, INVOICE));
                 // email to previousPOI and delegates
                 emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
 //                // email to nextPOI and delegates
@@ -87,7 +90,7 @@ public class StageMessages {
 
             case "UploadInvoice<-8":
                 // email to USER
-                emails.addAll(getEmailMessages(baseInfo, UserType.USER, RequestState.INVOICE));
+                emails.addAll(getEmailMessages(baseInfo, USER, INVOICE));
                 // email to previousPOI and delegates
                 emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
 //                // email to nextPOI and delegates
@@ -95,11 +98,11 @@ public class StageMessages {
                 break;
 
             case "6->7":
-                if (state == RequestState.ACCEPTED) {
-                    state = RequestState.ACCEPTED_DIAVGEIA;
+                if (state == ACCEPTED) {
+                    state = ACCEPTED_DIAVGEIA;
                 }
                 // email to USER
-                emails.addAll(getEmailMessages(baseInfo, UserType.USER, state));
+                emails.addAll(getEmailMessages(baseInfo, USER, state));
                 // email to previousPOI and delegates
                 emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
                 // email to nextPOI and delegates
@@ -107,12 +110,12 @@ public class StageMessages {
                 break;
 
             case "13->13":
-                if (state == RequestState.ACCEPTED) {
-                    state = RequestState.COMPLETED;
+                if (state == ACCEPTED) {
+                    state = COMPLETED;
                 }
-                if (state != RequestState.REVIEW) { // TODO: probably remove, REVIEW is only for '<-' cases
+                if (state != REVIEW) { // TODO: probably remove, REVIEW is only for '<-' cases
                     // email to USER
-                    emails.addAll(getEmailMessages(baseInfo, UserType.USER, state));
+                    emails.addAll(getEmailMessages(baseInfo, USER, state));
                 }
                 // email to previousPOI and delegates
                 emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
@@ -120,7 +123,7 @@ public class StageMessages {
 
             case "1<-":
                 // email to USER
-                emails.addAll(getEmailMessages(baseInfo, UserType.USER, state));
+                emails.addAll(getEmailMessages(baseInfo, USER, state));
                 // email to previousPOI and delegates
                 emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
                 break;
@@ -138,7 +141,7 @@ public class StageMessages {
 
             case "rejected":
                 // email to USER
-                emails.addAll(getEmailMessages(baseInfo, UserType.USER, state));
+                emails.addAll(getEmailMessages(baseInfo, USER, state));
                 // email to POIs and delegates
                 emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
                 break;
@@ -191,7 +194,7 @@ public class StageMessages {
         RequestWrapper appStages = new RequestWrapper(request,baseInfo);
         String completedStage = null;
         try {
-            if (state == RequestState.REVIEW) { // if stage is under review
+            if (state == REVIEW) { // if stage is under review
                 // the completed stage is the stage after the request.getStage()
                 completedStage = RequestWrapper.getNextStage(baseInfo);
             } else { // if stage is not under review
@@ -206,7 +209,7 @@ public class StageMessages {
         /*String date = appStages.getDate(completedStage);
         User user = appStages.getUser(completedStage); // get User of completed stage (previous stage)*/
 
-        if (type == UserType.USER) {
+        if (type == USER) {
             messages.add(
                     createEmail(request.getUser().getEmail(), /*user.getFirstname(), user.getLastname(),*/ baseInfo, type, state/*, date*/));
         } else if (type == UserType.previousPOI) {
@@ -244,33 +247,33 @@ public class StageMessages {
         if (date_secs != null) {
             date = new SimpleDateFormat("dd/MM/yyyy").format(new Date(Long.parseLong(date_secs)));
         }*/
-        if (type == UserType.USER) {
-            if (state == RequestState.INITIALIZED) {
+        if (type == USER) {
+            if (state == INITIALIZED) {
                 subject = "[ARC-ν.4485] Δημιουργία νέου αιτήματος " + baseInfo.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
                         .append("το ακόλουθο αίτημά σας έχει υποβληθεί επιτυχώς.");
-            } else if (state == RequestState.ACCEPTED) {
+            } else if (state == ACCEPTED) {
                 subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + baseInfo.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
                         .append("το ακόλουθο αίτημά σας έχει εγκριθεί από τον επιστημονικό υπεύθυνο κι\n")
                         .append("έχει προωθηθεί στις διοικητικές υπηρεσίες του κέντρου για επεξεργασία.");
-            } else if (state == RequestState.INVOICE) {
+            } else if (state == INVOICE) {
                 subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + baseInfo.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
                         .append("το ακόλουθο αίτημά σας έχει εγκριθεί από τις διοικητικές υπηρεσίες του κέντρου.\n")
                         .append("Μπορείτε να προχωρήσετε στην πραγματοποίηση της δαπάνης και παρακαλείστε\n")
                         .append("να μεταφορτώσετε το τιμολόγιό σας στο σύστημα.");
-            } else if (state == RequestState.ACCEPTED_DIAVGEIA) {
+            } else if (state == ACCEPTED_DIAVGEIA) {
                 subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + baseInfo.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
                         .append("το ακόλουθο αίτημά σας έχει εγκριθεί από τις διοικητικές υπηρεσίες του κέντρου\n")
                         .append("και θα αναρτηθεί στη διαύγεια.");
 
-            } else if (state == RequestState.COMPLETED) {
+            } else if (state == COMPLETED) {
                 subject = "[ARC-ν.4485] Διεκπεραίωση του αιτήματος " + baseInfo.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
@@ -287,7 +290,7 @@ public class StageMessages {
 //                            .append(appStages.getComment(request.getStage()));
 //                }
 
-            } else if (state == RequestState.REVIEW) {
+            } else if (state == REVIEW) {
                 subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + baseInfo.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
@@ -302,17 +305,17 @@ public class StageMessages {
             }
         } else if (type == UserType.previousPOI) {
             subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + baseInfo.getId();
-            if (state == RequestState.ACCEPTED) {
+            if (state == ACCEPTED) {
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
                         .append("το ακόλουθο αίτημα προχώρησε στο επόμενο στάδιο.");
 
-            } else if (state == RequestState.ACCEPTED_DIAVGEIA) {
+            } else if (state == ACCEPTED_DIAVGEIA) {
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
                         .append("το ακόλουθο αίτημα προχώρησε στο επόμενο στάδιο.");
 
-            } else if (state == RequestState.COMPLETED) {
+            } else if (state == COMPLETED) {
                 subject = "[ARC-ν.4485] Διεκπεραίωση του αιτήματος " + baseInfo.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
@@ -328,7 +331,7 @@ public class StageMessages {
 //                            .append(appStages.getComment(request.getStage()));
 //                }
 
-            } else if (state == RequestState.REVIEW) {
+            } else if (state == REVIEW) {
                 subject = "[ARC-ν.4485] Επανέλεγχος του αιτήματος " + baseInfo.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
@@ -342,21 +345,21 @@ public class StageMessages {
             }
         } else if (type == UserType.nextPOI) {
             subject = "[ARC-ν.4485] Αναμονή ενεργειών για το αιτήμα " + baseInfo.getId();
-            if (state == RequestState.INITIALIZED) {
+            if (state == INITIALIZED) {
                 subject = "[ARC-ν.4485] Υποβολή αιτήματος " + baseInfo.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
                         .append("έχει υποβληθεί ένα νέο αίτημα στην πλατφόρμα και αναμένει τις ενέργειές σας.");
-            } else if (state == RequestState.ACCEPTED) {
+            } else if (state == ACCEPTED) {
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
                         .append("το ακόλουθο αίτημα βρίσκεται σε αναμονή για τις ενέργειές σας.");
 
-            } else if (state == RequestState.ACCEPTED_DIAVGEIA) {
+            } else if (state == ACCEPTED_DIAVGEIA) {
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
                         .append("το ακόλουθο αίτημα με βρίσκεται σε αναμονή για τις ενέργειές σας.");
-            } else if (state == RequestState.REVIEW) {
+            } else if (state == REVIEW) {
                 subject = "[ARC-ν.4485] Επανέλεγχος αιτήματος " + baseInfo.getId();
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
@@ -366,7 +369,7 @@ public class StageMessages {
 //                            .append("\n\nΣχόλιο: ")
 //                            .append(appStages.getComment(request.getStage()));
 //                }
-            } else if (state == RequestState.COMPLETED) {
+            } else if (state == COMPLETED) {
                 stringBuilder.append("");
             } else if (state == RequestState.REJECTED) {
                 stringBuilder.append("");

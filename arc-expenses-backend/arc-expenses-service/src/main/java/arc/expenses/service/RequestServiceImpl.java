@@ -40,9 +40,6 @@ public class RequestServiceImpl extends GenericService<Request> {
     private StoreRestConfig storeRestConfig;
 
     @Autowired
-    StoreRESTClient storeClient;
-
-    @Autowired
     RequestApprovalServiceImpl requestApprovalService;
 
     @Autowired
@@ -196,42 +193,6 @@ public class RequestServiceImpl extends GenericService<Request> {
                                  List<String> status, String searchField,
                                  List<String> stage, String orderType,
                                  String orderField, String email) {
-//        /*GET ALL REQUESTS*/
-//        Paging rs_requests = null;
-//        if(searchField!= null || orderField.equals("project") || orderField.equals("institute")){
-//            rs_requests = searchService.cqlQuery(
-//                    this.createWhereClause(email,Arrays.asList("all"),searchField,Arrays.asList("all")),"request",
-//                    Integer.parseInt(quantity),Integer.parseInt(from),
-//                    orderField, orderType);
-//        }else{
-//            rs_requests =  searchService.cqlQuery(
-//                    this.createWhereClause(email,Arrays.asList("all"),searchField,Arrays.asList("all")),"request",
-//                    Integer.parseInt(quantity),Integer.parseInt(from),
-//                    "creation_date", "ASC");
-//        }
-//
-//        /*GET ALL PAYMENTS,APPROVALS*/
-//        Paging rs_group = null;
-//        if(searchField == null || orderField.equals("stage") || orderField.equals("status") || orderField.equals("creation_date")){
-//            rs_group = searchService.cqlQuery(
-//                    this.createWhereClause(email,status,searchField,stage),"requestGroup",
-//                    Integer.parseInt(quantity),Integer.parseInt(from),
-//                    orderField, orderType);
-//        }else{
-//            rs_group =  searchService.cqlQuery(
-//                    this.createWhereClause(email,status,searchField,stage),"requestGroup",
-//                    Integer.parseInt(quantity),Integer.parseInt(from),
-//                    "creation_date", "ASC");
-//        }
-//
-//        if(orderField.equals("project") || orderField.equals("institute"))
-//            return this.requestJoinGroup(rs_requests,from,quantity);
-//        else
-//            return this.groupJoinRequest(rs_group,from,quantity);
-
-//        String query = "select r.request_id , a.approval_id , p.payment_id " +
-//                       "from request_view r, payment_view p, approval_view a " +
-//                       "where r.request_id = p.request_id and r.request_id = a.request_id " ;
 
         String query =  " ( select distinct(r.request_id) as request_id ,a.approval_id as id,creation_date ," +
                         "   r.request_project as request_project , r.request_institute as request_institute , a.stage as request_stage" +
@@ -293,8 +254,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                   "  offset " + from;
 
 
-        System.out.println(query);
-
+        LOGGER.info(query);
         List<Sextet<String,String,String,String,String,String>> resultSet =  new JdbcTemplate(dataSource)
                 .query(query,requestSummaryMapper);
 
@@ -312,7 +272,7 @@ public class RequestServiceImpl extends GenericService<Request> {
             rs.add(requestSummary);
         }
 
-        return new Paging<RequestSummary>(rs.size(),Integer.parseInt(from),Integer.parseInt(quantity),rs,null);
+        return new Paging<>(rs.size(),Integer.parseInt(from),Integer.parseInt(quantity),rs,null);
     }
 
     private StringBuilder getKeywordClause(String searchField) {
@@ -409,45 +369,6 @@ public class RequestServiceImpl extends GenericService<Request> {
         return user_clause;
     }
 
-    /*private Paging<RequestSummary> groupJoinRequest(Paging<Resource> rs_group,String from,String quantity) {
-        List<RequestSummary> rs = new ArrayList<>();
-        for(Resource resource:rs_group.getResults()) {
-            try {
-                RequestSummary requestSummary = new RequestSummary();
-                requestSummary.setBaseInfo(parserPool.deserialize(resource, BaseInfo.class).get());
-                requestSummary.setRequest(get(requestSummary.getBaseInfo().getRequestId()));
-                rs.add(requestSummary);
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
-        return new Paging<RequestSummary>(rs.size(),Integer.parseInt(from),Integer.parseInt(quantity),rs,null);
-    }
-
-    private Paging<RequestSummary> requestJoinGroup(Paging<Resource> rs_requests,String from,String quantity) {
-
-        List<RequestSummary> rs = new ArrayList<>();
-        for(Resource resource:rs_requests.getResults()) {
-            try {
-                RequestSummary requestSummary = new RequestSummary();
-                Request request = parserPool.deserialize(resource, Request.class).get();
-                requestSummary.setBaseInfo(requestApprovalService.get(request.getApprovalId()));
-
-                rs.add(requestSummary);
-
-                for(String paymentID: request.getPaymentId()){
-                    RequestSummary summary = new RequestSummary();
-                    summary.setRequest(request);
-                    summary.setBaseInfo(requestPaymentService.get(paymentID));
-                    rs.add(summary);
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-        }
-        return new Paging<RequestSummary>(rs.size(),Integer.parseInt(from),Integer.parseInt(quantity),rs,null);
-    }*/
-
     public List<Request> getPendingRequests(String email) {
 
         String whereClause = " (  ( request_project_operator =  " + email + " or  request_project_operator_delegates = " + email + " ) "
@@ -497,8 +418,12 @@ public class RequestServiceImpl extends GenericService<Request> {
         return storeRESTClient.createArchive().getResponse();
     }
 
-    public ResponseEntity<Object> upLoadFile(
-                                             String archiveID,String stage, MultipartFile file) {
+    public ResponseEntity<Object> upLoadFile(String mode,String archiveID,
+                                             String stage, MultipartFile file) {
+
+
+        if(!mode.equals("request"))
+            archiveID += "/"+mode;
 
         String fileName = stage;
         if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(archiveID,fileName).getResponse()))
@@ -510,32 +435,19 @@ public class RequestServiceImpl extends GenericService<Request> {
             LOGGER.info(e);
             return new ResponseEntity<>("ERROR",HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/download/<@filename="+archiveID+"/"+stage,
+        return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/download/filename="+fileName,
                 HttpStatus.OK);
-
-
-//        if(mode.equals("payment")){
-//
-//        }else if(mode.equals("approval")){
-//
-//        }else{
-//
-//        }
-
-
-
-
 
     }
 
-    public InputStream downloadFile(String requestId, String stage) {
+    public InputStream downloadFile(String mode,String id, String stage) {
 
-        Attachment attachment = getAttachment(requestId,stage);
+        Attachment attachment = getAttachment(mode,id,stage);
         try {
             File temp = File.createTempFile("file", "tmp");
 
             temp.deleteOnExit();
-            storeClient.downloadFile(attachment.getUrl(), temp.getAbsolutePath());
+            storeRESTClient.downloadFile(attachment.getUrl(), temp.getAbsolutePath());
             return new FileInputStream(temp);
         } catch (Exception e) {
             LOGGER.error("error downloading file", e);
@@ -544,62 +456,64 @@ public class RequestServiceImpl extends GenericService<Request> {
         return null;
     }
 
-    public Attachment getAttachment(String requestId, String stage) {
+    public Attachment getAttachment(String mode ,String id, String stage) {
         Attachment attachment = null;
-        Request request = get(requestId);
 
-//        switch (stage) {
-//            case "1":
-//                attachment = request.getStage1().getAttachment();
-//                break;
-//            case "2":
-//                attachment = request.getStage2().getAttachment();
-//                break;
-//            case "3":
-//                attachment = request.getStage3().getAttachment();
-//                break;
-//            case "4":
-//                attachment = request.getStage4().getAttachment();
-//                break;
-//            case "5":
-//                attachment = request.getStage5().getAttachment();
-//                break;
-//            case "5a":
-//                attachment = request.getStage5a().getAttachment();
-//                break;
-//            case "5b":
-//                attachment = request.getStage5b().getAttachment();
-//                break;
-//            case "UploadInvoice":
-//                attachment = request.getStageUploadInvoice().getAttachment();
-//                break;
-//            case "6":
-//                attachment = request.getStage6().getAttachment();
-//                break;
-//            case "7":
-//                attachment = request.getStage7().getAttachment();
-//                break;
-//            case "8":
-//                attachment = request.getStage8().getAttachment();
-//                break;
-//            case "9":
-//                attachment = request.getStage9().getAttachment();
-//                break;
-//            case "10":
-//                attachment = request.getStage10().getAttachment();
-//                break;
-//            case "11":
-//                attachment = request.getStage11().getAttachment();
-//                break;
-//            case "12":
-//                attachment = request.getStage12().getAttachment();
-//                break;
-//            case "13":
-//                attachment = request.getStage13().getAttachment();
-//                break;
-//            default:
-//                return null;
-//        }
+        if(mode.equals("request"))
+            return get(id).getStage1().getAttachment();
+        else if(mode.equals("approval")){
+            switch (stage) {
+                case "2":
+                    attachment = requestApprovalService.get(id).getStage2().getAttachment();
+                    break;
+                case "3":
+                    attachment = requestApprovalService.get(id).getStage3().getAttachment();
+                    break;
+                case "4":
+                    attachment = requestApprovalService.get(id).getStage4().getAttachment();
+                    break;
+                case "5":
+                    attachment = requestApprovalService.get(id).getStage5().getAttachment();
+                    break;
+                case "5a":
+                    attachment = requestApprovalService.get(id).getStage5a().getAttachment();
+                    break;
+                case "5b":
+                    attachment = requestApprovalService.get(id).getStage5b().getAttachment();
+                    break;
+                case "6":
+                    attachment = requestApprovalService.get(id).getStage6().getAttachment();
+                    break;
+                default:
+                    return null;
+            }
+        }else{
+            switch (stage) {
+                case "7":
+                    attachment = requestPaymentService.get(id).getStage7().getAttachment();
+                    break;
+                case "8":
+                    attachment = requestPaymentService.get(id).getStage8().getAttachment();
+                    break;
+                case "9":
+                    attachment = requestPaymentService.get(id).getStage9().getAttachment();
+                    break;
+                case "10":
+                    attachment = requestPaymentService.get(id).getStage10().getAttachment();
+                    break;
+                case "11":
+                    attachment = requestPaymentService.get(id).getStage11().getAttachment();
+                    break;
+                case "12":
+                    attachment = requestPaymentService.get(id).getStage12().getAttachment();
+                    break;
+                case "13":
+                    attachment = requestPaymentService.get(id).getStage13().getAttachment();
+                    break;
+                default:
+                    return null;
+            }
+        }
         return attachment;
     }
 
