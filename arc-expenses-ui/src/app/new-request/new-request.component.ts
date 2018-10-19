@@ -218,10 +218,10 @@ export class NewRequestComponent implements OnInit {
                     },
                     () => {
                         if (this.uploadedFile) {
-                            // this.uploadFile();
-                            this.uploadAndSubmitRequestAndApproval();
+                            this.uploadFile();
+                            // this.uploadAndSubmitRequestAndApproval();
                         } else {
-                            // this.submitRequestApproval();
+                            this.submitRequestApproval();
                             this.submitRequestAndApproval();
                         }
                     }

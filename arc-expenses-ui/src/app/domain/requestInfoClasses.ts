@@ -88,6 +88,7 @@ export class RequestInfo {
 
     constructor(phaseId: string, requestId: string, project: Project) {
 
+        this.phaseId = phaseId;
         this.requestId = requestId;
         this.initiateStagesInfo(project);
     }
