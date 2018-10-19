@@ -424,7 +424,7 @@ public class EmailService {
                 //emails.addAll(getEmailMessages(baseInfo, StageMessages.UserType.previousPOI, state));
                 break;
         }
-        messages.forEach(logger::info);
+//        messages.forEach(logger::info);
         return messages;
     }
 

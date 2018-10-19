@@ -7,9 +7,9 @@ import arc.expenses.messages.StageMessages;
 import arc.expenses.service.EmailService;
 import arc.expenses.service.RequestServiceImpl;
 import arc.expenses.utils.Converter;
-import arc.expenses.utils.ParserPool;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.monitor.ResourceListener;
+import eu.openminted.registry.core.service.ParserService;
 import gr.athenarc.domain.Request;
 import gr.athenarc.domain.RequestApproval;
 import gr.athenarc.domain.RequestPayment;
@@ -23,14 +23,14 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
-@SuppressWarnings("ALL")
+
 @Component
 public class StageResourceListener implements ResourceListener {
 
     final private static Logger logger = LogManager.getLogger(StageResourceListener.class);
 
     @Autowired
-    ParserPool parserPool;
+    ParserService parserPool;
 
     @Autowired
     JavaMailer javaMailer;
@@ -50,14 +50,10 @@ public class StageResourceListener implements ResourceListener {
         logger.debug("Adding a resource");
 
         if (resource.getResourceType().getName().equals("approval")) {
-            try {
-                RequestApproval requestApproval = parserPool.deserialize(resource, RequestApproval.class).get();
-                if(requestApproval.getStage().equals("2")){
-                    sendEmails("1","2",requestApproval.getStatus(),
-                            Converter.toRequestFatClass(requestService.get(requestApproval.getRequestId()),requestApproval));
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+            RequestApproval requestApproval = parserPool.deserialize(resource, RequestApproval.class);
+            if(requestApproval.getStage().equals("2")){
+                sendEmails("1","2",requestApproval.getStatus(),
+                        Converter.toRequestFatClass(requestService.get(requestApproval.getRequestId()),requestApproval));
             }
         }
     }
@@ -67,71 +63,26 @@ public class StageResourceListener implements ResourceListener {
     public void resourceUpdated(Resource previousResource, Resource newResource) {
         logger.info("Updating a resource");
 
-        /*if ("requestPayment".equals(newResource.getResourceType().getName())) {
-            try {
-                RequestPayment previousRequestPayment = parserPool.deserialize(previousResource, RequestPayment.class).get();
-                RequestPayment newRequestPayment = parserPool.deserialize(newResource, RequestPayment.class).get();
-                if (!previousRequestPayment.getStage().equals(newRequestPayment.getStage()) ||
-                        !previousRequestPayment.getStatus().equals(newRequestPayment.getStatus())) {
-                    logger.debug("Stage changed: " + previousRequestPayment.getStage() + " " + previousRequestPayment.getStatus() +
-                            " -> " + newRequestPayment.getStage() + " " + newRequestPayment.getStatus());
-                    logger.debug("Prev Request: " + previousRequestPayment.toString());
-                    logger.debug("New Request : " + newRequestPayment.toString());
-                    stageMessages
-                            .createStageMessages(previousRequestPayment.getStage(), newRequestPayment.getStage(), newRequestPayment)
-                            .forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                logger.error(e);
-            }
-        }*/
-
         Request request = null;
         if( "payment".equals(newResource.getResourceType().getName())){
-            try {
-                RequestPayment previousRequestPayment = parserPool.deserialize(previousResource, RequestPayment.class).get();
-                RequestPayment newRequestPayment = parserPool.deserialize(newResource, RequestPayment.class).get();
-                request = requestService.get(newRequestPayment.getRequestId());
-                sendEmails(previousRequestPayment,newRequestPayment,request);
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            RequestPayment previousRequestPayment = parserPool.deserialize(previousResource, RequestPayment.class);
+            RequestPayment newRequestPayment = parserPool.deserialize(newResource, RequestPayment.class);
+            request = requestService.get(newRequestPayment.getRequestId());
+            sendEmails(previousRequestPayment,newRequestPayment,request);
         }
         if( "approval".equals(newResource.getResourceType().getName())){
-            try {
-                RequestApproval previousRequestApproval = parserPool.deserialize(previousResource, RequestApproval.class).get();
-                RequestApproval newRequestApproval = parserPool.deserialize(newResource, RequestApproval.class).get();
-                request = requestService.get(newRequestApproval.getRequestId());
-                sendEmails(previousRequestApproval,newRequestApproval,request);
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            RequestApproval previousRequestApproval = parserPool.deserialize(previousResource, RequestApproval.class);
+            RequestApproval newRequestApproval = parserPool.deserialize(newResource, RequestApproval.class);
+            request = requestService.get(newRequestApproval.getRequestId());
+            sendEmails(previousRequestApproval,newRequestApproval,request);
         }
-
-//        if(previousBaseInfo != null && newBaseInfo != null){
-//            if (!previousBaseInfo.getStage().equals(newBaseInfo.getStage()) ||
-//                    !previousBaseInfo.getStatus().equals(newBaseInfo.getStatus())) {
-//                logger.debug("Stage changed: " + previousBaseInfo.getStage() + " " + previousBaseInfo.getStatus() +
-//                        " -> " + newBaseInfo.getStage() + " " + newBaseInfo.getStatus());
-//                logger.debug("Prev Request: " + previousBaseInfo.toString());
-//                logger.debug("New Request : " + newBaseInfo.toString());
-//
-//                List<String> emails = emailService.prepareMessages(previousBaseInfo.getStage(),newBaseInfo.getStage(),
-//                                                                  newBaseInfo.getStatus(),Converter.toRequestFatClass(request,newBaseInfo));
-//
-////                emailService
-////                        .createEmail(previousBaseInfo.getStage(), newBaseInfo.getStage(), newBaseInfo)
-////                        .forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
-//            }
-//        }
-
-
     }
 
     private void sendEmails(RequestApproval previousRequestApproval, RequestApproval newRequestApproval, Request request) {
 
         if(previousRequestApproval != null && newRequestApproval != null){
-            if(!previousRequestApproval.getStatus().equals(newRequestApproval.getStatus())){
+            if(!previousRequestApproval.getStatus().equals(newRequestApproval.getStatus()) ||
+                    !previousRequestApproval.getStage().equals(newRequestApproval.getStage())){
                 logger.debug("Stage changed: " + previousRequestApproval.getStage() + " " + previousRequestApproval.getStatus() +
                         " -> " + newRequestApproval.getStage() + " " + newRequestApproval.getStatus());
                 logger.debug("Prev Request: " + previousRequestApproval.toString());
@@ -147,7 +98,8 @@ public class StageResourceListener implements ResourceListener {
 
     private void sendEmails(RequestPayment previousRequestPayment,RequestPayment newRequestPayment, Request request) {
         if(previousRequestPayment != null && newRequestPayment != null){
-            if(!previousRequestPayment.getStatus().equals(newRequestPayment.getStatus())){
+            if(!previousRequestPayment.getStatus().equals(newRequestPayment.getStatus()) ||
+                    !previousRequestPayment.getStage().equals(newRequestPayment.getStage())){
                 logger.debug("Stage changed: " + previousRequestPayment.getStage() + " " + previousRequestPayment.getStatus() +
                         " -> " + newRequestPayment.getStage() + " " + newRequestPayment.getStatus());
                 logger.debug("Prev Request: " + previousRequestPayment.toString());
@@ -164,7 +116,7 @@ public class StageResourceListener implements ResourceListener {
 
         List<EmailMessage> messages = emailService.prepareMessages(oldStage,newStage,status,requestFatClass);
 //        messages.forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
-//        messages.forEach(e -> logger.info(e.toString()));
+//        messages.forEach(logger::info);
     }
 
     @Async

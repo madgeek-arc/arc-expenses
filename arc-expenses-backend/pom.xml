@@ -14,7 +14,7 @@
 
 	<properties>
 		<!-- WARNING: do NOT downgrade registry.core version from 1.4.6, it has a bug in resource listener -->
-		<registry.core.version>1.4.6-SNAPSHOT</registry.core.version>
+		<registry.core.version>2.1.0-SNAPSHOT</registry.core.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 

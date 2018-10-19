@@ -50,7 +50,7 @@ public class UserController {
                     u.setImmediateEmails("true");
                     u.setReceiveEmails("true");
                     u.setAttachment(null);
-                    user = userService.add(u);
+                    user = userService.add(u,authentication);
                 }
                 body.put("user",user);
                 body.put("role",userService.getRole(authentication.getEmail()));

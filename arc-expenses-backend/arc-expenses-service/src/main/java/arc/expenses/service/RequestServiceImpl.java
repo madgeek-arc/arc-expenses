@@ -46,7 +46,6 @@ public class RequestServiceImpl extends GenericService<Request> {
     RequestPaymentServiceImpl requestPaymentService;
 
     @Autowired
-    @Qualifier("arc.dataSource")
     DataSource dataSource;
 
     @Value("#{'${admin.emails}'.split(',')}")
@@ -101,15 +100,13 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         try {
             List rs = searchService.search(filter).getResults();
-            String request = null;
+            Resource request;
             if(rs.size() > 0) {
-                request = ((Resource) rs.get(0)).getPayload();
-                return parserPool.deserialize(request,Request.class).get().getId();
+                request = (Resource) rs.get(0);
+                return parserPool.deserialize(request,Request.class).getId();
             }
         } catch (IOException e) {
             LOGGER.debug("Error on search controller",e);
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -198,9 +195,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                         "   r.request_project as request_project , r.request_institute as request_institute , a.stage as request_stage" +
                         " from request_view r , approval_view a , resource res  " +
                         " where r.request_id = a.request_id  and res.fk_name = 'approval' " +
-                        " and a.id  = res.id  and a.stage = (select data.value as value from resource ," +
-                                                           " json_each_text(resource.payload::json) as data " +
-                                                           " where fk_name = 'approval' and key = 'stage' and id = a.id) ";
+                        " and a.id  = res.id  ";
 
 
 
@@ -228,9 +223,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                " r.request_project as request_project , r.request_institute as request_institute , p.stage as request_stage" +
                " from request_view r , payment_view p , resource res  " +
                " where r.request_id = p.request_id  and res.fk_name = 'payment' " +
-               " and p.id  = res.id  and p.stage = (select data.value as value from resource ," +
-                                                  " json_each_text(resource.payload::json) as data " +
-                                                  " where fk_name = 'payment' and key = 'stage' and id = p.id ) ";
+               " and p.id  = res.id ";
 
         user_clause = this.getUserClause(email);
         if(user_clause.length()!=0)
@@ -404,11 +397,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         List<Request> resultSet = new ArrayList<>();
         for(Resource resource:rs.getResults()) {
-            try {
-                resultSet.add(parserPool.deserialize(resource,typeParameterClass).get());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+            resultSet.add(parserPool.deserialize(resource,typeParameterClass));
         }
         return resultSet;
 
@@ -435,8 +424,7 @@ public class RequestServiceImpl extends GenericService<Request> {
             LOGGER.info(e);
             return new ResponseEntity<>("ERROR",HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(storeRestConfig.getStoreHost()+"/store/download/filename="+fileName,
-                HttpStatus.OK);
+        return new ResponseEntity<>(archiveID+"/"+fileName,HttpStatus.OK);
 
     }
 
@@ -445,7 +433,6 @@ public class RequestServiceImpl extends GenericService<Request> {
         Attachment attachment = getAttachment(mode,id,stage);
         try {
             File temp = File.createTempFile("file", "tmp");
-
             temp.deleteOnExit();
             storeRESTClient.downloadFile(attachment.getUrl(), temp.getAbsolutePath());
             return new FileInputStream(temp);
@@ -457,7 +444,7 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
     public Attachment getAttachment(String mode ,String id, String stage) {
-        Attachment attachment = null;
+        Attachment attachment;
 
         if(mode.equals("request"))
             return get(id).getStage1().getAttachment();

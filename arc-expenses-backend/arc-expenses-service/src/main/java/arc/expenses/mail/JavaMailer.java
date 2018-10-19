@@ -86,7 +86,8 @@ public class JavaMailer {
             Transport transport = session.getTransport("smtp");
             if (mailSSL == "true") {
                 transport.connect(smtpHost, address, password);
-                Transport.send(msg, msg.getAllRecipients(), address, password);
+                transport.sendMessage(msg,msg.getAllRecipients());
+//                Transport.send(msg, msg.getAllRecipients(), address, password);
             } else {
                 Transport.send(msg, msg.getAllRecipients());
             }
@@ -117,7 +118,8 @@ public class JavaMailer {
             Transport transport = session.getTransport("smtp");
             if (mailSSL == "true" ) {
                 transport.connect(smtpHost, address, password);
-                Transport.send(msg, msg.getAllRecipients(), address, password);
+                transport.sendMessage(msg,msg.getAllRecipients());
+//                Transport.send(msg, msg.getAllRecipients(), address, password);
             } else {
                 Transport.send(msg, msg.getAllRecipients());
             }
@@ -148,7 +150,8 @@ public class JavaMailer {
             Transport transport = session.getTransport("smtp");
             if (mailSSL == "true") {
                 transport.connect(smtpHost, address, password);
-                Transport.send(msg, msg.getAllRecipients(), address, password);
+                transport.sendMessage(msg,msg.getAllRecipients());
+//                Transport.send(msg, msg.getAllRecipients(), address, password);
             } else {
                 Transport.send(msg, msg.getAllRecipients());
             }
@@ -183,7 +186,8 @@ public class JavaMailer {
             Transport transport = session.getTransport("smtp");
             if (mailSSL == "true") {
                 transport.connect(smtpHost, address, password);
-                Transport.send(msg, msg.getAllRecipients(), address, password);
+                transport.sendMessage(msg,msg.getAllRecipients());
+//                Transport.send(msg, msg.getAllRecipients(), address, password);
             } else {
                 Transport.send(msg, msg.getAllRecipients());
             }
