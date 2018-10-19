@@ -222,7 +222,7 @@ export class NewRequestComponent implements OnInit {
                             // this.uploadAndSubmitRequestAndApproval();
                         } else {
                             this.submitRequestApproval();
-                            this.submitRequestAndApproval();
+                            // this.submitRequestAndApproval();
                         }
                     }
                 );
@@ -237,6 +237,7 @@ export class NewRequestComponent implements OnInit {
         window.scrollTo(0, 0);
         this.showSpinner = true;
         this.errorMessage = '';
+        console.log('inside submitRequestAndApproval');
         this.requestService.addRequest(this.request).pipe(
                 tap (
                     res => {
@@ -253,8 +254,12 @@ export class NewRequestComponent implements OnInit {
                         UIkit.modal.alert('Παρουσιάστηκε πρόβλημα με την υποβολή της φόρμας.');
                     },
                     () => {
-                        this.showSpinner = false;
-                        this.router.navigate(['/requests']);
+                        if (this.uploadedFile) {
+                            this.uploadFile();
+                        } else {
+                            this.showSpinner = false;
+                            this.router.navigate(['/requests']);
+                        }
                     }
                 );
     }
@@ -322,7 +327,7 @@ export class NewRequestComponent implements OnInit {
     }
 
     uploadFile() {
-        this.showSpinner = true;
+        // this.showSpinner = true;
         this.requestService.uploadAttachment<string>(this.request.archiveId, 'stage1', this.uploadedFile, 'request')
             .subscribe(
                 event => {
@@ -350,6 +355,8 @@ export class NewRequestComponent implements OnInit {
                         },
                         () => {
                             this.submitRequestApproval();
+                            /*this.showSpinner = false;
+                            this.router.navigate(['/requests']);*/
                         }
                     );
                 }
