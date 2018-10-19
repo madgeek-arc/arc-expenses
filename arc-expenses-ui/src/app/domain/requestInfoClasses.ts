@@ -63,6 +63,7 @@ export class StageInfo {
 
 export class RequestInfo {
 
+    phaseId: string;
     requestId: string;
     pendingStageId: string;
 
@@ -85,7 +86,7 @@ export class RequestInfo {
     '12': StageInfo;
     '13': StageInfo;
 
-    constructor(requestId: string, project: Project) {
+    constructor(phaseId: string, requestId: string, project: Project) {
 
         this.requestId = requestId;
         this.initiateStagesInfo(project);

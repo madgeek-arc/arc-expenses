@@ -146,10 +146,10 @@
                                     <div class="filterLabel">Αιτήσεις ανά σελίδα:</div>
                                     <div class="inlineBlock">
                                         <select id="req-pagesize" class="form-control" (change)="getItemsPerPage($event)">
-                                            <option value="10" selected>10</option>
-                                            <option value="25">25</option>
-                                            <option value="50">50</option>
-                                            <option value="100">100</option>
+                                            <option value="10" [selected] = "itemsPerPage === 10">10</option>
+                                            <option value="25" [selected] = "itemsPerPage === 25">25</option>
+                                            <option value="50" [selected] = "itemsPerPage === 50">50</option>
+                                            <option value="100" [selected] = "itemsPerPage === 100">100</option>
                                         </select>
                                     </div>
                                 </div>
@@ -237,7 +237,7 @@
                                                 <td *ngIf="!isSimpleUser">{{ stagesMap[req.baseInfo.stage]}}</td>
                                                 <td>{{ getStatusAsString(req.baseInfo.status) }}</td>
                                                 <!--<td>
-                                                    <span *ngIf="getIfUserCanEdit(req.request.id, req.request.project, req.baseInfo.stage)"
+                                                    <span *ngIf="getIfUserCanEdit(req.baseInfo.id, req.request.id, req.request.project, req.baseInfo.stage)"
                                                           uk-icon="icon: pencil"></span>
                                                 </td>-->
                                             </tr>

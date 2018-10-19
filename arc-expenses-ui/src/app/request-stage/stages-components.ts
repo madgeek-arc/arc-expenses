@@ -131,10 +131,11 @@ export class StageComponent implements OnInit {
         if (this.currentStage['attachment'] && this.currentStage['attachment']['url'].length > 0 ) {
             /* direct link to the storeService */
             /*window.open(this.currentStage['attachment']['url'], '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');*/
+            const mode: string = (this.currentRequestInfo.phaseId.includes('a') ? 'approval' : 'payment');
 
             /* link to download method */
             window.open(window.location.origin + '/arc-expenses-service/request/store/download?requestId=' +
-                            this.currentRequestInfo.requestId + '&stage=' + this.stageId,
+                            this.currentRequestInfo.phaseId + '&stage=' + this.stageId + '&mode=' + mode,
                       '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
         }
     }

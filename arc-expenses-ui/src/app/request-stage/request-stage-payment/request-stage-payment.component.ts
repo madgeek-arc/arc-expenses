@@ -93,7 +93,7 @@ export class RequestStagePaymentComponent implements OnInit {
             },
             () => {
                 this.stages = paymentStages;
-                this.currentRequestInfo = new RequestInfo(this.currentRequest.id, this.currentRequest.project);
+                this.currentRequestInfo = new RequestInfo(this.currentRequestPayment.id, this.currentRequest.id, this.currentRequest.project);
                 this.getIfUserCanEditRequest();
             }
         );
@@ -364,7 +364,7 @@ export class RequestStagePaymentComponent implements OnInit {
     linkToFile() {
         if (this.currentRequest.stage1.attachment && this.currentRequest.stage1.attachment.url) {
             /*window.open(this.currentRequest.stage1.attachment.url , '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');*/
-            window.open(`${window.location.origin}/arc-expenses-service/request/store/download?requestId=${this.currentRequest.id}&stage=1`,
+            window.open(`${window.location.origin}/arc-expenses-service/request/store/download?requestId=${this.currentRequest.id}&stage=1&mode=request`,
                 '_blank', 'enabledstatus=0,toolbar=0,menubar=0,location=0');
         }
     }

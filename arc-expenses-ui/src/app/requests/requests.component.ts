@@ -11,6 +11,7 @@ import { printRequestPage } from '../request-stage/print-request-function';
 import { ManageResourcesService } from '../services/manage-resources.service';
 import { ManageProjectService } from '../services/manage-project.service';
 import { RequestInfo } from '../domain/requestInfoClasses';
+import { forkJoin } from 'rxjs/observable/forkJoin';
 
 @Component({
     selector: 'app-requests',
@@ -19,25 +20,14 @@ import { RequestInfo } from '../domain/requestInfoClasses';
 })
 export class RequestsComponent implements OnInit {
 
+    title: string = 'Υπάρχοντα Αιτήματα';
+
+    /* notifications */
     errorMessage: string;
     showSpinner: boolean;
     noRequests: string;
 
-    isSimpleUser: boolean;
-
-    title: string;
-
-    phaseId: number;
-    searchTerm: string;
-    statusList: string[] = [];
-    stagesChoice: string[] = [];
-    projectsChoice: string[] = [];
-    currentPage: number;
-    itemsPerPage: number;
-    order: string;
-    orderField: string;
-    totalPages: number;
-
+    /* data */
     stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', under_review: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
     stages: string[] = [];
     stagesMap = stageTitles;
@@ -45,29 +35,48 @@ export class RequestsComponent implements OnInit {
     projects: Vocabulary[] = [];
     institutes: Map<string, string> = new Map<string, string>();
     instituteIds: string[] = [];
+
+    /* flags */
+    isSimpleUser: boolean;
     allStatusSelected: boolean;
     allStagesSelected: boolean;
     allPhasesSelected: boolean;
+    allProjectsSelected: boolean;
+    allInstitutesSelected: boolean;
 
-    searchResults: Paging<RequestSummary>;
+    /* search params and relevant vars */
+    phaseId: number;
+    searchTerm: string;
+    statusesChoice: string[] = [];
+    stagesChoice: string[] = [];
+    projectsChoice: string[] = [];
+    institutesChoice: string[] = [];
+    order: string;
+    orderField: string;
+    itemsPerPage: number;
+    currentPage: number;
+    totalPages: number;
 
-    listOfRequests: RequestSummary[] = [];
-
+    /* forms */
     keywordField: FormGroup;
     filtersForm: FormGroup;
+
+    /* search result vars */
+    searchResults: Paging<RequestSummary>;
+    listOfRequests: RequestSummary[] = [];
 
     constructor(private requestService: ManageRequestsService,
                 private resourceService: ManageResourcesService,
                 private projectService: ManageProjectService,
                 private authService: AuthenticationService,
-                private fb: FormBuilder,
-                private router: Router) {}
+                private fb: FormBuilder) {}
 
     ngOnInit() {
-        this.initializeParams();
-        // this.getProjects();
-        this.title = 'Υπάρχοντα Αιτήματα';
         this.isSimpleUser = (this.authService.getUserRole() === 'ROLE_USER');
+
+        /* TODO: remove when projects and institutes are added */
+        this.initializeParams();
+        // this.getProjectsAndInstitutes();
     }
 
     initializeParams() {
@@ -75,8 +84,10 @@ export class RequestsComponent implements OnInit {
         this.initializeFiltersForm();
         this.keywordField = this.fb.group({ keyword: [''] });
         this.searchTerm = '';
-        this.statusList.push('all');
+        this.statusesChoice.push('all');
         this.stagesChoice.push('all');
+        this.projectsChoice.push('all');
+        this.institutesChoice.push('all');
         this.phaseId = 0;
         this.currentPage = 0;
         this.itemsPerPage = 10;
@@ -91,45 +102,21 @@ export class RequestsComponent implements OnInit {
         this.filtersForm = this.fb.group({
             phases: this.createFormArray({phase: [false]}, 2),
             statusChoices: this.createFormArray({status: [false]}, 3),
-            stageChoices: this.createFormArray({stage:[false]}, this.stages.length)
+            stageChoices: this.createFormArray({stage: [false]}, this.stages.length)
         });
-        // projects: this.createProjectsArray(),
-        // institutes: this.createInstitutesArray()
+        // projectChoices: this.createFormArray({project: [false]}, this.projects.length),
+        // instituteChoices: this.createFormArray({institute: [false]}, this.instituteIds.length)
     }
 
     createFormArray(def: any, length: number) {
         const newArray = this.fb.array([]);
-        for (let i=0; i<length; i++) {
+        for (let i = 0; i < length; i++) {
             newArray.push(this.fb.group(def));
         }
         return <FormArray>newArray;
     }
 
-    createStatusArray() {
-        const newArray = this.fb.array([]);
-        newArray.push(this.fb.group({status: [false]}));
-        newArray.push(this.fb.group({status: [false]}));
-        newArray.push(this.fb.group({status: [false]}));
-        return <FormArray>newArray;
-    }
-
-    createStagesArray() {
-        const newArray = this.fb.array([]);
-        for (let i = 0; i < this.stages.length; i++) {
-            newArray.push(this.fb.group({stage: [false]}));
-        }
-        return <FormArray>newArray;
-    }
-
-    createProjectsArray() {
-        const newArray = this.fb.array([]);
-        for (let i = 0; i < this.projects.length; i++) {
-            newArray.push(this.fb.group({project: [false]}));
-        }
-        return <FormArray>newArray;
-    }
-
-    /* the param 'resource' of search/all method is always 'request' */
+    /* get the requestSummaries list according to the current params */
     getListOfRequests() {
         this.noRequests = '';
         this.errorMessage = '';
@@ -137,7 +124,7 @@ export class RequestsComponent implements OnInit {
         this.showSpinner = true;
         const currentOffset = this.currentPage * this.itemsPerPage;
         this.requestService.searchAllRequestSummaries(this.searchTerm,
-            this.statusList,
+            this.statusesChoice,
             this.stagesChoice,
             currentOffset.toString(),
             this.itemsPerPage.toString(),
@@ -235,7 +222,7 @@ export class RequestsComponent implements OnInit {
             this.stages = paymentStages;
         }
         this.setAllStageValues(false);
-        this.initFormArray('stageChoices',{stage: [false]}, this.stages.length);
+        this.initFormArray('stageChoices',{ stage: [false] }, this.stages.length);
         this.currentPage = 0;
         this.getListOfRequests();
     }
@@ -249,39 +236,28 @@ export class RequestsComponent implements OnInit {
         console.log('formArray length is', formArray.length);
     }
 
+
+    chooseStage() {
+        if ( !this.isSimpleUser ) {
+            this.getStageChoices();
+            console.log('after getStageChoices list is', JSON.stringify(this.stagesChoice));
+            this.currentPage = 0;
+            this.getListOfRequests();
+        }
+    }
+
+    chooseState() {
+        this.getStatusChoices();
+        console.log('after getStatusChoices list is', JSON.stringify(this.statusesChoice));
+        this.currentPage = 0;
+        this.getListOfRequests();
+    }
+
     getSearchResults() {
         this.searchTerm = this.keywordField.get('keyword').value;
         console.log('this.searchTerm is', this.searchTerm);
         this.currentPage = 0;
         this.getListOfRequests();
-    }
-
-    getFilterSearchResults() {
-        this.getStatusChoices();
-        this.getStageChoices();
-        /*this.keywordField.get('keyword').setValue('');
-        this.searchTerm = '';*/
-        this.currentPage = 0;
-        this.getListOfRequests();
-    }
-
-    clearFilterControls() {
-        //  TODO: add projects and institutes
-        // projects: this.createProjectsArray(),
-        // institutes: this.createInstitutesArray()
-        this.setAllStatusValues(false);
-        this.setAllStageValues(false);
-    }
-
-    clearAllControls() {
-        //  TODO: add projects and institutes
-        // projects: this.createProjectsArray(),
-        // institutes: this.createInstitutesArray()
-        this.setAllStatusValues(false);
-        this.setAllStageValues(false);
-        this.keywordField.get('keyword').setValue('');
-        this.searchTerm = '';
-        this.phaseId = 0;
     }
 
     getStatusAsString( status: string ) {
@@ -294,10 +270,6 @@ export class RequestsComponent implements OnInit {
         }
     }
 
-    printRequest(): void {
-        printRequestPage();
-    }
-
     toggleSearchAllStatuses(event: any) {
         this.setAllStatusValues(event.target.checked);
         this.currentPage = 0;
@@ -308,28 +280,28 @@ export class RequestsComponent implements OnInit {
         this.allStatusSelected = val;
         const statusChoices = <FormArray>this.filtersForm.controls['statusChoices'];
         statusChoices.controls.map(x => x.get('status').setValue(val));
-        this.statusList = [];
-        this.statusList.push('all');
+        this.statusesChoice = [];
+        this.statusesChoice.push('all');
     }
 
     getStatusChoices() {
         this.allStatusSelected = null;
-        this.statusList = [];
+        this.statusesChoice = [];
         const statusChoices = <FormArray>this.filtersForm.controls['statusChoices'];
         if ( statusChoices.at(0).get('status').value ) {
-            this.statusList.push('pending');
-            this.statusList.push('under_review');
+            this.statusesChoice.push('pending');
+            this.statusesChoice.push('under_review');
         }
         if ( statusChoices.at(1).get('status').value ) {
-            this.statusList.push('rejected');
+            this.statusesChoice.push('rejected');
         }
         if ( statusChoices.at(2).get('status').value ) {
-            this.statusList.push('accepted');
+            this.statusesChoice.push('accepted');
         }
-        if ((this.statusList.length === 0) || (this.statusList.length === 4) ) {
-            this.allStatusSelected = (this.statusList.length === 4);
-            this.statusList = [];
-            this.statusList.push('all');
+        if ((this.statusesChoice.length === 0) || (this.statusesChoice.length === 4) ) {
+            this.allStatusSelected = (this.statusesChoice.length === 4);
+            this.statusesChoice = [];
+            this.statusesChoice.push('all');
             console.log(this.allStatusSelected);
         }
     }
@@ -396,12 +368,8 @@ export class RequestsComponent implements OnInit {
             this.allStagesSelected = null;
             this.stagesChoice = [];
             const stageChoices = <FormArray>this.filtersForm.controls['stageChoices'];
-            console.log('this.stages is', JSON.stringify(this.stages));
-            console.log('stage array length is', stageChoices.length);
-            console.log('stage array is', JSON.stringify(stageChoices.value));
             stageChoices.controls.map( (x, i) => { if ( x.get('stage').value ) { this.stagesChoice.push(this.stages[i]); } });
             if ((this.stagesChoice.length === 0) || (this.stagesChoice.length === this.stages.length)) {
-                console.log('stagesChoice length is', this.stagesChoice.length);
                 this.allStagesSelected = (this.stagesChoice.length === this.stages.length);
                 this.stagesChoice = [];
                 if (this.phaseId === 0) {
@@ -415,10 +383,16 @@ export class RequestsComponent implements OnInit {
         }
     }
 
-    clearProjectChoices() {
-        this.projectsChoice = [];
-        const projectChoices = <FormArray>this.filtersForm.controls['projectChoices'];
-        projectChoices.controls.map(x => x.get('project').setValue(false));
+    getChoices(arrayName: string, controlName: string, choicesArray: string[]) {
+        const formArray = <FormArray>this.filtersForm.controls[arrayName];
+        const choices = [];
+        formArray.controls.map( (x, i) => { if ( x.get(controlName).value ) { choices.push(choicesArray[i]); } } );
+        return choices;
+    }
+
+    setChoices(val: boolean, arrayName: string, controlName: string) {
+        const formArray = <FormArray>this.filtersForm.controls[arrayName];
+        formArray.controls.map( x => x.get(controlName).setValue(val) );
     }
 
     getProjectChoices() {
@@ -432,88 +406,47 @@ export class RequestsComponent implements OnInit {
     }
 
 
-    getProjects() {
+    getProjectsAndInstitutes() {
         this.showSpinner = true;
         this.errorMessage = '';
         this.projects = [];
-        this.projectService.getAllProjectsNames().subscribe (
-            projects => {
-                this.projects = projects;
-                console.log(this.projects);
-            },
-            error => {
-                console.log(error);
-                this.showSpinner = false;
-                this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την ανάκτηση των απαραίτητων πληροφοριών.';
-            },
-            () => {
-                this.showSpinner = false;
-                this.errorMessage = '';
-                if ( isNullOrUndefined(this.projects) || (this.projects.length === 0)) {
+
+        forkJoin(this.projectService.getAllProjectsNames(),
+                 this.resourceService.getInstituteNames)
+            .subscribe(
+                res => {
+                    this.projects = res[0];
+                    this.institutes = res[1];
+                },
+                error => {
+                    console.log(error);
+                    this.showSpinner = false;
                     this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την ανάκτηση των απαραίτητων πληροφοριών.';
-                } else {
-                    this.initializeParams();
-                    // this.getInstitutes();
+                },
+                () => {
+                    this.showSpinner = false;
+                    this.errorMessage = '';
+                    if ( (isNullOrUndefined(this.projects) || (this.projects.length === 0)) ||
+                         isNullOrUndefined(this.institutes) ) {
+                        this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την ανάκτηση των απαραίτητων πληροφοριών.';
+                    } else {
+                        this.initializeParams();
+                    }
                 }
-            }
-        );
-    }
-
-    getInstitutes() {
-        this.showSpinner = true;
-        this.errorMessage = '';
-        this.projects = [];
-        this.resourceService.getInstituteNames().subscribe (
-            insts => {
-                this.institutes = insts;
-                this.instituteIds = Array.from(this.institutes.keys());
-                console.log(this.institutes);
-            },
-            error => {
-                console.log(error);
-                this.showSpinner = false;
-                this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την ανάκτηση των απαραίτητων πληροφοριών.';
-            },
-            () => {
-                this.showSpinner = false;
-                this.errorMessage = '';
-                if ( isNullOrUndefined(this.institutes) || (this.instituteIds.length === 0)) {
-                    this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την ανάκτηση των απαραίτητων πληροφοριών.';
-                } else {
-                    this.initializeParams();
-                }
-            }
-        );
-    }
-
-
-    chooseStage() {
-        if ( !this.isSimpleUser ) {
-            this.getStageChoices();
-            console.log('after getStageChoices list is', JSON.stringify(this.stagesChoice));
-            this.currentPage = 0;
-            this.getListOfRequests();
-        }
-    }
-
-    chooseState() {
-        this.getStatusChoices();
-        console.log('after getStatusChoices list is', JSON.stringify(this.statusList));
-        this.currentPage = 0;
-        this.getListOfRequests();
+            );
     }
 
     getTrStyle(req: RequestSummary) {
-        if (this.getIfUserCanEdit(req.request.id, req.request.project, req.baseInfo.stage)) {
+        if (this.getIfUserCanEdit(req.baseInfo.id, req.request.id, req.request.project, req.baseInfo.stage)) {
             return '#f7f7f7';
         } else {
             return '';
         }
     }
 
-    getIfUserCanEdit(requestId: string, project: Project, stage: string) {
-        const newRequestInfo = new RequestInfo(requestId, project);
-        return ((this.authService.getUserRole() === 'ROLE_ADMIN') ||
+    getIfUserCanEdit(id: string, requestId: string, project: Project, stage: string) {
+        const newRequestInfo = new RequestInfo(id, requestId, project);
+        return ((this.authService.getUserRole() === 'ROLE_ADMIN') || (this.isSimpleUser && (stage === '1')) ||
             (newRequestInfo[stage].stagePOIs.some(
                     x => ((x.email === this.authService.getUserProp('email')) ||
                         x.delegates.some(y => y.email === this.authService.getUserProp('email')))
@@ -521,12 +454,8 @@ export class RequestsComponent implements OnInit {
             ) );
     }
 
-    navigateToRequestPage(baseInfo: BaseInfo) {
-        if (baseInfo.id.includes('a')) {
-            this.router.navigate(['/requests/request-stage', baseInfo.id]);
-        } else {
-            this.router.navigate(['/requests/request-stage-payment', baseInfo.id]);
-        }
+    printRequest(): void {
+        printRequestPage();
     }
 
 }

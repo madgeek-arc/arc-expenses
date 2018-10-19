@@ -41,3 +41,31 @@ export class Paging<T> {
     results: T[];
     occurences: Occurences;
 }
+
+// TODO: send a SearchParams at getAll instead of many query params
+export class SearchParams {
+    email: string;
+    from: string;
+    quantity: string;
+    order: string;
+    orderField: string;
+    searchField: string;
+    statuses: string[];
+    stages: string[];
+    projects: string[];
+    institutes: string[];
+
+    constructor(email: string, from: string, quantity: string, order: string, orderField: string,
+                searchField: string, statuses: string[], stages: string[], projects: string[], institutes: string[]) {
+        this.email = email;
+        this.from = from;
+        this.quantity = quantity;
+        this.order = order;
+        this.orderField = orderField;
+        this.searchField = searchField;
+        this.statuses = statuses;
+        this.stages = stages;
+        this.projects = projects;
+        this.institutes = institutes;
+    }
+}
