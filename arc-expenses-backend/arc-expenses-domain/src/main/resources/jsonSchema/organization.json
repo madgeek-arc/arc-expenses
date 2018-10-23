@@ -27,7 +27,7 @@
   "required": [
     "id",
     "name",
-    "POY",
+    "poy",
     "director",
     "dioikitikoSumvoulio"
   ]
