@@ -11,7 +11,7 @@ import { approvalStages, requestTypes, stageIds, stageTitles } from '../domain/s
 import { printRequestPage } from './print-request-function';
 import { AnchorItem } from '../shared/dynamic-loader-anchor-components/anchor-item';
 import { RequestInfo } from '../domain/requestInfoClasses';
-import { mergeMap, tap } from 'rxjs/operators';
+import { concatMap, mergeMap, tap } from 'rxjs/operators';
 import { forkJoin } from 'rxjs/observable/forkJoin';
 
 @Component({
@@ -342,12 +342,13 @@ export class RequestStageComponent implements OnInit {
             this.uploadedFile = null;
         }
 
-        const updateRequest = this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email'));
-        const updateRequestApproval = this.requestService.updateRequestApproval(this.currentRequestApproval);
-        forkJoin(updateRequest, updateRequestApproval).subscribe(
+        this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email')).pipe(
+            tap(res => this.currentRequest = res),
+            concatMap( res =>
+                this.requestService.updateRequestApproval(this.currentRequestApproval)
+            )).subscribe(
             res => {
-                this.currentRequest = res[0];
-                this.currentRequestApproval = res[1];
+                this.currentRequestApproval = res;
             },
             error => {
                 console.log(error);
