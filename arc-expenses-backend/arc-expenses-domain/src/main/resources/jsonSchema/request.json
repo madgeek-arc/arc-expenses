@@ -13,6 +13,7 @@
         "supplier": { "type": "string" },
         "supplierSelectionMethod": { "type": "string" },
         "amountInEuros": { "type": "number" },
+        "finalAmount": { "type": "number" },
         "attachment": {
           "javaType": "gr.athenarc.domain.Attachment"
         }
@@ -41,6 +42,9 @@
     },
     "requestStatus": {
       "type": "string"
+    },
+    "scientificCoordinatorAsDiataktis": {
+      "type": "boolean"
     },
     "trip": {
       "javaType": "gr.athenarc.domain.Trip" }

@@ -32,6 +32,9 @@
     },
     "endDate": {
       "type": "string"
+    },
+    "totalCost": {
+      "type": "string"
     }
   },
   "required": [
