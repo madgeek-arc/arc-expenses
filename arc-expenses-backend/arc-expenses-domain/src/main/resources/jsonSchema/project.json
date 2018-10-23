@@ -1,172 +1,44 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-
-  "definitions": {
-    "delegate": {
-      "type": "object",
-      "description": "",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "firstname": {
-          "type": "string"
-        },
-        "lastname": {
-          "type": "string"
-        },
-        "hidden": {
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "email",
-        "firstname",
-        "lastname"
-      ]
+  "title": "Project",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
     },
-    "personOfInterest": {
-      "type": "object",
-      "title": "PersonOfInterest",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "firstname": {
-          "type": "string"
-        },
-        "lastname": {
-          "type": "string"
-        },
-        "delegates": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/delegate"
-          }
-        }
-      },
-      "required": [
-        "email",
-        "firstname",
-        "lastname"
-      ]
+    "name": {
+      "type": "string"
     },
-    "organization": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "POI": {
-          "$ref": "#/definitions/personOfInterest"
-        },
-        "director": {
-          "$ref": "#/definitions/personOfInterest"
-        },
-        "dioikitikoSumvoulio": {
-          "$ref": "#/definitions/personOfInterest"
-        },
-        "inspectionTeam": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/personOfInterest"
-          }
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "POI",
-        "director",
-        "dioikitikoSumvoulio"
-      ]
+    "acronym": {
+      "type": "string"
     },
     "institute": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "organization": {
-          "$ref": "#/definitions/organization"
-        },
-        "director": {
-          "$ref": "#/definitions/personOfInterest"
-        },
-        "accountingRegistration": {
-          "$ref": "#/definitions/personOfInterest"
-        },
-        "accountingPayment": {
-          "$ref": "#/definitions/personOfInterest"
-        },
-        "accountingDirector": {
-          "$ref": "#/definitions/personOfInterest"
-        },
-        "diaugeia": {
-          "$ref": "#/definitions/personOfInterest"
-        },
-        "suppliesOffice": {
-          "$ref": "#/definitions/personOfInterest"
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "organization",
-        "director",
-        "accountingRegistration",
-        "accountingPayment",
-        "accountingDirector",
-        "diaugeia"
-      ]
+      "javaType": "gr.athenarc.domain.Institute"
     },
-    "project": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "acronym": {
-          "type": "string"
-        },
-        "institute": {
-          "$ref": "#/definitions/institute"
-        },
-        "parentProject": {
-          "type": "string"
-        },
-        "scientificCoordinator": {
-          "$ref": "#/definitions/personOfInterest"
-        },
-        "operator": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/personOfInterest"
-          }
-        },
-        "startDate": {
-          "type": "string"
-        },
-        "endDate": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "institute",
-        "scientificCoordinator",
-        "operator"
-      ]
+    "parentProject": {
+      "type": "string"
+    },
+    "scientificCoordinator": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "operator": {
+      "type": "array",
+      "items": {
+        "javaType": "gr.athenarc.domain.PersonOfInterest"
+      }
+    },
+    "startDate": {
+      "type": "string"
+    },
+    "endDate": {
+      "type": "string"
     }
-  }
+  },
+  "required": [
+    "id",
+    "name",
+    "institute",
+    "scientificCoordinator",
+    "operator"
+  ]
 }

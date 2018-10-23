@@ -1,60 +1,34 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-
-  "definitions": {
-    "delegate": {
-      "type": "object",
-      "description": "",
-      "properties": {
-        "email": { "type": "string" },
-        "firstname": { "type": "string" },
-        "lastname": { "type": "string" },
-        "hidden": { "type": "boolean" }
-      },
-      "required": [
-        "email",
-        "firstname",
-        "lastname"
-      ]
+  "title": "Organization",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "POY": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
     },
-    "personOfInterest": {
-      "type": "object",
-      "title": "PersonOfInterest",
-      "properties": {
-        "email": { "type": "string" },
-        "firstname": { "type": "string" },
-        "lastname": { "type": "string" },
-        "delegates": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/delegate" }
-        }
-      },
-      "required": [
-        "email",
-        "firstname",
-        "lastname"
-      ]
+    "director": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
     },
-    "organization": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "POI": { "$ref": "#/definitions/personOfInterest" },
-        "director": { "$ref": "#/definitions/personOfInterest" },
-        "inspectionTeam": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/personOfInterest" }
-        },
-        "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" }
-      },
-      "required": [
-        "id",
-        "name",
-        "POI",
-        "director",
-        "dioikitikoSumvoulio"
-      ]
+    "viceDirector": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "inspectionTeam": {
+      "type": "array",
+      "items": {
+        "javaType": "gr.athenarc.domain.PersonOfInterest"
+      }
+    },
+    "dioikitikoSumvoulio": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
     }
-  }
+  },
+  "required": [
+    "id",
+    "name",
+    "POY",
+    "director",
+    "dioikitikoSumvoulio"
+  ]
 }

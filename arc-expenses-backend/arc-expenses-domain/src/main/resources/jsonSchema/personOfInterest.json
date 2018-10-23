@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "title": "PersonOfInterest",
+  "properties": {
+    "email": {
+      "type": "string"
+    },
+    "firstname": {
+      "type": "string"
+    },
+    "lastname": {
+      "type": "string"
+    },
+    "delegates": {
+      "type": "array",
+      "items": {
+        "javaType": "gr.athenarc.domain.Delegate"
+      }
+    }
+  },
+  "required": [
+    "email",
+    "firstname",
+    "lastname"
+  ]
+}

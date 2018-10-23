@@ -1,112 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
 
-  "definitions": {
-    "delegate": {
-      "type": "object",
-      "description": "",
-      "properties": {
-        "email": { "type": "string" },
-        "firstname": { "type": "string" },
-        "lastname": { "type": "string" },
-        "hidden": { "type": "boolean" }
-      },
-      "required": [
-        "email",
-        "firstname",
-        "lastname"
-      ]
-    },
-    "personOfInterest": {
-      "type": "object",
-      "title": "PersonOfInterest",
-      "properties": {
-        "email": { "type": "string" },
-        "firstname": { "type": "string" },
-        "lastname": { "type": "string" },
-        "delegates": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/delegate" }
-        }
-      },
-      "required": [
-        "email",
-        "firstname",
-        "lastname"
-      ]
-    },
-    "organization": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "POI": { "$ref": "#/definitions/personOfInterest" },
-        "director": { "$ref": "#/definitions/personOfInterest" },
-        "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" },
-        "inspectionTeam": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/personOfInterest" }
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "POI",
-        "director",
-        "dioikitikoSumvoulio",
-        "inspectionTeam"
-      ]
-    },
-    "institute": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "organization": { "$ref": "#/definitions/organization" },
-        "director": { "$ref": "#/definitions/personOfInterest" },
-        "accountingRegistration": { "$ref": "#/definitions/personOfInterest" },
-        "accountingPayment": { "$ref": "#/definitions/personOfInterest" },
-        "accountingDirector": { "$ref": "#/definitions/personOfInterest" },
-        "diaugeia": { "$ref": "#/definitions/personOfInterest" },
-        "suppliesOffice": { "$ref": "#/definitions/personOfInterest" }
-      },
-      "required": [
-        "id",
-        "name",
-        "organization",
-        "director",
-        "accountingRegistration",
-        "accountingPayment",
-        "accountingDirector",
-        "diaugeia"
-      ]
-    },
-    "project": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "acronym": { "type": "string" },
-        "institute": { "$ref": "#/definitions/institute" },
-        "parentProject":  { "type": "string" },
-        "scientificCoordinator": { "$ref": "#/definitions/personOfInterest" },
-        "operator": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/personOfInterest" }
-        },
-        "startDate": { "type": "string" },
-        "endDate": { "type": "string" }
-      },
-      "required": [
-        "id",
-        "name",
-        "institute",
-        "scientificCoordinator",
-        "operator"
-      ]
-    }
-  },
-
   "title": "Request",
   "type": "object",
   "properties": {
@@ -137,7 +31,7 @@
       "description": "The archiveId of the request.",
       "type": "string"
     },
-    "project": { "$ref": "#/definitions/project" },
+    "project": { "javaType": "gr.athenarc.domain.Project" },
     "user": {
       "javaType": "gr.athenarc.domain.User" },
     "requesterPosition": {
@@ -147,6 +41,8 @@
     },
     "requestStatus": {
       "type": "string"
-    }
+    },
+    "trip": {
+      "javaType": "gr.athenarc.domain.Trip" }
   }
 }

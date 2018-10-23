@@ -1,85 +1,56 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-
-  "definitions": {
-    "delegate": {
-      "type": "object",
-      "description": "",
-      "properties": {
-        "email": { "type": "string" },
-        "firstname": { "type": "string" },
-        "lastname": { "type": "string" },
-        "hidden": { "type": "boolean" }
-      },
-      "required": [
-        "email",
-        "firstname",
-        "lastname"
-      ]
+  "title": "Institute",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
     },
-    "personOfInterest": {
-      "type": "object",
-      "title": "PersonOfInterest",
-      "properties": {
-        "email": { "type": "string" },
-        "firstname": { "type": "string" },
-        "lastname": { "type": "string" },
-        "delegates": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/delegate" }
-        }
-      },
-      "required": [
-        "email",
-        "firstname",
-        "lastname"
-      ]
+    "name": {
+      "type": "string"
+    },
+    "totalCost": {
+      "type": "string"
     },
     "organization": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "POI": { "$ref": "#/definitions/personOfInterest" },
-        "director": { "$ref": "#/definitions/personOfInterest" },
-        "dioikitikoSumvoulio": { "$ref": "#/definitions/personOfInterest" },
-        "inspectionTeam": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/personOfInterest" }
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "POI",
-        "director",
-        "dioikitikoSumvoulio"
-      ]
+      "javaType": "gr.athenarc.domain.Organization"
     },
-    "institute": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "organization": { "$ref": "#/definitions/organization" },
-        "director": { "$ref": "#/definitions/personOfInterest" },
-        "accountingRegistration": { "$ref": "#/definitions/personOfInterest" },
-        "accountingPayment": { "$ref": "#/definitions/personOfInterest" },
-        "accountingDirector": { "$ref": "#/definitions/personOfInterest" },
-        "diaugeia": { "$ref": "#/definitions/personOfInterest" },
-        "suppliesOffice": { "$ref": "#/definitions/personOfInterest" }
-
-      },
-      "required": [
-        "id",
-        "name",
-        "organization",
-        "director",
-        "accountingRegistration",
-        "accountingPayment",
-        "accountingDirector",
-        "diaugeia"
-      ]
+    "director": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "accountingRegistration": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "accountingPayment": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "accountingDirector": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "diaugeia": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "suppliesOffice": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "travelManager": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "diataktis": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
     }
-  }
+  },
+  "required": [
+    "id",
+    "name",
+    "organization",
+    "director",
+    "accountingRegistration",
+    "accountingPayment",
+    "accountingDirector",
+    "diaugeia"
+  ]
 }
+
+
+
