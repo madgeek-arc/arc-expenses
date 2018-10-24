@@ -284,7 +284,7 @@ export class RequestInfo {
         }
 
         if ((this.requester.email === project.institute.organization.director.email) &&
-            (this.requester.email === project.institute.diataktis.email) {
+            (this.requester.email === project.institute.diataktis.email) ) {
             (this['5a']).stagePOIs = [];
             (this['5a']).stagePOIs.push(project.institute.organization.viceDirector);
             (this['10']).stagePOIs = [];
