@@ -100,7 +100,7 @@ export class RequestStagePaymentComponent implements OnInit {
     }
 
     checkIfStageIs7() {
-        if ( (this.currentRequestApproval.stage === '7') &&
+        if ( (this.currentRequestPayment.stage === '7') &&
              ((this.currentRequest.type === 'regular') || (this.currentRequest.type === 'trip')) ) {
 
             this.currentRequestInfo.finalAmount = '';
