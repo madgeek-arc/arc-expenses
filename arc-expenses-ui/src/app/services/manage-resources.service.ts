@@ -1,7 +1,7 @@
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {environment} from '../../environments/environment';
-import {Delegate, Institute, Organization, POI} from '../domain/operation';
+import {Delegate, Institute, Organization, PersonOfInterest} from '../domain/operation';
 import {Observable} from 'rxjs/Observable';
 
 const headerOptions = {
@@ -70,16 +70,16 @@ export class ManageResourcesService {
         return this.http.get<string[]>(url, headerOptions);
     }
 
-    getPOIById(id: string): Observable<POI> {
+    getPOIById(id: string): Observable<PersonOfInterest> {
         const url = `${this.apiUrl}/poi/getById/${id}`;
         console.log(`calling ${url}`);
-        return this.http.get<POI>(url, headerOptions);
+        return this.http.get<PersonOfInterest>(url, headerOptions);
     }
 
-    addPOI(newPOI: POI): Observable<POI> {
+    addPOI(newPOI: PersonOfInterest): Observable<PersonOfInterest> {
         const url = `${this.apiUrl}/poi/add`;
         console.log(`calling ${url}`);
-        return this.http.post<POI>(url, newPOI, headerOptions);
+        return this.http.post<PersonOfInterest>(url, newPOI, headerOptions);
     }
 
 

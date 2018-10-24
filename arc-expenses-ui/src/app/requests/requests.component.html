@@ -13,7 +13,7 @@
                 <div [formGroup]="keywordField" class="uk-align-center uk-margin-top">
                   <input class="uk-input uk-width-2-3 uk-search-field"
                          placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο" formControlName="keyword">
-                  <button class="uk-button uk-button-secondary" (click)="getSearchResults()"><i class="fa fa-search"></i> Αναζήτηση</button>
+                  <button class="uk-button uk-button-secondary" (click)="getSearchByKeywordResults()"><i class="fa fa-search"></i> Αναζήτηση</button>
                   <button class="uk-button uk-button-default" (click)="initializeParams()">Καθάρισμα επιλογών</button>
                 </div>
               </div>
@@ -72,6 +72,22 @@
                         </div>
                     </div>
                 </div>
+                <!--<div class="uk-margin-bottom">
+                    <div formArrayName="typeChoices" class="show-options uk-inline">
+                        <label class="filterLabel uk-text-bold uk-margin-large-bottom" for="selectAllTypes">
+                            <input class="uk-checkbox" type="checkbox" id="selectAllTypes" [checked]="allTypesSelected"
+                                   (change)="toggleSearchAllTypes($event)">&nbsp;&nbsp;Τύπος</label>
+                        <div *ngFor="let reqtype of requestTypeIds; let type_i = index">
+                            <div [formGroupName]="type_i">
+                                <label for="type_{{ type_i }}">
+                                    <input class="uk-checkbox" type="checkbox" formControlName="type" id="type_{{ type_i }}"
+                                           (change)="chooseType()">
+                                    {{ reqTypes[reqtype] }})
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>-->
                 <div class="uk-margin-bottom">
                    <div formArrayName="statusChoices" class="show-options uk-inline">
                        <label class="filterLabel uk-text-bold uk-margin-large-bottom" for="selectAllStatus">
@@ -118,6 +134,24 @@
                        </div>
                    </div>
                </div>
+               <!--<div class="uk-margin-bottom">
+                   <div formArrayName="projectChoices" class="show-options uk-inline">
+                       <label class="filterLabel uk-text-bold uk-margin-large-bottom" for="selectAllProjects">
+                           <input class="uk-checkbox" type="checkbox" id="selectAllProjects" [checked]="allProjectsSelected"
+                                  (change)="toggleSearchAllProjects($event)">&nbsp;&nbsp;Στάδιο</label>
+                       <div *ngFor="let proj of projects; let proj_i = index">
+                           <div [formGroupName]="proj_i">
+                               <read-more [maxHeight]="245">
+                                   <label for="proj_{{ proj_i }}">
+                                       <input class="uk-checkbox" type="checkbox" formControlName="project" id="proj_{{ proj_i }}"
+                                              (change)="chooseProject()">
+                                        {{ proj.projectAcronym }} ({{ proj.instituteName }})
+                                   </label>
+                               </read-more>
+                           </div>
+                       </div>
+                   </div>
+               </div>-->
 
            </div>
           </div>
@@ -129,7 +163,7 @@
                     <!--<div [formGroup]="keywordField" class="uk-width-1-2 uk-align-center uk-margin-top">-->
                         <!--<input class="uk-input uk-width-2-3 uk-search-field"-->
                                <!--placeholder="αιτών, χειριστής, υπεύθυνος, έργο, ινστιτούτο" formControlName="keyword">-->
-                        <!--<button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="getSearchResults()">Αναζήτηση</button>-->
+                        <!--<button class="uk-button-medium uk-button-secondary uk-padding-small" (click)="getSearchByKeywordResults()">Αναζήτηση</button>-->
                     <!--</div>-->
                 <!--</div>-->
                 <div>
@@ -214,12 +248,7 @@
                                                           [innerHtml]="getOrderSign()"></span>
                                                     </a>
                                                 </th>
-                                                <th *ngIf="!isSimpleUser"><a (click)="sortBy('request_stage')" title="Ταξινόμηση με βάση το στάδιο" class="uk-margin-right">
-                                                    Σταδιο&nbsp;
-                                                    <span *ngIf="orderField && (orderField === 'request_stage')"
-                                                          [innerHtml]="getOrderSign()"></span>
-                                                    </a>
-                                                </th>
+                                                <th *ngIf="!isSimpleUser">Σταδιο</th>
                                                 <th><span class="uk-margin-right">Κατασταση</span></th>
                                             </tr>
                                             <tr *ngIf="noRequests">
@@ -229,17 +258,13 @@
                                                 routerLink="/requests/{{(req.baseInfo.id).includes('a')? 'request-stage':'request-stage-payment'}}/{{req.baseInfo.id}}"
                                                 title="Μετάβαση στην σελίδα του αιτήματος" [style.backgroundColor]="getTrStyle(req)">
                                                 <td>{{ req.baseInfo.id.includes('a') ? 'Α': 'Π' }}</td>
-                                                <td>{{ req.request.id }}/<br>{{ reqTypes[req.request.type] }}</td>
+                                                <td>{{ req.request.id }}<br>{{ reqTypes[req.request.type] }}</td>
                                                 <td>{{ req.request.project.acronym }}</td>
                                                 <td>{{ req.request.project.institute.name }}</td>
                                                 <td>{{ req.request.user.firstname }} {{ req.request.user.lastname }}</td>
                                                 <td>{{ req.request.stage1.requestDate | date : 'dd-MM-yyyy' }}</td>
                                                 <td *ngIf="!isSimpleUser">{{ stagesMap[req.baseInfo.stage]}}</td>
                                                 <td>{{ getStatusAsString(req.baseInfo.status) }}</td>
-                                                <!--<td>
-                                                    <span *ngIf="getIfUserCanEdit(req.baseInfo.id, req.request.id, req.request.project, req.baseInfo.stage)"
-                                                          uk-icon="icon: pencil"></span>
-                                                </td>-->
                                             </tr>
                                         </thead>
                                     </table>

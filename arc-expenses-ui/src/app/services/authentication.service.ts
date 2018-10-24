@@ -71,9 +71,6 @@ export class AuthenticationService {
                     userInfo => {
                         console.log('User is still logged in');
                         console.log(userInfo);
-                        /* this.setUserProperties(userInfo['user']);
-                        sessionStorage.setItem('role', userInfo['role']);
-                        this.isLoggedIn = true; */
                         if ( isNullOrUndefined(sessionStorage.getItem('userInfo')) ||
                              (isNullOrUndefined(this.getUserProp('email')) ) ) {
                             console.log('received null userInfo');

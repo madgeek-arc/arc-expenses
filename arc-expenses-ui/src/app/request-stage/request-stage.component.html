@@ -66,8 +66,12 @@
                       <span>{{ currentRequest.stage1.supplier }} ({{ currentRequest.stage1.supplierSelectionMethod }})</span>
                     </div>
                     <div class="uk-width-1-2@l">
-                      <span class="uk-text-bold uk-margin-small-right">Ποσό: </span>
-                      <span>{{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>
+                      <span class="uk-text-bold uk-margin-small-right">
+                        {{ (currentRequest.stage1.amountInEuros !== currentRequest.stage1.finalAmount) ? 'Τελικό ': '' }}Ποσό: </span>
+                      <span *ngIf="currentRequest.stage1.amountInEuros === currentRequest.stage1.finalAmount">
+                        {{ currentRequest.stage1.amountInEuros | currency: 'EUR': 'symbol-narrow' }}</span>
+                      <span *ngIf="currentRequest.stage1.amountInEuros !== currentRequest.stage1.finalAmount">
+                        {{ currentRequest.stage1.finalAmount | currency: 'EUR': 'symbol-narrow' }}</span>
                     </div>
 
                     <div class="uk-width-1-1@l">
@@ -172,18 +176,17 @@
                 </div>
 
                 <hr>
-                <div *ngIf="!isSimpleUser &&
-                            (currentRequestApproval.status === 'accepted') &&
+                <div *ngIf="(currentRequestApproval.status === 'accepted') &&
                             (currentRequest.type !== 'contract')" class="uk-margin-top">
 
-                    <!-- Create Payment button -->
-                    <div *ngIf="(!currentRequestPayments || (currentRequestPayments.length === 0)) &&
-                                ((canEdit === true) || userIsAdmin()  )"
+                    <!-- Create Payment button NOT needed - the first payment is created on the approval's completion -->
+                    <!--<div *ngIf="(!currentRequestPayments || (currentRequestPayments.length === 0)) &&
+                                ((canEdit === true) || userIsAdmin() )"
                          class="uk-margin-top">
 
                         <button class="uk-button uk-button-primary"
                                 (click)="createRequestPayment()">Προσθήκη Περαίωσης</button>
-                    </div>
+                    </div>-->
 
                     <div *ngIf="(currentRequestPayments && (currentRequestPayments.length > 0))">
 
@@ -194,8 +197,9 @@
 
                       <!-- Payments list -->
                       <div *ngIf="(currentRequest.type === 'services_contract')">
+
                         <div>
-                            <h4>Περαιώσεις του αιτήματος</h4>
+                          <h4>Περαιώσεις του αιτήματος</h4>
                           <div class="uk-width-1-1 uk-overflow-auto uk-scrollspy-inview uk-animation-slide-top-medium uk-margin-top uk-margin-bottom">
                             <table class="uk-table uk-table-hover uk-table-divider">
                               <thead>

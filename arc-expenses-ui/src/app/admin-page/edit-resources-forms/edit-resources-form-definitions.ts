@@ -17,7 +17,7 @@ export const poiFormDefinition = {
 export const organizationFormDefinition = {
     id: new FormControl(''),
     name: new FormControl(''),
-    POI: new FormGroup(poiFormDefinition),
+    personOfInterest: new FormGroup(poiFormDefinition),
     director: new FormGroup(poiFormDefinition),
     dioikitikoSumvoulio: new FormGroup(poiFormDefinition),
     inspectionTeam: new FormArray([new FormGroup(poiFormDefinition)])

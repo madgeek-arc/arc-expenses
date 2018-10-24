@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Attachment, Project, Request, Stage1, Stage2, Stage3, Stage5a, Stage5b, Stage4,
-         Stage6, User, Vocabulary, RequestApproval } from '../domain/operation';
+         Stage6, User, Vocabulary, RequestApproval, Trip } from '../domain/operation';
 import { ManageRequestsService } from '../services/manage-requests.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthenticationService } from '../services/authentication.service';
@@ -123,11 +123,26 @@ export class NewRequestComponent implements OnInit {
             requestText: ['', Validators.required],
             supplier: [''],
             supplierSelectionMethod: [''],
+            trip_firstname: [''],
+            trip_lastname: [''],
+            trip_email: [''],
+            trip_destination: [''],
             amount: ['', [Validators.required, Validators.min(0), Validators.pattern('^\\d+(\\.\\d{1,2})?$')] ],
             sciCoord: ['']
         });
         this.newRequestForm.get('name').setValue(`${this.currentUser.firstname} ${this.currentUser.lastname}`);
         this.newRequestForm.get('name').disable();
+
+        if (this.requestType === 'trip') {
+            this.newRequestForm.get('trip_firstname').setValue(this.currentUser.firstname);
+            this.newRequestForm.get('trip_lastname').setValue(this.currentUser.lastname);
+            this.newRequestForm.get('trip_email').setValue(this.currentUser.email);
+            this.newRequestForm.get('trip_firstname').setValidators([Validators.required]);
+            this.newRequestForm.get('trip_lastname').setValidators([Validators.required]);
+            this.newRequestForm.get('trip_email').setValidators([Validators.required]);
+            this.newRequestForm.get('trip_destination').setValidators([Validators.required]);
+            this.newRequestForm.updateValueAndValidity();
+        }
     }
 
     submitRequest() {
@@ -168,7 +183,6 @@ export class NewRequestComponent implements OnInit {
                 this.request.user = this.currentUser;
                 this.request.requesterPosition = this.newRequestForm.get('position').value;
                 this.request.stage1 = new Stage1();
-                /*this.request.stage1.requestDate = this.datePipe.transform(Date.now(), 'dd/MM/yyyy');*/
                 this.request.stage1.requestDate = Date.now().toString();
                 this.request.stage1.subject = this.newRequestForm.get('requestText').value;
                 if ( this.checkIfTrip() ) {
@@ -176,6 +190,7 @@ export class NewRequestComponent implements OnInit {
                     this.request.stage1.supplierSelectionMethod = this.selMethods[this.newRequestForm.get('supplierSelectionMethod').value];
                 }
                 this.request.stage1.amountInEuros = +this.newRequestForm.get('amount').value;
+                this.request.stage1.finalAmount = +this.newRequestForm.get('amount').value;
                 if (this.uploadedFile) {
                     this.request.stage1.attachment = new Attachment();
                     this.request.stage1.attachment.filename = this.uploadedFile.name;
@@ -183,6 +198,16 @@ export class NewRequestComponent implements OnInit {
                     this.request.stage1.attachment.size = this.uploadedFile.size;
                     this.request.stage1.attachment.url = '';
                 }
+
+                if (this.requestType === 'trip') {
+                    let newTrip = new Trip();
+                    newTrip.firstname = this.newRequestForm.get('trip_firstname').value;
+                    newTrip.lastname = this.newRequestForm.get('trip_lastname').value;
+                    newTrip.email = this.newRequestForm.get('trip_email').value;
+                    newTrip.destination = this.newRequestForm.get('trip_destination').value;
+                    this.request.trip = newTrip;
+                }
+
                 this.request.requestStatus = 'pending';
 
                 this.requestApproval = new RequestApproval();
@@ -193,6 +218,9 @@ export class NewRequestComponent implements OnInit {
                 this.requestApproval.stage2 = new Stage2();
                 this.requestApproval.stage3 = new Stage3();
                 this.requestApproval.stage4 = new Stage4();
+
+                // TODO: Check if stage5a is needed
+                // if (this.request.stage1.amountInEuros < this.lowAmount) {}
                 this.requestApproval.stage5a = new Stage5a();
 
                 if ( (this.requestType === 'contract') || (this.requestType === 'services_contract') ||

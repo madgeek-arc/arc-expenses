@@ -50,6 +50,7 @@ export class SearchParams {
     order: string;
     orderField: string;
     searchField: string;
+    requestTypes: string[];
     statuses: string[];
     stages: string[];
     projects: string[];

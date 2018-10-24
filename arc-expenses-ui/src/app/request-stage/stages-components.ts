@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Attachment, User, POI } from '../domain/operation';
+import { Attachment, User, PersonOfInterest } from '../domain/operation';
 import { commentDesc, StageFieldDescription } from '../domain/stageDescriptions';
 import { DatePipe } from '@angular/common';
 import { AuthenticationService } from '../services/authentication.service';
@@ -55,7 +55,7 @@ export class StageComponent implements OnInit {
     currentRequestInfo: RequestInfo;
     currentStageInfo: StageInfo;
 
-    currentPOI: POI;
+    currentPOI: PersonOfInterest;
 
     datePipe = new DatePipe('el');
 
@@ -477,6 +477,8 @@ export class Stage6Component extends StageComponent implements OnInit {
     templateUrl: './stages-templates/stage7.component.html'
 })
 export class Stage7Component extends StageComponent implements OnInit {
+    amountNaN: boolean;
+    showExtraFields: boolean;
 
     ngOnInit () {
         this.stageFormDefinition = {
@@ -485,7 +487,55 @@ export class Stage7Component extends StageComponent implements OnInit {
         this.stageId = '7';
 
         super.ngOnInit();
+
+        if (!isUndefined(this.currentRequestInfo.finalAmount)) {
+            this.showExtraFields = true;
+            console.log('oldFinalAmount is', this.currentRequestInfo.finalAmount);
+        }
     }
+
+
+    showAmount(event: any) {
+        if (this.showExtraFields) {
+            this.currentRequestInfo.finalAmount = event.target.value;
+
+            if (this.currentRequestInfo.finalAmount.includes(',')) {
+
+                const temp = this.currentRequestInfo.finalAmount.replace(',', '.');
+                this.currentRequestInfo.finalAmount = temp;
+            }
+
+            this.amountNaN = isNaN(+this.currentRequestInfo.finalAmount);
+        }
+    }
+
+    emitNewValuesAndForward() {
+        this.stageFormError = '';
+        if ( this.showExtraFields ) {
+            if ( !isNullOrUndefined(this.currentRequestInfo.finalAmount) &&
+                !this.amountNaN && (this.currentRequestInfo.finalAmount.length > 0) ) {
+
+                const newValArray = [];
+                newValArray.push(this.currentRequestInfo.finalAmount);
+                this.newValues.emit(newValArray);
+                this.approveRequest(true);
+
+            } else {
+                this.stageFormError = 'Παρακαλώ συμπληρώστε ένα τελικό ποσό.';
+            }
+
+        } else {
+            this.approveRequest(true);
+        }
+    }
+
+    updateAmount(event: any) {
+        this.amountNaN = isNaN(+event.target.value);
+        if (!this.amountNaN) {
+            this.currentRequestInfo.finalAmount = event.target.value;
+        }
+    }
+
 }
 
 @Component ({

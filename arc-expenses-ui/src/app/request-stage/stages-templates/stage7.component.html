@@ -30,7 +30,29 @@
 
         <div *ngIf="stageFormError" class="uk-alert uk-alert-danger">{{ stageFormError }}</div>
 
-        <!-- FORM CONTROLS -->
+        <!-- EXTRA FIELD (if needed) -->
+        <div *ngIf="showExtraFields"
+             class="uk-grid uk-margin-small-top">
+
+            <label class="uk-width-1-3">Τελικό Ποσό (σε EUR) (*)</label>
+            <div class="uk-width-expand">
+                <input class="uk-form-controls uk-input"
+                       type="text"
+                       value="{{ currentRequestInfo.finalAmount }}"
+                       (keyup)="showAmount($event)"
+                       (blur)="updateAmount($event)">
+            </div>
+            <div *ngIf="currentRequestInfo.finalAmount && !amountNaN"
+                 class="uk-comment-body uk-text-small uk-text-muted">
+                Το τελικό ποσό είναι: {{ currentRequestInfo.finalAmount | currency: 'EUR': 'symbol-narrow' }}
+            </div>
+            <div *ngIf="amountNaN"
+                 class="uk-comment-body uk-text-small uk-text-danger">
+                Ο αριθμός δεν είναι έγκυρος.
+            </div>
+
+        </div>
+
 
         <!-- COMMENT FIELD -->
         <app-stage-form [description]="commentFieldDesc">
@@ -42,9 +64,9 @@
         </app-stage-form-upload-file>
 
         <!--BUTTONS-->
-        <button class="uk-button uk-button-primary" (click)="approveRequest(true)">Προώθηση</button>
+        <button class="uk-button uk-button-primary" (click)="emitNewValuesAndForward()">Υποβολή</button>
 
-        <button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>
+        <!--<button class="uk-button uk-button-primary" (click)="approveRequest(false)">Απορρίπτεται</button>-->
 
         <!-- CURRENT DATE DISPLAY -->
         <div>

@@ -20,7 +20,7 @@ import { forkJoin } from 'rxjs/observable/forkJoin';
 })
 export class RequestsComponent implements OnInit {
 
-    title: string = 'Υπάρχοντα Αιτήματα';
+    title = 'Υπάρχοντα Αιτήματα';
 
     /* notifications */
     errorMessage: string;
@@ -31,6 +31,7 @@ export class RequestsComponent implements OnInit {
     stateNames = { all: 'Όλα', pending: 'Σε εξέλιξη', under_review: 'Σε εξέλιξη', rejected: 'Απορριφθέντα', accepted: 'Ολοκληρωθέντα'};
     stages: string[] = [];
     stagesMap = stageTitles;
+    requestTypeIds = ['regular', 'contract', 'services_contract', 'trip'];
     reqTypes = requestTypes;
     projects: Vocabulary[] = [];
     institutes: Map<string, string> = new Map<string, string>();
@@ -41,6 +42,7 @@ export class RequestsComponent implements OnInit {
     allStatusSelected: boolean;
     allStagesSelected: boolean;
     allPhasesSelected: boolean;
+    allTypesSelected: boolean;
     allProjectsSelected: boolean;
     allInstitutesSelected: boolean;
 
@@ -49,6 +51,7 @@ export class RequestsComponent implements OnInit {
     searchTerm: string;
     statusesChoice: string[] = [];
     stagesChoice: string[] = [];
+    typesChoice: string[] = [];
     projectsChoice: string[] = [];
     institutesChoice: string[] = [];
     order: string;
@@ -86,6 +89,7 @@ export class RequestsComponent implements OnInit {
         this.searchTerm = '';
         this.statusesChoice.push('all');
         this.stagesChoice.push('all');
+        this.typesChoice.push('all');
         this.projectsChoice.push('all');
         this.institutesChoice.push('all');
         this.phaseId = 0;
@@ -102,7 +106,8 @@ export class RequestsComponent implements OnInit {
         this.filtersForm = this.fb.group({
             phases: this.createFormArray({phase: [false]}, 2),
             statusChoices: this.createFormArray({status: [false]}, 3),
-            stageChoices: this.createFormArray({stage: [false]}, this.stages.length)
+            stageChoices: this.createFormArray({stage: [false]}, this.stages.length),
+            typeChoices: this.createFormArray({type: [false]}, this.requestTypeIds.length)
         });
         // projectChoices: this.createFormArray({project: [false]}, this.projects.length),
         // instituteChoices: this.createFormArray({institute: [false]}, this.instituteIds.length)
@@ -222,7 +227,7 @@ export class RequestsComponent implements OnInit {
             this.stages = paymentStages;
         }
         this.setAllStageValues(false);
-        this.initFormArray('stageChoices',{ stage: [false] }, this.stages.length);
+        this.initFormArray('stageChoices', { stage: [false] }, this.stages.length);
         this.currentPage = 0;
         this.getListOfRequests();
     }
@@ -253,21 +258,48 @@ export class RequestsComponent implements OnInit {
         this.getListOfRequests();
     }
 
-    getSearchResults() {
+    chooseType() {
+        this.getTypeChoices();
+        console.log('after getTypeChoices list is', JSON.stringify(this.typesChoice));
+        this.currentPage = 0;
+        this.getListOfRequests();
+    }
+
+    chooseProject() {
+        this.getProjectChoices();
+        console.log('after getProjectChoices list is', JSON.stringify(this.projectsChoice));
+        this.currentPage = 0;
+        this.getListOfRequests();
+    }
+
+    chooseInstitute() {
+        this.getInstituteChoices();
+        console.log('after getInstituteChoices list is', JSON.stringify(this.institutesChoice));
+        this.currentPage = 0;
+        this.getListOfRequests();
+    }
+
+    getSearchByKeywordResults() {
         this.searchTerm = this.keywordField.get('keyword').value;
         console.log('this.searchTerm is', this.searchTerm);
         this.currentPage = 0;
         this.getListOfRequests();
     }
 
-    getStatusAsString( status: string ) {
-        if ( (status === 'pending') || (status === 'under_review') ) {
-            return 'σε εξέλιξη';
-        } else if (status === 'accepted') {
-            return 'ολοκληρωθηκε';
-        } else {
-            return 'απορρίφθηκε';
-        }
+    toggleSearchAllPhases(event: any) {
+        this.setAllPhaseValues(event.target.checked);
+        this.setAllStageValues(false);
+        this.stages = [];
+        this.stages = approvalStages.concat(paymentStages);
+        this.initFormArray('stageChoices', { stage: [false]}, this.stages.length);
+        this.currentPage = 0;
+        this.getListOfRequests();
+    }
+
+    toggleSearchAllStages(event: any) {
+        this.setAllStageValues(event.target.checked);
+        this.currentPage = 0;
+        this.getListOfRequests();
     }
 
     toggleSearchAllStatuses(event: any) {
@@ -276,12 +308,111 @@ export class RequestsComponent implements OnInit {
         this.getListOfRequests();
     }
 
+    toggleSearchAllTypes(event: any) {
+        this.allTypesSelected = event.target.checked;
+        this.setChoices(event.target.checked, 'typeChoices', 'type');
+        this.typesChoice = [];
+        this.typesChoice.push('all');
+        this.currentPage = 0;
+        this.getListOfRequests();
+    }
+
+    toggleSearchAllProjects(event: any) {
+        this.allProjectsSelected = event.target.checked;
+        this.setChoices(event.target.checked, 'projectChoices', 'project');
+        this.projectsChoice = [];
+        this.projectsChoice.push('all');
+        this.currentPage = 0;
+        this.getListOfRequests();
+    }
+
+    toggleSearchAllInstitutes(event: any) {
+        this.allInstitutesSelected = event.target.checked;
+        this.setChoices(event.target.checked, 'instituteChoices', 'institute');
+        this.institutesChoice = [];
+        this.institutesChoice.push('all');
+        this.currentPage = 0;
+        this.getListOfRequests();
+    }
+
+    setChoices(val: boolean, arrayName: string, controlName: string) {
+        const formArray = <FormArray>this.filtersForm.controls[arrayName];
+        formArray.controls.map( x => x.get(controlName).setValue(val) );
+    }
+
+    setAllPhaseValues(val: boolean) {
+        this.allPhasesSelected = val;
+        this.phaseId = 0;
+        const phases = <FormArray>this.filtersForm.controls['phases'];
+        phases.controls.map(x => x.get('phase').setValue(val));
+    }
+
+    setAllStageValues(val: boolean) {
+        if ( !this.isSimpleUser ) {
+            this.allStagesSelected = val;
+            this.setChoices(val, 'stageChoices', 'stage');
+            this.stagesChoice = [];
+            if (this.phaseId === 0) {
+                this.stagesChoice.push('all');
+            } else if (this.phaseId === 1) {
+                this.stagesChoice = approvalStages;
+            } else {
+                this.stagesChoice = paymentStages;
+            }
+        }
+    }
+
     setAllStatusValues(val: boolean) {
         this.allStatusSelected = val;
         const statusChoices = <FormArray>this.filtersForm.controls['statusChoices'];
         statusChoices.controls.map(x => x.get('status').setValue(val));
         this.statusesChoice = [];
         this.statusesChoice.push('all');
+    }
+
+    getChoicesIndices(arrayName: string, controlName: string) {
+        const formArray = <FormArray>this.filtersForm.controls[arrayName];
+        const choicesIndices = [];
+        formArray.controls.map( (x, i) => { if ( x.get(controlName).value ) { choicesIndices.push(i); } } );
+        return choicesIndices;
+    }
+
+    getPhaseId() {
+        this.allPhasesSelected = null;
+        this.phaseId = 0;
+        const phases = <FormArray>this.filtersForm.controls['phases'];
+        if ( phases.at(0).get('phase').value ) {
+            this.phaseId = 1;
+        }
+        if ( phases.at(1).get('phase').value ) {
+            if (this.phaseId === 1) {
+                this.phaseId = 0;
+                this.allPhasesSelected = true;
+            } else {
+                this.phaseId = 2;
+            }
+        }
+        console.log('phaseId is', this.phaseId);
+    }
+
+    getStageChoices() {
+        if ( !this.isSimpleUser ) {
+            this.allStagesSelected = null;
+            this.stagesChoice = [];
+            const stageChoices = <FormArray>this.filtersForm.controls['stageChoices'];
+            stageChoices.controls.map( (x, i) => { if ( x.get('stage').value ) { this.stagesChoice.push(this.stages[i]); } });
+            if ((this.stagesChoice.length === 0) || (this.stagesChoice.length === this.stages.length)) {
+                this.allStagesSelected = (this.stagesChoice.length === this.stages.length);
+                this.stagesChoice = [];
+                if (this.phaseId === 0) {
+                    this.stagesChoice.push('all');
+                } else if (this.phaseId === 1) {
+                    this.stagesChoice = approvalStages;
+                } else {
+                    this.stagesChoice = paymentStages;
+                }
+            }
+        }
     }
 
     getStatusChoices() {
@@ -306,102 +437,39 @@ export class RequestsComponent implements OnInit {
         }
     }
 
-    toggleSearchAllPhases(event: any) {
-        this.setAllPhaseValues(event.target.checked);
-        this.setAllStageValues(false);
-        this.stages = [];
-        this.stages = approvalStages.concat(paymentStages);
-        this.initFormArray('stageChoices',{ stage: [false]}, this.stages.length);
-        this.currentPage = 0;
-        this.getListOfRequests();
-    }
-
-    setAllPhaseValues(val: boolean) {
-        this.allPhasesSelected = val;
-        this.phaseId = 0;
-        const phases = <FormArray>this.filtersForm.controls['phases'];
-        phases.controls.map(x => x.get('phase').setValue(val));
-    }
-
-    getPhaseId() {
-        this.allPhasesSelected = null;
-        this.phaseId = 0;
-        const phases = <FormArray>this.filtersForm.controls['phases'];
-        if ( phases.at(0).get('phase').value ) {
-            this.phaseId = 1;
+    getTypeChoices() {
+        this.allTypesSelected = null;
+        this.typesChoice = [];
+        const typeChoicesIndices = this.getChoicesIndices('typeChoices', 'type');
+        if ((typeChoicesIndices.length === 0) || (typeChoicesIndices.length === this.projects.length)) {
+            this.allTypesSelected = (typeChoicesIndices.length === this.requestTypeIds.length);
+            this.typesChoice.push('all');
+        } else {
+            typeChoicesIndices.forEach( x => this.typesChoice.push(this.reqTypes[this.requestTypeIds[x]]) );
         }
-        if ( phases.at(1).get('phase').value ) {
-            if (this.phaseId === 1) {
-                this.phaseId = 0;
-                this.allPhasesSelected = true;
-            } else {
-                this.phaseId = 2;
-            }
-        }
-        console.log('phaseId is', this.phaseId);
-    }
-
-    toggleSearchAllStages(event: any) {
-        this.setAllStageValues(event.target.checked);
-        this.currentPage = 0;
-        this.getListOfRequests();
-    }
-
-    setAllStageValues(val: boolean) {
-        if ( !this.isSimpleUser ) {
-            this.allStagesSelected = val;
-            const stageChoices = <FormArray>this.filtersForm.controls['stageChoices'];
-            stageChoices.controls.map(x => x.get('stage').setValue(val));
-            this.stagesChoice = [];
-            if (this.phaseId === 0) {
-                this.stagesChoice.push('all');
-            } else if (this.phaseId === 1) {
-                this.stagesChoice = approvalStages;
-            } else {
-                this.stagesChoice = paymentStages;
-            }
-        }
-    }
-
-    getStageChoices() {
-        if ( !this.isSimpleUser ) {
-            this.allStagesSelected = null;
-            this.stagesChoice = [];
-            const stageChoices = <FormArray>this.filtersForm.controls['stageChoices'];
-            stageChoices.controls.map( (x, i) => { if ( x.get('stage').value ) { this.stagesChoice.push(this.stages[i]); } });
-            if ((this.stagesChoice.length === 0) || (this.stagesChoice.length === this.stages.length)) {
-                this.allStagesSelected = (this.stagesChoice.length === this.stages.length);
-                this.stagesChoice = [];
-                if (this.phaseId === 0) {
-                    this.stagesChoice.push('all');
-                } else if (this.phaseId === 1) {
-                    this.stagesChoice = approvalStages;
-                } else {
-                    this.stagesChoice = paymentStages;
-                }
-            }
-        }
-    }
-
-    getChoices(arrayName: string, controlName: string, choicesArray: string[]) {
-        const formArray = <FormArray>this.filtersForm.controls[arrayName];
-        const choices = [];
-        formArray.controls.map( (x, i) => { if ( x.get(controlName).value ) { choices.push(choicesArray[i]); } } );
-        return choices;
-    }
-
-    setChoices(val: boolean, arrayName: string, controlName: string) {
-        const formArray = <FormArray>this.filtersForm.controls[arrayName];
-        formArray.controls.map( x => x.get(controlName).setValue(val) );
     }
 
     getProjectChoices() {
+        this.allProjectsSelected = null;
         this.projectsChoice = [];
-        const projectChoices = <FormArray>this.filtersForm.controls['projectChoices'];
-        for (let i = 0; i < projectChoices.length; i++) {
-            if (projectChoices.get('projectChoices').value === true) {
-                this.projectsChoice.push(this.projects[i].projectID);
-            }
+        const projectChoicesIndices = this.getChoicesIndices('projectChoices', 'project');
+        if ((projectChoicesIndices.length === 0) || (projectChoicesIndices.length === this.projects.length)) {
+            this.allProjectsSelected = (projectChoicesIndices.length === this.projects.length);
+            this.projectsChoice.push('all');
+        } else {
+            projectChoicesIndices.forEach( x => this.projectsChoice.push(this.projects[x].projectID) );
+        }
+    }
+
+    getInstituteChoices() {
+        this.allInstitutesSelected = null;
+        this.institutesChoice = [];
+        const instituteChoicesIndices = this.getChoicesIndices('instituteChoices', 'institute');
+        if ((instituteChoicesIndices.length === 0) || (instituteChoicesIndices.length === this.instituteIds.length)) {
+            this.allProjectsSelected = (instituteChoicesIndices.length === this.instituteIds.length);
+            this.institutesChoice.push('all');
+        } else {
+            instituteChoicesIndices.forEach( x => this.institutesChoice.push(this.instituteIds[x]) );
         }
     }
 
@@ -436,22 +504,34 @@ export class RequestsComponent implements OnInit {
             );
     }
 
+
+    getStatusAsString( status: string ) {
+        if ( (status === 'pending') || (status === 'under_review') ) {
+            return 'σε εξέλιξη';
+        } else if (status === 'accepted') {
+            return 'ολοκληρωθηκε';
+        } else {
+            return 'απορρίφθηκε';
+        }
+    }
+
     getTrStyle(req: RequestSummary) {
-        if (this.getIfUserCanEdit(req.baseInfo.id, req.request.id, req.request.project, req.baseInfo.stage)) {
+        if (this.getIfUserCanEdit(req.baseInfo.id, req.request.id, req.request.project, req.baseInfo.stage, req.request.type)) {
             return '#f7f7f7';
         } else {
             return '';
         }
     }
 
-    getIfUserCanEdit(id: string, requestId: string, project: Project, stage: string) {
-        const newRequestInfo = new RequestInfo(id, requestId, project);
-        return ((this.authService.getUserRole() === 'ROLE_ADMIN') || (this.isSimpleUser && (stage === '1')) ||
-            (newRequestInfo[stage].stagePOIs.some(
-                    x => ((x.email === this.authService.getUserProp('email')) ||
-                        x.delegates.some(y => y.email === this.authService.getUserProp('email')))
-                )
-            ) );
+    getIfUserCanEdit(id: string, requestId: string, project: Project, stage: string, type: string) {
+        const newRequestInfo = new RequestInfo(id, requestId, project, (type === 'trip'));
+        return (( this.authService.getUserRole() === 'ROLE_ADMIN' ) ||
+                ( this.isSimpleUser && ((stage === '1') || (stage === '7')) ) ||
+                ( newRequestInfo[stage].stagePOIs.some(
+                        x => ( (x.email === this.authService.getUserProp('email')) ||
+                                        x.delegates.some(y => y.email === this.authService.getUserProp('email')) )
+                    )
+                ) );
     }
 
     printRequest(): void {

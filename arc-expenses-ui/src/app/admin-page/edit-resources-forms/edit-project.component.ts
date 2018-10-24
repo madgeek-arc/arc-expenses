@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Delegate, Institute, Organization, POI, Project } from '../../domain/operation';
+import { Delegate, Institute, Organization, PersonOfInterest, Project } from '../../domain/operation';
 import { ManageProjectService } from '../../services/manage-project.service';
 import { isNullOrUndefined } from 'util';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AsideHelpContentComponent, HelpContentComponent } from './help-content/help-content.component';
+import { ReadMoreComponent } from './read-more/read-more.component';
 
 @NgModule({
     imports: [
@@ -8,11 +9,13 @@ import { AsideHelpContentComponent, HelpContentComponent } from './help-content/
     ],
     declarations: [
         HelpContentComponent,
-        AsideHelpContentComponent
+        AsideHelpContentComponent,
+        ReadMoreComponent
     ],
     exports: [
         HelpContentComponent,
-        AsideHelpContentComponent
+        AsideHelpContentComponent,
+        ReadMoreComponent
     ]
 })
 export class SharedComponentsModule {}

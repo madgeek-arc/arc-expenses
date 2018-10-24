@@ -55,11 +55,7 @@ export class RequestStagePaymentComponent implements OnInit {
     ngOnInit() {
         this.isSimpleUser = (this.authService.getUserRole() === 'ROLE_USER');
         console.log(`current user role is: ${this.authService.getUserRole()}`);
-        if (this.isSimpleUser) {
-            this.router.navigate(['/requests']);
-        } else {
-            this.getCurrentRequest();
-        }
+        this.getCurrentRequest();
     }
 
     getCurrentRequest() {
@@ -93,10 +89,25 @@ export class RequestStagePaymentComponent implements OnInit {
             },
             () => {
                 this.stages = paymentStages;
-                this.currentRequestInfo = new RequestInfo(this.currentRequestPayment.id, this.currentRequest.id, this.currentRequest.project);
+                this.currentRequestInfo = new RequestInfo(this.currentRequestPayment.id,
+                                                          this.currentRequest.id,
+                                                          this.currentRequest.project,
+                                                          (this.currentRequest.type === 'trip'));
+                this.checkIfStageIs7();
                 this.getIfUserCanEditRequest();
             }
         );
+    }
+
+    checkIfStageIs7() {
+        if ( (this.currentRequestApproval.stage === '7') &&
+             ((this.currentRequest.type === 'regular') || (this.currentRequest.type === 'trip')) ) {
+
+            this.currentRequestInfo.finalAmount = '';
+            if ( !isNullOrUndefined(this.currentRequest.stage1.finalAmount) ) {
+                this.currentRequestInfo.finalAmount = (this.currentRequest.stage1.finalAmount).toString();
+            }
+        }
     }
 
     getIfUserCanEditRequest() {
@@ -153,6 +164,13 @@ export class RequestStagePaymentComponent implements OnInit {
         return this.currentRequestPayment.stage;
     }
 
+    getFinalAmount(newVals: string[]) {
+        if (newVals && newVals.length === 1) {
+            this.currentRequest.stage1.finalAmount = +newVals[0];
+            this.requestNeedsUpdate = true;
+        }
+    }
+
     getSubmittedStage(newStage: any) {
         console.log(`got ${JSON.stringify(newStage, null, 1)}`);
         this.currentStageName = 'stage' + this.currentRequestPayment.stage;
@@ -190,6 +208,7 @@ export class RequestStagePaymentComponent implements OnInit {
             }
         }
 
+        this.checkIfStageIs7();
         this.wentBackOneStage = false;
         console.log('submitted status:', this.currentRequestPayment.status);
 
@@ -322,13 +341,13 @@ export class RequestStagePaymentComponent implements OnInit {
             if ( !isNullOrUndefined(this.currentRequestPayment[stageField]) &&
                 !isNullOrUndefined(this.currentRequestPayment[stageField].date)) {
 
-                if ( !this.isSimpleUser ) {
+                if ( !this.isSimpleUser || (this.currentRequestPayment.stage === '7') ) {
 
                     if ( this.stages.indexOf(this.currentRequestPayment.stage) < this.stages.indexOf(stage)) {
                         return 4;
                     }
 
-                    if ( (stage === this.currentRequestPayment.stage) && (this.stages.indexOf(stage) > 0)) {
+                    if ( (stage === this.currentRequestPayment.stage) && (this.stages.indexOf(stage) > 0) ) {
 
                         const prevStageField = 'stage' + this.stages[this.stages.indexOf(stage) - 1];
                         if (!isNullOrUndefined(this.currentRequestPayment[prevStageField]) &&

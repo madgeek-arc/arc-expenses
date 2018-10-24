@@ -112,7 +112,7 @@ export const stageTitles = {
     '1': 'Υποβολή αιτήματος',
     '2': 'Έγκριση επιστημονικού υπευθύνου',
     '3': 'Έλεγχος χειριστή έργου',
-    '4': 'Βεβαίωση Π.Ο.Υ',
+    '4': 'Βεβαίωση Π.Ο.Υ.',
     '5a': 'Έγκριση Διατάκτη',
     // 'UploadInvoice': 'Υποβολή τιμολογίου',
     '5b': 'Έγκριση Διοικητικού Συμβουλίου',
@@ -125,86 +125,3 @@ export const stageTitles = {
     '12': 'Λογιστική καταχώρηση',
     '13': 'Οικονομική διεκπεραίωση'
 };
-
-/*export const stagesDescriptionMap = {
-    '1': {
-        title: 'Υποβολή αιτήματος', prev: [], next: ['2'],
-        stageFields: []
-    },
-    '2': {
-        title: 'Έγκριση επιστημονικού υπευθύνου', prev: ['1'], next: ['3'],
-        stageFields: [checkNecessityDesc, checkFeasibilityDesc, commentDesc]
-    },
-    '3': {
-        title: 'Έλεγχος χειριστή έργου', prev: ['2'], next: ['4'],
-        stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc, loanDesc, loanSourceDesc, commentDesc]
-    },
-    '4': {
-        title: 'Βεβαίωση Π.Ο.Υ', prev: ['3'], next: ['5a'],
-        stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc, commentDesc]
-    },
-    // '5': { title: 'Έγκριση Διευθυντή/Υπεύθυνου Μονάδας', prev: ['4'], next: ['5a'], canGoBack: true, stageFields: [] },
-    '5a': {
-        title: 'Έγκριση Διατάκτη', prev: ['4'], next: ['5b', '6'],
-        stageFields: [commentDesc]
-    },
-    // 'UploadInvoice': { title: 'Υποβολή τιμολογίου', prev: ['5a'], next: ['5b', '6'], canGoBack: true, stageFields: [commentDesc] },
-    '5b': {
-        title: 'Έγκριση Διοικητικού Συμβουλίου', prev: ['5a'], next: ['6'],
-        stageFields: [commentDesc]
-    },
-    '6': {
-        title: 'Ανάρτηση στην Διαύγεια', prev: ['5b', '5a'], next: ['7'],
-        stageFields: [commentDesc]
-    },
-    '7': {
-        title: 'Καταχώρηση συνοδευτικού υλικού', prev: [], next: ['8'],
-        stageFields: [commentDesc]
-    },
-    '8': {
-        title: 'Έλεγχος από ομάδα ελέγχου', prev: ['7'], next: ['9'],
-        stageFields: [checkRegularityDesc, checkLegalityDesc, commentDesc]
-    },
-    '9': {
-        title: 'Έλεγχος από Π.Ο.Υ', prev: ['8'], next: ['10'],
-        stageFields: [checkRegularityDesc, checkLegalityDesc, commentDesc]
-    },
-    '10': {
-        title: 'Έλεγχος Διατάκτη', prev: ['9'], next: ['11'],
-        stageFields: [commentDesc]
-    },
-    '11': {
-        title: 'Ανάρτηση εξόφλησης στη Διαύγεια', prev: ['10'], next: ['12'],
-        stageFields: [commentDesc]
-    },
-    '12': {
-        title: 'Λογιστική καταχώρηση', prev: ['11'], next: ['13'], canGoBack: true,
-        stageFields: [commentDesc]
-    },
-    '13': {
-        title: 'Οικονομική διεκπεραίωση', prev: ['12'], next: [],
-        stageFields: [commentDesc]
-    }
-};*/
-
-
-/* old stage descriptions - not used anymore */
-/*export const Stage2Desc = { id: '2', delegateField: 'scientificCoordinator',
-    stageFields: [checkNecessityDesc, checkFeasibilityDesc] };
-export const Stage3Desc = { id: '3', delegateField: 'operator',
-    stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc, loanDesc, loanSourceDesc] };
-export const Stage4Desc = { id: '4', delegateField: 'POI',
-    stageFields: [analiftheiYpoxrewsiDesc, fundsAvailableDesc] };
-export const Stage5Desc = { id: '5', delegateField: 'instituteDirector', stageFields: [] };
-export const Stage5aDesc = { id: '5a', delegateField: 'organizationDirector', stageFields: [] };
-export const Stage5bDesc = { id: '5b', delegateField: 'dioikitikoSumvoulio', stageFields: [] };
-export const Stage6Desc = { id: '6', delegateField: 'organizationDiaugeia', stageFields: [] };
-export const Stage7Desc = { id: '7', delegateField: 'operator', stageFields: [] };
-export const Stage8Desc = { id: '8', delegateField: 'accountingDirector',
-    stageFields: [checkRegularityDesc, checkLegalityDesc] };
-export const Stage9Desc = { id: '9', delegateField: 'POI',
-    stageFields: [checkRegularityDesc, checkLegalityDesc] };
-export const Stage10Desc = { id: '10', delegateField: 'organizationDirector', stageFields: [] };
-export const Stage11Desc = { id: '11', delegateField: 'organizationDiaugeia', stageFields: [] };
-export const Stage12Desc = { id: '12', delegateField: 'accountingRegistration', stageFields: [] };
-export const Stage13Desc = { id: '13', delegateField: 'accountingPayment', stageFields: [] };*/

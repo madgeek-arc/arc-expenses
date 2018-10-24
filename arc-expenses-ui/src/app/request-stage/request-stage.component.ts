@@ -12,7 +12,6 @@ import { printRequestPage } from './print-request-function';
 import { AnchorItem } from '../shared/dynamic-loader-anchor-components/anchor-item';
 import { RequestInfo } from '../domain/requestInfoClasses';
 import { concatMap, mergeMap, tap } from 'rxjs/operators';
-import { forkJoin } from 'rxjs/observable/forkJoin';
 
 @Component({
     selector: 'app-request-stage',
@@ -38,7 +37,7 @@ export class RequestStageComponent implements OnInit {
     currentRequestApproval: RequestApproval;
     currentRequestPayments: RequestPayment[] = [];
     currentStageName: string;
-    canEdit: boolean = false;
+    canEdit = false;
     wentBackOneStage: boolean;
     requestNeedsUpdate: boolean;
     stages: string[];
@@ -95,7 +94,10 @@ export class RequestStageComponent implements OnInit {
             },
             () => {
                 this.stages = approvalStages;
-                this.currentRequestInfo = new RequestInfo(this.currentRequestApproval.id, this.currentRequest.id, this.currentRequest.project);
+                this.currentRequestInfo = new RequestInfo(this.currentRequestApproval.id,
+                                                          this.currentRequest.id,
+                                                          this.currentRequest.project,
+                                                          (this.currentRequest.type === 'trip'));
                 this.checkIfStageIs5b();
                 this.getIfUserCanEditRequest();
                 if ((this.currentRequest.type !== 'contract') &&
@@ -279,25 +281,6 @@ export class RequestStageComponent implements OnInit {
             this.uploadedFile = null;
         }
         console.log(`sending ${JSON.stringify(this.currentRequest.stage1, null, 1)} to updateRequest`);
-        /*update this.currentRequest*/
-        /*this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email')).subscribe(
-            res => console.log(`update Request responded: ${res.id}, status=${res.requestStatus}, stage=2`),
-            error => {
-                console.log(error);
-                this.showSpinner = false;
-                this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών.';
-            },
-            () => {
-                this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
-                this.showSpinner = false;
-                this.requestService.updateRequestApproval(this.currentRequestApproval)
-                    .subscribe (
-                        res => this.currentRequestApproval = res,
-                        error => console.log(error),
-                        () => this.getIfUserCanEditRequest()
-                    );
-            }
-        );*/
         this.updateRequestAndApproval();
     }
 
@@ -486,6 +469,7 @@ export class RequestStageComponent implements OnInit {
         if (newVals && newVals.length === 2) {
             this.currentRequest.stage1.supplier = newVals[0];
             this.currentRequest.stage1.amountInEuros = +newVals[1];
+            this.requestNeedsUpdate = true;
         }
     }
 

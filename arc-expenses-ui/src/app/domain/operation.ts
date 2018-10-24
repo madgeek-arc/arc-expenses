@@ -1,4 +1,26 @@
-// Generated using typescript-generator version 2.1.406 on 2018-06-27 15:36:39.
+// Generated using typescript-generator version 2.1.406 on 2018-10-23 13:46:16.
+
+export class RequestFatClass {
+    request_id: string;
+    id: string;
+    user: User;
+    project: Project;
+    stage1: Stage1;
+    stage2: Stage2;
+    stage3: Stage3;
+    stage4: Stage4;
+    stage5: Stage5;
+    stage5a: Stage5a;
+    stage5b: Stage5b;
+    stage6: Stage6;
+    stage7: Stage7;
+    stage8: Stage8;
+    stage9: Stage9;
+    stage10: Stage10;
+    stage11: Stage11;
+    stage12: Stage12;
+    stage13: Stage13;
+}
 
 export class Vocabulary {
     projectID: string;
@@ -40,24 +62,26 @@ export class Institute {
     id: string;
     name: string;
     organization: Organization;
-    director: POI;
-    accountingRegistration: POI;
-    accountingPayment: POI;
-    accountingDirector: POI;
-    diaugeia: POI;
-    suppliesOffice: POI;
-}
+    director: PersonOfInterest;
+    accountingRegistration: PersonOfInterest;
+    accountingPayment: PersonOfInterest;
+    accountingDirector: PersonOfInterest;
+    diaugeia: PersonOfInterest;
+    suppliesOffice: PersonOfInterest;
+    travelManager: PersonOfInterest;
+    diataktis: PersonOfInterest;}
 
 export class Organization {
     id: string;
     name: string;
-    POI: POI;
-    director: POI;
-    dioikitikoSumvoulio: POI;
-    inspectionTeam: POI[];
+    POY: PersonOfInterest;
+    director: PersonOfInterest;
+    viceDirector: PersonOfInterest;
+    inspectionTeam: PersonOfInterest[];
+    dioikitikoSumvoulio: PersonOfInterest;
 }
 
-export class POI {
+export class PersonOfInterest {
     email: string;
     firstname: string;
     lastname: string;
@@ -70,10 +94,11 @@ export class Project {
     acronym: string;
     institute: Institute;
     parentProject: string;
-    scientificCoordinator: POI;
-    operator: POI[];
+    scientificCoordinator: PersonOfInterest;
+    operator: PersonOfInterest[];
     startDate: string;
     endDate: string;
+    totalCost: number;
 }
 
 export class Request {
@@ -85,6 +110,8 @@ export class Request {
     user: User;
     requesterPosition: string;
     requestStatus: string;
+    trip: Trip;
+    scientificCoordinatorAsDiataktis: boolean;
 }
 
 export class RequestApproval extends BaseInfo {
@@ -118,6 +145,7 @@ export class Stage1 {
     supplier: string;
     supplierSelectionMethod: string;
     amountInEuros: number;
+    finalAmount: number;
     attachment: Attachment;
 }
 
@@ -173,12 +201,6 @@ export class Stage5b {
     user: User;
     date: string;
     approved: boolean;
-    comment: string;
-    attachment: Attachment;
-}
-
-export class StageUploadInvoice {
-    date: string;
     comment: string;
     attachment: Attachment;
 }
@@ -249,6 +271,13 @@ export class Stage13 {
     attachment: Attachment;
 }
 
+export class Trip {
+    firstname: string;
+    lastname: string;
+    email: number;
+    destination: string;
+}
+
 export class User {
     id: string;
     email: string;
@@ -261,8 +290,6 @@ export class User {
     immediateEmails: string;
     attachment: Attachment;
 }
-
-
 
 export class SignatureAttachment {
     filename: string;
