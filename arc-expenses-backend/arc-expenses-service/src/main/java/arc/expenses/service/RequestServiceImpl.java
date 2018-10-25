@@ -127,8 +127,8 @@ public class RequestServiceImpl extends GenericService<Request> {
                     " request_project_operator =  " + email + " or " +
                     " request_project_operator_delegates = " + email + " or " +
                     " request_project_scientificCoordinator = " + email + " or " +
-                    " request_organization_PersonOfInterest = " + email + " or " +
-                    " request_organization_POΙ_delegate =  " + email + " or " +
+                    " request_organization_poy = " + email + " or " +
+                    " request_organization_poy_delegate =  " + email + " or " +
                     " request_institute_accountingRegistration = " + email + " or " +
                     " request_institute_diaugeia = " + email + " or " +
                     " request_institute_accountingPayment = " + email + " or " +
