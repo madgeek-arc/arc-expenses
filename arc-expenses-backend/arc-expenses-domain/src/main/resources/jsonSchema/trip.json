@@ -10,7 +10,7 @@
       "type": "string"
     },
     "email": {
-      "type": "integer"
+      "type": "string"
     },
     "destination": {
       "type": "string"
