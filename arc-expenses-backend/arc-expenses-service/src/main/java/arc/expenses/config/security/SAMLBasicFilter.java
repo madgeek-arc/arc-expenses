@@ -48,8 +48,8 @@ public class SAMLBasicFilter extends GenericFilterBean{
 
         }
 
-        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
-//        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_uid"));
+//        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
+        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_uid"));
 
         int expireSec = 14400;
         sessionCookie.setMaxAge(expireSec);

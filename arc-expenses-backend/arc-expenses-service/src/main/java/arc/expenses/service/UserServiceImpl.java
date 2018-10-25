@@ -84,8 +84,8 @@ public class UserServiceImpl extends GenericService<User> {
                 " where :email = ANY( project_operator ) or " +
                // " project_operator_delegates = :email or " +
                 " project_scientificCoordinator = :email or " +
-                " project_organization_POI  = :email or " +
-              //  " organization_POI_delegate =  :email or " +
+                " project_organization_poyt  = :email or " +
+              //  " organization_poy_delegate =  :email or " +
                 " project_institute_accountingRegistration   = :email or " +
                 " project_institute_diaugeia  = :email or " +
                 " project_institute_accountingPayment  = :email or " +

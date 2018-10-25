@@ -10,6 +10,7 @@ import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.Attachment;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
+import org.javatuples.Septet;
 import org.javatuples.Sextet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,6 +22,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
@@ -125,7 +127,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                     " request_project_operator =  " + email + " or " +
                     " request_project_operator_delegates = " + email + " or " +
                     " request_project_scientificCoordinator = " + email + " or " +
-                    " request_organization_POI = " + email + " or " +
+                    " request_organization_PersonOfInterest = " + email + " or " +
                     " request_organization_POΙ_delegate =  " + email + " or " +
                     " request_institute_accountingRegistration = " + email + " or " +
                     " request_institute_diaugeia = " + email + " or " +
@@ -191,12 +193,20 @@ public class RequestServiceImpl extends GenericService<Request> {
                                  List<String> stage, String orderType,
                                  String orderField, String email) {
 
-        String query =  " ( select distinct(r.request_id) as request_id ,a.approval_id as id,creation_date ," +
-                        "   r.request_project as request_project , r.request_institute as request_institute , a.stage as request_stage" +
-                        " from request_view r , approval_view a , resource res  " +
-                        " where r.request_id = a.request_id  and res.fk_name = 'approval' " +
-                        " and a.id  = res.id  ";
+        String query =  "select request_id,id,creation_date,request_project,request_institute,request_stage , count(*) over () as total_rows" +
+                        " from (" +
+                        "       ( select distinct(r.request_id) as request_id ,a.approval_id as id,res1.creation_date as creation_date," +
+                        "         r.request_project as request_project , r.request_institute as request_institute , a.stage as request_stage" +
+                        "         from request_view r , approval_view a , resource res1, resource res2  " +
+                        "         where r.request_id = a.request_id  and res1.fk_name = 'approval' " +
+                        "         and a.id  = res1.id AND r.id = res2.id " +
+                        "         AND res2.fk_name = 'request' " ;
 
+
+
+        StringBuilder searchField_clause = this.getSearchFieldClause(searchField);
+        if(searchField_clause.length()!=0)
+            query+= "  and  " + searchField_clause.toString();
 
 
         StringBuilder user_clause = this.getUserClause(email);
@@ -211,19 +221,19 @@ public class RequestServiceImpl extends GenericService<Request> {
         if(status_clause.length()!=0)
             query+= " and " + status_clause.toString();
 
-        StringBuilder keyword_clause = this.getKeywordClause(searchField);
-        if(keyword_clause.length()!=0)
-            query+= " and " + keyword_clause.toString();
-
-
 
         query+=" )" +
                " union " +
-               " ( select distinct(r.request_id) as request_id,p.payment_id as id,creation_date ," +
+               " ( select distinct(r.request_id) as request_id,p.payment_id as id,res1.creation_date ," +
                " r.request_project as request_project , r.request_institute as request_institute , p.stage as request_stage" +
-               " from request_view r , payment_view p , resource res  " +
-               " where r.request_id = p.request_id  and res.fk_name = 'payment' " +
-               " and p.id  = res.id ";
+               " from request_view r , payment_view p , resource res1, resource res2   " +
+               " where r.request_id = p.request_id  and res1.fk_name = 'payment' " +
+               " and p.id  = res1.id AND r.id = res2.id "+
+                " AND res2.fk_name = 'request' " ;
+
+        searchField_clause = this.getSearchFieldClause(searchField);
+        if(searchField_clause.length()!=0)
+            query+= "  and  " + searchField_clause.toString();
 
         user_clause = this.getUserClause(email);
         if(user_clause.length()!=0)
@@ -237,35 +247,56 @@ public class RequestServiceImpl extends GenericService<Request> {
         if(status_clause.length()!=0)
             query+= " and " + status_clause.toString();
 
-        keyword_clause = this.getKeywordClause(searchField);
-        if(keyword_clause.length()!=0)
-            query+= " and " + keyword_clause.toString();
 
-        query += ")";
-        query +=  "  order by "+orderField + " "  + orderType +
-                  "  limit " + quantity +
+        query += ")) as foo ";
+
+
+        query +=  "  order by "+orderField + " "  + orderType;
+        query +=  "  limit " + quantity +
                   "  offset " + from;
 
-
         LOGGER.info(query);
-        List<Sextet<String,String,String,String,String,String>> resultSet =  new JdbcTemplate(dataSource)
+        List<Septet<String,String,String,String,String,String,String>> resultSet =  new JdbcTemplate(dataSource)
                 .query(query,requestSummaryMapper);
 
-
         List<RequestSummary> rs = new ArrayList<>();
-        for(Sextet<String,String,String,String,String,String> sextet : resultSet){
+        int total = 0;
+        for(Septet<String,String,String,String,String,String,String> septet : resultSet){
             RequestSummary requestSummary = new RequestSummary();
-
-            if(sextet.getValue1().contains("a"))
-                requestSummary.setBaseInfo(Converter.toBaseInfo(requestApprovalService.get(sextet.getValue1())));
+            total = Integer.parseInt(septet.getValue6());
+            if(septet.getValue1().contains("a"))
+                requestSummary.setBaseInfo(Converter.toBaseInfo(requestApprovalService.get(septet.getValue1())));
             else
-                requestSummary.setBaseInfo(Converter.toBaseInfo(requestPaymentService.get(sextet.getValue1())));
+                requestSummary.setBaseInfo(Converter.toBaseInfo(requestPaymentService.get(septet.getValue1())));
 
             requestSummary.setRequest(get(requestSummary.getBaseInfo().getRequestId()));
             rs.add(requestSummary);
         }
 
-        return new Paging<>(rs.size(),Integer.parseInt(from),Integer.parseInt(quantity),rs,null);
+        return new Paging<>(total,Integer.parseInt(from),Integer.parseInt(quantity),rs,null);
+    }
+
+    private StringBuilder getSearchFieldClause(String searchField) {
+
+        StringBuilder searchField_clause = new StringBuilder();
+
+        if(searchField!=null)
+            searchField_clause.append( "( (res2.payload::json->>'user')::text ilike '%")
+                                .append(searchField).append("%'")
+                                .append( " or  ")
+                                .append( "( r.request_project ilike '%")
+                                .append(searchField).append("%')")
+                                .append( " or  ")
+                                .append( "( r.request_institute ilike '%")
+                                .append(searchField).append("%')")
+                                .append( " or  ")
+                                .append( "( ((res2.payload::json)->'project'->>'operator')::text ilike '%")
+                                .append(searchField).append("%')")
+                                .append( " or  ")
+                                .append( "( ((res2.payload::json)->'project'->>'scientificCoordinator')::text ilike '%")
+                                .append(searchField).append("%') )");
+
+        return searchField_clause;
     }
 
     private StringBuilder getKeywordClause(String searchField) {
@@ -288,13 +319,14 @@ public class RequestServiceImpl extends GenericService<Request> {
         return keyword_clause;
     }
 
-    private RowMapper<Sextet<String,String,String,String,String,String>> requestSummaryMapper = (rs, i) ->
-            Sextet.with(rs.getString("request_id"),
+    private RowMapper<Septet<String,String,String,String,String,String,String>> requestSummaryMapper = (rs, i) ->
+            Septet.with(rs.getString("request_id"),
                 rs.getString("id"),
                 rs.getString("creation_date"),
                 rs.getString("request_project"),
                 rs.getString("request_institute"),
-                rs.getString("request_stage"));
+                rs.getString("request_stage"),
+                rs.getString("total_rows"));
 
     private StringBuilder getStatusClause(String table,List<String> status) {
         StringBuilder status_clause = new StringBuilder();
@@ -344,8 +376,8 @@ public class RequestServiceImpl extends GenericService<Request> {
                     " r.request_project_operator <@ '{"+'"' + email + '"' + "}' or " +
                     " r.request_project_operator_delegate <@ '{"+'"' + email + '"' + "}' or " +
                     " r.request_project_scientificCoordinator = '"  + email + "' or " +
-                    " r.request_organization_POI = '"  + email + "' or " +
-                    " r.request_organization_POI_delegate <@  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_organization_PersonOfInterest = '"  + email + "' or " +
+                    " r.request_organization_PersonOfInterest_delegate <@  '{"+'"' + email + '"' + "}' or " +
                     " r.request_institute_accountingRegistration = '"  + email + "' or " +
                     " r.request_institute_diaugeia = '"  + email + "' or " +
                     " r.request_institute_accountingPayment = '"  + email + "' or " +

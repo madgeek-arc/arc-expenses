@@ -2,7 +2,7 @@ package arc.expenses.service;
 
 import arc.expenses.domain.RequestSummary;
 import gr.athenarc.domain.Delegate;
-import gr.athenarc.domain.POI;
+import gr.athenarc.domain.PersonOfInterest;
 import gr.athenarc.domain.Request;
 import org.springframework.stereotype.Service;
 
@@ -53,15 +53,15 @@ public class PolicyCheckerService {
     }
 
     public boolean isPOYOrDelegate(Request request, String email) {
-        return request.getProject().getInstitute().getOrganization().getPOI().getEmail().equals(email)
-            || isDelegate(request.getProject().getInstitute().getOrganization().getPOI().getDelegates(),email);
+        return request.getProject().getInstitute().getOrganization().getPoy().getEmail().equals(email)
+            || isDelegate(request.getProject().getInstitute().getOrganization().getPoy().getDelegates(),email);
     }
 
     public boolean isOperatorOrDelegate(Request request, String email) {
-        List<POI> operators = request.getProject().getOperator();
+        List<PersonOfInterest> operators = request.getProject().getOperator();
 
         if(operators!=null){
-            for(POI operator:operators){
+            for(PersonOfInterest operator:operators){
 
                 if(operator.getEmail().equals(email))
                     return true;

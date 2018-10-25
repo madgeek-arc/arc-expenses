@@ -35,8 +35,8 @@
     },
     {
       "primaryKey":false,
-      "name": "project_organization_POI",
-      "path": "$.institute.organization.POI.email",
+      "name": "project_organization_poy",
+      "path": "$.institute.organization.poy.email",
       "type": "java.lang.String"
     },
     {
@@ -74,5 +74,5 @@
   "name": "project",
   "aliasGroup" : null,
   "payloadType": "json",
-  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/master/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/project.json"
+  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/new-schema/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/project.json"
 }

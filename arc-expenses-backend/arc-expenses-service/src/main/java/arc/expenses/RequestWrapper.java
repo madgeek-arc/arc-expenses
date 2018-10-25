@@ -1,7 +1,7 @@
 package arc.expenses;
 
 import gr.athenarc.domain.BaseInfo;
-import gr.athenarc.domain.POI;
+import gr.athenarc.domain.PersonOfInterest;
 import gr.athenarc.domain.Request;
 import gr.athenarc.domain.User;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -147,8 +147,8 @@ public class RequestWrapper implements StageInterface {
     }
 
     @Override
-    public List<POI> getPersonsOfInterest(String stage) {
-        List<POI> personsOfInterest = new ArrayList();
+    public List<PersonOfInterest> getPersonsOfInterest(String stage) {
+        List<PersonOfInterest> personsOfInterest = new ArrayList();
         switch (stage) {
             case "1":
                 personsOfInterest = null;
@@ -160,7 +160,7 @@ public class RequestWrapper implements StageInterface {
                 personsOfInterest.addAll(request.getProject().getOperator());
                 break;
             case "4":
-                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPOI());
+                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
                 break;
             case "5":
                 personsOfInterest.add(request.getProject().getInstitute().getDirector());
@@ -184,7 +184,7 @@ public class RequestWrapper implements StageInterface {
                 personsOfInterest.addAll(request.getProject().getInstitute().getOrganization().getInspectionTeam());
                 break;
             case "9":
-                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPOI());
+                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
                 break;
             case "10":
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDirector());

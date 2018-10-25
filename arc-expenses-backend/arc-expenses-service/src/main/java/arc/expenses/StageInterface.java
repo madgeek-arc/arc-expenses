@@ -1,6 +1,6 @@
 package arc.expenses;
 
-import gr.athenarc.domain.POI;
+import gr.athenarc.domain.PersonOfInterest;
 import gr.athenarc.domain.User;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public interface StageInterface {
 
     User getUser(String stage);
 
-    List<POI> getPersonsOfInterest(String stage);
+    List<PersonOfInterest> getPersonsOfInterest(String stage);
 
     String getDate(String stage);
 

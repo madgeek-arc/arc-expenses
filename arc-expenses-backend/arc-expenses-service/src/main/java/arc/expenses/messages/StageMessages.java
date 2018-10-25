@@ -4,7 +4,7 @@ import arc.expenses.RequestWrapper;
 import arc.expenses.mail.EmailMessage;
 import arc.expenses.service.RequestServiceImpl;
 import gr.athenarc.domain.BaseInfo;
-import gr.athenarc.domain.POI;
+import gr.athenarc.domain.PersonOfInterest;
 import gr.athenarc.domain.Request;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class StageMessages {
 
     /*private UserServiceImpl userServiceImpl;*/
 
-    public enum UserType {USER, previousPOI, nextPOI}
+    public enum UserType {USER, previousPersonOfInterest, nextPersonOfInterest}
 
     public enum RequestState {INITIALIZED, ACCEPTED, INVOICE, ACCEPTED_DIAVGEIA, REVIEW, REJECTED, COMPLETED}
 
@@ -75,26 +75,26 @@ public class StageMessages {
                 }
                 // email to USER
                 emails.addAll(getEmailMessages(baseInfo, USER, state));
-                // email to nextPOIs and delegates
-                emails.addAll(getEmailMessages(baseInfo, UserType.nextPOI, state));
+                // email to nextPersonOfInterests and delegates
+                emails.addAll(getEmailMessages(baseInfo, UserType.nextPersonOfInterest, state));
                 break;
 
             case "5a->UplodInvoice":
                 // email to USER
                 emails.addAll(getEmailMessages(baseInfo, USER, INVOICE));
-                // email to previousPOI and delegates
-                emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
-//                // email to nextPOI and delegates
-//                emails.addAll(getEmailMessages(request, UserType.nextPOI, state, subject));
+                // email to previousPersonOfInterest and delegates
+                emails.addAll(getEmailMessages(baseInfo, UserType.previousPersonOfInterest, state));
+//                // email to nextPersonOfInterest and delegates
+//                emails.addAll(getEmailMessages(request, UserType.nextPersonOfInterest, state, subject));
                 break;
 
             case "UploadInvoice<-8":
                 // email to USER
                 emails.addAll(getEmailMessages(baseInfo, USER, INVOICE));
-                // email to previousPOI and delegates
-                emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
-//                // email to nextPOI and delegates
-//                emails.addAll(getEmailMessages(request, UserType.nextPOI, state, subject));
+                // email to previousPersonOfInterest and delegates
+                emails.addAll(getEmailMessages(baseInfo, UserType.previousPersonOfInterest, state));
+//                // email to nextPersonOfInterest and delegates
+//                emails.addAll(getEmailMessages(request, UserType.nextPersonOfInterest, state, subject));
                 break;
 
             case "6->7":
@@ -103,10 +103,10 @@ public class StageMessages {
                 }
                 // email to USER
                 emails.addAll(getEmailMessages(baseInfo, USER, state));
-                // email to previousPOI and delegates
-                emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
-                // email to nextPOI and delegates
-                emails.addAll(getEmailMessages(baseInfo, UserType.nextPOI, state));
+                // email to previousPersonOfInterest and delegates
+                emails.addAll(getEmailMessages(baseInfo, UserType.previousPersonOfInterest, state));
+                // email to nextPersonOfInterest and delegates
+                emails.addAll(getEmailMessages(baseInfo, UserType.nextPersonOfInterest, state));
                 break;
 
             case "13->13":
@@ -117,15 +117,15 @@ public class StageMessages {
                     // email to USER
                     emails.addAll(getEmailMessages(baseInfo, USER, state));
                 }
-                // email to previousPOI and delegates
-                emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
+                // email to previousPersonOfInterest and delegates
+                emails.addAll(getEmailMessages(baseInfo, UserType.previousPersonOfInterest, state));
                 break;
 
             case "1<-":
                 // email to USER
                 emails.addAll(getEmailMessages(baseInfo, USER, state));
-                // email to previousPOI and delegates
-                emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
+                // email to previousPersonOfInterest and delegates
+                emails.addAll(getEmailMessages(baseInfo, UserType.previousPersonOfInterest, state));
                 break;
 
 //            case "12<-13":
@@ -133,26 +133,26 @@ public class StageMessages {
 //                break;
 
             case "<-":
-                // email to previousPOI and delegates
-                emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
-                // email to nextPOI and delegates
-                emails.addAll(getEmailMessages(baseInfo, UserType.nextPOI, state));
+                // email to previousPersonOfInterest and delegates
+                emails.addAll(getEmailMessages(baseInfo, UserType.previousPersonOfInterest, state));
+                // email to nextPersonOfInterest and delegates
+                emails.addAll(getEmailMessages(baseInfo, UserType.nextPersonOfInterest, state));
                 break;
 
             case "rejected":
                 // email to USER
                 emails.addAll(getEmailMessages(baseInfo, USER, state));
-                // email to POIs and delegates
-                emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
+                // email to PersonOfInterests and delegates
+                emails.addAll(getEmailMessages(baseInfo, UserType.previousPersonOfInterest, state));
                 break;
 
             case "UploadInvoice->8":
                 // probably default case works // TODO check this !!!
             default:
-                // email to POIs and delegates
-                emails.addAll(getEmailMessages(baseInfo, UserType.previousPOI, state));
-                // email to nextPOI and delegates
-                emails.addAll(getEmailMessages(baseInfo, UserType.nextPOI, state));
+                // email to PersonOfInterests and delegates
+                emails.addAll(getEmailMessages(baseInfo, UserType.previousPersonOfInterest, state));
+                // email to nextPersonOfInterest and delegates
+                emails.addAll(getEmailMessages(baseInfo, UserType.nextPersonOfInterest, state));
         }
 
         emails.forEach(logger::info);
@@ -212,20 +212,20 @@ public class StageMessages {
         if (type == USER) {
             messages.add(
                     createEmail(request.getUser().getEmail(), /*user.getFirstname(), user.getLastname(),*/ baseInfo, type, state/*, date*/));
-        } else if (type == UserType.previousPOI) {
-            List<POI> poi = appStages.getPersonsOfInterest(completedStage); // get POIs of completed stage (previous stage)
+        } else if (type == UserType.previousPersonOfInterest) {
+            List<PersonOfInterest> PersonOfInterest = appStages.getPersonsOfInterest(completedStage); // get PersonOfInterests of completed stage (previous stage)
             List<String> addresses = new ArrayList<>();
-            poi.forEach(person -> {
+            PersonOfInterest.forEach(person -> {
                 addresses.add(person.getEmail());
                 person.getDelegates().forEach(delegate -> addresses.add(delegate.getEmail()));
             });
             addresses.forEach(address -> messages.add(
                     createEmail(address, /*user.getFirstname(), user.getLastname(),*/ baseInfo, type, state/*, date*/)));
-        } else if (type == UserType.nextPOI) {
-            List<POI> pois;
-            pois = appStages.getPersonsOfInterest(baseInfo.getStage()); // get POIs of next stage
+        } else if (type == UserType.nextPersonOfInterest) {
+            List<PersonOfInterest> PersonOfInterests;
+            PersonOfInterests = appStages.getPersonsOfInterest(baseInfo.getStage()); // get PersonOfInterests of next stage
             List<String> addresses = new ArrayList<>();
-            pois.forEach(person -> {
+            PersonOfInterests.forEach(person -> {
                 addresses.add(person.getEmail());
                 person.getDelegates().forEach(delegate -> addresses.add(delegate.getEmail()));
             });
@@ -303,7 +303,7 @@ public class StageMessages {
 //                            .append(appStages.getComment(request.getStage()));
 //                }
             }
-        } else if (type == UserType.previousPOI) {
+        } else if (type == UserType.previousPersonOfInterest) {
             subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + baseInfo.getId();
             if (state == ACCEPTED) {
                 stringBuilder
@@ -343,7 +343,7 @@ public class StageMessages {
 //                            .append(appStages.getComment(request.getStage()));
 //                }
             }
-        } else if (type == UserType.nextPOI) {
+        } else if (type == UserType.nextPersonOfInterest) {
             subject = "[ARC-ν.4485] Αναμονή ενεργειών για το αιτήμα " + baseInfo.getId();
             if (state == INITIALIZED) {
                 subject = "[ARC-ν.4485] Υποβολή αιτήματος " + baseInfo.getId();

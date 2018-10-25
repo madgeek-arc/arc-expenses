@@ -51,29 +51,22 @@ class BulkImportService {
             Organization organization = new Organization();
             organization.setId(line[0].trim());
             organization.setName(line[1].trim());
-            organization.setPOI(parserPOY(line[2]));
+            organization.setPoy(parserPOY(line[2]));
             organization.setDirector(parserPOY(line[3]));
             organization.setDioikitikoSumvoulio(parserPOY(line[4]));
             organization.setInspectionTeam(parser(line[5]));
+            organization.setViceDirector(parserPOY(line[6]));
             organizationService.add(organization,null); //TODO(Check for authentication here)
         }
     }
 
-    private POI parserPOY(String s) {
-        POI poi = new POI();
+    private PersonOfInterest parserPOY(String s) {
+        PersonOfInterest poy = new PersonOfInterest();
         String details[] = s.split(";");
-        poi.setEmail(details[1].trim());
-        poi.setFirstname((details[0].split(" "))[0].trim());
-        poi.setLastname((details[0].split(" "))[1].trim());
-
-//        Delegate delegate = new Delegate();
-//        delegate.setEmail("");
-//        delegate.setFirstname("");
-//        delegate.setLastname("");
-//        List<Delegate> delegates = new ArrayList<>();
-//        delegates.add(delegate);
-//        poi.setDelegates(delegates);
-        return poi;
+        poy.setEmail(details[1].trim());
+        poy.setFirstname((details[0].split(" "))[0].trim());
+        poy.setLastname((details[0].split(" "))[1].trim());
+        return poy;
 
     }
 
@@ -131,10 +124,10 @@ class BulkImportService {
         }
     }
 
-    private List<POI> parser(String s) {
+    private List<PersonOfInterest> parser(String s) {
 
         String op[] = s.split(",");
-        List<POI> operators = new ArrayList<>();
+        List<PersonOfInterest> operators = new ArrayList<>();
 
         for(String operator:op)
             operators.add(parserPOY(operator));

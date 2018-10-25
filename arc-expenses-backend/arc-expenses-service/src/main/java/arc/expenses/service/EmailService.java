@@ -4,7 +4,8 @@ import arc.expenses.domain.RequestFatClass;
 import arc.expenses.mail.EmailMessage;
 import arc.expenses.messages.StageMessages;
 import gr.athenarc.domain.Delegate;
-import gr.athenarc.domain.POI;
+import gr.athenarc.domain.PersonOfInterest;
+import io.swagger.models.auth.In;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class EmailService {
     private final static org.apache.logging.log4j.Logger logger = LogManager.getLogger(StageMessages.class);
 
 
-    public enum UserType {USER, previousPOI, nextPOI}
+    public enum UserType {USER, previousPersonOfInterest, nextPersonOfInterest}
 
     public enum RequestState {INITIALIZED, ACCEPTED, INVOICE, ACCEPTED_DIAVGEIA, REVIEW, REJECTED, COMPLETED}
 
@@ -85,7 +86,7 @@ public class EmailService {
                         .append("για να προβείτε στις απαραίτητες διορθώσεις.");
 
             }
-        } else if (type == UserType.previousPOI) {
+        } else if (type == UserType.previousPersonOfInterest) {
             subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + id;
             if (state == RequestState.ACCEPTED) {
                 stringBuilder
@@ -115,7 +116,7 @@ public class EmailService {
                         .append("το ακόλουθο αίτημα με έχει επιστραφεί \n")
                         .append("για να προβείτε στις απαραίτητες διορθώσεις.");
             }
-        } else if (type == UserType.nextPOI) {
+        } else if (type == UserType.nextPersonOfInterest) {
             subject = "[ARC-ν.4485] Αναμονή ενεργειών για το αιτήμα " + id;
             if (state == RequestState.INITIALIZED) {
                 subject = "[ARC-ν.4485] Υποβολή αιτήματος " + id;
@@ -151,293 +152,149 @@ public class EmailService {
 
         List<EmailMessage> messages = new ArrayList<>();
         List<Delegate> delegates  = null;
-        List<POI> pois  = new ArrayList<>();
-        String transition;
+        List<PersonOfInterest> PersonOfInterests  = new ArrayList<>();
+        String transition ;
         RequestState state = ACCEPTED;
         String email;
 
         if ("rejected".equals(status)) {
             state = REJECTED;
             transition = "rejected";
-
-        } else if ("under_review".equals(status)) {
-            // TODO: add explicitly cases requiring special handling
-            switch (newStage) {
-                case "1":
-                    transition = newStage + "<-";
-                    break;
-                default:
-                    transition = newStage + "<-" + oldStage;
-            }
+        }else if ("under_review".equals(status)) {
+            transition =  "<-" ;
             state = REVIEW;
-        } else {
-            transition = oldStage + "->" + newStage;
+        }else
+            transition = "->";
+        /*1->2*/
+        if(newStage.equals("2") && oldStage.equals("1")){
+            if (state == ACCEPTED)
+                state = INITIALIZED;
+            /*email to requester*/
+            email = requestFatClass.getUser().getEmail();
+            messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state));
+            /*email to PersonOfInterests/delegates of stage 2*/
+            messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
+            messages.forEach(logger::info);
+            return messages;
+        /*6->7*/
+        }else if(newStage.equals("6") && oldStage.equals("6") && state == ACCEPTED){
+            state = ACCEPTED_DIAVGEIA;
+            /*email to requester*/
+            email = requestFatClass.getUser().getEmail();
+            messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state));
+            messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
+            messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
+            messages.forEach(logger::info);
+            return messages;
+        /*13->13*/
+        }else if(oldStage.equals("13") && newStage.equals("13") && state == ACCEPTED){
+            state = COMPLETED;
+            messages.add(createEmail(requestFatClass.getUser().getEmail(),requestFatClass.getRequest_id(), USER, state));
+            messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
+            messages.forEach(logger::info);
+            return messages;
+        /*1<-2*/
+        }else if(oldStage.equals("2") && newStage.equals("1")){
+            /*email to requester*/
+            email = requestFatClass.getUser().getEmail();
+            messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state));
+            /*2*/
+            messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
+            messages.forEach(logger::info);
+            return messages;
+        }else{
+            switch (transition) {
+                case "->":
+                    /*for example:  12<-13 new stage = 13 , old stage = 12*/
+                    messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
+                    messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
+                    break;
+                case "<-":
+                    /*for example:  3<-4 new stage = 3 , old stage = 4*/
+                    messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
+                    messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
+                case "rejected":
+                    /*email to requester*/
+                    email = requestFatClass.getUser().getEmail();
+                    messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state));
+                    messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, previousPersonOfInterest));
+                    break;
+            }
         }
-
-        switch (transition) {
-            // TODO: add explicitly cases requiring special handling
-            case "1->2":
-                if (state == ACCEPTED) {
-                    state = INITIALIZED;
-                }
-                /*email to requester*/
-                email = requestFatClass.getUser().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state));
-                /*email to pois/delegates of stage 2*/
-                email = requestFatClass.getProject().getScientificCoordinator().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), nextPOI, state));
-
-                delegates = requestFatClass.getProject().getScientificCoordinator().getDelegates();
-                for (Delegate delegate : delegates)
-                    messages.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), nextPOI, state));
-
-                break;
-
-            case "6->7":
-                if (state == ACCEPTED) {
-                    state = ACCEPTED_DIAVGEIA;
-                }
-                /*email to requester*/
-                email = requestFatClass.getUser().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state));
-
-
-                /* email to pois/delegates of stage 6  */
-                email = requestFatClass.getProject().getInstitute().getDiaugeia().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), previousPOI, state));
-
-                delegates = requestFatClass.getProject().getInstitute().getDiaugeia().getDelegates();
-                for (Delegate delegate : delegates)
-                    messages.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), previousPOI, state));
-
-                /*email to pois/delegates of stage 7*/
-                List<POI> operators = requestFatClass.getProject().getOperator();
-                for (POI operator : operators)
-                    messages.add(createEmail(operator.getEmail(), requestFatClass.getRequest_id(), nextPOI, state));
-
-                break;
-
-//
-//            case "13->13":
-//                if (state == ACCEPTED) {
-//                    state = COMPLETED;
-//                }
-//                if (state != REVIEW) { // TODO: probably remove, REVIEW is only for '<-' cases
-//                    // email to USER
-//                    emails.addAll(getEmailMessages(baseInfo, USER, state));
-//                }
-//                // email to previousPOI and delegates
-//                emails.addAll(getEmailMessages(baseInfo, StageMessages.UserType.previousPOI, state));
-//                break;
-//
-            case "1<-":
-                /*email to requester*/
-                email = requestFatClass.getUser().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state));
-                // email to previousPOI and delegates
-//                emails.addAll(getEmailMessages(baseInfo, StageMessages.UserType.previousPOI, state));
-                break;
-            case "12<-13":
-                /*13*/
-                email = requestFatClass.getProject().getInstitute().getAccountingPayment().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), nextPOI, state));
-
-                delegates = requestFatClass.getProject().getInstitute().getAccountingPayment().getDelegates();
-                for (Delegate delegate : delegates)
-                    messages.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), nextPOI, state));
-                /*12*/
-                email = requestFatClass.getProject().getInstitute().getAccountingRegistration().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), previousPOI, state));
-
-                delegates = requestFatClass.getProject().getInstitute().getAccountingRegistration().getDelegates();
-                for (Delegate delegate : delegates)
-                    messages.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), previousPOI, state));
-
-                break;
-            case "11<-12":
-                /*12*/
-                email = requestFatClass.getProject().getInstitute().getAccountingRegistration().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), nextPOI, state));
-
-                delegates = requestFatClass.getProject().getInstitute().getAccountingRegistration().getDelegates();
-                for (Delegate delegate : delegates)
-                    messages.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), nextPOI, state));
-
-                /*11*/
-                email = requestFatClass.getProject().getInstitute().getDiaugeia().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), previousPOI, state));
-
-                delegates = requestFatClass.getProject().getInstitute().getDiaugeia().getDelegates();
-                for (Delegate delegate : delegates)
-                    messages.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), previousPOI, state));
-
-                break;
-            case "10<-11":
-                /*11*/
-                email = requestFatClass.getProject().getInstitute().getDiaugeia().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), nextPOI, state));
-
-                delegates = requestFatClass.getProject().getInstitute().getDiaugeia().getDelegates();
-                for (Delegate delegate : delegates)
-                    messages.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), nextPOI, state));
-                /*10*/
-                email = requestFatClass.getProject().getInstitute().getOrganization().getDirector().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), previousPOI, state));
-
-                delegates = requestFatClass.getProject().getInstitute().getOrganization().getDirector().getDelegates();
-                for (Delegate delegate : delegates)
-                    messages.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), previousPOI, state));
-                break;
-            case "9<-10":
-                /*10*/
-                email = requestFatClass.getProject().getInstitute().getOrganization().getDirector().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), nextPOI, state));
-
-                delegates = requestFatClass.getProject().getInstitute().getOrganization().getDirector().getDelegates();
-                for (Delegate delegate : delegates)
-                    messages.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), nextPOI, state));
-                /*9*/
-                email = requestFatClass.getProject().getInstitute().getOrganization().getPOI().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), previousPOI, state));
-
-                delegates = requestFatClass.getProject().getInstitute().getOrganization().getPOI().getDelegates();
-                for (Delegate delegate : delegates)
-                    messages.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), previousPOI, state));
-                break;
-            case "8<-9":
-                /*9*/
-                email = requestFatClass.getProject().getInstitute().getOrganization().getPOI().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), nextPOI, state));
-
-                delegates = requestFatClass.getProject().getInstitute().getOrganization().getPOI().getDelegates();
-                for (Delegate delegate : delegates)
-                    messages.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), nextPOI, state));
-                /*8*/
-                pois = requestFatClass.getProject().getInstitute().getOrganization().getInspectionTeam();
-                messages.addAll(prepareMessages(requestFatClass, pois, state, previousPOI));
-                break;
-            case "7<-8":
-                /*8*/
-                pois = requestFatClass.getProject().getInstitute().getOrganization().getInspectionTeam();
-                messages.addAll(prepareMessages(requestFatClass,pois, state, nextPOI));
-                pois.clear();
-                /*7*/
-                pois = requestFatClass.getProject().getOperator();
-                messages.addAll(prepareMessages(requestFatClass,pois, state, previousPOI));
-                pois.clear();
-                break;
-            case "6<-7":
-                /*7*/
-                pois = requestFatClass.getProject().getOperator();
-                messages.addAll(prepareMessages(requestFatClass,pois, state, nextPOI));
-                pois.clear();
-                /*6*/
-                pois.add(requestFatClass.getProject().getInstitute().getDiaugeia());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, previousPOI));
-                pois.clear();
-                break;
-            case "5b<-6":
-                /*6*/
-                pois.add(requestFatClass.getProject().getInstitute().getDiaugeia());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, nextPOI));
-                pois.clear();
-                /*5b*/
-                pois.add(requestFatClass.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, previousPOI));
-                pois.clear();
-                break;
-            case "5a<-6":
-                /*6*/
-                pois.add(requestFatClass.getProject().getInstitute().getDiaugeia());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, nextPOI));
-                pois.clear();
-                /*5a*/
-                pois.add(requestFatClass.getProject().getInstitute().getOrganization().getDirector());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, previousPOI));
-                pois.clear();
-                break;
-            case "5a<-5b":
-                /*5b*/
-                pois.add(requestFatClass.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, previousPOI));
-                pois.clear();
-                /*5a*/
-                pois.add(requestFatClass.getProject().getInstitute().getOrganization().getDirector());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, nextPOI));
-                pois.clear();
-                break;
-            case "5<-5b":
-                /*5b*/
-                pois.add(requestFatClass.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, previousPOI));
-                pois.clear();
-                /*5*/
-                pois.add(requestFatClass.getProject().getInstitute().getDirector());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, nextPOI));
-                pois.clear();
-                break;
-            case "4<-5a":
-                /*5a*/
-                pois.add(requestFatClass.getProject().getInstitute().getOrganization().getDirector());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, previousPOI));
-                pois.clear();
-                /*4*/
-                pois.add(requestFatClass.getProject().getInstitute().getOrganization().getPOI());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, nextPOI));
-                pois.clear();
-                break;
-            case "4<-5":
-                /*5*/
-                pois.add(requestFatClass.getProject().getInstitute().getDirector());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, previousPOI));
-                pois.clear();
-                /*4*/
-                pois.add(requestFatClass.getProject().getInstitute().getOrganization().getPOI());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, nextPOI));
-                pois.clear();
-                break;
-            case "3<-4":
-                /*4*/
-                pois.add(requestFatClass.getProject().getInstitute().getOrganization().getPOI());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, previousPOI));
-                pois.clear();
-                /*3*/
-                pois = requestFatClass.getProject().getOperator();
-                messages.addAll(prepareMessages(requestFatClass,pois, state, nextPOI));
-                pois.clear();
-                break;
-            case "2<-3":
-                /*3*/
-                pois = requestFatClass.getProject().getOperator();
-                messages.addAll(prepareMessages(requestFatClass,pois, state, previousPOI));
-                pois.clear();
-                /*2*/
-                pois.add(requestFatClass.getProject().getScientificCoordinator());
-                messages.addAll(prepareMessages(requestFatClass,pois, state, nextPOI));
-                pois.clear();
-                break;
-            case "rejected":
-                /*email to requester*/
-                email = requestFatClass.getUser().getEmail();
-                messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state));
-                // email to POIs and delegates
-                //emails.addAll(getEmailMessages(baseInfo, StageMessages.UserType.previousPOI, state));
-                break;
-        }
-//        messages.forEach(logger::info);
+        messages.forEach(logger::info);
         return messages;
     }
 
-    private List<EmailMessage> prepareMessages(RequestFatClass requestFatClass, List<POI> pois, RequestState state, UserType nextPOI) {
+    private List<PersonOfInterest> getPersonOfInterest(RequestFatClass request,String stage) {
+
+        List<PersonOfInterest> personsOfInterest = new ArrayList();
+        switch (stage) {
+            case "1":
+                personsOfInterest = null;
+                break;
+            case "2":
+                personsOfInterest.add(request.getProject().getScientificCoordinator());
+                break;
+            case "3":
+                personsOfInterest.addAll(request.getProject().getOperator());
+                break;
+            case "4":
+                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
+                break;
+            case "5a":
+                personsOfInterest.add(request.getProject().getInstitute().getDirector());
+                break;
+            case "5b":
+                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio());
+                break;
+            case "6":
+                personsOfInterest.add(request.getProject().getInstitute().getDiaugeia());
+                break;
+            case "7":
+                personsOfInterest.addAll(request.getProject().getOperator());
+                break;
+            case "8":
+                personsOfInterest.addAll(request.getProject().getInstitute().getOrganization().getInspectionTeam());
+                break;
+            case "9":
+                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
+                break;
+            case "10":
+                personsOfInterest.add(request.getProject().getInstitute().getDirector());
+                break;
+            case "11":
+                personsOfInterest.add(request.getProject().getInstitute().getDiaugeia());
+                break;
+            case "12":
+                personsOfInterest.add(request.getProject().getInstitute().getAccountingRegistration());
+                break;
+            case "13":
+                personsOfInterest.add(request.getProject().getInstitute().getAccountingPayment());
+                break;
+            default:
+                return null;
+        }
+        return personsOfInterest;
+
+
+
+
+
+    }
+
+    private List<EmailMessage> prepareMessages(RequestFatClass requestFatClass, List<PersonOfInterest> PersonOfInterests, RequestState state, UserType nextPersonOfInterest) {
 
         List<Delegate> delegates;
         List<EmailMessage> emails = new ArrayList<>();
 
-        for (POI poi : pois) {
-            emails.add(createEmail(poi.getEmail(), requestFatClass.getRequest_id(), nextPOI, state));
-            delegates = poi.getDelegates();
+        if(PersonOfInterests==null)
+            return null;
+
+        for (PersonOfInterest PersonOfInterest : PersonOfInterests) {
+            emails.add(createEmail(PersonOfInterest.getEmail(), requestFatClass.getRequest_id(), nextPersonOfInterest, state));
+            delegates = PersonOfInterest.getDelegates();
             for (Delegate delegate : delegates)
-                emails.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), nextPOI, state));
+                emails.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), nextPersonOfInterest, state));
         }
         return emails;
     }
