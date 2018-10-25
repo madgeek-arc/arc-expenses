@@ -96,6 +96,7 @@ export class RequestStageComponent implements OnInit {
                 this.stages = approvalStages;
                 this.currentRequestInfo = new RequestInfo(this.currentRequestApproval.id,
                                                           this.currentRequest.id,
+                                                          this.currentRequest.user,
                                                           this.currentRequest.project,
                                                           (this.currentRequest.type === 'trip'));
                 this.checkIfStageIs5b();
@@ -285,6 +286,7 @@ export class RequestStageComponent implements OnInit {
     }
 
     submitRequestApproval() {
+        console.log('updating approval');
         window.scrollTo(0, 0);
         this.showSpinner = true;
         this.errorMessage = '';
@@ -305,6 +307,7 @@ export class RequestStageComponent implements OnInit {
                 console.log(error);
                 this.showSpinner = false;
                 this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών.';
+                this.getCurrentRequest();
             },
             () => {
                 this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
@@ -318,6 +321,7 @@ export class RequestStageComponent implements OnInit {
     }
 
     updateRequestAndApproval() {
+        console.log('updating request and approval');
         if ( (!isNullOrUndefined(this.uploadedFile)) && (this.currentStageName !== 'stage1') ) {
 
             this.currentRequestApproval[this.currentStageName]['attachment']['url'] = this.uploadedFileURL;
@@ -337,6 +341,7 @@ export class RequestStageComponent implements OnInit {
                 console.log(error);
                 this.showSpinner = false;
                 this.errorMessage = 'Παρουσιάστηκε πρόβλημα κατά την αποθήκευση των αλλαγών.';
+                this.getCurrentRequest();
             },
             () => {
                 this.successMessage = 'Οι αλλαγές αποθηκεύτηκαν.';
@@ -350,6 +355,7 @@ export class RequestStageComponent implements OnInit {
     }
 
     uploadFile() {
+        console.log('uploading file');
         this.showSpinner = true;
         this.errorMessage = '';
         this.requestService.uploadAttachment<string>(this.currentRequest.archiveId,

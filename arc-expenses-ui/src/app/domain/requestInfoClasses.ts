@@ -87,10 +87,11 @@ export class RequestInfo {
     '12': StageInfo;
     '13': StageInfo;
 
-    constructor(phaseId: string, requestId: string, project: Project, isTrip: boolean) {
+    constructor(phaseId: string, requestId: string, requester: User, project: Project, isTrip: boolean) {
 
         this.phaseId = phaseId;
         this.requestId = requestId;
+        this.requester = requester;
         this.initiateStagesInfo(project, isTrip);
     }
 
@@ -129,7 +130,7 @@ export class RequestInfo {
             ['5a', '5b', '6'],
             Stage4Component,
             [analiftheiYpoxrewsiDesc, fundsAvailableDesc, commentDesc],
-            [project.institute.organization.POY],
+            [project.institute.organization.poy],
             new SubmittedStageResultMap(
                 'Εγκρίθηκε από τον Προϊστάμενο Οικονομικών Υπηρεσιών',
                 'Απορρίφθηκε από τον Προϊστάμενο Οικονομικών Υπηρεσιών',
@@ -213,7 +214,7 @@ export class RequestInfo {
             ['10'],
             Stage9Component,
             [checkRegularityDesc, checkLegalityDesc, commentDesc],
-            [project.institute.organization.POY],
+            [project.institute.organization.poy],
             new SubmittedStageResultMap(
                 'Εγκρίθηκε από τον Προϊστάμενο Οικονομικών Υπηρεσιών',
                 'Απορρίφθηκε από τον Προϊστάμενο Οικονομικών Υπηρεσιών',

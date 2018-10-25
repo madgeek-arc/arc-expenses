@@ -91,6 +91,7 @@ export class RequestStagePaymentComponent implements OnInit {
                 this.stages = paymentStages;
                 this.currentRequestInfo = new RequestInfo(this.currentRequestPayment.id,
                                                           this.currentRequest.id,
+                                                          this.currentRequest.user,
                                                           this.currentRequest.project,
                                                           (this.currentRequest.type === 'trip'));
                 this.checkIfStageIs7();

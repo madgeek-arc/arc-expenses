@@ -175,9 +175,9 @@
                   Το αίτημα {{ stateNames[currentRequest.requestStatus] }}.
                 </div>
 
-                <hr>
                 <div *ngIf="(currentRequestApproval.status === 'accepted') &&
                             (currentRequest.type !== 'contract')" class="uk-margin-top">
+                  <hr>
 
                     <!-- Create Payment button NOT needed - the first payment is created on the approval's completion -->
                     <!--<div *ngIf="(!currentRequestPayments || (currentRequestPayments.length === 0)) &&
