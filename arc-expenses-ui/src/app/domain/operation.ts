@@ -74,7 +74,7 @@ export class Institute {
 export class Organization {
     id: string;
     name: string;
-    POY: PersonOfInterest;
+    poy: PersonOfInterest;
     director: PersonOfInterest;
     viceDirector: PersonOfInterest;
     inspectionTeam: PersonOfInterest[];
@@ -274,7 +274,7 @@ export class Stage13 {
 export class Trip {
     firstname: string;
     lastname: string;
-    email: number;
+    email: string;
     destination: string;
 }
 

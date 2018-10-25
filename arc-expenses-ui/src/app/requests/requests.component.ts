@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BaseInfo, Project, Request, RequestSummary, Vocabulary } from '../domain/operation';
+import { BaseInfo, Project, Request, RequestSummary, User, Vocabulary } from '../domain/operation';
 import { ManageRequestsService } from '../services/manage-requests.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { Paging } from '../domain/extraClasses';
@@ -516,15 +516,17 @@ export class RequestsComponent implements OnInit {
     }
 
     getTrStyle(req: RequestSummary) {
-        if (this.getIfUserCanEdit(req.baseInfo.id, req.request.id, req.request.project, req.baseInfo.stage, req.request.type)) {
+        if (this.getIfUserCanEdit(req.baseInfo.id, req.request.id,
+                                  req.request.user, req.request.project,
+                                  req.baseInfo.stage, req.request.type)) {
             return '#f7f7f7';
         } else {
             return '';
         }
     }
 
-    getIfUserCanEdit(id: string, requestId: string, project: Project, stage: string, type: string) {
-        const newRequestInfo = new RequestInfo(id, requestId, project, (type === 'trip'));
+    getIfUserCanEdit(id: string, requestId: string, requester: User, project: Project, stage: string, type: string) {
+        const newRequestInfo = new RequestInfo(id, requestId, requester, project, (type === 'trip'));
         return (( this.authService.getUserRole() === 'ROLE_ADMIN' ) ||
                 ( this.isSimpleUser && ((stage === '1') || (stage === '7')) ) ||
                 ( newRequestInfo[stage].stagePOIs.some(

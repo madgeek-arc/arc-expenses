@@ -97,8 +97,9 @@ export class AuthenticationService {
                         console.log(JSON.stringify(userInfo));
                         if ( !isNullOrUndefined(userInfo) ) {
                             this.isLoggedIn = true;
-                            sessionStorage.setItem('role', userInfo['role']);
-                            /*sessionStorage.setItem('role', 'ROLE_ADMIN');*/
+                            // TODO: RESTORE READING ROLE ON LOGIN !!!
+                            // sessionStorage.setItem('role', userInfo['role']);
+                            sessionStorage.setItem('role', 'ROLE_ADMIN');
                             this.setUserProperties(userInfo['user']);
                         }
                     },

@@ -200,7 +200,7 @@ export class NewRequestComponent implements OnInit {
                 }
 
                 if (this.requestType === 'trip') {
-                    let newTrip = new Trip();
+                    const newTrip = new Trip();
                     newTrip.firstname = this.newRequestForm.get('trip_firstname').value;
                     newTrip.lastname = this.newRequestForm.get('trip_lastname').value;
                     newTrip.email = this.newRequestForm.get('trip_email').value;
@@ -247,10 +247,8 @@ export class NewRequestComponent implements OnInit {
                     () => {
                         if (this.uploadedFile) {
                             this.uploadFile();
-                            // this.uploadAndSubmitRequestAndApproval();
                         } else {
                             this.submitRequestApproval();
-                            // this.submitRequestAndApproval();
                         }
                     }
                 );
@@ -259,84 +257,6 @@ export class NewRequestComponent implements OnInit {
         } else {
             UIkit.modal.alert('Τα πεδία που σημειώνονται με (*) είναι υποχρεωτικά.');
         }
-    }
-
-    submitRequestAndApproval() {
-        window.scrollTo(0, 0);
-        this.showSpinner = true;
-        this.errorMessage = '';
-        console.log('inside submitRequestAndApproval');
-        this.requestService.addRequest(this.request).pipe(
-                tap (
-                    res => {
-                        this.request = res;
-                        this.requestApproval.requestId = this.request.id;
-                        console.log(res);
-                    }),
-                concatMap (() => this.requestService.addRequestApproval(this.requestApproval)
-                )).subscribe (
-                    res => this.requestApproval = res,
-                    error => {
-                        console.log(error);
-                        this.showSpinner = false;
-                        UIkit.modal.alert('Παρουσιάστηκε πρόβλημα με την υποβολή της φόρμας.');
-                    },
-                    () => {
-                        if (this.uploadedFile) {
-                            this.uploadFile();
-                        } else {
-                            this.showSpinner = false;
-                            this.router.navigate(['/requests']);
-                        }
-                    }
-                );
-    }
-
-    uploadAndSubmitRequestAndApproval() {
-        window.scrollTo(0, 0);
-        this.showSpinner = true;
-        this.errorMessage = '';
-        this.requestService.addRequest(this.request).pipe(
-            tap(
-                res => {
-                    this.request = res;
-                    this.requestApproval.requestId = res.id;
-                    console.log('addRequest responded:', JSON.stringify(res));
-                }
-            ),
-            concatMap(() => this.requestService.addRequestApproval(this.requestApproval)) ).pipe (
-                    tap(res => {
-                            this.requestApproval = res;
-                            console.log('addRequestApproval responded:', JSON.stringify(this.requestApproval));
-                        }
-                    ),
-                    mergeMap(
-                        () => this.requestService.uploadAttachment<string>(this.request.archiveId, 'stage1', this.uploadedFile, 'request')
-                    ))
-                    .pipe(
-                        tap(
-                            event => {
-                                if (event.type === HttpEventType.UploadProgress) {
-                                    console.log('uploadAttachment responded: ', event);
-                                } else if ( event instanceof HttpResponse) {
-                                    console.log('final event:', event.body);
-                                    this.request.stage1.attachment.url = event.body;
-                                }
-                            }),
-                        concatMap(() => this.requestService.updateRequest(this.request, this.authService.getUserProp('email'))
-                        ))
-                        .subscribe (
-                            res => this.request = res,
-                            error => {
-                                console.log(error);
-                                this.showSpinner = false;
-                                UIkit.modal.alert('Παρουσιάστηκε πρόβλημα με την υποβολή της φόρμας.');
-                            },
-                            () => {
-                                this.showSpinner = false;
-                                this.router.navigate(['/requests']);
-                            }
-                        );
     }
 
     submitRequestApproval() {
