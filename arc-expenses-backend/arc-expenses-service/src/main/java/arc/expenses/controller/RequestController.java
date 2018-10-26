@@ -193,7 +193,7 @@ public class RequestController {
     }
 
     @RequestMapping(value =  "/payments/getByRequestId/{request_id}", method = RequestMethod.GET)
-    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
+    //@PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public Browsing<RequestPayment> getPaymentsByRequestId(@PathVariable("request_id") String request_id, Authentication auth) throws Exception {
         return requestPaymentService.getPayments(request_id,auth);
     }
