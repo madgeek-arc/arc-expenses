@@ -16,6 +16,11 @@
       "type": "java.lang.String"
     },
     {
+      "name": "request_type",
+      "path": "$.type",
+      "type": "java.lang.String"
+    },
+    {
       "name": "request_institute",
       "path": "$.project.institute.name",
       "type": "java.lang.String"

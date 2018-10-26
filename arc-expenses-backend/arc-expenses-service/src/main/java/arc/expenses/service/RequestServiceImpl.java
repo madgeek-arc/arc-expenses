@@ -376,8 +376,8 @@ public class RequestServiceImpl extends GenericService<Request> {
                     " r.request_project_operator <@ '{"+'"' + email + '"' + "}' or " +
                     " r.request_project_operator_delegate <@ '{"+'"' + email + '"' + "}' or " +
                     " r.request_project_scientificCoordinator = '"  + email + "' or " +
-                    " r.request_organization_PersonOfInterest = '"  + email + "' or " +
-                    " r.request_organization_PersonOfInterest_delegate <@  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_organization_poy = '"  + email + "' or " +
+                    " r.request_organization_poy_delegate <@  '{"+'"' + email + '"' + "}' or " +
                     " r.request_institute_accountingRegistration = '"  + email + "' or " +
                     " r.request_institute_diaugeia = '"  + email + "' or " +
                     " r.request_institute_accountingPayment = '"  + email + "' or " +
@@ -396,31 +396,37 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     public List<Request> getPendingRequests(String email) {
 
-        String whereClause = " (  ( request_project_operator =  " + email + " or  request_project_operator_delegates = " + email + " ) "
+        String whereClause = " (  ( r.request_project_operator <@ '{"+'"' + email + '"' + "} or  request_project_operator_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and ( request_stage = 3 or request_stage = 7 ) "
                            + "    ) "
-                           + " or ( request_project_scientificCoordinator = " + email + " and request_stage = 2 ) "
-                           + " or ( ( request_organization_POΙ =  " + email + " or  request_organization_POΙ_delegate = "  + email + " ) "
+                           + " or ( request_project_scientificCoordinator = '" + email + "' and request_stage = 2 ) "
+                           + " or ( ( request_organization_poy =  '" + email + "' or  request_organization_poy_delegate = "  + email + " ) "
                            + "      and ( request_stage = 4 or request_stage = 9 ) "
                            + "    ) "
-                           + " or ( ( request_organization_director =  " + email + " or  request_organization_director_delegate = "  + email + " )"
+                           + " or ( ( request_organization_director =  " + email + " or  request_organization_director_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and ( request_stage = 5a or request_stage = 10 ) "
                            + "    ) "
-                           + " or ( ( request_organization_dioikitikoSumvoulio =  " + email + " or  request_organization_dioikitikoSumvoulio_delegate = "  + email + " )"
+                           + " or ( ( request_organization_dioikitikoSumvoulio =  '" + email + "' or  request_organization_dioikitikoSumvoulio_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and request_stage = 5b "
                            + "    ) "
-                           + " or ( ( request_institute_diaugeia =  " + email + " or  request_institute_diaugeia_delegate = "  + email + " )"
+                           + " or ( ( request_institute_diaugeia =  '" + email + "' or  request_institute_diaugeia_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and ( request_stage = 6 or request_stage = 11 ) "
                            + "    ) "
-                           + " or ( ( request_institute_accountingDirector =  " + email + " or  request_institute_accountingDirector_delegate = "  + email + " )"
+                           + " or ( ( request_institute_accountingDirector =  '" + email + "' or  request_institute_accountingDirector_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and request_stage = 8 "
                            + "    ) "
-                           + " or ( ( request_institute_accountingRegistration =  " + email + " or  request_institute_accountingRegistration_delegate = "  + email + " )"
+                           + " or ( ( request_institute_accountingRegistration =  '" + email + "' or  request_institute_accountingRegistration_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and request_stage = 12 "
                            + "    ) "
-                           + " or ( ( request_institute_accountingPayment =  " + email + " or  request_institute_accountingPayment_delegate = "  + email + " )"
+                           + " or ( ( request_institute_accountingPayment =  '" + email + "' or  request_institute_accountingPayment_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and request_stage = 13 "
-                           + "    ) ";
+                           + "    ) "
+                            + " or (  request_requester =  '" + email + "'" + " and request_type = trip and request_stage = 7 "
+                            + "    ) " ;
+
+
+        LOGGER.info(whereClause);
+
 
         Paging<Resource> rs = searchService.cqlQuery(
                 whereClause,"request",

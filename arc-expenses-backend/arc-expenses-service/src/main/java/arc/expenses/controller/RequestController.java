@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,7 +55,7 @@ public class RequestController {
 
 
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)
-    //@PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
+    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public Request getById(@PathVariable("id") String id) throws ResourceNotFoundException {
         Request request = requestService.get(id);
         if(request == null)
@@ -122,7 +124,7 @@ public class RequestController {
 
     @RequestMapping(value = "/store/download", method = RequestMethod.GET)
     @ResponseBody
-    //@PreAuthorize("@annotationChecks.validateDownload(#requestId,authentication.principal)")
+    @PreAuthorize("@annotationChecks.validateDownload(#requestId,authentication.principal)")
     public void downloadFile(@RequestParam("mode") String mode,
                              @RequestParam("requestId") String id,
                              @RequestParam("stage") String stage,
@@ -173,7 +175,7 @@ public class RequestController {
     }
 
     @RequestMapping(value =  "/approval/getById/{id}", method = RequestMethod.GET)
-    //@PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
+    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public RequestApproval getApprovalById(@PathVariable("id") String id) throws ResourceNotFoundException {
         RequestApproval requestApproval = requestApprovalService.get(id);
         if(requestApproval == null)
@@ -182,7 +184,7 @@ public class RequestController {
     }
 
     @RequestMapping(value =  "/payment/getById/{id}", method = RequestMethod.GET)
-    //@PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
+    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public RequestPayment getPaymentById(@PathVariable("id") String id) throws ResourceNotFoundException {
         RequestPayment requestPayment = requestPaymentService.get(id);
         if(requestPayment == null)
@@ -191,7 +193,7 @@ public class RequestController {
     }
 
     @RequestMapping(value =  "/payments/getByRequestId/{request_id}", method = RequestMethod.GET)
-    //@PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
+    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public Browsing<RequestPayment> getPaymentsByRequestId(@PathVariable("request_id") String request_id, Authentication auth) throws Exception {
         return requestPaymentService.getPayments(request_id,auth);
     }

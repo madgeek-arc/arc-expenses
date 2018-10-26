@@ -87,6 +87,8 @@ class BulkImportService {
             institute.setAccountingDirector(parser(line[6]).get(0));
             institute.setDiaugeia(parserPOY(line[7]));
             institute.setSuppliesOffice(parserPOY(line[8]));
+            institute.setDiataktis(parserPOY(line[8]));
+            institute.setTravelManager(parserPOY(line[8]));
             instituteService.add(institute,null); //TODO(Check for authentication here)
         }
 

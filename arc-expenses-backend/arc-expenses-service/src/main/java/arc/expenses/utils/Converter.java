@@ -31,8 +31,10 @@ public class Converter {
 
         RequestFatClass requestFatClass = new RequestFatClass();
 
+
         requestFatClass.setRequest_id(request.getId());
         requestFatClass.setId(newRequestApproval.getId());
+        requestFatClass.setType(request.getType());
         requestFatClass.setUser(request.getUser());
         requestFatClass.setProject(request.getProject());
         requestFatClass.setId(newRequestApproval.getId());
@@ -54,6 +56,7 @@ public class Converter {
 
         requestFatClass.setRequest_id(request.getId());
         requestFatClass.setId(requestPayment.getId());
+        requestFatClass.setType(request.getType());
         requestFatClass.setUser(request.getUser());
         requestFatClass.setProject(request.getProject());
         requestFatClass.setId(requestPayment.getId());

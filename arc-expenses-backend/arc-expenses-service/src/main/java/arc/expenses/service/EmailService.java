@@ -242,7 +242,7 @@ public class EmailService {
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
                 break;
             case "5a":
-                personsOfInterest.add(request.getProject().getInstitute().getDirector());
+                personsOfInterest.add(request.getProject().getInstitute().getDiataktis());
                 break;
             case "5b":
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio());
@@ -251,7 +251,10 @@ public class EmailService {
                 personsOfInterest.add(request.getProject().getInstitute().getDiaugeia());
                 break;
             case "7":
-                personsOfInterest.addAll(request.getProject().getOperator());
+                if(request.getType().equals("trip"))
+                    personsOfInterest.add(request.getProject().getInstitute().getTravelManager());
+                else
+                    personsOfInterest.add(request.getProject().getInstitute().getSuppliesOffice());
                 break;
             case "8":
                 personsOfInterest.addAll(request.getProject().getInstitute().getOrganization().getInspectionTeam());
@@ -260,7 +263,7 @@ public class EmailService {
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
                 break;
             case "10":
-                personsOfInterest.add(request.getProject().getInstitute().getDirector());
+                personsOfInterest.add(request.getProject().getInstitute().getDiataktis());
                 break;
             case "11":
                 personsOfInterest.add(request.getProject().getInstitute().getDiaugeia());
