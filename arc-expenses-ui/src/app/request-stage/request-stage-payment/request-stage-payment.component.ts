@@ -6,7 +6,7 @@ import { AnchorItem } from '../../shared/dynamic-loader-anchor-components/anchor
 import { ActivatedRoute, Router } from '@angular/router';
 import { ManageRequestsService } from '../../services/manage-requests.service';
 import { AuthenticationService } from '../../services/authentication.service';
-import { mergeMap, tap } from 'rxjs/operators';
+import { concatMap, mergeMap, tap } from 'rxjs/operators';
 import { HttpErrorResponse, HttpEventType, HttpResponse } from '@angular/common/http';
 import { isNullOrUndefined, isUndefined } from 'util';
 import { printRequestPage } from '../print-request-function';
@@ -294,13 +294,11 @@ export class RequestStagePaymentComponent implements OnInit {
             this.uploadedFile = null;
         }
 
-        const updateRequest = this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email'));
-        const updateRequestPayment = this.requestService.updateRequestPayment(this.currentRequestPayment);
-        forkJoin(updateRequest, updateRequestPayment).subscribe(
-            res => {
-                this.currentRequest = res[0];
-                this.currentRequestPayment = res[1];
-            },
+        this.requestService.updateRequest(this.currentRequest, this.authService.getUserProp('email')).pipe(
+            tap(res => this.currentRequest = res),
+            concatMap(res => this.requestService.updateRequestPayment(this.currentRequestPayment))
+        ).subscribe(
+            res => this.currentRequestPayment = res,
             error => {
                 console.log(error);
                 this.showSpinner = false;
@@ -321,7 +319,7 @@ export class RequestStagePaymentComponent implements OnInit {
         if ( (stage === this.currentRequestPayment.stage) &&
             (this.currentRequestPayment.status !== 'rejected') &&
             (this.currentRequestPayment.status !== 'accepted') &&
-            ( (this.authService.getUserRole() === 'ROLE_ADMIN') || (this.canEdit === true) ) ) {
+            ( (this.authService.getUserRole() === 'ROLE_ADMIN') || (this.canEdit === true) || (stage === '7') ) ) {
 
             this.stageLoaderItemList = [
                 new AnchorItem(
@@ -342,7 +340,7 @@ export class RequestStagePaymentComponent implements OnInit {
             if ( !isNullOrUndefined(this.currentRequestPayment[stageField]) &&
                 !isNullOrUndefined(this.currentRequestPayment[stageField].date)) {
 
-                if ( !this.isSimpleUser || (this.currentRequestPayment.stage === '7') ) {
+                if ( !this.isSimpleUser || (stage === '7') ) {
 
                     if ( this.stages.indexOf(this.currentRequestPayment.stage) < this.stages.indexOf(stage)) {
                         return 4;

@@ -110,7 +110,7 @@ export class StageComponent implements OnInit {
     }
 
     findCurrentPOI() {
-        if ( (this.currentStageInfo.stagePOIs.length === 1) || (this.authService.getUserRole() === 'ROLE_ADMIN') ) {
+        if ((this.currentStageInfo.stagePOIs.length === 1) || (this.authService.getUserRole() === 'ROLE_ADMIN') ) {
             return this.currentStageInfo.stagePOIs[0];
         } else {
             let curEmail: string;
@@ -233,11 +233,16 @@ export class StageComponent implements OnInit {
         }
     }
 
+    /* display full name of the submitted stage's editor */
     getDelegateName() {
-        if ( this.getIsDelegateHidden() ) {
-            return this.currentPOI.firstname + ' ' + this.currentPOI.lastname;
-        } else {
+        if (this.stageId === '7') {
             return this.currentStage['user']['firstname'] + ' ' + this.currentStage['user']['lastname'];
+        } else {
+            if ( this.getIsDelegateHidden() ) {
+                return this.currentPOI.firstname + ' ' + this.currentPOI.lastname;
+            } else {
+                return this.currentStage['user']['firstname'] + ' ' + this.currentStage['user']['lastname'];
+            }
         }
     }
 

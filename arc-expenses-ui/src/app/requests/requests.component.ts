@@ -479,7 +479,7 @@ export class RequestsComponent implements OnInit {
         this.errorMessage = '';
         this.projects = [];
 
-        forkJoin(this.projectService.getAllProjectsNames(),
+        /*forkJoin(this.projectService.getAllProjectsNames(),
                  this.resourceService.getInstituteNames)
             .subscribe(
                 res => {
@@ -501,7 +501,32 @@ export class RequestsComponent implements OnInit {
                         this.initializeParams();
                     }
                 }
-            );
+            );*/
+        this.projectService.getAllProjectsNames().subscribe(
+            res => this.projects = res,
+            error => {
+                console.log(error);
+                this.showSpinner = false;
+                this.errorMessage = 'Παρουσιάστηκε πρόωλημα με την ανάκτηση των απαραίτητων πληροφοριών.';
+            },
+            () => {
+                this.showSpinner = false;
+                this.errorMessage = '';
+                if ( isNullOrUndefined(this.projects) || (this.projects.length === 0) ) {
+                    this.errorMessage = 'Παρουσιάστηκε πρόβλημα με την ανάκτηση των απαραίτητων πληροφοριών.';
+                } else {
+                    this.instituteIds = [];
+                    this.projects.forEach(
+                        x => {
+                            if ( this.instituteIds.indexOf(x.instituteName) === -1 ) {
+                                this.instituteIds.push(x.instituteName);
+                            }
+                        }
+                    );
+                    this.initializeParams();
+                }
+            }
+        );
     }
 
 

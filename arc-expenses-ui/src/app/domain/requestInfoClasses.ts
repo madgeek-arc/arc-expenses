@@ -89,10 +89,30 @@ export class RequestInfo {
 
     constructor(phaseId: string, requestId: string, requester: User, project: Project, isTrip: boolean) {
 
+        console.log(`initializing requestInfo`);
+        console.log('isTrip is', isTrip);
+
         this.phaseId = phaseId;
         this.requestId = requestId;
         this.requester = requester;
         this.initiateStagesInfo(project, isTrip);
+
+        if (isTrip) {
+            (this['7']).stagePOIs = [];
+            (this['7']).stagePOIs.push(project.institute.travelManager);
+        }
+
+        if ((this.requester.email === project.institute.organization.director.email) &&
+            (this.requester.email === project.institute.diataktis.email) ) {
+            console.log('requester is diataktis!');
+            this['5a'].stagePOIs = [];
+            this['5a'].stagePOIs.push(project.institute.organization.viceDirector);
+            console.log(this['5a'].stagePOIs);
+            this['10'].stagePOIs = [];
+            this['10'].stagePOIs.push(project.institute.organization.viceDirector);
+            console.log(this['10'].stagePOIs);
+        }
+
     }
 
     initiateStagesInfo(project: Project, isTrip: boolean) {
@@ -188,9 +208,9 @@ export class RequestInfo {
             [commentDesc],
             [project.institute.suppliesOffice],
             new SubmittedStageResultMap(
-                'Υποβλήθηκε από',
-                'Απορρίφθηκε από',
-                'Επεστράφη στο προηγούμενο στάδιο από'
+                'Υποβλήθηκε',
+                'Απορρίφθηκε',
+                'Επεστράφη στο προηγούμενο στάδιο'
             )
         );
 
@@ -278,19 +298,6 @@ export class RequestInfo {
             )
         );
 
-
-        if (isTrip) {
-            (this['7']).stagePOIs = [];
-            (this['7']).stagePOIs.push(project.institute.travelManager);
-        }
-
-        if ((this.requester.email === project.institute.organization.director.email) &&
-            (this.requester.email === project.institute.diataktis.email) ) {
-            (this['5a']).stagePOIs = [];
-            (this['5a']).stagePOIs.push(project.institute.organization.viceDirector);
-            (this['10']).stagePOIs = [];
-            (this['10']).stagePOIs.push(project.institute.organization.viceDirector);
-        }
 
     }
 

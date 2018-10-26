@@ -219,8 +219,10 @@ export class NewRequestComponent implements OnInit {
                 this.requestApproval.stage3 = new Stage3();
                 this.requestApproval.stage4 = new Stage4();
 
-                // TODO: Check if stage5a is needed
-                // if (this.request.stage1.amountInEuros < this.lowAmount) {}
+                // TODO: Uncomment when back end decides if the stage needs initializing
+                /* if (this.request.stage1.amountInEuros > this.lowAmount) {
+                    this.requestApproval.stage5a = new Stage5a();
+                } */
                 this.requestApproval.stage5a = new Stage5a();
 
                 if ( (this.requestType === 'contract') || (this.requestType === 'services_contract') ||
