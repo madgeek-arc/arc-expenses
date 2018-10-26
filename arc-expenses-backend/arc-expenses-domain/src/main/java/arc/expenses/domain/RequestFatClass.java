@@ -6,6 +6,7 @@ public class RequestFatClass {
 
     private String request_id;
     private String id;
+    private String type;
     private User user;
     private Project project;
     private Stage1 stage1;
@@ -174,5 +175,13 @@ public class RequestFatClass {
 
     public void setStage13(Stage13 stage13) {
         this.stage13 = stage13;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
