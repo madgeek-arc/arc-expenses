@@ -18,11 +18,11 @@ public class AnnotationChecks {
     PolicyCheckerService policyCheckerService;
 
     public boolean isValidRequest(RequestApproval requestApproval, String email){
-        return requestApproval!=null && isValidRequest(requestService.get(requestApproval.getId()),email);
+        return requestApproval!=null && isValidRequest(requestService.get(requestApproval.getRequestId()),email);
     }
 
     public boolean isValidRequest(RequestPayment requestPayment, String email){
-        return requestPayment!=null && isValidRequest(requestService.get(requestPayment.getId()),email);
+        return requestPayment!=null && isValidRequest(requestService.get(requestPayment.getRequestId()),email);
     }
 
     public boolean isValidRequest(Request request , String email){
