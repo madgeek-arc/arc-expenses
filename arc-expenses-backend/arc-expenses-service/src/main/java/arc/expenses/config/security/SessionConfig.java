@@ -14,7 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-@ComponentScan("arc.expenses.config.*")
+@ComponentScan("arc.expenses.config.security")
 @Order(2)
 public class SessionConfig extends WebSecurityConfigurerAdapter{
 

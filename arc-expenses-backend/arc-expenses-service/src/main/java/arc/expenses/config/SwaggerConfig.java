@@ -17,9 +17,6 @@ import java.util.ArrayList;
 @Configuration
 @EnableSwagger2
 @EnableWebMvc
-/*@ComponentScan(basePackageClasses = {
-        .class
-})*/
 public class SwaggerConfig {
 
     @Bean

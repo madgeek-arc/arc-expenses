@@ -396,6 +396,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     public List<Request> getPendingRequests(String email) {
 
+        //language=SQL
         String whereClause = " (  ( r.request_project_operator <@ '{"+'"' + email + '"' + "} or  request_project_operator_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and ( request_stage = 3 or request_stage = 7 ) "
                            + "    ) "

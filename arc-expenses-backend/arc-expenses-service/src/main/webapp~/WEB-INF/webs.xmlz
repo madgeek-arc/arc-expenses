@@ -9,13 +9,13 @@
     </listener>
 
 
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>
-            /WEB-INF/applicationContext.xml
-            <!--/WEB-INF/security.xml-->
-        </param-value>
-    </context-param>
+    <!--<context-param>-->
+        <!--<param-name>contextConfigLocation</param-name>-->
+        <!--<param-value>-->
+            <!--/WEB-INF/applicationContext.xml-->
+            <!--&lt;!&ndash;/WEB-INF/security.xml&ndash;&gt;-->
+        <!--</param-value>-->
+    <!--</context-param>-->
     <context-param>
         <param-name>log4jConfigLocation</param-name>
         <param-value>/WEB-INF/log4j.properties</param-value>
@@ -82,7 +82,7 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <!--<searchFilter>
+    <searchFilter>
         <searchFilter-name>springSessionRepositoryFilter</searchFilter-name>
         <searchFilter-class>org.springframework.web.searchFilter.DelegatingFilterProxy</searchFilter-class>
     </searchFilter>
@@ -91,7 +91,7 @@
         <url-pattern>/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>ERROR</dispatcher>
-    </searchFilter-mapping>-->
+    </searchFilter-mapping>
 
 
 

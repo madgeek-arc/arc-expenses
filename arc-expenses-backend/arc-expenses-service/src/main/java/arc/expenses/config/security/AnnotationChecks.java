@@ -2,11 +2,15 @@ package arc.expenses.config.security;
 
 import arc.expenses.service.PolicyCheckerService;
 import arc.expenses.service.RequestServiceImpl;
+import eu.openminted.registry.core.domain.Browsing;
 import gr.athenarc.domain.Request;
 import gr.athenarc.domain.RequestApproval;
 import gr.athenarc.domain.RequestPayment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class AnnotationChecks {
@@ -24,6 +28,17 @@ public class AnnotationChecks {
     public boolean isValidRequest(RequestPayment requestPayment, String email){
         return requestPayment!=null && isValidRequest(requestService.get(requestPayment.getRequestId()),email);
     }
+
+    public boolean isValidRequest(Browsing<RequestPayment> requestPayment, String email){
+
+        List<RequestPayment> rs = requestPayment.getResults();
+        for(RequestPayment rp : rs){
+            if(!isValidRequest(requestService.get(rp.getRequestId()),email))
+                return false;
+        }
+        return true;
+    }
+
 
     public boolean isValidRequest(Request request , String email){
         return  request!=null && policyCheckerService.isRequestor(request,email) ||
