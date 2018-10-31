@@ -5,12 +5,15 @@ import arc.expenses.mail.EmailMessage;
 import arc.expenses.messages.StageMessages;
 import gr.athenarc.domain.Delegate;
 import gr.athenarc.domain.PersonOfInterest;
+import gr.athenarc.domain.Request;
 import io.swagger.models.auth.In;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static arc.expenses.service.EmailService.RequestState.*;
@@ -27,13 +30,18 @@ public class EmailService {
 
     public enum RequestState {INITIALIZED, ACCEPTED, INVOICE, ACCEPTED_DIAVGEIA, REVIEW, REJECTED, COMPLETED}
 
-    @Value("${request.url}")
-    String url;
+    @Value("${request.approval.url}")
+    String approval_url;
+
+    @Value("${request.payment.url}")
+    String payment_url;
 
 
-    private EmailMessage createEmail(String email, String id,
+    private EmailMessage createEmail(String email,
+                                     String id,
                                      UserType type,
-                                     RequestState state) {
+                                     RequestState state,
+                                     RequestFatClass requestFatClass) {
 
         String subject = "[ARC-REQUEST] Αίτημα " + id;
 
@@ -144,7 +152,7 @@ public class EmailService {
             }
         }
 
-        return new EmailMessage(email, subject, stringBuilder.toString() /*+ getRequestInfo(request)*/);
+        return new EmailMessage(email, subject, stringBuilder.toString() + getRequestInfo(requestFatClass));
     }
 
     public List<EmailMessage> prepareMessages(String oldStage, String newStage, String status, RequestFatClass requestFatClass) {
@@ -171,7 +179,7 @@ public class EmailService {
                 state = INITIALIZED;
             /*email to requester*/
             email = requestFatClass.getUser().getEmail();
-            messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state));
+            messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state,requestFatClass));
             /*email to PersonOfInterests/delegates of stage 2*/
             messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
             messages.forEach(logger::info);
@@ -181,7 +189,7 @@ public class EmailService {
             state = ACCEPTED_DIAVGEIA;
             /*email to requester*/
             email = requestFatClass.getUser().getEmail();
-            messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state));
+            messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state,requestFatClass));
             messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
             messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
             messages.forEach(logger::info);
@@ -189,7 +197,7 @@ public class EmailService {
         /*13->13*/
         }else if(oldStage.equals("13") && newStage.equals("13") && state == ACCEPTED){
             state = COMPLETED;
-            messages.add(createEmail(requestFatClass.getUser().getEmail(),requestFatClass.getRequest_id(), USER, state));
+            messages.add(createEmail(requestFatClass.getUser().getEmail(),requestFatClass.getRequest_id(), USER, state,requestFatClass));
             messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
             messages.forEach(logger::info);
             return messages;
@@ -197,7 +205,7 @@ public class EmailService {
         }else if(oldStage.equals("2") && newStage.equals("1")){
             /*email to requester*/
             email = requestFatClass.getUser().getEmail();
-            messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state));
+            messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state,requestFatClass));
             /*2*/
             messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
             messages.forEach(logger::info);
@@ -216,7 +224,7 @@ public class EmailService {
                 case "rejected":
                     /*email to requester*/
                     email = requestFatClass.getUser().getEmail();
-                    messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state));
+                    messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state,requestFatClass));
                     messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, previousPersonOfInterest));
                     break;
             }
@@ -294,11 +302,45 @@ public class EmailService {
             return null;
 
         for (PersonOfInterest PersonOfInterest : PersonOfInterests) {
-            emails.add(createEmail(PersonOfInterest.getEmail(), requestFatClass.getRequest_id(), nextPersonOfInterest, state));
+            emails.add(createEmail(PersonOfInterest.getEmail(), requestFatClass.getRequest_id(), nextPersonOfInterest, state,requestFatClass));
             delegates = PersonOfInterest.getDelegates();
             for (Delegate delegate : delegates)
-                emails.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), nextPersonOfInterest, state));
+                emails.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), nextPersonOfInterest, state,requestFatClass));
         }
         return emails;
     }
+
+    public String getRequestInfo(RequestFatClass request) {
+        final String euro = "\u20ac";
+        StringBuilder requestInfo = new StringBuilder();
+        String date = null;
+
+        if (request.getStage1().getRequestDate() != null) {
+            date = new SimpleDateFormat("dd/MM/yyyy").format(new Date(Long.parseLong(request.getStage1().getRequestDate())));
+        }
+
+
+        requestInfo
+                .append("\n\nΑριθμός πρωτοκόλου: ")
+                .append(request.getRequest_id())
+                .append("\nΈργο: ")
+                .append(request.getProject().getAcronym())
+                .append("\nΗμερομηνία: ")
+                .append(date)
+                .append("\nΠοσό: " + euro)
+                .append(request.getStage1().getAmountInEuros())
+                .append("\nΘέμα: ")
+                .append(request.getStage1().getSubject())
+                .append("\n\nΜπορείτε να παρακολουθήσετε την εξέλιξή του ακολουθώντας τον παρακάτω σύνδεσμο: \n");
+
+        if(request.getType().equals("approval"))
+            requestInfo.append(approval_url).append(request.getId());
+        else
+            requestInfo.append(payment_url).append(request.getId());
+
+
+        return requestInfo.toString();
+    }
+
+
 }

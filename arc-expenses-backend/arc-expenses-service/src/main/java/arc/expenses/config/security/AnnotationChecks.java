@@ -51,6 +51,7 @@ public class AnnotationChecks {
                 policyCheckerService.isDiaugeiaOrDelegate(request,email) ||
                 policyCheckerService.isDiataktisOrDelegate(request,email) ||
                 policyCheckerService.isMemberOfABOrDelegate(request,email) ||
+                policyCheckerService.isOrganizationDirectorOrDelegate(request,email) ||
                 policyCheckerService.isInspectionTeamOrDelegate(request,email);
     }
 
@@ -67,6 +68,7 @@ public class AnnotationChecks {
                 policyCheckerService.isDiaugeiaOrDelegate(request,email) ||
                 policyCheckerService.isDiataktisOrDelegate(request,email) ||
                 policyCheckerService.isMemberOfABOrDelegate(request,email) ||
+                policyCheckerService.isOrganizationDirectorOrDelegate(request,email) ||
                 policyCheckerService.isInspectionTeamOrDelegate(request,email);
     }
 

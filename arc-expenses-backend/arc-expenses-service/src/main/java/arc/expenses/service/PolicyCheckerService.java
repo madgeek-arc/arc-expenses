@@ -160,4 +160,9 @@ public class PolicyCheckerService {
         return request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getEmail().equals(email)
                 || isDelegate(request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getDelegates(), email);
     }
+
+    public boolean isOrganizationDirectorOrDelegate(Request request, String email) {
+        return request.getProject().getInstitute().getOrganization().getDirector().getEmail().equals(email)
+                || isDelegate(request.getProject().getInstitute().getOrganization().getDirector().getDelegates(),email);
+    }
 }
