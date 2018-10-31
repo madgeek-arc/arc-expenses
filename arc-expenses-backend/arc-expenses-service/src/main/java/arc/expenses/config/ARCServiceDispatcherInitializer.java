@@ -9,12 +9,13 @@ import javax.servlet.Filter;
 public class ARCServiceDispatcherInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
     @Override
     protected Class<?>[] getRootConfigClasses() {
-        return new Class[]{ServiceConfig.class, HibernateConfiguration.class};
+        return new Class[]{};
     }
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
-        return new Class[]{ARCServiceConfiguration.class,SwaggerConfig.class};
+
+        return new Class[]{ARCServiceConfiguration.class,HibernateConfiguration.class};
     }
 
     @Override

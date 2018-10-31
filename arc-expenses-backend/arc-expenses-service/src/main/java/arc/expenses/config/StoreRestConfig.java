@@ -4,9 +4,11 @@ import eu.openminted.store.restclient.StoreRESTClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 
 @Configuration
+//@PropertySource(value = {"classpath:application.properties", "classpath:registry.properties"})
 public class StoreRestConfig {
 
     @Value("${services.store.ip}")

@@ -14,7 +14,8 @@ import javax.xml.bind.JAXBContext;
 
 @Configuration
 @EnableWebMvc
-@PropertySource(value = { "classpath:application.properties", "classpath:registry.properties"} )
+@ComponentScan(basePackages = {"eu.openminted.registry.core","arc.expenses.*"})
+@PropertySource(value = {"classpath:application.properties", "classpath:registry.properties"})
 public class ARCServiceConfiguration extends WebMvcConfigurerAdapter {
 
 
@@ -31,6 +32,13 @@ public class ARCServiceConfiguration extends WebMvcConfigurerAdapter {
     @Bean
     public CommonsMultipartResolver multipartResolver(){
         return new CommonsMultipartResolver();
+    }
+
+    @Bean
+    PropertyPlaceholderConfigurer propertyPlaceholderConfigurer(){
+        PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
+        propertyPlaceholderConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
+        return propertyPlaceholderConfigurer;
     }
 
 }
