@@ -446,7 +446,7 @@ export class RequestsComponent implements OnInit {
             this.allTypesSelected = (typeChoicesIndices.length === this.requestTypeIds.length);
             this.typesChoice.push('all');
         } else {
-            typeChoicesIndices.forEach( x => this.typesChoice.push(this.reqTypes[this.requestTypeIds[x]]) );
+            typeChoicesIndices.forEach( x => this.typesChoice.push(this.requestTypeIds[x]) );
         }
     }
 
