@@ -51,6 +51,7 @@ export class NewRequestComponent implements OnInit {
     selMethods = supplierSelectionMethodsMap;
 
     programSelected = false;
+    isRequestOnBehalfOfOther = false;
 
     title = 'Δημιουργία νέου αιτήματος';
 
@@ -134,9 +135,9 @@ export class NewRequestComponent implements OnInit {
         this.newRequestForm.get('name').disable();
 
         if (this.requestType === 'trip') {
-            this.newRequestForm.get('trip_firstname').setValue(this.currentUser.firstname);
+            /*this.newRequestForm.get('trip_firstname').setValue(this.currentUser.firstname);
             this.newRequestForm.get('trip_lastname').setValue(this.currentUser.lastname);
-            this.newRequestForm.get('trip_email').setValue(this.currentUser.email);
+            this.newRequestForm.get('trip_email').setValue(this.currentUser.email);*/
             this.newRequestForm.get('trip_firstname').setValidators([Validators.required]);
             this.newRequestForm.get('trip_lastname').setValidators([Validators.required]);
             this.newRequestForm.get('trip_email').setValidators([Validators.required]);
@@ -146,6 +147,12 @@ export class NewRequestComponent implements OnInit {
     }
 
     submitRequest() {
+        if ((this.requestType === 'trip') && !this.isRequestOnBehalfOfOther) {
+            this.newRequestForm.get('trip_firstname').setValue(this.currentUser.firstname);
+            this.newRequestForm.get('trip_lastname').setValue(this.currentUser.lastname);
+            this.newRequestForm.get('trip_email').setValue(this.currentUser.email);
+            this.newRequestForm.updateValueAndValidity();
+        }
 
         if (this.newRequestForm.valid ) {
             if ( (+this.newRequestForm.get('amount').value > this.lowAmountLimit) &&
@@ -426,5 +433,8 @@ export class NewRequestComponent implements OnInit {
         }
     }
 
+    toggleOnBehalf(event: any) {
+        this.isRequestOnBehalfOfOther = event.target.checked;
+    }
 
 }

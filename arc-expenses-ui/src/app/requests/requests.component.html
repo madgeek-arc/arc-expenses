@@ -72,22 +72,22 @@
                         </div>
                     </div>
                 </div>
-                <!--<div class="uk-margin-bottom">-->
-                    <!--<div formArrayName="typeChoices" class="show-options uk-inline">-->
-                        <!--<label class="filterLabel uk-text-bold uk-margin-large-bottom" for="selectAllTypes">-->
-                            <!--<input class="uk-checkbox" type="checkbox" id="selectAllTypes" [checked]="allTypesSelected"-->
-                                   <!--(change)="toggleSearchAllTypes($event)">&nbsp;&nbsp;Τύπος</label>-->
-                        <!--<div *ngFor="let reqtype of requestTypeIds; let type_i = index">-->
-                            <!--<div [formGroupName]="type_i">-->
-                                <!--<label for="type_{{ type_i }}">-->
-                                    <!--<input class="uk-checkbox" type="checkbox" formControlName="type" id="type_{{ type_i }}"-->
-                                           <!--(change)="chooseType()">-->
-                                    <!--{{ reqTypes[reqtype] }})-->
-                                <!--</label>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
+                <div class="uk-margin-bottom">
+                    <div formArrayName="typeChoices" class="show-options uk-inline">
+                        <label class="filterLabel uk-text-bold uk-margin-large-bottom" for="selectAllTypes">
+                            <input class="uk-checkbox" type="checkbox" id="selectAllTypes" [checked]="allTypesSelected"
+                                   (change)="toggleSearchAllTypes($event)">&nbsp;&nbsp;Τύπος</label>
+                        <div *ngFor="let reqtype of requestTypeIds; let type_i = index">
+                            <div [formGroupName]="type_i">
+                                <label for="type_{{ type_i }}">
+                                    <input class="uk-checkbox" type="checkbox" formControlName="type" id="type_{{ type_i }}"
+                                           (change)="chooseType()">
+                                    {{ reqTypes[reqtype] }})
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="uk-margin-bottom">
                    <div formArrayName="statusChoices" class="show-options uk-inline">
                        <label class="filterLabel uk-text-bold uk-margin-large-bottom" for="selectAllStatus">

@@ -29,7 +29,7 @@
 
               <div *ngIf="requestType && projects && (projects.length > 0)">
                 <div *ngIf="newRequestForm && currentUser && projects && (projects.length > 0)"
-                            [formGroup]="newRequestForm" class="uk-form-horizontal">
+                     [formGroup]="newRequestForm" class="uk-form-horizontal">
                   <fieldset data-uk-margin>
                     <legend class="uk-margin-medium-bottom">Συμπληρώστε την παρακάτω φόρμα για να εξεταστεί το αίτημά σας για χρηματοδότηση:</legend>
                     <div class="uk-margin">
@@ -152,27 +152,39 @@
                       </div>
                     </div>
                     <div *ngIf="(requestType === 'trip')" class="uk-margin">
-                        <label class="uk-form-label">Λεπτομέρειες ταξιδίου</label>
-                        <div class="uk-form-controls">
-                            <div class="uk-grid uk-width-1-1 uk-child-width-1-2@s">
-                                <div>
-                                    <input class="uk-input" type="text" id="request-trip_fn"
-                                           placeholder="Όνομα (*)" formControlName="trip_firstname">
-                                </div>
-                                <div>
-                                    <input class="uk-input" type="text" id="request-trip_ln"
-                                           placeholder="Επώνυμο (*)" formControlName="trip_lastname">
-                                </div>
-                                <div>
-                                    <input class="uk-input" type="text" id="request-trip_fn"
-                                           placeholder="Email (*)" formControlName="trip_email">
-                                </div>
-                                <div>
-                                    <input class="uk-input" type="text" id="request-trip_dest"
-                                           placeholder="Προορισμός (*)" formControlName="trip_destination">
-                                </div>
-                            </div>
+                      <label class="uk-form-label">Λεπτομέρειες ταξιδίου</label>
+                      <div class="uk-form-controls">
+
+                        <div class="uk-grid uk-width-1-1 uk-child-width-1-2">
+
+                          <div *ngIf="isRequestOnBehalfOfOther">
+                            <input class="uk-input" type="text"
+                                   placeholder="Όνομα (*)" formControlName="trip_firstname">
+                          </div>
+                          <div *ngIf="isRequestOnBehalfOfOther">
+                            <input class="uk-input" type="text"
+                                   placeholder="Επώνυμο (*)" formControlName="trip_lastname">
+                          </div>
+                          <div *ngIf="isRequestOnBehalfOfOther">
+                            <input class="uk-input" type="text"
+                                   placeholder="Email (*)" formControlName="trip_email">
+                          </div>
+                          <div>
+                            <input class="uk-input" type="text"
+                                   placeholder="Προορισμός (*)" formControlName="trip_destination">
+                          </div>
                         </div>
+
+                        <div class="uk-margin-top">
+                          <label class="" for="requestOnBehalf">
+                            Υποβαλω το αιτημα για λογαριασμο τριτου
+                            <input class="uk-checkbox uk-margin-small-left"
+                                   type="checkbox" id="requestOnBehalf"
+                                   [checked]="isRequestOnBehalfOfOther" (change)="toggleOnBehalf($event)">
+                          </label>
+                        </div>
+
+                      </div>
                     </div>
 
                     <div class="uk-margin">

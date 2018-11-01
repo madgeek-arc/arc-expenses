@@ -130,6 +130,7 @@ export class RequestsComponent implements OnInit {
         const currentOffset = this.currentPage * this.itemsPerPage;
         this.requestService.searchAllRequestSummaries(this.searchTerm,
             this.statusesChoice,
+            this.typesChoice,
             this.stagesChoice,
             currentOffset.toString(),
             this.itemsPerPage.toString(),

@@ -139,14 +139,16 @@ export class ManageRequestsService {
         return this.http.get<any>(url, headerOptions).pipe(catchError(this.handleError));
     }
 
-    searchAllRequestSummaries(searchField: string, status: string[],
+    searchAllRequestSummaries(searchField: string, status: string[], type: string[],
                               stage: string[], from: string, quantity: string,
                               order: string, orderField: string, email: string): Observable<Paging<RequestSummary>> {
         let statusList = '';
         status.forEach( x => statusList = statusList + '&status=' + x );
+        let typesList = '';
+        type.forEach( x => typesList = typesList + '&type=' + x );
         let stagesList = '';
         stage.forEach( x => stagesList = stagesList + '&stage=' + x );
-        let url = `${this.apiUrl}getAll?from=${from}&quantity=${quantity}${statusList}${stagesList}`;
+        let url = `${this.apiUrl}getAll?from=${from}&quantity=${quantity}${statusList}${stagesList}${typesList}`;
         url = url + `&order=${order}&orderField=${orderField}&email=${encodeURIComponent(email)}&searchField=${searchField}`;
 
         console.log(`calling ${url}`);

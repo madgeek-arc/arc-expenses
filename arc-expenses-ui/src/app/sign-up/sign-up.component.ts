@@ -68,11 +68,11 @@ export class SignUpComponent implements OnInit {
       this.signUpForm.get('surnameLatin').disable();
       this.signUpForm.get('email').disable();
       this.toggleImmediateEmailsDisable();
-      if (!this.authService.getUserProp('firstname') || !this.authService.getUserProp('lastname')) {
+      /*if (!this.authService.getUserProp('firstname') || !this.authService.getUserProp('lastname')) {
           this.signUpForm.get('receiveEmails').setValue(true);
           this.signUpForm.get('immediateEmails').setValue(true);
           this.signUpForm.get('immediateEmails').enable();
-      }
+      }*/
       if ( !isNullOrUndefined(this.authService.getSignatureAttachment()) ) {
           this.userAttachment = this.authService.getSignatureAttachment();
           this.signatureFilename = this.userAttachment.filename;
