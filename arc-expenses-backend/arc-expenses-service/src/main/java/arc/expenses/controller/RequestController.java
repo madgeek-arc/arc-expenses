@@ -67,13 +67,14 @@ public class RequestController {
     public Paging<RequestSummary> getAllRequests(@RequestParam(value = "from",required=false,defaultValue = "0") String from,
                                          @RequestParam(value = "quantity",required=false,defaultValue = "10") String quantity,
                                          @RequestParam(value = "status") List<String> status,
+                                         @RequestParam(value = "type") List<String> type,
                                          @RequestParam(value = "searchField",required=false) String searchField,
                                          @RequestParam(value = "stage") List<String> stage,
                                          @RequestParam(value = "order",required=false,defaultValue = "ASC") String orderType,
                                          @RequestParam(value = "orderField") String orderField,
                                          @RequestParam(value = "email") String email) {
 
-        return requestService.criteriaSearch(from,quantity,status,searchField,stage,orderType,orderField,email);
+        return requestService.criteriaSearch(from,quantity,status,type,searchField,stage,orderType,orderField,email);
 
     }
 
@@ -124,19 +125,19 @@ public class RequestController {
 
     @RequestMapping(value = "/store/download", method = RequestMethod.GET)
     @ResponseBody
-    @PreAuthorize("@annotationChecks.validateDownload(#requestId,authentication.principal)")
+    @PreAuthorize("@annotationChecks.validateDownload(#requestId,#mode,authentication.principal)")
     public void downloadFile(@RequestParam("mode") String mode,
-                             @RequestParam("requestId") String id,
+                             @RequestParam("requestId") String requestId,
                              @RequestParam("stage") String stage,
                              HttpServletResponse response) throws IOException, ResourceNotFoundException {
-        Attachment attachment = requestService.getAttachment(mode,id,stage);
+        Attachment attachment = requestService.getAttachment(mode,requestId,stage);
 
         if(attachment == null)
             throw new ResourceNotFoundException();
 
         response.setContentType(attachment.getMimetype());
         response.setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFilename() + "\"");
-        IOUtils.copyLarge(requestService.downloadFile(mode,id,stage), response.getOutputStream());
+        IOUtils.copyLarge(requestService.downloadFile(mode,requestId,stage), response.getOutputStream());
     }
 
     @RequestMapping(value = "/addRequestApproval", method = RequestMethod.POST,

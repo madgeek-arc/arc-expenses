@@ -113,94 +113,13 @@ public class RequestServiceImpl extends GenericService<Request> {
         return null;
     }
 
-    public String createWhereClause(String email, List<String> status, String searchField, List<String> stage) {
-
-        StringBuilder status_clause = new StringBuilder();
-        StringBuilder search_clause = new StringBuilder();
-        StringBuilder user_clause = new StringBuilder();
-        StringBuilder stage_clause = new StringBuilder();
-        StringBuilder whereClause = new StringBuilder();
-
-
-        if(!admins.contains(email)) {
-            user_clause.append(" ( request_requester = " + email + " or " +
-                    " request_project_operator =  " + email + " or " +
-                    " request_project_operator_delegates = " + email + " or " +
-                    " request_project_scientificCoordinator = " + email + " or " +
-                    " request_organization_poy = " + email + " or " +
-                    " request_organization_poy_delegate =  " + email + " or " +
-                    " request_institute_accountingRegistration = " + email + " or " +
-                    " request_institute_diaugeia = " + email + " or " +
-                    " request_institute_accountingPayment = " + email + " or " +
-                    " request_institute_accountingDirector = " + email + " or " +
-                    " request_institute_accountingDirector_delegate =  " + email + " or " +
-                    " request_institute_accountingRegistration_delegate =  " + email + " or " +
-                    " request_institute_accountingPayment_delegate =  " + email + " or " +
-                    " request_institute_diaugeia_delegate =  " + email + " or " +
-                    " request_organization_director = " + email + " or " +
-                    " request_institute_director = " + email + " or " +
-                    " request_organization_director_delegate =  " + email + " or " +
-                    " request_institute_director_delegate =  " + email + " ) ");
-            whereClause.append(user_clause);
-        }
-
-        if(!status.get(0).equals("all")){
-            if(user_clause.length() != 0)
-                status_clause.append(" and " );
-            status_clause.append("( status = ").append(status.get(0));
-
-            if(status.get(0).equals("pending"))
-                status_clause.append(" or status = under_review");
-
-            for(int i=1;i<status.size();i++){
-                if(status.get(i).equals("pending"))
-                    status_clause.append(" or status = under_review");
-                status_clause.append(" or status = ").append(status.get(i));
-            }
-            status_clause.append(")");
-            whereClause.append(status_clause);
-        }
-
-        if(!stage.get(0).equals("all")){
-
-            if(user_clause.length() != 0 || status_clause.length()!=0)
-                stage_clause.append("and");
-
-            stage_clause.append(" ( stage = ").append(stage.get(0));
-            for(int i=1;i<stage.size();i++)
-                stage_clause.append(" or stage = ").append(stage.get(i));
-            stage_clause.append(")");
-            whereClause.append(stage_clause);
-        }
-
-
-        if(searchField!=null && !searchField.equals("")){
-            if(stage_clause.length()!=0 || status_clause.length()!=0)
-                search_clause.append("and ");
-            search_clause.append(" searchableArea = ").append(searchField);
-            whereClause.append(search_clause);
-        }
-
-        if(whereClause.length() == 0)
-            whereClause.append("status = accepted or status = pending or status = under_review");
-
-        return whereClause.toString();
-    }
-
 
     public Paging<RequestSummary> criteriaSearch(String from, String quantity,
-                                 List<String> status, String searchField,
+                                 List<String> status,List<String> type, String searchField,
                                  List<String> stage, String orderType,
                                  String orderField, String email) {
 
-        String query =  "select request_id,id,creation_date,request_project,request_institute,request_stage , count(*) over () as total_rows" +
-                        " from (" +
-                        "       ( select distinct(r.request_id) as request_id ,a.approval_id as id,res1.creation_date as creation_date," +
-                        "         r.request_project as request_project , r.request_institute as request_institute , a.stage as request_stage" +
-                        "         from request_view r , approval_view a , resource res1, resource res2  " +
-                        "         where r.request_id = a.request_id  and res1.fk_name = 'approval' " +
-                        "         and a.id  = res1.id AND r.id = res2.id " +
-                        "         AND res2.fk_name = 'request' " ;
+        String query =  "select request_id,id,creation_date,request_project,request_institute,request_stage , count(*) over () as total_rows from (       ( select distinct(r.request_id) as request_id ,a.approval_id as id,res1.creation_date as creation_date,         r.request_project as request_project , r.request_institute as request_institute , a.stage as request_stage , r.request_type as request_type        from request_view r , approval_view a , resource res1, resource res2           where r.request_id = a.request_id  and res1.fk_name = 'approval'          and a.id  = res1.id AND r.id = res2.id          AND res2.fk_name = 'request' " ;
 
 
 
@@ -221,11 +140,15 @@ public class RequestServiceImpl extends GenericService<Request> {
         if(status_clause.length()!=0)
             query+= " and " + status_clause.toString();
 
+        StringBuilder type_clause = this.getTypeClause(type);
+        if(type_clause.length()!=0)
+            query+= " and " + type_clause.toString();
+
 
         query+=" )" +
                " union " +
                " ( select distinct(r.request_id) as request_id,p.payment_id as id,res1.creation_date ," +
-               " r.request_project as request_project , r.request_institute as request_institute , p.stage as request_stage" +
+               " r.request_project as request_project , r.request_institute as request_institute , p.stage as request_stage , r.request_type as request_type" +
                " from request_view r , payment_view p , resource res1, resource res2   " +
                " where r.request_id = p.request_id  and res1.fk_name = 'payment' " +
                " and p.id  = res1.id AND r.id = res2.id "+
@@ -247,6 +170,9 @@ public class RequestServiceImpl extends GenericService<Request> {
         if(status_clause.length()!=0)
             query+= " and " + status_clause.toString();
 
+        type_clause = this.getTypeClause(type);
+        if(type_clause.length()!=0)
+            query+= " and " + type_clause.toString();
 
         query += ")) as foo ";
 
@@ -276,11 +202,30 @@ public class RequestServiceImpl extends GenericService<Request> {
         return new Paging<>(total,Integer.parseInt(from),Integer.parseInt(quantity),rs,null);
     }
 
+    private StringBuilder getTypeClause(List<String> type) {
+
+        StringBuilder status_clause = new StringBuilder();
+        StringBuilder in_clause = new StringBuilder();
+
+        if(!type.get(0).equals("all")){
+            status_clause.append("r.request_type in ");
+            in_clause.append("(");
+            for(int i=0;i<type.size();i++)
+                in_clause.append("'").append(type.get(i)).append("'").append(",");
+            in_clause.deleteCharAt(in_clause.length()-1);
+            in_clause.append(")");
+
+            status_clause.append(in_clause.toString());
+        }
+        return status_clause;
+
+    }
+
     private StringBuilder getSearchFieldClause(String searchField) {
 
         StringBuilder searchField_clause = new StringBuilder();
 
-        if(searchField!=null)
+        if(searchField!=null && !searchField.equals(""))
             searchField_clause.append( "( (res2.payload::json->>'user')::text ilike '%")
                                 .append(searchField).append("%'")
                                 .append( " or  ")
@@ -373,23 +318,23 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         if(!admins.contains(email)) {
             user_clause.append(" ( r.request_requester = '"  + email + "' or " +
-                    " r.request_project_operator <@ '{"+'"' + email + '"' + "}' or " +
-                    " r.request_project_operator_delegate <@ '{"+'"' + email + '"' + "}' or " +
+                    " r.request_project_operator @> '{"+'"' + email + '"' + "}' or " +
+                    " r.request_project_operator_delegate @> '{"+'"' + email + '"' + "}' or " +
                     " r.request_project_scientificCoordinator = '"  + email + "' or " +
                     " r.request_organization_poy = '"  + email + "' or " +
-                    " r.request_organization_poy_delegate <@  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_organization_poy_delegate @>  '{"+'"' + email + '"' + "}' or " +
                     " r.request_institute_accountingRegistration = '"  + email + "' or " +
                     " r.request_institute_diaugeia = '"  + email + "' or " +
                     " r.request_institute_accountingPayment = '"  + email + "' or " +
                     " r.request_institute_accountingDirector = '"  + email + "' or " +
-                    " r.request_institute_accountingDirector_delegate <@  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_accountingRegistration_delegate <@  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_accountingPayment_delegate <@  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_diaugeia_delegate <@  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_institute_accountingDirector_delegate @>  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_institute_accountingRegistration_delegate @>  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_institute_accountingPayment_delegate @>  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_institute_diaugeia_delegate @>  '{"+'"' + email + '"' + "}' or " +
                     " r.request_organization_director = '"  + email + "' or " +
                     " r.request_institute_director = '"  + email + "' or " +
-                    " r.request_organization_director_delegate <@  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_director_delegate <@  '{"+'"' + email + '"' + "}' ) ");
+                    " r.request_organization_director_delegate @>  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_institute_director_delegate @>  '{"+'"' + email + '"' + "}' ) ");
         }
         return user_clause;
     }
@@ -398,13 +343,15 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         //language=SQL
         String whereClause = " (  ( r.request_project_operator <@ '{"+'"' + email + '"' + "} or  request_project_operator_delegate <@ '{"+'"' + email + '"' + "}')"
-                           + "      and ( request_stage = 3 or request_stage = 7 ) "
+                           + "      and ( request_stage = 3 ) "
                            + "    ) "
+                           + " or ( request_institute_suppliesOffice = '" + email + "' and request_stage = 7 and request_type != trip ) "
+                           + " or ( request_institute_travelManager = '" + email + "' and request_stage = 7 and request_type = trip ) "
                            + " or ( request_project_scientificCoordinator = '" + email + "' and request_stage = 2 ) "
                            + " or ( ( request_organization_poy =  '" + email + "' or  request_organization_poy_delegate = "  + email + " ) "
                            + "      and ( request_stage = 4 or request_stage = 9 ) "
                            + "    ) "
-                           + " or ( ( request_organization_director =  " + email + " or  request_organization_director_delegate <@ '{"+'"' + email + '"' + "}')"
+                           + " or ( ( request_institute_director =  " + email + " or  request_institute_director_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and ( request_stage = 5a or request_stage = 10 ) "
                            + "    ) "
                            + " or ( ( request_organization_dioikitikoSumvoulio =  '" + email + "' or  request_organization_dioikitikoSumvoulio_delegate <@ '{"+'"' + email + '"' + "}')"

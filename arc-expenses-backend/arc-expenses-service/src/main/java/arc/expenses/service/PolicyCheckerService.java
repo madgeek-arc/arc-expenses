@@ -4,6 +4,7 @@ import arc.expenses.domain.RequestSummary;
 import gr.athenarc.domain.Delegate;
 import gr.athenarc.domain.PersonOfInterest;
 import gr.athenarc.domain.Request;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,6 +12,9 @@ import java.util.stream.Collectors;
 
 @Service("policyCheckerSevice")
 public class PolicyCheckerService {
+
+    @Value("#{'${admin.emails}'.split(',')}")
+    private List<String> admins;
 
     public List<Request> searchFilter(List<Request> rs, String email) {
 
@@ -164,5 +168,9 @@ public class PolicyCheckerService {
     public boolean isOrganizationDirectorOrDelegate(Request request, String email) {
         return request.getProject().getInstitute().getOrganization().getDirector().getEmail().equals(email)
                 || isDelegate(request.getProject().getInstitute().getOrganization().getDirector().getDelegates(),email);
+    }
+
+    public boolean isAdmin(Request request, String email) {
+        return admins.contains(email);
     }
 }

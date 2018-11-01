@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -63,41 +64,34 @@ public class UserServiceImpl extends GenericService<User> {
 
     public String getRole(String email) {
 
-        String role = null;
-        int count;
-
         if(admins.contains(email))
             return "ROLE_ADMIN";
 
-        count =  new NamedParameterJdbcTemplate(dataSource)
-                .queryForObject(createQuery(),new MapSqlParameterSource("email",email),Integer.class);
 
-        if(count > 0)
+        List<Integer> count =  new NamedParameterJdbcTemplate(dataSource)
+                .query(createQuery(email),countMapper);
+
+        if(count.get(0) > 0)
             return "ROLE_EXECUTIVE";
         return "ROLE_USER";
 
     }
 
-    private String createQuery() {
+    private String createQuery(String email) {
 
-        return "select count(*) as count from project_view " +
-                " where :email = ANY( project_operator ) or " +
-               // " project_operator_delegates = :email or " +
-                " project_scientificCoordinator = :email or " +
-                " project_organization_poy  = :email or " +
-              //  " organization_poy_delegate =  :email or " +
-                " project_institute_accountingRegistration   = :email or " +
-                " project_institute_diaugeia  = :email or " +
-                " project_institute_accountingPayment  = :email or " +
-                " project_institute_accountingDirector  = :email or " +
-              //  " project_institute_accountingDirector_delegate = :email or " +
-              //  " project_institute_accountingRegistration_delegate =  :email or " +
-              //  " project_institute_accountingPayment_delegate = :email or " +
-              //  " project_institute_diaugeia_delegate =  :email or " +
-                " project_organization_director  = :email "; //or " +
-              //  " project_organization_director_delegate = :email ";
+        return "select count(*) as count from request_view r \n" +
+                "where  r.request_project_operator @> '{\"" + email + "\"}' or  r.request_project_operator_delegate @> '{\"" + email + "\"}' or  r.request_project_scientificCoordinator = '" + email +
+                "' or  r.request_organization_poy = '" + email + "' or  r.request_organization_poy_delegate @>  '{\"" + email + "\"}' or  r.request_institute_accountingRegistration = '" + email
+                + "' or  r.request_institute_diaugeia = '" + email + "' or  r.request_institute_accountingPayment = '" + email + "' or  r.request_institute_accountingDirector = '" + email
+                + "' or  r.request_institute_accountingDirector_delegate @>  '{\"" + email + "\"}' or  r.request_institute_accountingRegistration_delegate @>  '{\"" + email + "\"}' " +
+                " or  r.request_institute_accountingPayment_delegate @>  '{\"" + email + "\"}' or  r.request_institute_diaugeia_delegate @>  '{\"" + email + "\"}' " +
+                " or  r.request_organization_director = '" + email + "' or  r.request_institute_director = '" + email
+                + "' or  r.request_organization_director_delegate @>  '{\"" + email + "\"}' or  r.request_institute_director_delegate @>  '{\"" + email + "\"}'  ";
 
     }
+
+    private RowMapper<Integer> countMapper = (rs, i) ->
+            Integer.valueOf(rs.getString("count"));
 
     public List<User> getUsersWithImmediateEmailPreference() {
 

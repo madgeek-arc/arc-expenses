@@ -6,8 +6,8 @@ import arc.expenses.messages.StageMessages;
 import gr.athenarc.domain.Delegate;
 import gr.athenarc.domain.PersonOfInterest;
 import gr.athenarc.domain.Request;
-import io.swagger.models.auth.In;
 import org.apache.logging.log4j.LogManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 import static arc.expenses.service.EmailService.RequestState.*;
+import static arc.expenses.service.EmailService.RequestType.*;
 import static arc.expenses.service.EmailService.UserType.*;
 
 
@@ -25,8 +26,12 @@ public class EmailService {
 
     private final static org.apache.logging.log4j.Logger logger = LogManager.getLogger(StageMessages.class);
 
+    @Autowired
+    RequestServiceImpl requestService;
 
     public enum UserType {USER, previousPersonOfInterest, nextPersonOfInterest}
+
+    public enum RequestType {TRAVEL, OTHER}
 
     public enum RequestState {INITIALIZED, ACCEPTED, INVOICE, ACCEPTED_DIAVGEIA, REVIEW, REJECTED, COMPLETED}
 
@@ -39,6 +44,7 @@ public class EmailService {
 
     private EmailMessage createEmail(String email,
                                      String id,
+                                     RequestType requestType,
                                      UserType type,
                                      RequestState state,
                                      RequestFatClass requestFatClass) {
@@ -50,10 +56,20 @@ public class EmailService {
 
         if (type == UserType.USER) {
             if (state == RequestState.INITIALIZED) {
-                subject = "[ARC-ν.4485] Δημιουργία νέου αιτήματος " + id;
-                stringBuilder
-                        .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημά σας έχει υποβληθεί επιτυχώς.");
+
+                if(requestType == OTHER){
+                    subject = "[ARC-ν.4485] Δημιουργία νέου αιτήματος " + id;
+                    stringBuilder
+                            .append("Αγαπητέ χρήστη,\n\n")
+                            .append("το ακόλουθο αίτημά σας έχει υποβληθεί επιτυχώς.");
+                }else{
+                    //travel
+                    subject = "[ARC-ν.4485] Δημιουργία νέου αιτήματος " + id;
+                    stringBuilder
+                            .append("Αγαπητέ χρήστη,\n\n")
+                            .append("Το ακόλουθο αίτημα σχετικά με το επικείμενο ταξίδι σας έχει υποβληθεί στο σύστημα επιτυχώς.");
+                }
+
             } else if (state == RequestState.ACCEPTED) {
                 subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + id;
                 stringBuilder
@@ -68,11 +84,23 @@ public class EmailService {
                         .append("Μπορείτε να προχωρήσετε στην πραγματοποίηση της δαπάνης και παρακαλείστε\n")
                         .append("να μεταφορτώσετε το τιμολόγιό σας στο σύστημα.");
             } else if (state == RequestState.ACCEPTED_DIAVGEIA) {
-                subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + id;
-                stringBuilder
-                        .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημά σας έχει εγκριθεί από τις διοικητικές υπηρεσίες του κέντρου\n")
-                        .append("και θα αναρτηθεί στη διαύγεια.");
+
+                if(requestType == OTHER){
+                    subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + id;
+                    stringBuilder
+                            .append("Αγαπητέ χρήστη,\n\n")
+                            .append("το ακόλουθο αίτημά σας έχει εγκριθεί από τις διοικητικές υπηρεσίες του κέντρου\n")
+                            .append("και θα αναρτηθεί στη διαύγεια.");
+
+                }else{
+                    //travel
+                    subject = "[ARC-ν.4485] Ολοκλήρωση σταδίου αιτήματος " + id;
+                    stringBuilder
+                            .append("Αγαπητέ χρήστη,\n\n")
+                            .append("το ακόλουθο αίτημά σας έχει εγκριθεί από τις διοικητικές υπηρεσίες του κέντρου\n")
+                            .append("και θα αναρτηθεί στη διαύγεια.");
+
+                }
 
             } else if (state == RequestState.COMPLETED) {
                 subject = "[ARC-ν.4485] Διεκπεραίωση του αιτήματος " + id;
@@ -177,35 +205,34 @@ public class EmailService {
         if(newStage.equals("2") && oldStage.equals("1")){
             if (state == ACCEPTED)
                 state = INITIALIZED;
-            /*email to requester*/
-            email = requestFatClass.getUser().getEmail();
-            messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state,requestFatClass));
+
+            messages.add(prepareMessageForRequester(requestFatClass,state));
             /*email to PersonOfInterests/delegates of stage 2*/
             messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
             messages.forEach(logger::info);
             return messages;
-        /*6->7*/
         }else if(newStage.equals("6") && oldStage.equals("6") && state == ACCEPTED){
             state = ACCEPTED_DIAVGEIA;
             /*email to requester*/
-            email = requestFatClass.getUser().getEmail();
-            messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state,requestFatClass));
-            messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
+            messages.add(prepareMessageForRequester(requestFatClass,state));
+            messages.add(prepareMessageForRequester(requestFatClass,state));
             messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
+            if(!requestFatClass.getType().equals("contract"))
+                messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,"7"), state, nextPersonOfInterest));
             messages.forEach(logger::info);
             return messages;
         /*13->13*/
         }else if(oldStage.equals("13") && newStage.equals("13") && state == ACCEPTED){
             state = COMPLETED;
-            messages.add(createEmail(requestFatClass.getUser().getEmail(),requestFatClass.getRequest_id(), USER, state,requestFatClass));
-            messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
+            messages.add(createEmail(requestFatClass.getUser().getEmail(),requestFatClass.getRequest_id(), OTHER, USER, state,requestFatClass));
+            messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, previousPersonOfInterest));
             messages.forEach(logger::info);
             return messages;
         /*1<-2*/
         }else if(oldStage.equals("2") && newStage.equals("1")){
             /*email to requester*/
             email = requestFatClass.getUser().getEmail();
-            messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state,requestFatClass));
+            messages.add(createEmail(email, requestFatClass.getRequest_id(), TRAVEL, USER, state,requestFatClass));
             /*2*/
             messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
             messages.forEach(logger::info);
@@ -213,7 +240,7 @@ public class EmailService {
         }else{
             switch (transition) {
                 case "->":
-                    /*for example:  12<-13 new stage = 13 , old stage = 12*/
+                    /*for example:  12->13 new stage = 13 , old stage = 12*/
                     messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
                     messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
                     break;
@@ -224,13 +251,34 @@ public class EmailService {
                 case "rejected":
                     /*email to requester*/
                     email = requestFatClass.getUser().getEmail();
-                    messages.add(createEmail(email, requestFatClass.getRequest_id(), USER, state,requestFatClass));
+                    messages.add(prepareMessageForRequester(requestFatClass,state));
                     messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, previousPersonOfInterest));
                     break;
             }
         }
         messages.forEach(logger::info);
         return messages;
+    }
+
+    private EmailMessage prepareMessageForRequester(RequestFatClass requestFatClass, RequestState state) {
+
+        List<EmailMessage> messages = new ArrayList<>();
+        String email;
+
+        if(requestFatClass.getType().equals("trip")){
+            Request request = requestService.get(requestFatClass.getRequest_id());
+            if(!request.getUser().getEmail().equals(request.getTrip().getEmail())) {
+                /*traveller is not requester*/
+                email = requestFatClass.getUser().getEmail();
+                return createEmail(email, requestFatClass.getRequest_id(), TRAVEL, USER, state, requestFatClass);
+            }
+
+        }else{
+            /*email to requester or taveller = requester*/
+            email = requestFatClass.getUser().getEmail();
+            return createEmail(email, requestFatClass.getRequest_id(),OTHER, USER, state,requestFatClass);
+        }
+        return null;
     }
 
     private List<PersonOfInterest> getPersonOfInterest(RequestFatClass request,String stage) {
@@ -286,26 +334,21 @@ public class EmailService {
                 return null;
         }
         return personsOfInterest;
-
-
-
-
-
     }
 
-    private List<EmailMessage> prepareMessages(RequestFatClass requestFatClass, List<PersonOfInterest> PersonOfInterests, RequestState state, UserType nextPersonOfInterest) {
+    private List<EmailMessage> prepareMessages(RequestFatClass requestFatClass, List<PersonOfInterest> personOfInterests, RequestState state, UserType nextPersonOfInterest) {
 
         List<Delegate> delegates;
         List<EmailMessage> emails = new ArrayList<>();
 
-        if(PersonOfInterests==null)
+        if(personOfInterests==null)
             return null;
 
-        for (PersonOfInterest PersonOfInterest : PersonOfInterests) {
-            emails.add(createEmail(PersonOfInterest.getEmail(), requestFatClass.getRequest_id(), nextPersonOfInterest, state,requestFatClass));
-            delegates = PersonOfInterest.getDelegates();
+        for (PersonOfInterest personOfInterest : personOfInterests) {
+            emails.add(createEmail(personOfInterest.getEmail(), requestFatClass.getRequest_id(), TRAVEL, nextPersonOfInterest, state,requestFatClass));
+            delegates = personOfInterest.getDelegates();
             for (Delegate delegate : delegates)
-                emails.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), nextPersonOfInterest, state,requestFatClass));
+                emails.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), TRAVEL, nextPersonOfInterest, state,requestFatClass));
         }
         return emails;
     }
@@ -333,7 +376,7 @@ public class EmailService {
                 .append(request.getStage1().getSubject())
                 .append("\n\nΜπορείτε να παρακολουθήσετε την εξέλιξή του ακολουθώντας τον παρακάτω σύνδεσμο: \n");
 
-        if(request.getType().equals("approval"))
+        if(request.getId().contains("a"))
             requestInfo.append(approval_url).append(request.getId());
         else
             requestInfo.append(payment_url).append(request.getId());

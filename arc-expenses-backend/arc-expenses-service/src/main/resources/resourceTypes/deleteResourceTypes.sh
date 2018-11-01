@@ -23,6 +23,7 @@ delete from dateindexedfield_values where dateindexedfield_id in (select id from
 delete from dateindexedfield where id in (select id from stringindexedfield where resource_id in (select id from resource where fk_name='$i'));
 
 delete from resourcetype_indexfield where resourcetype_name ='$i';
+delete from indexedfield_values where indexedfield_id in (select id from indexedfield where resource_id in (select id from resource where fk_name='$i'));
 delete from indexfield where resourcetype_name ='$i';
 
 delete from resourcetype_indexfield where resourcetype_name ='$i';

@@ -47,8 +47,8 @@ public class UserController {
                     u.setLastnameLatin(authentication.getLastname());
                     u.setLastname("null");
                     u.setSignatureArchiveId(userService.getSignatureArchiveID());
-                    u.setImmediateEmails("true");
-                    u.setReceiveEmails("true");
+                    u.setImmediateEmails("false");
+                    u.setReceiveEmails("false");
                     u.setAttachment(null);
                     user = userService.add(u,authentication);
                 }

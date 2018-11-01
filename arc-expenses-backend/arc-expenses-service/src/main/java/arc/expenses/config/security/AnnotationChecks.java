@@ -1,6 +1,8 @@
 package arc.expenses.config.security;
 
 import arc.expenses.service.PolicyCheckerService;
+import arc.expenses.service.RequestApprovalServiceImpl;
+import arc.expenses.service.RequestPaymentServiceImpl;
 import arc.expenses.service.RequestServiceImpl;
 import eu.openminted.registry.core.domain.Browsing;
 import gr.athenarc.domain.Request;
@@ -17,6 +19,12 @@ public class AnnotationChecks {
 
     @Autowired
     RequestServiceImpl requestService;
+
+    @Autowired
+    RequestApprovalServiceImpl requestApprovalService;
+
+    @Autowired
+    RequestPaymentServiceImpl requestPaymentService;
 
     @Autowired
     PolicyCheckerService policyCheckerService;
@@ -52,11 +60,19 @@ public class AnnotationChecks {
                 policyCheckerService.isDiataktisOrDelegate(request,email) ||
                 policyCheckerService.isMemberOfABOrDelegate(request,email) ||
                 policyCheckerService.isOrganizationDirectorOrDelegate(request,email) ||
+                policyCheckerService.isAdmin(request,email) ||
                 policyCheckerService.isInspectionTeamOrDelegate(request,email);
     }
 
-    public boolean validateDownload(String requestId,String email){
-        Request request = requestService.get(requestId);
+    public boolean validateDownload(String requestId,String mode,String email){
+
+        Request request =  null;
+        if(mode.equals("approval"))
+            request = requestService.get(requestApprovalService.get(requestId).getRequestId());
+        else if(mode.equals("payment"))
+            request = requestService.get(requestPaymentService.get(requestId).getRequestId());
+        else
+            request = requestService.get(requestId);
         //TODO change authorization
         return request!=null && policyCheckerService.isRequestor(request,email) ||
                 policyCheckerService.isSuppliesOfficeMemberOrDelegate(request,email) ||
@@ -69,6 +85,7 @@ public class AnnotationChecks {
                 policyCheckerService.isDiataktisOrDelegate(request,email) ||
                 policyCheckerService.isMemberOfABOrDelegate(request,email) ||
                 policyCheckerService.isOrganizationDirectorOrDelegate(request,email) ||
+                policyCheckerService.isAdmin(request,email) ||
                 policyCheckerService.isInspectionTeamOrDelegate(request,email);
     }
 
