@@ -349,7 +349,7 @@ export class RequestsComponent implements OnInit {
     }
 
     setAllStageValues(val: boolean) {
-        if ( !this.isSimpleUser ) {
+        // if ( !this.isSimpleUser ) {
             this.allStagesSelected = val;
             this.setChoices(val, 'stageChoices', 'stage');
             this.stagesChoice = [];
@@ -360,7 +360,7 @@ export class RequestsComponent implements OnInit {
             } else {
                 this.stagesChoice = paymentStages;
             }
-        }
+        // }
     }
 
     setAllStatusValues(val: boolean) {
