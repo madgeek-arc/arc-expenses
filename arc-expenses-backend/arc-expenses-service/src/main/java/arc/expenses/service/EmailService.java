@@ -149,7 +149,7 @@ public class EmailService {
                 subject = "[ARC-ν.4485] Επανέλεγχος του αιτήματος " + id;
                 stringBuilder
                         .append("Αγαπητέ χρήστη,\n\n")
-                        .append("το ακόλουθο αίτημα με έχει επιστραφεί \n")
+                        .append("το ακόλουθο αίτημα  έχει επιστραφεί \n")
                         .append("για να προβείτε στις απαραίτητες διορθώσεις.");
             }
         } else if (type == UserType.nextPersonOfInterest) {
@@ -215,7 +215,6 @@ public class EmailService {
             state = ACCEPTED_DIAVGEIA;
             /*email to requester*/
             messages.add(prepareMessageForRequester(requestFatClass,state));
-            messages.add(prepareMessageForRequester(requestFatClass,state));
             messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
             if(!requestFatClass.getType().equals("contract"))
                 messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,"7"), state, nextPersonOfInterest));
@@ -224,7 +223,7 @@ public class EmailService {
         /*13->13*/
         }else if(oldStage.equals("13") && newStage.equals("13") && state == ACCEPTED){
             state = COMPLETED;
-            messages.add(createEmail(requestFatClass.getUser().getEmail(),requestFatClass.getRequest_id(), OTHER, USER, state,requestFatClass));
+            messages.add(prepareMessageForRequester(requestFatClass,state));
             messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, previousPersonOfInterest));
             messages.forEach(logger::info);
             return messages;
@@ -232,8 +231,18 @@ public class EmailService {
         }else if(oldStage.equals("2") && newStage.equals("1")){
             /*email to requester*/
             email = requestFatClass.getUser().getEmail();
-            messages.add(createEmail(email, requestFatClass.getRequest_id(), TRAVEL, USER, state,requestFatClass));
+            messages.add(prepareMessageForRequester(requestFatClass,state));
             /*2*/
+            messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
+            messages.forEach(logger::info);
+            return messages;
+            /*7<-8*/
+        }else if(oldStage.equals("8") && newStage.equals("7")){
+            /*email to requester*/
+            email = requestFatClass.getUser().getEmail();
+            messages.add(prepareMessageForRequester(requestFatClass,state));
+            /*2*/
+            messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
             messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
             messages.forEach(logger::info);
             return messages;
@@ -246,11 +255,11 @@ public class EmailService {
                     break;
                 case "<-":
                     /*for example:  3<-4 new stage = 3 , old stage = 4*/
-                    messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, previousPersonOfInterest));
-                    messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, nextPersonOfInterest));
+                    messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,oldStage), state, nextPersonOfInterest));
+                    messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, previousPersonOfInterest));
+                    break;
                 case "rejected":
                     /*email to requester*/
-                    email = requestFatClass.getUser().getEmail();
                     messages.add(prepareMessageForRequester(requestFatClass,state));
                     messages.addAll(prepareMessages(requestFatClass,getPersonOfInterest(requestFatClass,newStage), state, previousPersonOfInterest));
                     break;
@@ -269,7 +278,7 @@ public class EmailService {
             Request request = requestService.get(requestFatClass.getRequest_id());
             if(!request.getUser().getEmail().equals(request.getTrip().getEmail())) {
                 /*traveller is not requester*/
-                email = requestFatClass.getUser().getEmail();
+                email = request.getTrip().getEmail();
                 return createEmail(email, requestFatClass.getRequest_id(), TRAVEL, USER, state, requestFatClass);
             }
 
@@ -336,7 +345,8 @@ public class EmailService {
         return personsOfInterest;
     }
 
-    private List<EmailMessage> prepareMessages(RequestFatClass requestFatClass, List<PersonOfInterest> personOfInterests, RequestState state, UserType nextPersonOfInterest) {
+    private List<EmailMessage> prepareMessages(RequestFatClass requestFatClass, List<PersonOfInterest> personOfInterests,
+                                               RequestState state, UserType userType) {
 
         List<Delegate> delegates;
         List<EmailMessage> emails = new ArrayList<>();
@@ -345,10 +355,10 @@ public class EmailService {
             return null;
 
         for (PersonOfInterest personOfInterest : personOfInterests) {
-            emails.add(createEmail(personOfInterest.getEmail(), requestFatClass.getRequest_id(), TRAVEL, nextPersonOfInterest, state,requestFatClass));
+            emails.add(createEmail(personOfInterest.getEmail(), requestFatClass.getRequest_id(), OTHER, userType, state,requestFatClass));
             delegates = personOfInterest.getDelegates();
             for (Delegate delegate : delegates)
-                emails.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), TRAVEL, nextPersonOfInterest, state,requestFatClass));
+                emails.add(createEmail(delegate.getEmail(), requestFatClass.getRequest_id(), OTHER, userType, state,requestFatClass));
         }
         return emails;
     }
