@@ -1,8 +1,0 @@
-{
-  "/arc-expenses-service/*": {
-    "target": "https://koulis.athenarc.gr",
-    "secure": false,
-    "logLevel": "debug",
-    "changeOrigin": true
-  }
-}
