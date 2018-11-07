@@ -64,6 +64,8 @@ public class UserServiceImpl extends GenericService<User> {
 
     public String getRole(String email) {
 
+        LOGGER.debug(admins);
+
         if(admins.contains(email))
             return "ROLE_ADMIN";
 

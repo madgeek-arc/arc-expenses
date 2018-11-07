@@ -369,9 +369,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                            + " or ( ( request_institute_accountingPayment =  '" + email + "' or  request_institute_accountingPayment_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and request_stage = 13 "
                            + "    ) "
-                            + " or (  request_requester =  '" + email + "'" + " and request_type = trip and request_stage = 7 "
-                            + "    ) " ;
-
+                            + " or (  request_requester =  '" + email + "'  and  request_stage = 7 ) ";
 
         LOGGER.info(whereClause);
 

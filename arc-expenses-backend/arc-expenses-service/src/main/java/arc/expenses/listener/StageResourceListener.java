@@ -113,10 +113,9 @@ public class StageResourceListener implements ResourceListener {
 
 
     private void sendEmails(String oldStage, String newStage , String status, RequestFatClass requestFatClass){
-
         List<EmailMessage> messages = emailService.prepareMessages(oldStage,newStage,status,requestFatClass);
-//        messages.forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
-//        messages.forEach(logger::info);
+        messages.forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
+        messages.forEach(logger::info);
     }
 
     @Async
