@@ -119,9 +119,9 @@ public class PolicyCheckerService {
                 break;
             case "7":
                 if(request.getType().equals("trip"))
-                    value = isTravelManagerOrDelegate(request,email);
+                    value = isTravelManagerOrDelegate(request,email) || isRequestor(request,email);
                 else
-                    value = isSuppliesOfficeMemberOrDelegate(request,email);
+                    value = isSuppliesOfficeMemberOrDelegate(request,email) || isRequestor(request,email);
                 break;
             case "8":
                 value = isInspectionTeamOrDelegate(request,email);
