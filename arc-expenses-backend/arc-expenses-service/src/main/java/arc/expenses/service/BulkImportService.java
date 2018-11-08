@@ -93,7 +93,8 @@ class BulkImportService {
     private PersonOfInterest parserPOY(String s) {
         PersonOfInterest poy = new PersonOfInterest();
         String details[] = s.split(";");
-        poy.setEmail(details[1].trim());
+        String email = details[1].split("#")[0];
+        poy.setEmail(email.trim());
         poy.setFirstname((details[0].split(" "))[0].trim());
         poy.setLastname((details[0].split(" "))[1].trim());
         return poy;
