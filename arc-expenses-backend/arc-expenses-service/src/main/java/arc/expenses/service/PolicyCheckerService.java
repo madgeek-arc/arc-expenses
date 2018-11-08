@@ -103,7 +103,7 @@ public class PolicyCheckerService {
                 value =  isScientificCoordinator(request,email);
                 break;
             case "3":
-                value = isSuppliesOfficeMemberOrDelegate(request,email);
+                value = isOperatorOrDelegate(request,email);
                 break;
             case "4":
                 value = isPOYOrDelegate(request,email);
@@ -172,5 +172,24 @@ public class PolicyCheckerService {
 
     public boolean isAdmin(Request request, String email) {
         return admins.contains(email);
+    }
+
+    public boolean isOperatorOrDelegate(Request request, String email) {
+
+        List<PersonOfInterest> operators = request.getProject().getOperator();
+
+        if(operators!=null){
+            for(PersonOfInterest operator:operators){
+
+                if(operator.getEmail().equals(email))
+                    return true;
+
+                if(isDelegate(operator.getDelegates(),email))
+                    return true;
+
+            }
+        }
+        return false;
+
     }
 }

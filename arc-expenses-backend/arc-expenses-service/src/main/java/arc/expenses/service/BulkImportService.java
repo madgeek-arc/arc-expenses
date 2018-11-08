@@ -51,13 +51,43 @@ class BulkImportService {
             Organization organization = new Organization();
             organization.setId(line[0].trim());
             organization.setName(line[1].trim());
+
             organization.setPoy(parserPOY(line[2]));
+            organization.getPoy().setDelegates(delegateParser(line[2]));
+
             organization.setDirector(parserPOY(line[3]));
+            organization.getDirector().setDelegates(delegateParser(line[3]));
+
             organization.setDioikitikoSumvoulio(parserPOY(line[4]));
+            organization.getDioikitikoSumvoulio().setDelegates(delegateParser(line[4]));
+
             organization.setInspectionTeam(parser(line[5]));
+
+
             organization.setViceDirector(parserPOY(line[6]));
+            organization.getViceDirector().setDelegates(delegateParser(line[6]));
+
             organizationService.add(organization,null); //TODO(Check for authentication here)
         }
+    }
+
+    private List<Delegate> delegateParser(String s) {
+
+        if(s.split("#").length <= 1)
+            return null;
+
+        String delegates[] = (s.split("#"))[1].split(",");
+        List<Delegate> rs = new ArrayList<>();
+
+        for(String delegate:delegates){
+            Delegate d = new Delegate();
+            String details[] = delegate.split(";");
+            d.setEmail(details[1].trim());
+            d.setFirstname((details[0].split(" "))[0].trim());
+            d.setLastname((details[0].split(" "))[1].trim());
+            rs.add(d);
+        }
+        return rs;
     }
 
     private PersonOfInterest parserPOY(String s) {
@@ -80,15 +110,32 @@ class BulkImportService {
             institute.setId(line[0].trim());
             institute.setName(line[1].trim());
             institute.setOrganization(organizationService.getByField("organization_name",line[2].trim()));
+
             institute.setDirector(parserPOY(line[3]));
-            //TODO update schema
+            institute.getDirector().setDelegates(delegateParser(line[3]));
+
             institute.setAccountingRegistration(parser(line[4]).get(0));
+            institute.getAccountingRegistration().setDelegates(delegateParser(line[4]));
+
             institute.setAccountingPayment(parser(line[5]).get(0));
+            institute.getAccountingPayment().setDelegates(delegateParser(line[5]));
+
             institute.setAccountingDirector(parser(line[6]).get(0));
+            institute.getAccountingDirector().setDelegates(delegateParser(line[6]));
+
             institute.setDiaugeia(parserPOY(line[7]));
+            institute.getDiaugeia().setDelegates(delegateParser(line[7]));
+
             institute.setSuppliesOffice(parserPOY(line[8]));
+            institute.getSuppliesOffice().setDelegates(delegateParser(line[8]));
+
+
             institute.setDiataktis(parserPOY(line[9]));
+            institute.getDiataktis().setDelegates(delegateParser(line[9]));
+
             institute.setTravelManager(parserPOY(line[10]));
+            institute.getTravelManager().setDelegates(delegateParser(line[10]));
+
             instituteService.add(institute,null); //TODO(Check for authentication here)
         }
 
@@ -118,12 +165,27 @@ class BulkImportService {
             project.setAcronym(line[2].trim());
             project.setInstitute(instituteService.get(line[3].trim()));
             project.setParentProject(line[4].trim());
+
             project.setScientificCoordinator(parserPOY(line[5]));
+            project.getScientificCoordinator().setDelegates(delegateParser(line[5]));
+
             project.setOperator(parser(line[6]));
+
             project.setStartDate(line[7].trim());
             project.setEndDate(line[8].trim());
+            project.setTotalCost(line[9].trim());
+
+            project.setScientificCoordinatorAsDiataktis(parseBoolean(line[10].trim()));
             projectService.add(project,null); //TODO(Check for authentication here)
         }
+    }
+
+    private Boolean parseBoolean(String s) {
+
+        if(s.equals("ΟΧΙ"))
+            return false;
+        return true;
+
     }
 
     private List<PersonOfInterest> parser(String s) {

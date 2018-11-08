@@ -54,6 +54,7 @@ public class AnnotationChecks {
                 policyCheckerService.isScientificCoordinator(request,email) ||
                 policyCheckerService.isPOYOrDelegate(request,email) ||
                 policyCheckerService.isInstituteDirectorOrDelegate(request,email)||
+                policyCheckerService.isOperatorOrDelegate(request,email) ||
                 policyCheckerService.isAccountingRegistratorOrDelegate(request,email) ||
                 policyCheckerService.isAccountingPaymentOrDelegate(request,email) ||
                 policyCheckerService.isDiaugeiaOrDelegate(request,email) ||
