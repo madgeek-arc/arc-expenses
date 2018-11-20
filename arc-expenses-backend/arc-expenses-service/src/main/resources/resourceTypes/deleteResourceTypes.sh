@@ -41,3 +41,7 @@ done
 psql -h $1 -Uvrasidas registry <<endOfMessage
 delete from schemadatabase where originalurl like '%.xsd';
 endOfMessage
+
+
+
+

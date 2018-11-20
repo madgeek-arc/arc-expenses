@@ -1,5 +1,6 @@
 package arc.expenses.controller;
 
+import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Institute;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,5 +40,12 @@ public class InstituteController {
         return null;
     }
 
+    @RequestMapping(value = "/update", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    Institute updateInstitute(@RequestBody Institute institute, Authentication auth) throws ResourceNotFoundException {
+        return instituteService.update(institute, auth);
+    }
 
 }

@@ -1,5 +1,6 @@
 package arc.expenses.controller;
 
+import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Organization;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,5 +39,12 @@ public class OrganizationController {
         return null;
     }
 
+    @RequestMapping(value = "/update", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    Organization updateOrganization(@RequestBody Organization organization, Authentication auth) throws ResourceNotFoundException {
+        return organizationService.update(organization, auth);
+    }
 
 }

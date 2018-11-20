@@ -1,6 +1,7 @@
 package arc.expenses.controller;
 
 import arc.expenses.domain.Vocabulary;
+import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Project;
 import io.swagger.annotations.Api;
 import org.slf4j.Logger;
@@ -29,11 +30,6 @@ public class ProjectController {
         return projectService.get(id);
     }
 
-    /*@RequestMapping(value =  "/getByAcronym/{acronym:.+}", method = RequestMethod.GET)
-    public Project getByAcronym(@PathVariable("acronym") String acronym) {
-        return projectService.getByAcronym(acronym);
-    }
-*/
     @RequestMapping(value = "/add", method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -51,4 +47,13 @@ public class ProjectController {
     public List<Vocabulary> getAllProjectNames() {
         return projectService.getAllProjectNames();
     }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    Project updateProject(@RequestBody Project project, Authentication auth) throws ResourceNotFoundException {
+        return projectService.update(project, auth);
+    }
+
 }

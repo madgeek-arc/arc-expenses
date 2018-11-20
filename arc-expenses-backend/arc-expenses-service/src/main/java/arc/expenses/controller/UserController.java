@@ -21,7 +21,6 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/user")
 @Api(description = "User API  ",  tags = {"Manage users"})
-
 public class UserController {
 
     private org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(UserController.class);
