@@ -24,11 +24,14 @@
         "comment": {
           "type": "string"
         },
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -59,11 +62,14 @@
         "comment": {
           "type": "string"
         },
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -88,11 +94,14 @@
         "comment": {
           "type": "string"
         },
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -111,11 +120,14 @@
         "comment": {
           "type": "string"
         },
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -135,11 +147,14 @@
           "type": "string"
         },
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
       }
     },
     "stage5b": {
@@ -158,11 +173,14 @@
           "type": "string"
         },
         "attachment": {
+          "javaType": "gr.athenarc.domain.Attachment"
+        }
+        /*"attachment": {
           "type": "array",
           "items": {
             "javaType": "gr.athenarc.domain.Attachment"
           }
-        }
+        }*/
       }
     },
     "stage6": {
@@ -178,11 +196,14 @@
           "type": "string"
         },
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
       }
     }
 

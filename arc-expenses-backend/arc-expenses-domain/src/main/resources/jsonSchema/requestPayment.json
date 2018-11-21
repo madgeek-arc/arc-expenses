@@ -17,11 +17,14 @@
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -40,11 +43,14 @@
         "checkLegality": { "type": "boolean"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -59,11 +65,14 @@
         "checkLegality": { "type": "boolean"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -76,11 +85,14 @@
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -92,11 +104,14 @@
           "javaType": "gr.athenarc.domain.User" },
         "date": { "type": "string"},
         "comment": { "type": "string"},
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -109,11 +124,14 @@
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     },
@@ -126,11 +144,14 @@
         "date": { "type": "string"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
+//        "attachment": {
+//          "type": "array",
+//          "items": {
+//            "javaType": "gr.athenarc.domain.Attachment"
+//          }
+//        }
         "attachment": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.Attachment"
-          }
+          "javaType": "gr.athenarc.domain.Attachment"
         }
       }
     }
