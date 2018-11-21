@@ -18,7 +18,10 @@
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },
@@ -26,15 +29,22 @@
       "type": "object",
       "description": "stage: Checking Team",
       "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
+        "inspectionTeam": {
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.User"
+          }
+        },
         "date": { "type": "string"},
         "checkRegularity": { "type": "boolean"},
         "checkLegality": { "type": "boolean"},
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },
@@ -50,7 +60,10 @@
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },
@@ -64,7 +77,10 @@
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },
@@ -77,7 +93,10 @@
         "date": { "type": "string"},
         "comment": { "type": "string"},
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },
@@ -91,7 +110,10 @@
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },
@@ -105,7 +127,10 @@
         "approved": { "type": "boolean"},
         "comment": { "type": "string"},
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     }

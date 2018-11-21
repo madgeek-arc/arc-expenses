@@ -25,7 +25,10 @@
           "type": "string"
         },
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },
@@ -57,7 +60,10 @@
           "type": "string"
         },
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },
@@ -83,7 +89,10 @@
           "type": "string"
         },
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },
@@ -103,7 +112,10 @@
           "type": "string"
         },
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },
@@ -123,7 +135,10 @@
           "type": "string"
         },
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },
@@ -143,7 +158,10 @@
           "type": "string"
         },
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },
@@ -160,7 +178,10 @@
           "type": "string"
         },
         "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     }
