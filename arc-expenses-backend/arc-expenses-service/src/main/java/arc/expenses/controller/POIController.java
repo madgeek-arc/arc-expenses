@@ -23,8 +23,7 @@ public class POIController {
 
     @RequestMapping(value = "/getPois", method = RequestMethod.GET)
     public List<PersonOfInterest> getPois() {
-        return null;
-        //return poiService.getPois();
+        return poiService.getPois();
     }
 
 }

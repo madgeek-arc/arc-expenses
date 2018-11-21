@@ -11,9 +11,7 @@ import gr.athenarc.domain.Attachment;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
 import org.javatuples.Septet;
-import org.javatuples.Sextet;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +20,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 @Service("requestService")
 public class RequestServiceImpl extends GenericService<Request> {
@@ -319,6 +315,8 @@ public class RequestServiceImpl extends GenericService<Request> {
         if(!admins.contains(email)) {
             user_clause.append(" ( r.request_requester = '"  + email + "' or " +
                     " r.request_project_operator @> '{"+'"' + email + '"' + "}' or " +
+                    " r.request_organization_inspectionteam @> '{"+'"' + email + '"' + "}' or " +
+                    " r.request_organization_inspectionteam_delegate @> '{"+'"' + email + '"' + "}' or " +
                     " r.request_project_operator_delegate @> '{"+'"' + email + '"' + "}' or " +
                     " r.request_project_scientificCoordinator = '"  + email + "' or " +
                     " r.request_organization_poy = '"  + email + "' or " +
@@ -360,7 +358,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                            + " or ( ( request_institute_diaugeia =  '" + email + "' or  request_institute_diaugeia_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and ( request_stage = 6 or request_stage = 11 ) "
                            + "    ) "
-                           + " or ( ( request_institute_accountingDirector =  '" + email + "' or  request_institute_accountingDirector_delegate <@ '{"+'"' + email + '"' + "}')"
+                           + " or ( ( request_organization_inspectionTeam <@ '{"+'"' + email + '"' + "} or  request_organization_inspectionTeam_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and request_stage = 8 "
                            + "    ) "
                            + " or ( ( request_institute_accountingRegistration =  '" + email + "' or  request_institute_accountingRegistration_delegate <@ '{"+'"' + email + '"' + "}')"
@@ -412,9 +410,9 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     }
 
-    public InputStream downloadFile(String mode,String id, String stage) {
+    public InputStream downloadFile(String mode,String id, String stage,String index) {
 
-        Attachment attachment = getAttachment(mode,id,stage);
+        Attachment attachment = getAttachment(mode,id,stage);//.get(Integer.parseInt(index));
         try {
             File temp = File.createTempFile("file", "tmp");
             temp.deleteOnExit();

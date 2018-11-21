@@ -16,15 +16,15 @@ public class POIServiceImpl {
     @Autowired
     DataSource dataSource;
 
-//    public List<PersonOfInterest> getPois() {
-//
+    public List<PersonOfInterest> getPois() {
+        return null;
 //        return new JdbcTemplate(dataSource)
 //                .query("select project_id ,project_acronym,project_institute from project_view",vocabularyRowMapper);
-//
-//    }
-//
+
+    }
+
 //    private RowMapper<PersonOfInterest> vocabularyRowMapper = (rs, i) ->
 //            new PersonOfInterest());
-//
+
 
 }

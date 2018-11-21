@@ -117,9 +117,9 @@ public class RequestController {
 
     @RequestMapping(value = "/store/uploadFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> uploadFile(@RequestParam("archiveID") String archiveID,
-                                                @RequestParam("stage") String stage,
+                                             @RequestParam("stage") String stage,
                                              @RequestParam("mode") String mode,
-                                                @RequestParam("file") MultipartFile file) throws IOException {
+                                             @RequestParam("file") MultipartFile file) throws IOException {
         return requestService.upLoadFile(mode,archiveID,stage,file);
     }
 
@@ -129,15 +129,16 @@ public class RequestController {
     public void downloadFile(@RequestParam("mode") String mode,
                              @RequestParam("requestId") String requestId,
                              @RequestParam("stage") String stage,
+                             @RequestParam("index") String index,
                              HttpServletResponse response) throws IOException, ResourceNotFoundException {
-        Attachment attachment = requestService.getAttachment(mode,requestId,stage);
+        Attachment attachment = requestService.getAttachment(mode,requestId,stage);;//.get(Integer.parseInt(index));
 
         if(attachment == null)
             throw new ResourceNotFoundException();
 
         response.setContentType(attachment.getMimetype());
         response.setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFilename() + "\"");
-        IOUtils.copyLarge(requestService.downloadFile(mode,requestId,stage), response.getOutputStream());
+        IOUtils.copyLarge(requestService.downloadFile(mode,requestId,stage,index), response.getOutputStream());
     }
 
     @RequestMapping(value = "/addRequestApproval", method = RequestMethod.POST,
