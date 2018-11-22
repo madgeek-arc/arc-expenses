@@ -91,10 +91,24 @@
       "type": "java.lang.String"
     },
     {
+      "multivalued": true,
+      "name": "request_institute_travelManager_delegate",
+      "path": "$.project.institute.travelManager.delegates[*].email",
+      "type": "java.lang.String"
+    },
+
+    {
       "name": "request_institute_suppliesOffice",
       "path": "$.project.institute.suppliesOffice.email",
       "type": "java.lang.String"
     },
+    {
+      "multivalued": true,
+      "name": "request_institute_suppliesOffice_delegate",
+      "path": "$.project.institute.suppliesOffice.delegates[*].email",
+      "type": "java.lang.String"
+    },
+
     {
       "multivalued": true,
       "name": "request_institute_director_delegate",

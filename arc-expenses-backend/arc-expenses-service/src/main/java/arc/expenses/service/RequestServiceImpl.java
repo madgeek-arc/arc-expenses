@@ -343,8 +343,10 @@ public class RequestServiceImpl extends GenericService<Request> {
         String whereClause = " (  ( r.request_project_operator <@ '{"+'"' + email + '"' + "} or  request_project_operator_delegate <@ '{"+'"' + email + '"' + "}')"
                            + "      and ( request_stage = 3 ) "
                            + "    ) "
-                           + " or ( request_institute_suppliesOffice = '" + email + "' and request_stage = 7 and request_type != trip ) "
-                           + " or ( request_institute_travelManager = '" + email + "' and request_stage = 7 and request_type = trip ) "
+                           + " or ( ( request_institute_suppliesOffice = '" + email + "' or request_institute_suppliesOffice_delegate <@ '{"+'"' + email + '"' + "}')" +
+                                    "and request_stage = 7 and request_type != trip ) "
+                           + " or ( request_institute_travelManager = '" + email + "' or request_institute_travelManager_delegate <@ '{"+'"' + email + '"' + "}')" +
+                                    "' and request_stage = 7 and request_type = trip ) "
                            + " or ( request_project_scientificCoordinator = '" + email + "' and request_stage = 2 ) "
                            + " or ( ( request_organization_poy =  '" + email + "' or  request_organization_poy_delegate = "  + email + " ) "
                            + "      and ( request_stage = 4 or request_stage = 9 ) "
