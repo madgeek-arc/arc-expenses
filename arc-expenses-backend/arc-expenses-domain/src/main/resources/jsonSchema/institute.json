@@ -28,10 +28,16 @@
       "javaType": "gr.athenarc.domain.PersonOfInterest"
     },
     "suppliesOffice": {
-      "javaType": "gr.athenarc.domain.PersonOfInterest"
+      "type": "array",
+      "items": {
+        "javaType": "gr.athenarc.domain.PersonOfInterest"
+      }
     },
     "travelManager": {
-      "javaType": "gr.athenarc.domain.PersonOfInterest"
+      "type": "array",
+      "items": {
+        "javaType": "gr.athenarc.domain.PersonOfInterest"
+      }
     },
     "diataktis": {
       "javaType": "gr.athenarc.domain.PersonOfInterest"
