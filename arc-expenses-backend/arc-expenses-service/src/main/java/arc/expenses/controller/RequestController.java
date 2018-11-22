@@ -129,7 +129,7 @@ public class RequestController {
     public void downloadFile(@RequestParam("mode") String mode,
                              @RequestParam("requestId") String requestId,
                              @RequestParam("stage") String stage,
-                             @RequestParam("index") String index,
+                            // @RequestParam("index") String index,
                              HttpServletResponse response) throws IOException, ResourceNotFoundException {
         Attachment attachment = requestService.getAttachment(mode,requestId,stage);;//.get(Integer.parseInt(index));
 
@@ -138,7 +138,7 @@ public class RequestController {
 
         response.setContentType(attachment.getMimetype());
         response.setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFilename() + "\"");
-        IOUtils.copyLarge(requestService.downloadFile(mode,requestId,stage,index), response.getOutputStream());
+        IOUtils.copyLarge(requestService.downloadFile(mode,requestId,stage), response.getOutputStream());
     }
 
     @RequestMapping(value = "/addRequestApproval", method = RequestMethod.POST,

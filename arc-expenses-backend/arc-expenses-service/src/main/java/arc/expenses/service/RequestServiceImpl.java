@@ -412,7 +412,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     }
 
-    public InputStream downloadFile(String mode,String id, String stage,String index) {
+    public InputStream downloadFile(String mode,String id, String stage) {
 
         Attachment attachment = getAttachment(mode,id,stage);//.get(Integer.parseInt(index));
         try {
