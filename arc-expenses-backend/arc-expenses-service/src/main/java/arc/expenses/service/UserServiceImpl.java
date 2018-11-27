@@ -82,13 +82,15 @@ public class UserServiceImpl extends GenericService<User> {
     private String createQuery(String email) {
 
         return "select count(*) as count from request_view r \n" +
-                "where  r.request_project_operator @> '{\"" + email + "\"}' or  r.request_project_operator_delegate @> '{\"" + email + "\"}' or  r.request_project_scientificCoordinator = '" + email +
-                "' or  r.request_organization_poy = '" + email + "' or  r.request_organization_poy_delegate @>  '{\"" + email + "\"}' or  r.request_institute_accountingRegistration = '" + email
+                "where  r.request_project_operator @> '{\"" + email + "\"}' or  r.request_project_operator_delegate @> '{\"" + email + "\"}' "
+                + "  or  r.request_project_scientificCoordinator = '" + email
+                + "' or  r.request_organization_poy = '" + email + "' or  r.request_organization_poy_delegate @>  '{\"" + email + "\"}' or  r.request_institute_accountingRegistration = '" + email
                 + "' or  r.request_institute_diaugeia = '" + email + "' or  r.request_institute_accountingPayment = '" + email + "' or  r.request_institute_accountingDirector = '" + email
-                + "' or  r.request_institute_accountingDirector_delegate @>  '{\"" + email + "\"}' or  r.request_institute_accountingRegistration_delegate @>  '{\"" + email + "\"}' " +
-                " or  r.request_institute_accountingPayment_delegate @>  '{\"" + email + "\"}' or  r.request_institute_diaugeia_delegate @>  '{\"" + email + "\"}' " +
-                " or  r.request_organization_director = '" + email + "' or  r.request_institute_director = '" + email
-                + "' or  r.request_organization_director_delegate @>  '{\"" + email + "\"}' or  r.request_institute_director_delegate @>  '{\"" + email + "\"}'  ";
+                + "' or  r.request_institute_accountingDirector_delegate @>  '{\"" + email + "\"}' or  r.request_institute_accountingRegistration_delegate @>  '{\"" + email + "\"}' "
+                + "  or  r.request_institute_accountingPayment_delegate @>  '{\"" + email + "\"}' or  r.request_institute_diaugeia_delegate @>  '{\"" + email + "\"}' "
+                + "  or  r.request_organization_director = '" + email + "' or  r.request_institute_director = '" + email
+                + "' or  r.request_organization_director_delegate @>  '{\"" + email + "\"}'  or  r.request_institute_director_delegate @>  '{\"" + email + "\"}'  "
+                + "  or  r.request_organization_inspectionTeam @> '{\"" + email +  "\"}'     or  request_organization_inspectionTeam_delegate @> '{\"" + email + "\"}' ";
 
     }
 
