@@ -1,6 +1,7 @@
 package arc.expenses.controller;
 
 import arc.expenses.domain.Vocabulary;
+import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Project;
 import io.swagger.annotations.Api;
@@ -38,9 +39,11 @@ public class ProjectController {
         return projectService.add(project, auth);
     }
 
-    @RequestMapping(value =  "/getAll", method = RequestMethod.GET)
-    public List<Project> getAll() {
-        return null;
+    @RequestMapping(value =  "/getAll/{from}/{quantity}", method = RequestMethod.GET)
+    public Paging<Project> getAll(@PathVariable("from") String from,
+                                  @PathVariable("quantity") String quantity,
+                                   Authentication auth) {
+        return projectService.getAllProjects(from,quantity,auth);
     }
 
     @RequestMapping(value =  "/getAllProjectNames", method = RequestMethod.GET)
