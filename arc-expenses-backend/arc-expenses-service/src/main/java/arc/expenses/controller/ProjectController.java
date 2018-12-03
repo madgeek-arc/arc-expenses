@@ -59,4 +59,9 @@ public class ProjectController {
         return projectService.update(project, auth);
     }
 
+    @RequestMapping(value =  "/getProjectsOfOperator", method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Vocabulary> getProjectsOfOperator(@RequestParam("email") String email) {
+        return projectService.getProjectsOfOperator(email);
+    }
+
 }

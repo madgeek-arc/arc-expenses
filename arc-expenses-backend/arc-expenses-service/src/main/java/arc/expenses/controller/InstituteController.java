@@ -1,5 +1,6 @@
 package arc.expenses.controller;
 
+import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Institute;
 import io.swagger.annotations.Api;
@@ -36,8 +37,8 @@ public class InstituteController {
     }
 
     @RequestMapping(value =  "/getAll", method = RequestMethod.GET)
-    public List<Institute> getAll() {
-        return null;
+    public Paging<Institute> getAll(Authentication authentication) {
+        return instituteService.getAllInstitutes(authentication);
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST,

@@ -33,7 +33,7 @@ public class EmailService {
 
     public enum RequestType {TRAVEL, OTHER}
 
-    public enum RequestState {INITIALIZED, ACCEPTED, INVOICE, ACCEPTED_DIAVGEIA, REVIEW, REJECTED, COMPLETED}
+    public enum RequestState {INITIALIZED, ACCEPTED, INVOICE, ACCEPTED_DIAVGEIA, REVIEW, REJECTED, COMPLETED,CANCELLED}
 
     @Value("${request.approval.url}")
     String approval_url;
@@ -55,7 +55,21 @@ public class EmailService {
         StringBuilder stringBuilder = new StringBuilder();
 
         if (type == UserType.USER) {
-            if (state == RequestState.INITIALIZED) {
+
+            if(state == RequestState.CANCELLED){
+                if(requestType == OTHER){
+                    subject = "[ARC-ν.4485] Ακύρωση αιτήματος " + id;
+                    stringBuilder
+                            .append("Αγαπητέ χρήστη,\n\n")
+                            .append("το ακόλουθο αίτημα έχει ακυρωθεί.");
+                }else{
+                    //travel
+                    subject = "[ARC-ν.4485] Ακύρωση αιτήματος " + id;
+                    stringBuilder
+                            .append("Αγαπητέ χρήστη,\n\n")
+                            .append("Το ακόλουθο αίτημα σχετικά με το επικείμενο ταξίδι σας έχει ακυρωθεί.");
+                }
+            }else if (state == RequestState.INITIALIZED) {
 
                 if(requestType == OTHER){
                     subject = "[ARC-ν.4485] Δημιουργία νέου αιτήματος " + id;
@@ -193,7 +207,11 @@ public class EmailService {
         RequestState state = ACCEPTED;
         String email;
 
-        if ("rejected".equals(status)) {
+        if("cancelled".equals(status)){
+            state = CANCELLED;
+            transition = "-";
+            messages.addAll(sendCancelRequestEmails(requestFatClass,newStage,state,USER));
+        }else if ("rejected".equals(status)) {
             state = REJECTED;
             transition = "rejected";
         }else if ("under_review".equals(status)) {
@@ -267,6 +285,23 @@ public class EmailService {
         }
         messages.forEach(logger::info);
         return messages;
+    }
+
+    private List<EmailMessage> sendCancelRequestEmails(RequestFatClass requestFatClass,String stage, RequestState state,UserType userType) {
+        List<EmailMessage> emails = new ArrayList<>();
+        List<PersonOfInterest> pois;
+        String[] stages = new String[]{"2","3","4","5a","5b","6"};
+
+        if(requestFatClass.getStage1()!=null)
+            emails.add(prepareMessageForRequester(requestFatClass,state));
+
+        for(String s:stages){
+            if(s.compareTo(stage) < 0 ){
+                pois = getPersonOfInterest(requestFatClass,s);
+                emails.addAll(prepareMessages(requestFatClass,pois,state,userType));
+            }
+        }
+        return emails;
     }
 
     private EmailMessage prepareMessageForRequester(RequestFatClass requestFatClass, RequestState state) {

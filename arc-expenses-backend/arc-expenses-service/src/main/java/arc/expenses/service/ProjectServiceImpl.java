@@ -71,4 +71,25 @@ public class ProjectServiceImpl extends GenericService<Project> {
 
 
     }
+
+    public List<Vocabulary> getProjectsOfOperator(String email) {
+        return new JdbcTemplate(dataSource)
+                .query(projectsOfOperator(email),vocabularyRowMapper);
+    }
+
+    private String projectsOfOperator(String email) {
+
+        return  "  select distinct (project_id),project_acronym,project_institute\n" +
+                "  from project_view , (  select split_part(poi::text,',',1) as email,\n" +
+                "                              split_part(poi::text,',',2) as firstname,\n" +
+                "                              regexp_replace(split_part(poi::text,',',3),'[^[:alpha:]]','') as lastname\n" +
+                "                        from   (\n" +
+                "                              select regexp_matches(payload,'(?:\"email\":\")(.*?)(?:\",\"firstname\":\"(.*?)(?:\",\"lastname\":\"(.*?)(?:\")))','g')\n" +
+                "                              from resource\n" +
+                "                              where fk_name = 'project'\n" +
+                "                              )  as poi\n" +
+                "                    ) as poi\n" +
+                "  where poi.email ilike  '%" + email + "%'";
+
+    }
 }
