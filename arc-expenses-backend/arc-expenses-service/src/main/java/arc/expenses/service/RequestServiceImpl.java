@@ -322,8 +322,10 @@ public class RequestServiceImpl extends GenericService<Request> {
                     " r.request_organization_inspectionteam_delegate @> '{"+'"' + email + '"' + "}' or " +
                     " r.request_project_operator_delegate @> '{"+'"' + email + '"' + "}' or " +
                     " r.request_project_scientificCoordinator = '"  + email + "' or " +
+                    " r.request_institute_travelmanager = '"  + email + "' or " +
                     " r.request_organization_poy = '"  + email + "' or " +
                     " r.request_organization_poy_delegate @>  '{"+'"' + email + '"' + "}' or " +
+                    " r.request_institute_travelmanager_delegate @>  '{"+'"' + email + '"' + "}' or " +
                     " r.request_institute_accountingRegistration = '"  + email + "' or " +
                     " r.request_institute_diaugeia = '"  + email + "' or " +
                     " r.request_institute_accountingPayment = '"  + email + "' or " +

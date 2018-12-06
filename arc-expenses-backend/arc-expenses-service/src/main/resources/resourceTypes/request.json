@@ -27,7 +27,7 @@
     },
     {
       "name": "request_project",
-      "path": "$.project.name",
+      "path": "$.project.acronym",
       "type": "java.lang.String"
     },
     {
