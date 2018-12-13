@@ -90,7 +90,9 @@ public class UserServiceImpl extends GenericService<User> {
                 + "  or  r.request_institute_accountingPayment_delegate @>  '{\"" + email + "\"}' or  r.request_institute_diaugeia_delegate @>  '{\"" + email + "\"}' "
                 + "  or  r.request_organization_director = '" + email + "' or  r.request_institute_director = '" + email
                 + "' or  r.request_organization_director_delegate @>  '{\"" + email + "\"}'  or  r.request_institute_director_delegate @>  '{\"" + email + "\"}'  "
-                + "  or  r.request_organization_inspectionTeam @> '{\"" + email +  "\"}'     or  request_organization_inspectionTeam_delegate @> '{\"" + email + "\"}' ";
+                + "  or  r.request_organization_inspectionTeam @> '{\"" + email +  "\"}'     or  request_organization_inspectionTeam_delegate @> '{\"" + email + "\"}' "
+                + "  or  r.request_institute_travelmanager =  '" + email + "' or r.request_institute_suppliesoffice =  '" + email
+                + "' or  request_institute_travelmanager_delegate @>  '{\"" + email +  "\"}'  or request_institute_suppliesoffice_delegate @> '{\"" + email +  "\"}'";
 
     }
 
