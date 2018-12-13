@@ -20,6 +20,7 @@
         <spring.version>4.3.3.RELEASE</spring.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <corpus.api.version>1.0.1-SNAPSHOT</corpus.api.version>
+        <latest.jolt.version>0.0.16</latest.jolt.version>
     </properties>
 
     <dependencies>
@@ -235,6 +236,18 @@
             <artifactId>json-path</artifactId>
             <version>2.2.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.bazaarvoice.jolt</groupId>
+            <artifactId>jolt-core</artifactId>
+            <version>${latest.jolt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bazaarvoice.jolt</groupId>
+            <artifactId>json-utils</artifactId>
+            <version>${latest.jolt.version}</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>

@@ -1,0 +1,10 @@
+[
+  {
+    "operation": "cardinality",
+    "spec": {
+      "*": {
+        "attachment": "MANY"
+      }
+    }
+  }
+]
