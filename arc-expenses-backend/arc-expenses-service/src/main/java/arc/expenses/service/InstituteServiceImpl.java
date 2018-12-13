@@ -2,8 +2,11 @@ package arc.expenses.service;
 
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
+import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Institute;
 import gr.athenarc.domain.Organization;
+import gr.athenarc.domain.Project;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +17,8 @@ import java.util.Map;
 @Service("instituteService")
 public class InstituteServiceImpl extends GenericService<Institute>{
 
+    @Autowired
+    CascadeService cascadeService;
 
     public InstituteServiceImpl() {
         super(Institute.class);
@@ -42,5 +47,12 @@ public class InstituteServiceImpl extends GenericService<Institute>{
         filter.setFrom(0);
         filter.setQuantity(20);
         return getAll(filter,authentication);
+    }
+
+    @Override
+    public Institute update(Institute institute, Authentication authentication) throws ResourceNotFoundException {
+        update(institute,institute.getId());
+        cascadeService.cascadeAll(institute,authentication);
+        return institute;
     }
 }

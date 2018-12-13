@@ -1,0 +1,82 @@
+[
+  {
+    "stage7": {
+      "user": {
+        "id": "giannisk@athena-innovation.gr",
+        "email": "giannisk@athena-innovation.gr",
+        "firstname": "Ιωάννης",
+        "lastname": "Κουλαφέτης"
+      },
+      "date": "1544420741684",
+      "approved": true,
+      "comment": "",
+      "attachment": {
+        "filename": "Here are your invoices ATHINA 03122018.pdf",
+        "mimetype": "application/pdf",
+        "size": 76696,
+        "url": "602f20a9-9547-4dba-a9d7-416aab953f3c/payment/stage7"
+      }
+    },
+    "stage8": {
+      "inspectionTeam": [],
+      "date": "1544428075009",
+      "checkRegularity": true,
+      "checkLegality": true,
+      "approved": true,
+      "comment": "",
+      "user": {
+        "id": "abatzo@ipet.athena-innovation.gr",
+        "email": "abatzo@ipet.athena-innovation.gr",
+        "firstname": "ΒΑΣΙΛΙΚΗ",
+        "lastname": "ΑΜΠΑΤΖΟΓΛΟΥ"
+      }
+    },
+    "stage9": {
+      "user": {
+        "id": "yvolti@athena-innovation.gr",
+        "email": "yvolti@athena-innovation.gr",
+        "firstname": "Γιάννα",
+        "lastname": "Βολτή"
+      },
+      "date": "1544431815227",
+      "checkRegularity": true,
+      "checkLegality": true,
+      "approved": true,
+      "comment": ""
+    },
+    "stage10": {
+      "user": {
+        "id": "evita@ilsp.gr",
+        "email": "evita@ilsp.gr",
+        "firstname": "Ευίτα",
+        "lastname": "Φωτεινέα"
+      },
+      "date": "1544433752799",
+      "approved": true,
+      "comment": ""
+    },
+    "stage11": {
+      "user": {
+        "id": "liana@ilsp.gr",
+        "email": "liana@ilsp.gr",
+        "firstname": "ΗΛΙΆΝΑ",
+        "lastname": "ΣΤΑΜΑΤΗ"
+      },
+      "date": "1544624532997",
+      "comment": "",
+      "attachment": {
+        "filename": "7737_Ψ6ΣΟ469ΗΞΩ-ΤΟΑ_Episkevi_Ektypwth.pdf",
+        "mimetype": "application/pdf",
+        "size": 441660,
+        "url": "602f20a9-9547-4dba-a9d7-416aab953f3c/payment/stage11"
+      }
+    },
+    "stage12": {},
+    "stage13": {},
+    "id": "20181113-6-p3",
+    "requestId": "20181113-6",
+    "creationDate": "1542120024146",
+    "stage": "12",
+    "status": "pending"
+  }
+]

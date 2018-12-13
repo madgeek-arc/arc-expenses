@@ -1,8 +1,8 @@
 [
   {
     "spec": {
-      "*": {
-        "attachment": "MANY"
+      "stage7": {
+        "attachment": "ONE"
       }
     }
   }

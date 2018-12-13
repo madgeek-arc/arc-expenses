@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -494,4 +495,14 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
 
+    public Paging<Request> getAllRequests(Authentication authentication) {
+        FacetFilter filter = new FacetFilter();
+        filter.setResourceType(getResourceType());
+
+        filter.setKeyword("");
+        filter.setFrom(0);
+        filter.setQuantity(10000);
+
+        return getAll(filter,authentication);
+    }
 }

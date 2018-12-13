@@ -20,7 +20,7 @@
         <spring.version>4.3.3.RELEASE</spring.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <corpus.api.version>1.0.1-SNAPSHOT</corpus.api.version>
-        <latest.jolt.version>0.0.16</latest.jolt.version>
+        <latest.jolt.version>0.1.1</latest.jolt.version>
     </properties>
 
     <dependencies>

@@ -3,6 +3,8 @@ package arc.expenses.service;
 import arc.expenses.domain.Vocabulary;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
+import eu.openminted.registry.core.exception.ResourceNotFoundException;
+import gr.athenarc.domain.Organization;
 import gr.athenarc.domain.Project;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ public class ProjectServiceImpl extends GenericService<Project> {
     @Autowired
     DataSource dataSource;
 
+    @Autowired
+    CascadeService cascadeService;
 
     public ProjectServiceImpl() {
         super(Project.class);
@@ -91,5 +95,12 @@ public class ProjectServiceImpl extends GenericService<Project> {
                 "                    ) as poi\n" +
                 "  where poi.email ilike  '%" + email + "%'";
 
+    }
+
+    @Override
+    public Project update(Project project, Authentication authentication) throws ResourceNotFoundException {
+        update(project,project.getId());
+        cascadeService.cascadeAll(project,authentication);
+        return project;
     }
 }
