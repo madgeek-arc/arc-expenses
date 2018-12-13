@@ -145,7 +145,7 @@ public class PolicyCheckerService {
         return value;
     }
 
-    private Boolean isTravelManagerOrDelegate(Request request, String email) {
+    public Boolean isTravelManagerOrDelegate(Request request, String email) {
         return request.getProject().getInstitute().getTravelManager().getEmail().equals(email)
                 || isDelegate(request.getProject().getInstitute().getTravelManager().getDelegates(),email);
     }
