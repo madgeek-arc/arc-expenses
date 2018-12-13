@@ -23,7 +23,7 @@ public class MigrationService {
     SearchService searchService;
 
 
-//    @PostConstruct
+    @PostConstruct
     public void startMigration() {
         FacetFilter filter = new FacetFilter();
         filter.setResourceType("payment");
@@ -35,14 +35,16 @@ public class MigrationService {
             List<Resource> rs = searchService.search(filter).getResults();
             if(rs.size() > 0) {
                 for(Resource resource:rs){
-                    System.out.println(resource.getPayload());
+//                    System.out.println(resource.getPayload());
                     InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("multipleAttachments.json");
                     List specs = null;
                     try {
                         specs = (List)mapper.readValue(inputStream, List.class);
                         CardinalityTransform cardinalityTransform = new CardinalityTransform(specs.get(0));
                         Object transformedOutput = cardinalityTransform.transform( resource.getPayload() );
-                        System.out.println( JsonUtils.toJsonString( transformedOutput ) );
+                        System.out.println( transformedOutput );
+
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
