@@ -22,11 +22,21 @@
     },
     {
       "name": "request_institute",
-      "path": "$.project.institute.name",
+      "path": "$.project.institute.id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_institute_organization",
+      "path": "$.project.institute.organization.id",
       "type": "java.lang.String"
     },
     {
       "name": "request_project",
+      "path": "$.project.id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_project_acronym",
       "path": "$.project.acronym",
       "type": "java.lang.String"
     },

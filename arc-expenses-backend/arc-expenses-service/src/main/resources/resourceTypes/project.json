@@ -28,6 +28,11 @@
       "type": "java.lang.String"
     },
     {
+      "name": "project_organization",
+      "path": "$.institute.organization.id",
+      "type": "java.lang.String"
+    },
+    {
       "multivalued": true,
       "name": "project_operator_delegate",
       "path": "$.operator[*].delegates[*].email",

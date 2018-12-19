@@ -59,10 +59,7 @@ public class SAMLBasicFilter extends GenericFilterBean{
 
         if(!debug_idp && !request.getHeader("AJP_eppn").equals(""))
             sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
-        else
-            response.sendRedirect(redirect_error_url);
-
-        if(debug_idp && !request.getHeader("AJP_uid").equals(""))
+        else if(debug_idp && !request.getHeader("AJP_uid").equals(""))
             sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_uid"));
         else
             response.sendRedirect(redirect_error_url);

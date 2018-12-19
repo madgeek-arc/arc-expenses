@@ -1,12 +1,17 @@
 package arc.expenses.service;
 
 import arc.expenses.domain.Vocabulary;
+import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
+import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
+import gr.athenarc.domain.Institute;
 import gr.athenarc.domain.Organization;
 import gr.athenarc.domain.Project;
+import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
+import org.codehaus.groovy.tools.GrapeMain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -50,14 +55,14 @@ public class ProjectServiceImpl extends GenericService<Project> {
             new Vocabulary(rs.getString("project_id"),rs.getString("project_acronym"), rs.getString("project_institute"));
 
 
-    public Paging<Project> getAllProjects(String from, String quantity,Authentication auth) {
+    public Paging<Project> getAllProjects(String from,String quantity,Authentication auth) {
 
         FacetFilter filter = new FacetFilter();
         filter.setResourceType(getResourceType());
 
         filter.setKeyword("");
-        filter.setFrom(0);
-        filter.setQuantity(1000);
+        filter.setFrom(Integer.parseInt(from));
+        filter.setQuantity(Integer.parseInt(quantity));
 
         Map<String,Object> sort = new HashMap<>();
         Map<String,Object> order = new HashMap<>();
@@ -69,8 +74,6 @@ public class ProjectServiceImpl extends GenericService<Project> {
         sort.put(orderField, order);
         filter.setOrderBy(sort);
 
-        filter.setFrom(Integer.parseInt(from));
-        filter.setQuantity(Integer.parseInt(quantity));
         return getAll(filter,auth);
 
 
@@ -102,5 +105,53 @@ public class ProjectServiceImpl extends GenericService<Project> {
         update(project,project.getId());
         cascadeService.cascadeAll(project,authentication);
         return project;
+    }
+
+    public void cascadeAll(Institute institute, Authentication authentication) {
+        List<Resource> resources = getProjectsPerInstitute(institute.getId(),authentication);
+
+        for(Resource resource:resources){
+            Project project = parserPool.deserialize(resource,typeParameterClass);
+            project.setInstitute(institute);
+            try {
+                update(project,project.getId());
+            } catch (ResourceNotFoundException e) {
+                LOGGER.debug("error on updating project ( " + project.getId() + " ) on cascade all ", e);
+            }
+        }
+    }
+
+    public void cascadeAll(Organization organization, Authentication authentication) {
+        List<Resource> resources = getProjectsPerOrganization(organization.getId(),authentication);
+
+        for(Resource resource:resources){
+            Project project = parserPool.deserialize(resource,typeParameterClass);
+            project.getInstitute().setOrganization(organization);
+            try {
+                update(project,project.getId());
+            } catch (ResourceNotFoundException e) {
+                LOGGER.debug("error on updating project ( " + project.getId() + " ) on cascade all ", e);
+            }
+        }
+    }
+
+    public List<Resource> getProjectsPerOrganization(String id, Authentication authentication) {
+        return getByValue("project_organization",id,authentication);
+    }
+
+    public List<Resource> getProjectsPerInstitute(String id,Authentication authentication) {
+        return getByValue("project_institute",id,authentication);
+    }
+
+
+    private List<Resource> getByValue(String field,String id,Authentication authentication){
+
+        String query = field + "= \"" + id + "\"";
+
+        Paging<Resource> rs = searchService.cqlQuery(
+                query,"project",
+                1000,0,
+                "", "ASC");
+        return rs.getResults();
     }
 }

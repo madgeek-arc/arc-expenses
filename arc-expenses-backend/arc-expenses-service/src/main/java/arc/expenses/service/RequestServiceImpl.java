@@ -3,13 +3,15 @@ package arc.expenses.service;
 import arc.expenses.config.StoreRestConfig;
 import arc.expenses.domain.RequestSummary;
 import arc.expenses.utils.Converter;
+import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
+import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.store.restclient.StoreRESTClient;
-import gr.athenarc.domain.Attachment;
-import gr.athenarc.domain.Request;
+import gr.athenarc.domain.*;
 import org.apache.log4j.Logger;
+import org.codehaus.groovy.tools.GrapeMain;
 import org.javatuples.Septet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -244,26 +246,6 @@ public class RequestServiceImpl extends GenericService<Request> {
         return searchField_clause;
     }
 
-    private StringBuilder getKeywordClause(String searchField) {
-
-        StringBuilder keyword_clause = new StringBuilder();
-
-
-        if(searchField.equals(""))
-            return keyword_clause;
-
-        keyword_clause.append(" ( request_requester = ")
-                .append("'").append(searchField).append("'")
-                .append(" or request_project = ")
-                .append("'").append(searchField).append("'")
-                .append(" or request_institute = ")
-                .append("'").append(searchField).append("'")
-                .append(" or request_institute_director = ")
-                .append("'").append(searchField).append("'")
-                .append(" or request_project_operator  ").append("<@  '{" + '"').append(searchField).append('"').append("}'").append(")");
-        return keyword_clause;
-    }
-
     private RowMapper<Septet<String,String,String,String,String,String,String>> requestSummaryMapper = (rs, i) ->
             Septet.with(rs.getString("request_id"),
                 rs.getString("id"),
@@ -495,14 +477,70 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
 
-    public Paging<Request> getAllRequests(Authentication authentication) {
-        FacetFilter filter = new FacetFilter();
-        filter.setResourceType(getResourceType());
+    public void cascadeAll(Organization organization, Authentication authentication) {
+        List<Resource> resources = getRequestsPerOrganization(organization.getId(),authentication);
 
-        filter.setKeyword("");
-        filter.setFrom(0);
-        filter.setQuantity(10000);
-
-        return getAll(filter,authentication);
+        for(Resource resource:resources){
+            Request request = parserPool.deserialize(resource,typeParameterClass);
+            request.getProject().getInstitute().setOrganization(organization);
+            try {
+                update(request,request.getId());
+            } catch (ResourceNotFoundException e) {
+                LOGGER.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
+            }
+        }
     }
+
+    public void cascadeAll(Project project, Authentication authentication) {
+        List<Resource> resources = getRequestsPerProject(project.getId(),authentication);
+
+        for(Resource resource:resources){
+            Request request = parserPool.deserialize(resource,typeParameterClass);
+            request.setProject(project);
+            try {
+                update(request,request.getId());
+            } catch (ResourceNotFoundException e) {
+                LOGGER.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
+            }
+        }
+    }
+
+    public void cascadeAll(Institute institute, Authentication authentication) {
+        List<Resource> resources = getRequestsPerInstitute(institute.getId(),authentication);
+
+        for(Resource resource:resources){
+            Request request = parserPool.deserialize(resource,typeParameterClass);
+            request.getProject().setInstitute(institute);
+            try {
+                update(request,request.getId());
+            } catch (ResourceNotFoundException e) {
+                LOGGER.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
+            }
+        }
+    }
+
+    public List<Resource> getRequestsPerProject(String id, Authentication authentication) {
+        return getByValue("request_project",id,authentication);
+    }
+
+    public List<Resource> getRequestsPerInstitute(String id,Authentication authentication) {
+        return getByValue("request_institute",id,authentication);
+    }
+
+    public List<Resource> getRequestsPerOrganization(String id,Authentication authentication) {
+        return getByValue("request_institute_organization",id,authentication);
+    }
+
+
+    private List<Resource> getByValue(String field,String id,Authentication authentication){
+
+        String query = field + "= \"" + id + "\"";
+
+        Paging<Resource> rs = searchService.cqlQuery(
+                query,"request",
+                1000,0,
+                "", "ASC");
+        return rs.getResults();
+    }
+
 }
