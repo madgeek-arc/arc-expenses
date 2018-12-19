@@ -63,6 +63,7 @@ public class AnnotationChecks {
                 policyCheckerService.isOrganizationDirectorOrDelegate(request,email) ||
                 policyCheckerService.isTravelManagerOrDelegate(request,email) ||
                 policyCheckerService.isAdmin(request,email) ||
+                policyCheckerService.isTravelManagerOrDelegate(request,email) ||
                 policyCheckerService.isInspectionTeamOrDelegate(request,email);
     }
 
@@ -89,6 +90,7 @@ public class AnnotationChecks {
                 policyCheckerService.isTravelManagerOrDelegate(request,email) ||
                 policyCheckerService.isOrganizationDirectorOrDelegate(request,email) ||
                 policyCheckerService.isAdmin(request,email) ||
+                policyCheckerService.isTravelManagerOrDelegate(request,email) ||
                 policyCheckerService.isInspectionTeamOrDelegate(request,email);
     }
 

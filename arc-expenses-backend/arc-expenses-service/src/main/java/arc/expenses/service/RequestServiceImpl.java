@@ -3,13 +3,15 @@ package arc.expenses.service;
 import arc.expenses.config.StoreRestConfig;
 import arc.expenses.domain.RequestSummary;
 import arc.expenses.utils.Converter;
+import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
+import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.store.restclient.StoreRESTClient;
-import gr.athenarc.domain.Attachment;
-import gr.athenarc.domain.Request;
+import gr.athenarc.domain.*;
 import org.apache.log4j.Logger;
+import org.codehaus.groovy.tools.GrapeMain;
 import org.javatuples.Septet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -115,7 +118,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                                  List<String> stage, String orderType,
                                  String orderField, String email) {
 
-        String query =  "select request_id,id,creation_date,request_project,request_institute,request_stage , count(*) over () as total_rows from (       ( select distinct(r.request_id) as request_id ,a.approval_id as id,res1.creation_date as creation_date,         r.request_project as request_project , r.request_institute as request_institute , a.stage as request_stage , r.request_type as request_type        from request_view r , approval_view a , resource res1, resource res2           where r.request_id = a.request_id  and res1.fk_name = 'approval'          and a.id  = res1.id AND r.id = res2.id          AND res2.fk_name = 'request' " ;
+        String query =  "select request_id,id,creation_date,request_project_acronym,request_institute,request_stage , count(*) over () as total_rows from (       ( select distinct(r.request_id) as request_id ,a.approval_id as id,(res2.payload::json)->'stage1'->>'requestDate' as creation_date,         r.request_project_acronym as request_project_acronym , r.request_institute as request_institute , a.stage as request_stage , r.request_type as request_type        from request_view r , approval_view a , resource res1, resource res2           where r.request_id = a.request_id  and res1.fk_name = 'approval'          and a.id  = res1.id AND r.id = res2.id          AND res2.fk_name = 'request' " ;
 
 
 
@@ -143,8 +146,8 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         query+=" )" +
                " union " +
-               " ( select distinct(r.request_id) as request_id,p.payment_id as id,res1.creation_date ," +
-               " r.request_project as request_project , r.request_institute as request_institute , p.stage as request_stage , r.request_type as request_type" +
+               " ( select distinct(r.request_id) as request_id,p.payment_id as id,(res2.payload::json)->'stage1'->>'requestDate' as creation_date ," +
+               " r.request_project_acronym as request_project_acronym , r.request_institute as request_institute , p.stage as request_stage , r.request_type as request_type" +
                " from request_view r , payment_view p , resource res1, resource res2   " +
                " where r.request_id = p.request_id  and res1.fk_name = 'payment' " +
                " and p.id  = res1.id AND r.id = res2.id "+
@@ -243,31 +246,11 @@ public class RequestServiceImpl extends GenericService<Request> {
         return searchField_clause;
     }
 
-    private StringBuilder getKeywordClause(String searchField) {
-
-        StringBuilder keyword_clause = new StringBuilder();
-
-
-        if(searchField.equals(""))
-            return keyword_clause;
-
-        keyword_clause.append(" ( request_requester = ")
-                .append("'").append(searchField).append("'")
-                .append(" or request_project = ")
-                .append("'").append(searchField).append("'")
-                .append(" or request_institute = ")
-                .append("'").append(searchField).append("'")
-                .append(" or request_institute_director = ")
-                .append("'").append(searchField).append("'")
-                .append(" or request_project_operator  ").append("<@  '{" + '"').append(searchField).append('"').append("}'").append(")");
-        return keyword_clause;
-    }
-
     private RowMapper<Septet<String,String,String,String,String,String,String>> requestSummaryMapper = (rs, i) ->
             Septet.with(rs.getString("request_id"),
                 rs.getString("id"),
                 rs.getString("creation_date"),
-                rs.getString("request_project"),
+                rs.getString("request_project_acronym"),
                 rs.getString("request_institute"),
                 rs.getString("request_stage"),
                 rs.getString("total_rows"));
@@ -493,5 +476,71 @@ public class RequestServiceImpl extends GenericService<Request> {
         return attachment;
     }
 
+
+    public void cascadeAll(Organization organization, Authentication authentication) {
+        List<Resource> resources = getRequestsPerOrganization(organization.getId(),authentication);
+
+        for(Resource resource:resources){
+            Request request = parserPool.deserialize(resource,typeParameterClass);
+            request.getProject().getInstitute().setOrganization(organization);
+            try {
+                update(request,request.getId());
+            } catch (ResourceNotFoundException e) {
+                LOGGER.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
+            }
+        }
+    }
+
+    public void cascadeAll(Project project, Authentication authentication) {
+        List<Resource> resources = getRequestsPerProject(project.getId(),authentication);
+
+        for(Resource resource:resources){
+            Request request = parserPool.deserialize(resource,typeParameterClass);
+            request.setProject(project);
+            try {
+                update(request,request.getId());
+            } catch (ResourceNotFoundException e) {
+                LOGGER.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
+            }
+        }
+    }
+
+    public void cascadeAll(Institute institute, Authentication authentication) {
+        List<Resource> resources = getRequestsPerInstitute(institute.getId(),authentication);
+
+        for(Resource resource:resources){
+            Request request = parserPool.deserialize(resource,typeParameterClass);
+            request.getProject().setInstitute(institute);
+            try {
+                update(request,request.getId());
+            } catch (ResourceNotFoundException e) {
+                LOGGER.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
+            }
+        }
+    }
+
+    public List<Resource> getRequestsPerProject(String id, Authentication authentication) {
+        return getByValue("request_project",id,authentication);
+    }
+
+    public List<Resource> getRequestsPerInstitute(String id,Authentication authentication) {
+        return getByValue("request_institute",id,authentication);
+    }
+
+    public List<Resource> getRequestsPerOrganization(String id,Authentication authentication) {
+        return getByValue("request_institute_organization",id,authentication);
+    }
+
+
+    private List<Resource> getByValue(String field,String id,Authentication authentication){
+
+        String query = field + "= \"" + id + "\"";
+
+        Paging<Resource> rs = searchService.cqlQuery(
+                query,"request",
+                1000,0,
+                "", "ASC");
+        return rs.getResults();
+    }
 
 }

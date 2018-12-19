@@ -8,13 +8,13 @@ import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.User;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class UserServiceImpl extends GenericService<User> {
@@ -62,24 +61,41 @@ public class UserServiceImpl extends GenericService<User> {
         return "user";
     }
 
-    public String getRole(String email) {
+    public List<GrantedAuthority> getRole(String email) {
 
+        List<GrantedAuthority> roles = new ArrayList<>();
         LOGGER.debug(admins);
 
         if(admins.contains(email))
-            return "ROLE_ADMIN";
+            roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
 
         List<Integer> count =  new NamedParameterJdbcTemplate(dataSource)
-                .query(createQuery(email),countMapper);
-
+                .query(createExecutiveQuery(email),countMapper);
         if(count.get(0) > 0)
-            return "ROLE_EXECUTIVE";
-        return "ROLE_USER";
+            roles.add(new SimpleGrantedAuthority("ROLE_EXECUTIVE"));
+
+        List<String> operators = new NamedParameterJdbcTemplate(dataSource)
+                .query(createOperatorQuery(email),emailMapper);
+        if(operators.contains(email))
+            roles.add(new SimpleGrantedAuthority("ROLE_OPERATOR"));
+
+        roles.add(new SimpleGrantedAuthority("ROLE_USER"));
+
+        return roles;
 
     }
 
-    private String createQuery(String email) {
+    private String createOperatorQuery(String email) {
+
+        return "  select distinct(regexp_replace(email,'[^[:alpha:]]','')) as email\n" +
+                " from (select split_part(regexp_matches(((payload::json)->>'operator')::text,'(?:\"email\":\")(.*?)(?:\",\"firstname\":\"(.*?)(?:\",\"lastname\":\"(.*?)(?:\")))','g')::text,',',1) as email\n" +
+                "      from resource\n" +
+                "      where fk_name = 'project') as foo";
+
+    }
+
+    private String createExecutiveQuery(String email) {
 
         return "select count(*) as count from request_view r \n" +
                 "where  r.request_project_operator @> '{\"" + email + "\"}' or  r.request_project_operator_delegate @> '{\"" + email + "\"}' "
@@ -98,6 +114,9 @@ public class UserServiceImpl extends GenericService<User> {
 
     private RowMapper<Integer> countMapper = (rs, i) ->
             Integer.valueOf(rs.getString("count"));
+
+    private RowMapper<String> emailMapper = (rs, i) ->
+            (rs.getString("email"));
 
     public List<User> getUsersWithImmediateEmailPreference() {
 

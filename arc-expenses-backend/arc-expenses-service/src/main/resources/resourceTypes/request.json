@@ -22,12 +22,22 @@
     },
     {
       "name": "request_institute",
-      "path": "$.project.institute.name",
+      "path": "$.project.institute.id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_institute_organization",
+      "path": "$.project.institute.organization.id",
       "type": "java.lang.String"
     },
     {
       "name": "request_project",
-      "path": "$.project.name",
+      "path": "$.project.id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_project_acronym",
+      "path": "$.project.acronym",
       "type": "java.lang.String"
     },
     {
@@ -81,11 +91,6 @@
       "type": "java.lang.String"
     },
     {
-      "name": "request_institute_director",
-      "path": "$.project.institute.director.email",
-      "type": "java.lang.String"
-    },
-    {
       "name": "request_institute_travelManager",
       "path": "$.project.institute.travelManager.email",
       "type": "java.lang.String"
@@ -108,7 +113,11 @@
       "path": "$.project.institute.suppliesOffice.delegates[*].email",
       "type": "java.lang.String"
     },
-
+    {
+      "name": "request_institute_director",
+      "path": "$.project.institute.director.email",
+      "type": "java.lang.String"
+    },
     {
       "multivalued": true,
       "name": "request_institute_director_delegate",
@@ -169,6 +178,17 @@
       "multivalued": true,
       "name": "request_institute_diaugeia_delegate",
       "path": "$.project.institute.diaugeia.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_institute_diataktis",
+      "path": "$.project.institute.diataktis.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "request_institute_diataktis_delegate",
+      "path": "$.project.institute.diataktis.delegates[*].email",
       "type": "java.lang.String"
     }
   ],

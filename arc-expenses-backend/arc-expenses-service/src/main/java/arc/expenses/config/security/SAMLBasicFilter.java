@@ -3,6 +3,7 @@ package arc.expenses.config.security;
 import arc.expenses.config.SAMLAuthenticationToken;
 import arc.expenses.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +27,12 @@ public class SAMLBasicFilter extends GenericFilterBean{
     @Autowired
     UserServiceImpl userService;
 
+    @Value("${redirect.error.url}")
+    String redirect_error_url;
+
+    @Value("${debug.idp}")
+    Boolean debug_idp;
+
     @Override
     public void doFilter(
             ServletRequest req,
@@ -34,11 +41,13 @@ public class SAMLBasicFilter extends GenericFilterBean{
 
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
+        Cookie sessionCookie = null;
+
 
         if(SecurityContextHolder.getContext().getAuthentication() == null){
 
             Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-            grantedAuthorities.add(new SimpleGrantedAuthority(userService.getRole(request.getHeader("AJP_email"))));
+            grantedAuthorities.addAll(userService.getRole(request.getHeader("AJP_email")));
 
             SAMLAuthenticationToken samlAuthentication = new SAMLAuthenticationToken(request.getHeader("AJP_firstname"),
                     request.getHeader("AJP_lastname"),request.getHeader("AJP_email"),
@@ -48,8 +57,12 @@ public class SAMLBasicFilter extends GenericFilterBean{
 
         }
 
-        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
-//        Cookie sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_uid"));
+        if(!debug_idp && !request.getHeader("AJP_eppn").equals(""))
+            sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
+        else if(debug_idp && !request.getHeader("AJP_uid").equals(""))
+            sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_uid"));
+        else
+            response.sendRedirect(redirect_error_url);
 
         int expireSec = 14400;
         sessionCookie.setMaxAge(expireSec);

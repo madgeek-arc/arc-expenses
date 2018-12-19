@@ -54,7 +54,7 @@ public class UserController {
                 body.put("user",user);
                 body.put("role",userService.getRole(authentication.getEmail()));
             } catch (Exception e) {
-                LOGGER.fatal(e);
+                LOGGER.error("Error getting user", e);
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
             }
             return new ResponseEntity<>(body, HttpStatus.OK);

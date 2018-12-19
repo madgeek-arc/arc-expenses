@@ -1,5 +1,6 @@
 package arc.expenses.controller;
 
+import arc.expenses.domain.Executive;
 import arc.expenses.service.POIServiceImpl;
 import gr.athenarc.domain.PersonOfInterest;
 import io.swagger.annotations.Api;
@@ -22,7 +23,7 @@ public class POIController {
     POIServiceImpl poiService;
 
     @RequestMapping(value = "/getPois", method = RequestMethod.GET)
-    public List<PersonOfInterest> getPois() {
+    public List<Executive> getPois() {
         return poiService.getPois();
     }
 
