@@ -48,12 +48,14 @@ public class StageResourceListener implements ResourceListener {
     @Value("${mail.restore:false}")
     private String restore;
 
+    private Boolean adminResourceUpdate = false;
+
     @Async
     @Override
     public void resourceAdded(Resource resource) {
         logger.debug("Adding a resource");
 
-        if (resource.getResourceType().getName().equals("approval") && !Boolean.parseBoolean(restore)) {
+        if (resource.getResourceType().getName().equals("approval") && !Boolean.parseBoolean(restore) &&!adminResourceUpdate) {
             RequestApproval requestApproval = parserPool.deserialize(resource, RequestApproval.class);
             if(requestApproval.getStage().equals("2")){
                 sendEmails("1","2",requestApproval.getStatus(),
@@ -68,13 +70,13 @@ public class StageResourceListener implements ResourceListener {
         logger.info("Updating a resource");
 
         Request request = null;
-        if( "payment".equals(newResource.getResourceType().getName()) && !Boolean.parseBoolean(restore)){
+        if( "payment".equals(newResource.getResourceType().getName()) && !Boolean.parseBoolean(restore) && !adminResourceUpdate){
             RequestPayment previousRequestPayment = parserPool.deserialize(previousResource, RequestPayment.class);
             RequestPayment newRequestPayment = parserPool.deserialize(newResource, RequestPayment.class);
             request = requestService.get(newRequestPayment.getRequestId());
             sendEmails(previousRequestPayment,newRequestPayment,request);
         }
-        if( "approval".equals(newResource.getResourceType().getName()) && !Boolean.parseBoolean(restore)){
+        if( "approval".equals(newResource.getResourceType().getName()) && !Boolean.parseBoolean(restore) && !adminResourceUpdate){
             RequestApproval previousRequestApproval = parserPool.deserialize(previousResource, RequestApproval.class);
             RequestApproval newRequestApproval = parserPool.deserialize(newResource, RequestApproval.class);
             request = requestService.get(newRequestApproval.getRequestId());
