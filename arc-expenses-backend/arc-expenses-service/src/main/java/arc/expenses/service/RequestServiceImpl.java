@@ -118,7 +118,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                                  List<String> stage, String orderType,
                                  String orderField, String email) {
 
-        String query =  "select request_id,id,creation_date,request_project,request_institute,request_stage , count(*) over () as total_rows from (       ( select distinct(r.request_id) as request_id ,a.approval_id as id,res1.creation_date as creation_date,         r.request_project as request_project , r.request_institute as request_institute , a.stage as request_stage , r.request_type as request_type        from request_view r , approval_view a , resource res1, resource res2           where r.request_id = a.request_id  and res1.fk_name = 'approval'          and a.id  = res1.id AND r.id = res2.id          AND res2.fk_name = 'request' " ;
+        String query =  "select request_id,id,creation_date,request_project_acronym,request_institute,request_stage , count(*) over () as total_rows from (       ( select distinct(r.request_id) as request_id ,a.approval_id as id,res1.creation_date as creation_date,         r.request_project_acronym as request_project_acronym , r.request_institute as request_institute , a.stage as request_stage , r.request_type as request_type        from request_view r , approval_view a , resource res1, resource res2           where r.request_id = a.request_id  and res1.fk_name = 'approval'          and a.id  = res1.id AND r.id = res2.id          AND res2.fk_name = 'request' " ;
 
 
 
@@ -147,7 +147,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         query+=" )" +
                " union " +
                " ( select distinct(r.request_id) as request_id,p.payment_id as id,res1.creation_date ," +
-               " r.request_project as request_project , r.request_institute as request_institute , p.stage as request_stage , r.request_type as request_type" +
+               " r.request_project_acronym as request_project_acronym , r.request_institute as request_institute , p.stage as request_stage , r.request_type as request_type" +
                " from request_view r , payment_view p , resource res1, resource res2   " +
                " where r.request_id = p.request_id  and res1.fk_name = 'payment' " +
                " and p.id  = res1.id AND r.id = res2.id "+
