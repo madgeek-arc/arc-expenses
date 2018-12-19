@@ -9,6 +9,7 @@ import gr.athenarc.domain.Organization;
 import gr.athenarc.domain.Project;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 

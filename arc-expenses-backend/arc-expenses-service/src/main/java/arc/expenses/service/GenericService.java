@@ -9,6 +9,7 @@ import eu.openminted.registry.core.service.ParserService;
 import eu.openminted.registry.core.service.ResourceCRUDService;
 import eu.openminted.registry.core.service.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 
 import java.net.UnknownHostException;
@@ -86,6 +87,7 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
             throw new Exception("Null resource!");
         }
     }
+
 
 
     public T update(T t,String id) throws ResourceNotFoundException {
