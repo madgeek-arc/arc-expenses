@@ -250,7 +250,7 @@ public class RequestServiceImpl extends GenericService<Request> {
             Septet.with(rs.getString("request_id"),
                 rs.getString("id"),
                 rs.getString("creation_date"),
-                rs.getString("request_project"),
+                rs.getString("request_project_acronym"),
                 rs.getString("request_institute"),
                 rs.getString("request_stage"),
                 rs.getString("total_rows"));
