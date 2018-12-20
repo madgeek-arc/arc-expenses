@@ -91,6 +91,7 @@ public class AnnotationChecks {
                 policyCheckerService.isOrganizationDirectorOrDelegate(request,email) ||
                 policyCheckerService.isAdmin(request,email) ||
                 policyCheckerService.isTravelManagerOrDelegate(request,email) ||
+                policyCheckerService.isOperatorOrDelegate(request,email) ||
                 policyCheckerService.isInspectionTeamOrDelegate(request,email);
     }
 
