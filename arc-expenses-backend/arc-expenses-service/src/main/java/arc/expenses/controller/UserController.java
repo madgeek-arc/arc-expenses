@@ -28,7 +28,7 @@ public class UserController {
     @Autowired
     UserServiceImpl userService;
 
-    @RequestMapping(value =  "/getUserInfo", method = RequestMethod.GET)
+    @RequestMapping(value =  "/getUserInfo", method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getUserInfo() {
 
         if(SecurityContextHolder.getContext().getAuthentication() instanceof SAMLAuthenticationToken){
