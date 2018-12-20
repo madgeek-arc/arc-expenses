@@ -91,7 +91,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         Map<String,Object> order = new HashMap<>();
 
         String orderDirection = "desc";
-        String orderField = "creation_date";
+        String orderField = "request_id";
 
         if (orderField != null) {
             order.put("order",orderDirection);
