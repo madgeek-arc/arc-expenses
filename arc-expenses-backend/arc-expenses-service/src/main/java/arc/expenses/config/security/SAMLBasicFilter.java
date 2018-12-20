@@ -42,32 +42,33 @@ public class SAMLBasicFilter extends GenericFilterBean{
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
         Cookie sessionCookie = null;
-        int expireSec = 14400;
 
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+
+        if(SecurityContextHolder.getContext().getAuthentication() == null){
 
             Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
             grantedAuthorities.addAll(userService.getRole(request.getHeader("AJP_email")));
 
             SAMLAuthenticationToken samlAuthentication = new SAMLAuthenticationToken(request.getHeader("AJP_firstname"),
-                    request.getHeader("AJP_lastname"), request.getHeader("AJP_email"),
+                    request.getHeader("AJP_lastname"),request.getHeader("AJP_email"),
                     request.getHeader("AJP_uid"), grantedAuthorities);
 
             SecurityContextHolder.getContext().setAuthentication(samlAuthentication);
 
         }
 
-        if (!debug_idp && !request.getHeader("AJP_eppn").equals("")) {
+        if(!debug_idp && !request.getHeader("AJP_eppn").equals(""))
             sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
-            sessionCookie.setMaxAge(expireSec);
-            sessionCookie.setPath("/");
-        } else if (debug_idp && !request.getHeader("AJP_uid").equals("")){
+        else if(debug_idp && !request.getHeader("AJP_uid").equals(""))
             sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_uid"));
-            sessionCookie.setMaxAge(expireSec);
-            sessionCookie.setPath("/");
-        }else
+        else {
             response.sendRedirect(redirect_error_url);
+            return ;
+        }
 
+        int expireSec = 14400;
+        sessionCookie.setMaxAge(expireSec);
+        sessionCookie.setPath("/");
         response.addCookie(sessionCookie);
         chain.doFilter(req, res);
     }
