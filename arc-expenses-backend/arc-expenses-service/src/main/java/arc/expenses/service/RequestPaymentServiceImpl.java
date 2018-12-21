@@ -76,7 +76,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         Map<String,Object> order = new HashMap<>();
 
         String orderDirection = "desc";
-        String orderField = "creation_date";
+        String orderField = "payment_id";
 
         order.put("order",orderDirection);
         sort.put(orderField, order);
