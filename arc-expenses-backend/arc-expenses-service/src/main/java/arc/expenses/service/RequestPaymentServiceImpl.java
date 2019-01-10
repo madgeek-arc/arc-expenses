@@ -5,9 +5,13 @@ import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Resource;
 import gr.athenarc.domain.RequestPayment;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +20,8 @@ import java.util.Map;
 @Service("requestPayment")
 public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
+    @Autowired
+    DataSource dataSource;
 
     public RequestPaymentServiceImpl() {
         super(RequestPayment.class);
@@ -64,36 +70,13 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     }
 
 
-    private String getMaxID() {
-
-        FacetFilter filter = new FacetFilter();
-        filter.setResourceType(getResourceType());
-        filter.setKeyword("");
-        filter.setFrom(0);
-        filter.setQuantity(1);
-
-        Map<String,Object> sort = new HashMap<>();
-        Map<String,Object> order = new HashMap<>();
-
-        String orderDirection = "desc";
-        String orderField = "payment_id";
-
-        order.put("order",orderDirection);
-        sort.put(orderField, order);
-        filter.setOrderBy(sort);
-
-        try {
-            List rs = searchService.search(filter).getResults();
-            Resource payment;
-            if(rs.size() > 0) {
-                payment = ((Resource) rs.get(0));
-                return parserPool.deserialize(payment, RequestPayment.class).getId();
-            }
-        } catch (IOException e) {
-            LOGGER.debug("Error on search controller",e);
-        }
-        return null;
+    public String getMaxID() {
+        return new JdbcTemplate(dataSource)
+                .query("select max(request_id) as maxID from request_view",maxIDRowMapper).get(0);
     }
+
+    private RowMapper<String> maxIDRowMapper = (rs, i) -> rs.getString("maxID");
+
 
 }
 

@@ -2,6 +2,7 @@ package arc.expenses.service;
 
 import arc.expenses.config.StoreRestConfig;
 import arc.expenses.domain.RequestSummary;
+import arc.expenses.domain.Vocabulary;
 import arc.expenses.utils.Converter;
 import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
@@ -80,37 +81,11 @@ public class RequestServiceImpl extends GenericService<Request> {
 
 
     public String getMaxID() {
-
-        FacetFilter filter = new FacetFilter();
-        filter.setResourceType("request");
-        filter.setKeyword("");
-        filter.setFrom(0);
-        filter.setQuantity(1);
-
-        Map<String,Object> sort = new HashMap<>();
-        Map<String,Object> order = new HashMap<>();
-
-        String orderDirection = "desc";
-        String orderField = "request_id";
-
-        if (orderField != null) {
-            order.put("order",orderDirection);
-            sort.put(orderField, order);
-            filter.setOrderBy(sort);
-        }
-
-        try {
-            List rs = searchService.search(filter).getResults();
-            Resource request;
-            if(rs.size() > 0) {
-                request = (Resource) rs.get(0);
-                return parserPool.deserialize(request,Request.class).getId();
-            }
-        } catch (IOException e) {
-            LOGGER.debug("Error on search controller",e);
-        }
-        return null;
+        return new JdbcTemplate(dataSource)
+                .query("select max(request_id) as maxID from request_view",maxIDRowMapper).get(0);
     }
+
+    private RowMapper<String> maxIDRowMapper = (rs, i) -> rs.getString("maxID");
 
 
     public Paging<RequestSummary> criteriaSearch(String from, String quantity,
@@ -307,6 +282,8 @@ public class RequestServiceImpl extends GenericService<Request> {
                     " r.request_project_scientificCoordinator = '"  + email + "' or " +
                     " r.request_institute_travelmanager = '"  + email + "' or " +
                     " r.request_organization_poy = '"  + email + "' or " +
+                    " r.request_organization_dioikitikoSumvoulio = '"  + email + "' or " +
+                    " r.request_organization_dioikitikoSumvoulio_delegate @>  '{"+'"' + email + '"' + "}' or " +
                     " r.request_organization_poy_delegate @>  '{"+'"' + email + '"' + "}' or " +
                     " r.request_institute_travelmanager_delegate @>  '{"+'"' + email + '"' + "}' or " +
                     " r.request_institute_accountingRegistration = '"  + email + "' or " +
