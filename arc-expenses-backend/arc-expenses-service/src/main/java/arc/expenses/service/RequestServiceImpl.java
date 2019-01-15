@@ -82,7 +82,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     public String getMaxID() {
         return new JdbcTemplate(dataSource)
-                .query("select r.request_id\n" +
+                .query("select r.request_id as maxID\n" +
                         "from request_view r , resource res\n" +
                         "where fk_name = 'request' and r.id = res.id\n" +
                         "order by creation_date desc\n" +
