@@ -463,9 +463,11 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         for(Resource resource:resources){
             Request request = parserPool.deserialize(resource,typeParameterClass);
-            request.getProject().getInstitute().setOrganization(organization);
+
+            Request request_new = get(request.getId());
+            request_new.getProject().getInstitute().setOrganization(organization);
             try {
-                update(request,request.getId());
+                update(request_new,request_new.getId());
             } catch (ResourceNotFoundException e) {
                 LOGGER.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
             }

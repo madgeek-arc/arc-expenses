@@ -104,7 +104,7 @@ public class ProjectServiceImpl extends GenericService<Project> {
     @Override
     public Project update(Project project, Authentication authentication) throws ResourceNotFoundException {
         update(project,project.getId());
-        cascadeService.cascadeAll(project,authentication);
+   https://github.com/madgeek-arc/arc-expenses-admin-ui.git     cascadeService.cascadeAll(project,authentication);
         return project;
     }
 
@@ -127,9 +127,11 @@ public class ProjectServiceImpl extends GenericService<Project> {
 
         for(Resource resource:resources){
             Project project = parserPool.deserialize(resource,typeParameterClass);
-            project.getInstitute().setOrganization(organization);
+
+            Project project_new = get(project.getId());
+            project_new.getInstitute().setOrganization(organization);
             try {
-                update(project,project.getId());
+                update(project_new,project_new.getId());
             } catch (ResourceNotFoundException e) {
                 LOGGER.debug("error on updating project ( " + project.getId() + " ) on cascade all ", e);
             }

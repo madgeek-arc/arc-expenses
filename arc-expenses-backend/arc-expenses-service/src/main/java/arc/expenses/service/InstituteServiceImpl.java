@@ -67,9 +67,11 @@ public class InstituteServiceImpl extends GenericService<Institute>{
 
         for(Resource resource:resources){
             Institute institute = parserPool.deserialize(resource,typeParameterClass);
-            institute.setOrganization(organization);
+
+            Institute institute_new = get(institute.getId());
+            institute_new.setOrganization(organization);
             try {
-                update(institute,institute.getId());
+                update(institute_new,institute_new.getId());
             } catch (ResourceNotFoundException e) {
                 LOGGER.debug("error on updating institute ( " + institute.getId() + " ) on cascade all ", e);
             }
