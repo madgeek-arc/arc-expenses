@@ -62,21 +62,23 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     }
 
     public String generateID(String requestId) {
-        String maxID = getMaxID();
-        if(maxID == null)
+        List maxID = getMaxID(requestId);
+        String max;
+        if(maxID.size() == 0)
             return requestId+"-p1";
         else
-            return requestId+"-p"+(Integer.valueOf(maxID.split("-p")[1])+1);
+            max = maxID.get(0).toString();
+        return requestId+"-p"+(Integer.valueOf(max.split("-p")[1])+1);
     }
 
 
-    public String getMaxID() {
+    public List getMaxID(String requestId) {
         return new JdbcTemplate(dataSource)
-                .query("select r.request_id as maxID\n" +
-                        "from request_view r , resource res\n" +
-                        "where fk_name = 'request' and r.id = res.id\n" +
-                        "order by creation_date desc\n" +
-                        "limit 1",maxIDRowMapper).get(0);
+                .query("select r.payment_id as maxID\n" +
+                        "from payment_view r , resource res\n" +
+                        "where fk_name = 'payment' and r.id = res.id and r.request_id = '" + requestId  + "'" +
+                        " order by creation_date desc\n" +
+                        "limit 1;",maxIDRowMapper);
     }
 
     private RowMapper<String> maxIDRowMapper = (rs, i) -> rs.getString("maxID");
