@@ -42,7 +42,6 @@ public class Converter {
         requestFatClass.setStage2(newRequestApproval.getStage2());
         requestFatClass.setStage3(newRequestApproval.getStage3());
         requestFatClass.setStage4(newRequestApproval.getStage4());
-        requestFatClass.setStage5(newRequestApproval.getStage5());
         requestFatClass.setStage5a(newRequestApproval.getStage5a());
         requestFatClass.setStage5b(newRequestApproval.getStage5b());
         requestFatClass.setStage6(newRequestApproval.getStage6());

@@ -13,7 +13,7 @@ import gr.athenarc.domain.Attachment;
 import gr.athenarc.domain.Request;
 import gr.athenarc.domain.RequestApproval;
 import gr.athenarc.domain.RequestPayment;
-import io.swagger.annotations.Api;
+import io.swagger.annotations.*;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/request")
@@ -55,7 +56,7 @@ public class RequestController {
 
 
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)
-    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
+//    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public Request getById(@PathVariable("id") String id) throws ResourceNotFoundException {
         Request request = requestService.get(id);
         if(request == null)
@@ -78,15 +79,47 @@ public class RequestController {
 
     }
 
-    @RequestMapping(value = "/addRequest", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+//    @RequestMapping(value = "/addRequest", method = RequestMethod.POST,
+//            consumes = MediaType.APPLICATION_JSON_VALUE,
+//            produces = MediaType.APPLICATION_JSON_VALUE)
+//    @ResponseBody
+//    synchronized Request addRequest(@RequestBody Request request, Authentication auth) {
+//        request.setId(requestService.generateID());
+//        request.setArchiveId(requestService.createArchive());
+//        return requestService.add(request, auth);
+//    }
 
-    @ResponseBody
-    synchronized Request addRequest(@RequestBody Request request, Authentication auth) {
-        request.setId(requestService.generateID());
-        request.setArchiveId(requestService.createArchive());
-        return requestService.add(request, auth);
+    @ApiOperation("Add request")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "projectId", value = "Id of project of request", required = true, dataType = "string", paramType = "form"),
+            @ApiImplicitParam(name = "requester_position", value = "The position of requester", required = true, dataType = "string", paramType = "form"),
+            @ApiImplicitParam(name = "subject", value = "Subject of request", required = true, dataType = "string", paramType = "form"),
+            @ApiImplicitParam(name = "type", value = "Request's type", required = true, dataType = "string", paramType = "form"),
+            @ApiImplicitParam(name = "supplier", value = "Who is the supplier of the request", dataType = "string", paramType = "form"),
+            @ApiImplicitParam(name = "supplier_selection_method", value = "The method of supply", dataType = "string", paramType = "form"),
+            @ApiImplicitParam(name = "amount", value = "Money of request", required = true, dataType = "double", paramType = "form"),
+            @ApiImplicitParam(name = "files", value = "Attachments about request", dataType = "FormDataBodyPart", paramType = "form", allowMultiple = true),
+            @ApiImplicitParam(name = "destination", value = "Destination for trip (if such request)", dataType = "string", paramType = "form"),
+            @ApiImplicitParam(name = "firstName", value = "First name of the yoloman (if such request)", dataType = "string", paramType = "form"),
+            @ApiImplicitParam(name = "lastName", value = "Last name of the yoloman (if such request)", dataType = "string", paramType = "form"),
+            @ApiImplicitParam(name = "email", value = "Email of the yoloman (if such request)", dataType = "string", paramType = "form")
+    })
+    @RequestMapping(value = "/add", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    synchronized Request addRequest(
+                @RequestParam(value = "projectId") String projectId,
+                @RequestParam(value = "requester_position") String requesterPosition,
+                @RequestParam(value = "subject") String subject,
+                @RequestParam(value = "type") String type,
+                @RequestParam(value = "supplier", required = false, defaultValue = "") String supplier,
+                @RequestParam(value = "supplier_selection_method", required = false, defaultValue = "") String supplierSelectionMethod,
+                @RequestParam(value = "amount") double amount,
+                @RequestParam(value = "files") Optional<List<MultipartFile>> files,
+                @RequestParam(value = "destination", required = false, defaultValue = "") String destination,
+                @RequestParam(value = "firstName", required = false, defaultValue = "") String firstName,
+                @RequestParam(value = "lastName", required = false, defaultValue = "") String lastName,
+                @RequestParam(value = "email", required = false, defaultValue = "") String email
+            ) throws Exception {
+        return requestService.add(type,projectId,subject,requesterPosition,supplier,supplierSelectionMethod,amount,files,destination,firstName,lastName,email);
     }
 
     @RequestMapping(value = "/updateRequest", method = RequestMethod.POST,

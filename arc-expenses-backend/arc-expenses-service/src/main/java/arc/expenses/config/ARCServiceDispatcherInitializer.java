@@ -2,6 +2,7 @@ package arc.expenses.config;
 
 import com.thetransactioncompany.cors.CORSFilter;
 import eu.openminted.registry.core.configuration.HibernateConfiguration;
+import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 import javax.servlet.Filter;
@@ -25,7 +26,10 @@ public class ARCServiceDispatcherInitializer extends AbstractAnnotationConfigDis
 
     @Override
     protected Filter[] getServletFilters() {
-        return new Filter[]{new CORSFilter()};
+        CharacterEncodingFilter characterEncodingFilter = new CharacterEncodingFilter();
+        characterEncodingFilter.setEncoding("UTF-8");
+
+        return new Filter[]{characterEncodingFilter, new CORSFilter()};
     }
 
 }

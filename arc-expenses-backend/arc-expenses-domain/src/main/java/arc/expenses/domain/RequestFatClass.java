@@ -13,7 +13,6 @@ public class RequestFatClass {
     private Stage2 stage2;
     private Stage3 stage3;
     private Stage4 stage4;
-    private Stage5 stage5;
     private Stage5a stage5a;
     private Stage5b stage5b;
     private Stage6 stage6;
@@ -87,14 +86,6 @@ public class RequestFatClass {
 
     public void setStage4(Stage4 stage4) {
         this.stage4 = stage4;
-    }
-
-    public Stage5 getStage5() {
-        return stage5;
-    }
-
-    public void setStage5(Stage5 stage5) {
-        this.stage5 = stage5;
     }
 
     public Stage5a getStage5a() {

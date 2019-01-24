@@ -45,10 +45,8 @@ public class UserController {
                     u.setFirstname("null");
                     u.setLastnameLatin(authentication.getLastname());
                     u.setLastname("null");
-                    u.setSignatureArchiveId(userService.getSignatureArchiveID());
                     u.setImmediateEmails("false");
                     u.setReceiveEmails("false");
-                    u.setAttachment(null);
                     user = userService.add(u,authentication);
                 }
                 body.put("user",user);
@@ -61,9 +59,6 @@ public class UserController {
         }
         return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    @RequestMapping(value =  "/idp_login", method = RequestMethod.GET)
-    public void idpLogin() {}
 
     @RequestMapping(value =  "/update", method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)

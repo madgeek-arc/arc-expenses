@@ -1,17 +1,15 @@
 package arc.expenses.service;
 
-import arc.expenses.config.StoreRestConfig;
 import arc.expenses.domain.RequestSummary;
 import arc.expenses.utils.Converter;
-import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
+import eu.openminted.registry.core.service.ServiceException;
 import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.*;
 import org.apache.log4j.Logger;
-import org.codehaus.groovy.tools.GrapeMain;
 import org.javatuples.Septet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service("requestService")
@@ -38,13 +39,19 @@ public class RequestServiceImpl extends GenericService<Request> {
     private StoreRESTClient storeRESTClient;
 
     @Autowired
-    private StoreRestConfig storeRestConfig;
+    private MutableAclService aclService;
 
     @Autowired
     RequestApprovalServiceImpl requestApprovalService;
 
     @Autowired
     RequestPaymentServiceImpl requestPaymentService;
+
+    @Autowired
+    ProjectServiceImpl projectService;
+
+    @Autowired
+    UserServiceImpl userService;
 
     @Autowired
     DataSource dataSource;
@@ -76,6 +83,13 @@ public class RequestServiceImpl extends GenericService<Request> {
             else
                 return new SimpleDateFormat("yyyyMMdd").format(new Date())+"-1";
         }
+    }
+
+    private File multipartToFile(MultipartFile multipart) throws IllegalStateException, IOException
+    {
+        File convFile = new File( multipart.getOriginalFilename());
+        multipart.transferTo(convFile);
+        return convFile;
     }
 
 
@@ -112,11 +126,49 @@ public class RequestServiceImpl extends GenericService<Request> {
         return null;
     }
 
+    public Request add(String type, String projectId, String subject, String requesterPosition, String supplier, String supplierSelectionMethod, double amount, Optional<List<MultipartFile>> files, String destination, String firstName, String lastName, String email) throws Exception {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Request request = new Request();
+        request.setType(type);
+        request.setId(generateID());
+        request.setArchiveId(createArchive());
+        Project project = projectService.get(projectId);
+        if(project == null)
+            throw new ServiceException("Project with id "+projectId+" not found");
+
+        List<Attachment> attachments = new ArrayList<>();
+        if(files.isPresent()){
+            for(MultipartFile file : files.get()){
+                storeRESTClient.storeFile(file.getBytes(), request.getArchiveId(), file.getOriginalFilename());
+                attachments.add(new Attachment(file.getOriginalFilename(),file.getContentType(),file.getSize(), request.getArchiveId()+"/stage1"));
+            }
+        }
+        User user = userService.getByField("user_email",(String) authentication.getPrincipal());
+        request.setUser(user);
+        request.setProject(project);
+        request.setRequesterPosition(requesterPosition);
+        request.setStage1(new Stage1(LocalDate.now().toEpochDay()+"", subject, supplier, supplierSelectionMethod, amount, amount, attachments));
+        request.setRequestStatus("pending");
+
+        if(!destination.isEmpty()){
+            Trip trip = new Trip();
+            trip.setDestination(destination);
+            trip.setEmail((email.isEmpty() ? user.getEmail() : email));
+            trip.setFirstname((firstName.isEmpty() ? user.getFirstname() : firstName));
+            trip.setLastname((lastName.isEmpty() ? user.getLastname() : lastName));
+            request.setTrip(trip);
+        }
+
+
+        return super.add(request, authentication);
+    }
 
     public Paging<RequestSummary> criteriaSearch(String from, String quantity,
-                                 List<String> status,List<String> type, String searchField,
-                                 List<String> stage, String orderType,
-                                 String orderField, String email) {
+                                                 List<String> status, List<String> type, String searchField,
+                                                 List<String> stage, String orderType,
+                                                 String orderField, String email) {
 
         String query =  "select request_id,id,creation_date,request_project_acronym,request_institute,request_stage , count(*) over () as total_rows from (       ( select distinct(r.request_id) as request_id ,a.approval_id as id,(res2.payload::json)->'stage1'->>'requestDate' as creation_date,         r.request_project_acronym as request_project_acronym , r.request_institute as request_institute , a.stage as request_stage , r.request_type as request_type        from request_view r , approval_view a , resource res1, resource res2           where r.request_id = a.request_id  and res1.fk_name = 'approval'          and a.id  = res1.id AND r.id = res2.id          AND res2.fk_name = 'request' " ;
 
@@ -419,7 +471,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         Attachment attachment;
 
         if(mode.equals("request"))
-            return get(id).getStage1().getAttachment();
+            return get(id).getStage1().getAttachments().get(0);
         else if(mode.equals("approval")){
             switch (stage) {
                 case "2":
@@ -430,9 +482,6 @@ public class RequestServiceImpl extends GenericService<Request> {
                     break;
                 case "4":
                     attachment = requestApprovalService.get(id).getStage4().getAttachment();
-                    break;
-                case "5":
-                    attachment = requestApprovalService.get(id).getStage5().getAttachment();
                     break;
                 case "5a":
                     attachment = requestApprovalService.get(id).getStage5a().getAttachment();

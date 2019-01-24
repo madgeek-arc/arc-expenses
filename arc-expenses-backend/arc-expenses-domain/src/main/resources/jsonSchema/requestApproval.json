@@ -87,26 +87,6 @@
         }
       }
     },
-    "stage5": {
-      "type": "object",
-      "description": "stage: Institute Director's Approval",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": {
-          "type": "string"
-        },
-        "approved": {
-          "type": "boolean"
-        },
-        "comment": {
-          "type": "string"
-        },
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
-    },
     "stage5a": {
       "type": "object",
       "description": "stage: Executive Officer's Approval",
