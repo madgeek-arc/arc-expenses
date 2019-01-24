@@ -24,6 +24,8 @@ public class SessionConfig extends WebSecurityConfigurerAdapter{
     @Value("${sp.url}")
     private String SPURL;
 
+
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -31,6 +33,8 @@ public class SessionConfig extends WebSecurityConfigurerAdapter{
                     .anyRequest()
                     .permitAll()
                 .and()
+                    .anonymous()
+                    .disable()
                     .csrf()
                     .disable()
                 .logout()
