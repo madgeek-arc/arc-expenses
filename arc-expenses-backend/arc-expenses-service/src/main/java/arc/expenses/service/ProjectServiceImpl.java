@@ -104,7 +104,7 @@ public class ProjectServiceImpl extends GenericService<Project> {
     @Override
     public Project update(Project project, Authentication authentication) throws ResourceNotFoundException {
         update(project,project.getId());
-   https://github.com/madgeek-arc/arc-expenses-admin-ui.git     cascadeService.cascadeAll(project,authentication);
+        cascadeService.cascadeAll(project,authentication);
         return project;
     }
 
