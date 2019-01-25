@@ -11,7 +11,14 @@
         "requestDate": { "type": "string" },
         "subject": { "type": "string" },
         "supplier": { "type": "string" },
-        "supplierSelectionMethod": { "type": "string" },
+        "supplierSelectionMethod": {
+          "type": "string",
+          "enum": [
+            "DIRECT",
+            "MARKET_RESEARCH",
+            "AWARD_PROCEDURE"
+          ]
+        },
         "amountInEuros": { "type": "number" },
         "finalAmount": { "type": "number" },
         "attachments" : {
@@ -30,7 +37,8 @@
     },
     "type": {
       "description": "The type of the request.",
-      "type": "string"
+      "type": "string",
+      "enum": ["REGULAR", "CONTRACT", "SERVICES_CONTRACT", "TRIP"]
     },
     "archiveId": {
       "description": "The archiveId of the request.",
@@ -42,11 +50,19 @@
     "requesterPosition": {
       "description": "Position of the requester in the Institute.",
       "title": "Requester Position",
-      "type": "string"
+      "type": "string",
+      "enum": [
+        "RESEARCHER",
+        "COLLABORATIVE_RESEARCHER",
+        "ADMINISTRATIVE"
+      ]
     },
     "requestStatus": {
         "type": "string",
-        "enum" : ["CANCELLED", "PENDING"]
+        "enum" : [
+          "CANCELLED",
+          "PENDING"
+        ]
     },
     "scientificCoordinatorAsDiataktis": {
       "type": "boolean"
