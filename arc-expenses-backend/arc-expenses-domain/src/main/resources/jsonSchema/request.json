@@ -45,7 +45,8 @@
       "type": "string"
     },
     "requestStatus": {
-      "type": "string"
+        "type": "string",
+        "enum" : ["CANCELLED", "PENDING"]
     },
     "scientificCoordinatorAsDiataktis": {
       "type": "boolean"
