@@ -17,7 +17,7 @@
     },
     "status": {
       "type": "string",
-      "enum": ["CANCELLED", "PENDING"]
+      "enum": ["CANCELLED", "PENDING", "REJECTED"]
     }
   }
 }

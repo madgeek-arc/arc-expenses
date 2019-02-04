@@ -4,31 +4,12 @@
   "title": "Request",
   "type": "object",
   "properties": {
+    "stageTest" : {
+      "type" : "string"
+    },
     "stage1": {
       "type": "object",
-      "description": "stage: Request Submission",
-      "properties": {
-        "requestDate": { "type": "string" },
-        "subject": { "type": "string" },
-        "supplier": { "type": "string" },
-        "supplierSelectionMethod": {
-          "type": "string",
-          "enum": [
-            "DIRECT",
-            "MARKET_RESEARCH",
-            "AWARD_PROCEDURE"
-          ]
-        },
-        "amountInEuros": { "type": "number" },
-        "finalAmount": { "type": "number" },
-        "attachments" : {
-          "type" : "array",
-          "items" :{
-            "type" : "object",
-            "javaType" : "gr.athenarc.domain.Attachment"
-          }
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage1"
     },
     "id": {
       "description": "The unique identifier of the request.",
@@ -38,7 +19,12 @@
     "type": {
       "description": "The type of the request.",
       "type": "string",
-      "enum": ["REGULAR", "CONTRACT", "SERVICES_CONTRACT", "TRIP"]
+      "enum": [
+        "REGULAR",
+        "CONTRACT",
+        "SERVICES_CONTRACT",
+        "TRIP"
+      ]
     },
     "archiveId": {
       "description": "The archiveId of the request.",
@@ -61,7 +47,11 @@
         "type": "string",
         "enum" : [
           "CANCELLED",
-          "PENDING"
+          "PENDING",
+          "ALL",
+          "ACCEPTED",
+          "UNDER_REVIEW",
+          "REJECTED"
         ]
     },
     "scientificCoordinatorAsDiataktis": {

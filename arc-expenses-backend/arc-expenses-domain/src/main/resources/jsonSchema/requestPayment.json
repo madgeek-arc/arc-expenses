@@ -10,109 +10,31 @@
   "properties": {
     "stage7": {
       "type": "object",
-      "description": "stage: Paperwork Submission",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": { "type": "string"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage7"
     },
     "stage8": {
       "type": "object",
-      "description": "stage: Checking Team",
-      "properties": {
-        "inspectionTeam": {
-          "type": "array",
-          "items": {
-            "javaType": "gr.athenarc.domain.User"
-          }
-        },
-        "date": { "type": "string"},
-        "checkRegularity": { "type": "boolean"},
-        "checkLegality": { "type": "boolean"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage8"
     },
     "stage9": {
       "type": "object",
-      "description": "stage: Financial Officer's Check",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": { "type": "string"},
-        "checkRegularity": { "type": "boolean"},
-        "checkLegality": { "type": "boolean"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage9"
     },
     "stage10": {
       "type": "object",
-      "description": "stage: Director's Check",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": { "type": "string"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage10"
     },
     "stage11": {
       "type": "object",
-      "description": "stage: Diavgeia",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": { "type": "string"},
-        "comment": { "type": "string"},
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage11"
     },
     "stage12": {
       "type": "object",
-      "description": "stage: Accounting Registration",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": { "type": "string"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage12"
     },
     "stage13": {
       "type": "object",
-      "description": "stage: Accounting Payment",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": { "type": "string"},
-        "approved": { "type": "boolean"},
-        "comment": { "type": "string"},
-
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage13"
     }
   }
 }

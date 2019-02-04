@@ -5,146 +5,28 @@
   "properties": {
     "stage2": {
       "type": "object",
-      "description": "stage: Scientific Coordinator's Approval",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": {
-          "type": "string"
-        },
-        "checkFeasibility": {
-          "type": "boolean"
-        },
-        "checkNecessity": {
-          "type": "boolean"
-        },
-        "approved": {
-          "type": "boolean"
-        },
-        "comment": {
-          "type": "string"
-        },
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage2"
     },
     "stage3": {
       "type": "object",
-      "description": "stage: Operator's Approval",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": {
-          "type": "string"
-        },
-        "analiftheiYpoxrewsi": {
-          "type": "boolean"
-        },
-        "fundsAvailable": {
-          "type": "boolean"
-        },
-        "loan": {
-          "type": "boolean"
-        },
-        "loanSource": {
-          "type": "string"
-        },
-        "approved": {
-          "type": "boolean"
-        },
-        "comment": {
-          "type": "string"
-        },
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage3"
     },
     "stage4": {
       "type": "object",
-      "description": "stage: Financial Officer's Approval",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": {
-          "type": "string"
-        },
-        "analiftheiYpoxrewsi": {
-          "type": "boolean"
-        },
-        "fundsAvailable": {
-          "type": "boolean"
-        },
-        "approved": {
-          "type": "boolean"
-        },
-        "comment": {
-          "type": "string"
-        },
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage4"
     },
     "stage5a": {
       "type": "object",
-      "description": "stage: Executive Officer's Approval",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": {
-          "type": "string"
-        },
-        "approved": {
-          "type": "boolean"
-        },
-        "comment": {
-          "type": "string"
-        },
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage5a"
     },
     "stage5b": {
       "type": "object",
-      "description": "stage: Administrative Council",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": {
-          "type": "string"
-        },
-        "approved": {
-          "type": "boolean"
-        },
-        "comment": {
-          "type": "string"
-        },
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage5b"
     },
     "stage6": {
       "type": "object",
-      "description": "stage: Diavgeia",
-      "properties": {
-        "user": {
-          "javaType": "gr.athenarc.domain.User" },
-        "date": {
-          "type": "string"
-        },
-        "comment": {
-          "type": "string"
-        },
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
-        }
-      }
+      "javaType": "gr.athenarc.domain.Stage6"
     }
-
   },
   "extends": {
     "type": "object",

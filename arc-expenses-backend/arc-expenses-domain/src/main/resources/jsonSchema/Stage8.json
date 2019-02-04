@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Stage8",
+  "type": "object",
+  "properties": {
+    "inspectionTeam": {
+      "type": "array",
+      "items": {
+        "javaType": "gr.athenarc.domain.User"
+      }
+    },
+    "checkRegularity": { "type": "boolean"},
+    "checkLegality": { "type": "boolean"},
+    "approved": { "type": "boolean"}
+  },
+  "extends": {
+    "type": "object",
+    "javaType": "gr.athenarc.domain.Stage"
+  }
+
+}

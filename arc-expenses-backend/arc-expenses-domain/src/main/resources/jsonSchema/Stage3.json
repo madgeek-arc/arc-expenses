@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Stage3",
+  "type": "object",
+  "properties": {
+    "analiftheiYpoxrewsi": {
+      "type": "boolean"
+    },
+    "fundsAvailable": {
+      "type": "boolean"
+    },
+    "loan": {
+      "type": "boolean"
+    },
+    "loanSource": {
+      "type": "string"
+    },
+    "approved": {
+      "type": "boolean"
+    }
+  },
+  "extends": {
+    "type": "object",
+    "javaType": "gr.athenarc.domain.Stage"
+  }
+
+}

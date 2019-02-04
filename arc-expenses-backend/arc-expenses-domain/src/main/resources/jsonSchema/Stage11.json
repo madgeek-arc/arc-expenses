@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Stage11",
+  "type": "object",
+  "properties": {
+  },
+  "extends": {
+    "type": "object",
+    "javaType": "gr.athenarc.domain.Stage"
+  }
+
+}

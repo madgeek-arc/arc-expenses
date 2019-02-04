@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Stage2",
+  "type": "object",
+  "properties": {
+    "checkFeasibility": {
+      "type": "boolean"
+    },
+    "checkNecessity": {
+      "type": "boolean"
+    },
+    "approved": {
+      "type": "boolean"
+    }
+  },
+  "extends": {
+    "type": "object",
+    "javaType": "gr.athenarc.domain.Stage"
+  },
+  "required": [ "checkFeasibility" , "checkNecessity"]
+}
