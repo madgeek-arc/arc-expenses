@@ -1,19 +1,17 @@
 package arc.expenses.config.security;
 
-import arc.expenses.acl.ArcPermission;
 import arc.expenses.acl.ArcPermissionFactory;
+import arc.expenses.service.AclService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.acls.AclPermissionEvaluator;
 import org.springframework.security.acls.domain.*;
 import org.springframework.security.acls.jdbc.BasicLookupStrategy;
-import org.springframework.security.acls.jdbc.JdbcMutableAclService;
 import org.springframework.security.acls.jdbc.LookupStrategy;
 import org.springframework.security.acls.model.PermissionGrantingStrategy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -51,7 +49,7 @@ public class AclConfiguration {
     @Bean
     public AclAuthorizationStrategy aclAuthorizationStrategy() {
         return new AclAuthorizationStrategyImpl(
-                new SimpleGrantedAuthority("ROLE_ADMIN"));
+                new SimpleGrantedAuthority("ROLE_EXECUTIVE"));
     }
 
     @Bean
@@ -96,8 +94,8 @@ public class AclConfiguration {
     }
 
     @Bean
-    public JdbcMutableAclService aclService() {
-        JdbcMutableAclService aclService = new JdbcMutableAclService(
+    public AclService aclService() {
+        AclService aclService = new arc.expenses.service.AclService(
                 dataSource, lookupStrategy(), aclCache());
         aclService.setClassIdentityQuery("SELECT lastval();");
         aclService.setSidIdentityQuery("SELECT lastval();");

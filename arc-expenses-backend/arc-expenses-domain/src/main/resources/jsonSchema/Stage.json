@@ -12,6 +12,9 @@
     "date": {
       "type": "string"
     },
+    "comment": {
+      "type": "string"
+    },
     "attachments" : {
       "type" : "array",
       "items" :{

@@ -9,7 +9,10 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.UnknownHostException;
@@ -42,6 +45,5 @@ public class GenericControllerAdvice {
     ServerError unknownHostException(HttpServletRequest req, Exception ex) {
         return new ServerError(req.getRequestURL().toString(),ex);
     }
-
 
 }

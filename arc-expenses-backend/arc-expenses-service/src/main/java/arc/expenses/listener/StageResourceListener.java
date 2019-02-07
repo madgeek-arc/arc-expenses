@@ -21,7 +21,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 
 
@@ -58,7 +57,7 @@ public class StageResourceListener implements ResourceListener {
         if (resource.getResourceType().getName().equals("approval") && !Boolean.parseBoolean(restore) &&!adminResourceUpdate) {
             RequestApproval requestApproval = parserPool.deserialize(resource, RequestApproval.class);
             if(requestApproval.getStage().equals("2")){
-                sendEmails("1","2",requestApproval.getStatus(),
+                sendEmails("1","2",requestApproval.getStatus().value(),
                         Converter.toRequestFatClass(requestService.get(requestApproval.getRequestId()),requestApproval));
             }
         }
@@ -95,7 +94,7 @@ public class StageResourceListener implements ResourceListener {
                 logger.debug("New Request : " + newRequestApproval.toString());
 
                 sendEmails(previousRequestApproval.getStage(),newRequestApproval.getStage(),
-                        newRequestApproval.getStatus(),Converter.toRequestFatClass(request,newRequestApproval));
+                        newRequestApproval.getStatus().value(),Converter.toRequestFatClass(request,newRequestApproval));
             }
         }
 
@@ -112,7 +111,7 @@ public class StageResourceListener implements ResourceListener {
                 logger.debug("New Request : " + newRequestPayment.toString());
 
                 sendEmails(previousRequestPayment.getStage(),newRequestPayment.getStage(),
-                        newRequestPayment.getStatus(),Converter.toRequestFatClass(request,newRequestPayment));
+                        newRequestPayment.getStatus().value(),Converter.toRequestFatClass(request,newRequestPayment));
             }
         }
     }

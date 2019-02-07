@@ -3,14 +3,17 @@ package arc.expenses.config;
 import gr.athenarc.domain.*;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.flywaydb.core.Flyway;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.*;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.sql.DataSource;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
@@ -20,14 +23,28 @@ import javax.xml.bind.JAXBException;
 @EnableAsync
 @ComponentScan(basePackages = {"eu.openminted.registry.core","arc.expenses.*"})
 @PropertySource(value = {"classpath:application.properties", "classpath:registry.properties"})
-public class ARCServiceConfiguration extends WebMvcConfigurerAdapter {
+public class ARCServiceConfiguration implements WebMvcConfigurer {
 
     private static Logger logger = LogManager.getLogger(ARCServiceConfiguration.class);
+
+    @Autowired
+    DataSource dataSource;
+
 
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+    }
+
+    @Bean(initMethod = "migrate")
+    public Flyway flyway(){
+        Flyway flyway = new Flyway();
+        flyway.setBaselineOnMigrate(true);
+        flyway.setLocations("classpath:migrations/");
+        flyway.setDataSource(dataSource);
+        flyway.setOutOfOrder(true);
+        return flyway;
     }
 
     @Bean

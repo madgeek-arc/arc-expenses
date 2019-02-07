@@ -6,7 +6,7 @@
 
     <groupId>gr.athenarc</groupId>
     <artifactId>arc-expenses-domain</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
 
     <properties>
         <typescript.exec.skip>true</typescript.exec.skip>
@@ -30,7 +30,11 @@
             <artifactId>commons-lang</artifactId>
             <version>2.6</version>
         </dependency>
-        
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -85,25 +89,12 @@
                 <artifactId>jsonschema2pojo-maven-plugin</artifactId>
                 <version>0.5.1</version>
                 <configuration>
-                    <sourcePaths>
-                        <path>${basedir}/src/main/resources/jsonSchema/attachment.json</path>
-                        <path>${basedir}/src/main/resources/jsonSchema/baseInfo.json</path>
-                        <path>${basedir}/src/main/resources/jsonSchema/contactUsMail.json</path>
-                        <path>${basedir}/src/main/resources/jsonSchema/delegate.json</path>
-                        <path>${basedir}/src/main/resources/jsonSchema/institute.json</path>
-                        <path>${basedir}/src/main/resources/jsonSchema/personOfInterest.json</path>
-                        <path>${basedir}/src/main/resources/jsonSchema/organization.json</path>
-                        <path>${basedir}/src/main/resources/jsonSchema/project.json</path>
-                        <path>${basedir}/src/main/resources/jsonSchema/request.json</path>
-                        <path>${basedir}/src/main/resources/jsonSchema/requestApproval.json</path>
-                        <path>${basedir}/src/main/resources/jsonSchema/requestPayment.json</path>
-                        <path>${basedir}/src/main/resources/jsonSchema/user.json</path>
-                        <path>${basedir}/src/main/resources/jsonSchema/trip.json</path>
-                    </sourcePaths>
+                    <sourceDirectory>${basedir}/src/main/resources/jsonSchema/</sourceDirectory>
                     <targetPackage>${project.groupId}.domain</targetPackage>
                     <outputDirectory>target/generated-sources/jsonSchema</outputDirectory>
                     <useLongIntegers>true</useLongIntegers>
                     <includeConstructors>true</includeConstructors>
+                    <includeJsr303Annotations>true</includeJsr303Annotations>
                 </configuration>
                 <executions>
                     <execution>

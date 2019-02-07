@@ -6,7 +6,7 @@ public class RequestFatClass {
 
     private String request_id;
     private String id;
-    private String type;
+    private Request.Type type;
     private User user;
     private Project project;
     private Stage1 stage1;
@@ -168,11 +168,11 @@ public class RequestFatClass {
         this.stage13 = stage13;
     }
 
-    public String getType() {
+    public Request.Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Request.Type type) {
         this.type = type;
     }
 }

@@ -16,7 +16,11 @@ public class ARCServiceDispatcherInitializer extends AbstractAnnotationConfigDis
     @Override
     protected Class<?>[] getServletConfigClasses() {
 
-        return new Class[]{ARCServiceConfiguration.class,HibernateConfiguration.class};
+        return new Class[]{
+                ARCServiceConfiguration.class,
+                HibernateConfiguration.class,
+                StateMachineConfiguration.class
+        };
     }
 
     @Override

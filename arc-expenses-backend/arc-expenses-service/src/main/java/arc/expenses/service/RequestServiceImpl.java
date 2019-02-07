@@ -1,6 +1,8 @@
 package arc.expenses.service;
 
 import arc.expenses.domain.RequestSummary;
+import arc.expenses.domain.StageEvents;
+import arc.expenses.domain.Stages;
 import arc.expenses.utils.Converter;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
@@ -9,7 +11,9 @@ import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.ServiceException;
 import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.*;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.codehaus.plexus.util.FileUtils;
 import org.javatuples.Septet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,23 +21,33 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.config.StateMachineFactory;
+import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.DefaultStateMachineContext;
+import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
+import org.springframework.statemachine.transition.Transition;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
 @Service("requestService")
 public class RequestServiceImpl extends GenericService<Request> {
+
+    private static Logger LOGGER = LogManager.getLogger(RequestServiceImpl.class);
 
     @Autowired
     private StoreRESTClient storeRESTClient;
@@ -56,11 +70,13 @@ public class RequestServiceImpl extends GenericService<Request> {
     @Autowired
     DataSource dataSource;
 
+    @Autowired
+    private StateMachineFactory<Stages, StageEvents> factory;
+
+
     @Value("#{'${admin.emails}'.split(',')}")
     private List<String> admins;
 
-
-    private Logger LOGGER = Logger.getLogger(RequestServiceImpl.class);
 
     public RequestServiceImpl() {
         super(Request.class);
@@ -84,6 +100,158 @@ public class RequestServiceImpl extends GenericService<Request> {
                 return new SimpleDateFormat("yyyyMMdd").format(new Date())+"-1";
         }
     }
+
+
+    private StateMachine<Stages, StageEvents> build(Request request){
+
+        StateMachine<Stages, StageEvents> sm = this.factory.getStateMachine(request.getId());
+        sm.stop();
+
+        sm.getStateMachineAccessor()
+                .doWithAllRegions(sma -> {
+
+                    sma.addStateMachineInterceptor( new StateMachineInterceptorAdapter<Stages, StageEvents>(){
+
+                        @Override
+                        public void postStateChange(State state, Message message, Transition transition, StateMachine stateMachine) {
+                            Optional.ofNullable(message).ifPresent(msg -> {
+                                Optional.ofNullable((Request) msg.getHeaders().get("requestObj"))
+                                        .ifPresent(request ->{
+                                            request.setCurrentState(state.getId()+""); // <-- casting to String causes uncertain behavior. Keep it this way
+//                                            try {
+//                                                LOGGER.info("Updating "+ requestToUpdate.getId()+" request's stage to " + state.getId());
+//                                                update(requestToUpdate, requestToUpdate.getId());
+//                                            } catch (ResourceNotFoundException e) {
+//                                                throw new ServiceException("Request with id " + requestId + " not found");
+//                                            }
+                                            msg.getHeaders().replace("requestObj",request);
+                                        });
+                            });
+                        }
+                    });
+
+                    sma.resetStateMachine(new DefaultStateMachineContext<>(
+                            Stages.valueOf((request.getCurrentState() == null ? Stages.Stage1.name() : request.getCurrentState())), null, null, null));
+
+                    LOGGER.info("Resetting machine of request " + request.getId() + " at state " + sm.getState().getId());
+                });
+
+        sm.start();
+        return sm;
+    }
+
+    @PreAuthorize("hasPermission(#request,'UPGRADE')")
+    public void approve(Request request, HttpServletRequest req) {
+        StateMachine<Stages, StageEvents> sm = this.build(request);
+        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.APPROVE)
+                .setHeader("requestObj", request)
+                .setHeader("restRequest", req)
+                .build();
+
+        sm.sendEvent(eventsMessage);
+
+        sm.stop();
+
+    }
+
+
+    @PreAuthorize("hasPermission(#request,'CANCEL')")
+    public void cancel(Request request) throws Exception {
+        request.setRequestStatus(Request.RequestStatus.CANCELLED);
+        RequestApproval requestApproval = requestApprovalService.getByField("request_id", request.getId());
+        if(requestApproval!=null)
+            requestApproval.setStatus(BaseInfo.Status.CANCELLED);
+
+        requestApprovalService.update(requestApproval, requestApproval.getId());
+        update(request,request.getId());
+    }
+
+    public Request add(Request.Type type, String projectId, String subject, Request.RequesterPosition requesterPosition, String supplier, Stage1.SupplierSelectionMethod supplierSelectionMethod, double amount, Optional<List<MultipartFile>> files, String destination, String firstName, String lastName, String email) throws Exception {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Request request = new Request();
+        request.setType(type);
+        request.setId(generateID());
+        request.setArchiveId(createArchive());
+        Project project = projectService.get(projectId);
+        if(project == null)
+            throw new ServiceException("Project with id "+projectId+" not found");
+
+        ArrayList<Attachment> attachments = new ArrayList<>();
+        if(files.isPresent()){
+            for(MultipartFile file : files.get()){
+                storeRESTClient.storeFile(file.getBytes(), request.getArchiveId(), file.getOriginalFilename());
+                attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage1"));
+            }
+        }
+        User user = userService.getByField("user_email",(String) authentication.getPrincipal());
+        request.setUser(user);
+        request.setProject(project);
+        request.setRequesterPosition(requesterPosition);
+
+        Stage1 stage1 = new Stage1(LocalDate.now().toEpochDay()+"", subject, supplier, supplierSelectionMethod, amount, amount);
+        stage1.setAttachments(attachments);
+        request.setStage1(stage1);
+
+        request.setRequestStatus(Request.RequestStatus.PENDING);
+
+        if(!destination.isEmpty()){
+            Trip trip = new Trip();
+            trip.setDestination(destination);
+            trip.setEmail((email.isEmpty() ? user.getEmail() : email));
+            trip.setFirstname((firstName.isEmpty() ? user.getFirstname() : firstName));
+            trip.setLastname((lastName.isEmpty() ? user.getLastname() : lastName));
+            request.setTrip(trip);
+        }
+        request.setCurrentState(Stages.Stage2.name());
+        return super.add(request, authentication);
+    }
+
+    private RequestApproval stage2(RequestApproval requestApproval, String mode) throws Exception {
+        User user = userService.getByField("user_email",(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        boolean checkFeasibility = false;
+        boolean checkNecessity = false;
+        boolean approved = false;
+        String comment = "";
+        List<Attachment> attachments = new ArrayList<>();
+        String stage = "";
+        BaseInfo.Status status = BaseInfo.Status.PENDING;
+
+        switch (mode){
+            case "upgrade":
+                stage = "3";
+                status = BaseInfo.Status.PENDING;
+                approved = true;
+                checkFeasibility = true;
+                checkNecessity = true;
+
+                break;
+            case "downgrade":
+                break;
+            case "reject":
+                Request request = get(requestApproval.getRequestId());
+                request.setRequestStatus(Request.RequestStatus.REJECTED);
+                update(request, request.getId());
+                stage = "2";
+                status = BaseInfo.Status.REJECTED;
+                approved = false;
+
+                break;
+            default:
+                break;
+        }
+
+
+//        requestApproval.
+        requestApproval.setStage(stage);
+        requestApproval.setStatus(status);
+        return requestApproval;
+    }
+
+
+
+
 
     private File multipartToFile(MultipartFile multipart) throws IllegalStateException, IOException
     {
@@ -126,44 +294,6 @@ public class RequestServiceImpl extends GenericService<Request> {
         return null;
     }
 
-    public Request add(String type, String projectId, String subject, String requesterPosition, String supplier, String supplierSelectionMethod, double amount, Optional<List<MultipartFile>> files, String destination, String firstName, String lastName, String email) throws Exception {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        Request request = new Request();
-        request.setType(type);
-        request.setId(generateID());
-        request.setArchiveId(createArchive());
-        Project project = projectService.get(projectId);
-        if(project == null)
-            throw new ServiceException("Project with id "+projectId+" not found");
-
-        List<Attachment> attachments = new ArrayList<>();
-        if(files.isPresent()){
-            for(MultipartFile file : files.get()){
-                storeRESTClient.storeFile(file.getBytes(), request.getArchiveId(), file.getOriginalFilename());
-                attachments.add(new Attachment(file.getOriginalFilename(),file.getContentType(),file.getSize(), request.getArchiveId()+"/stage1"));
-            }
-        }
-        User user = userService.getByField("user_email",(String) authentication.getPrincipal());
-        request.setUser(user);
-        request.setProject(project);
-        request.setRequesterPosition(requesterPosition);
-        request.setStage1(new Stage1(LocalDate.now().toEpochDay()+"", subject, supplier, supplierSelectionMethod, amount, amount, attachments));
-        request.setRequestStatus("pending");
-
-        if(!destination.isEmpty()){
-            Trip trip = new Trip();
-            trip.setDestination(destination);
-            trip.setEmail((email.isEmpty() ? user.getEmail() : email));
-            trip.setFirstname((firstName.isEmpty() ? user.getFirstname() : firstName));
-            trip.setLastname((lastName.isEmpty() ? user.getLastname() : lastName));
-            request.setTrip(trip);
-        }
-
-
-        return super.add(request, authentication);
-    }
 
     public Paging<RequestSummary> criteriaSearch(String from, String quantity,
                                                  List<String> status, List<String> type, String searchField,
@@ -452,78 +582,64 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     }
 
-    public InputStream downloadFile(String mode,String id, String stage) {
-
-        Attachment attachment = getAttachment(mode,id,stage);//.get(Integer.parseInt(index));
-        try {
-            File temp = File.createTempFile("file", "tmp");
-            temp.deleteOnExit();
-            storeRESTClient.downloadFile(attachment.getUrl(), temp.getAbsolutePath());
-            return new FileInputStream(temp);
-        } catch (Exception e) {
-            LOGGER.error("error downloading file", e);
-        }
-
-        return null;
-    }
-
-    public Attachment getAttachment(String mode ,String id, String stage) {
-        Attachment attachment;
-
-        if(mode.equals("request"))
-            return get(id).getStage1().getAttachments().get(0);
-        else if(mode.equals("approval")){
-            switch (stage) {
-                case "2":
-                    attachment = requestApprovalService.get(id).getStage2().getAttachment();
-                    break;
-                case "3":
-                    attachment = requestApprovalService.get(id).getStage3().getAttachment();
-                    break;
-                case "4":
-                    attachment = requestApprovalService.get(id).getStage4().getAttachment();
-                    break;
-                case "5a":
-                    attachment = requestApprovalService.get(id).getStage5a().getAttachment();
-                    break;
-                case "5b":
-                    attachment = requestApprovalService.get(id).getStage5b().getAttachment();
-                    break;
-                case "6":
-                    attachment = requestApprovalService.get(id).getStage6().getAttachment();
-                    break;
-                default:
-                    return null;
-            }
-        }else{
-            switch (stage) {
-                case "7":
-                    attachment = requestPaymentService.get(id).getStage7().getAttachment();
-                    break;
-                case "8":
-                    attachment = requestPaymentService.get(id).getStage8().getAttachment();
-                    break;
-                case "9":
-                    attachment = requestPaymentService.get(id).getStage9().getAttachment();
-                    break;
-                case "10":
-                    attachment = requestPaymentService.get(id).getStage10().getAttachment();
-                    break;
-                case "11":
-                    attachment = requestPaymentService.get(id).getStage11().getAttachment();
-                    break;
-                case "12":
-                    attachment = requestPaymentService.get(id).getStage12().getAttachment();
-                    break;
-                case "13":
-                    attachment = requestPaymentService.get(id).getStage13().getAttachment();
-                    break;
-                default:
-                    return null;
-            }
-        }
-        return attachment;
-    }
+//    public InputStream downloadFile(String mode,String id, String stage) {
+//
+//        List<Attachment> attachment = getAttachments(mode,id,stage);//.get(Integer.parseInt(index));
+//        try {
+//            File temp = File.createTempFile("file", "tmp");
+//            temp.deleteOnExit();
+//            storeRESTClient.downloadFile(attachment.getUrl(), temp.getAbsolutePath());
+//            return new FileInputStream(temp);
+//        } catch (Exception e) {
+//            LOGGER.error("error downloading file", e);
+//        }
+//
+//        return null;
+//    }
+//
+//    public List<Attachment> getAttachments(String mode ,String id, String stage) {
+//        Attachment attachment;
+//
+//        if(mode.equals("request"))
+//            return get(id).getStage1().getAttachments();
+//        else if(mode.equals("approval")){
+//            switch (stage) {
+//                case "2":
+//                    return requestApprovalService.get(id).getStage2().getAttachments();
+//                case "3":
+//                    return requestApprovalService.get(id).getStage3().getAttachments();
+//                case "4":
+//                    return requestApprovalService.get(id).getStage4().getAttachments();
+//                case "5a":
+//                    return requestApprovalService.get(id).getStage5a().getAttachments();
+//                case "5b":
+//                    return requestApprovalService.get(id).getStage5b().getAttachments();
+//                case "6":
+//                    return requestApprovalService.get(id).getStage6().getAttachments();
+//                default:
+//                    return new ArrayList<>();
+//            }
+//        }else{
+//            switch (stage) {
+//                case "7":
+//                    return requestPaymentService.get(id).getStage7().getAttachments();
+//                case "8":
+//                    return requestPaymentService.get(id).getStage8().getAttachments();
+//                case "9":
+//                    return requestPaymentService.get(id).getStage9().getAttachments();
+//                case "10":
+//                    return requestPaymentService.get(id).getStage10().getAttachments();
+//                case "11":
+//                    return requestPaymentService.get(id).getStage11().getAttachments();
+//                case "12":
+//                    return requestPaymentService.get(id).getStage12().getAttachments();
+//                case "13":
+//                    return requestPaymentService.get(id).getStage13().getAttachments();
+//                default:
+//                    return new ArrayList<>();
+//            }
+//        }
+//    }
 
 
     public void cascadeAll(Organization organization, Authentication authentication) {

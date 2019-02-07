@@ -1,7 +1,9 @@
 package arc.expenses.listener;
 
 import arc.expenses.acl.ArcPermission;
+import arc.expenses.service.AclService;
 import arc.expenses.service.RequestApprovalServiceImpl;
+import gr.athenarc.domain.BaseInfo;
 import gr.athenarc.domain.Request;
 import gr.athenarc.domain.RequestApproval;
 import org.apache.log4j.LogManager;
@@ -14,7 +16,6 @@ import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AlreadyExistsException;
-import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,7 @@ public class RequestListener {
     RequestApprovalServiceImpl requestApprovalService;
 
     @Autowired
-    MutableAclService aclService;
+    AclService aclService;
 
     @AfterReturning(pointcut = "execution(* arc.expenses.service.RequestServiceImpl.add(..))", returning = "request")
     public void requestCreated(Request request) {
@@ -42,7 +43,7 @@ public class RequestListener {
         requestApproval.setRequestId(request.getId());
         requestApproval.setCreationDate(new Date().getTime()+"");
         requestApproval.setStage("2");
-        requestApproval.setStatus("pending");
+        requestApproval.setStatus(BaseInfo.Status.PENDING);
 
         requestApproval = requestApprovalService.add(requestApproval, null);
 
@@ -54,15 +55,8 @@ public class RequestListener {
         AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(Request.class, request.getId()));
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new GrantedAuthoritySid("ROLE_ADMIN"), true);
-
-        aclService.updateAcl(acl);
-
-        aclService.createAcl(new ObjectIdentityImpl(RequestApproval.class, requestApproval.getId()));
-        acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(RequestApproval.class, requestApproval.getId()));
         acl.insertAce(acl.getEntries().size(), ArcPermission.DOWNGRADE, new PrincipalSid(request.getProject().getScientificCoordinator().getEmail()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.UPGRADE, new PrincipalSid(request.getProject().getScientificCoordinator().getEmail()), true);
-        acl.insertAce(acl.getEntries().size(), ArcPermission.DOWNGRADE, new GrantedAuthoritySid("ROLE_ADMIN"), true);
-        acl.insertAce(acl.getEntries().size(), ArcPermission.UPGRADE, new GrantedAuthoritySid("ROLE_ADMIN"), true);
 
         aclService.updateAcl(acl);
 

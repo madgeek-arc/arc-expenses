@@ -4,12 +4,64 @@
   "title": "Request",
   "type": "object",
   "properties": {
-    "stageTest" : {
+    "currentState" : {
       "type" : "string"
     },
     "stage1": {
       "type": "object",
       "javaType": "gr.athenarc.domain.Stage1"
+    },
+    "stage2": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage2"
+    },
+    "stage3": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage3"
+    },
+    "stage4": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage4"
+    },
+    "stage5a": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage5a"
+    },
+    "stage5b": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage5b"
+    },
+    "stage6": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage6"
+    },
+    "stage7": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage7"
+    },
+    "stage8": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage8"
+    },
+    "stage9": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage9"
+    },
+    "stage10": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage10"
+    },
+    "stage11": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage11"
+    },
+    "stage12": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage12"
+    },
+    "stage13": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage13"
     },
     "id": {
       "description": "The unique identifier of the request.",

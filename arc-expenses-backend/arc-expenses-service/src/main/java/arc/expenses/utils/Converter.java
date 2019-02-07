@@ -17,7 +17,7 @@ public class Converter {
         return getBaseInfo(requestPayment.getId(), requestPayment.getRequestId(), requestPayment.getCreationDate(), requestPayment.getStage(), requestPayment.getStatus());
     }
 
-    private static BaseInfo getBaseInfo(String id, String requestId, String creationDate, String stage, String status) {
+    private static BaseInfo getBaseInfo(String id, String requestId, String creationDate, String stage, BaseInfo.Status status) {
         BaseInfo baseInfo = new BaseInfo();
         baseInfo.setId(id);
         baseInfo.setRequestId(requestId);

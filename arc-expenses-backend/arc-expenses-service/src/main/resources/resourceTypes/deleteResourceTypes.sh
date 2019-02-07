@@ -5,6 +5,7 @@
 #done
 
 for i in   user organization project request institute approval payment; do
+#for i in request; do
 	psql -h $1 -Uvrasidas registry <<endOfMessage
 
 delete from stringindexedfield_values where stringindexedfield_id in (select id from stringindexedfield where resource_id in (select id from resource where fk_name='$i'));
