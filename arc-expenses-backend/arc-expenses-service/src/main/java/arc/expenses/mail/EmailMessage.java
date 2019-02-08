@@ -9,7 +9,7 @@ public class EmailMessage {
     }
 
     public EmailMessage(String email, String subject, String text) {
-        this.recipient = email;
+        this.recipient = email.toLowerCase();
         this.subject = subject;
         this.text = text;
     }

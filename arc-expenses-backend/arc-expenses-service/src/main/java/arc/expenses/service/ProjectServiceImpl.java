@@ -82,7 +82,7 @@ public class ProjectServiceImpl extends GenericService<Project> {
 
     public List<Vocabulary> getProjectsOfOperator(String email) {
         return new JdbcTemplate(dataSource)
-                .query(projectsOfOperator(email),vocabularyRowMapper);
+                .query(projectsOfOperator(email.toLowerCase()),vocabularyRowMapper);
     }
 
     private String projectsOfOperator(String email) {
@@ -97,7 +97,7 @@ public class ProjectServiceImpl extends GenericService<Project> {
                 "                              where fk_name = 'project'\n" +
                 "                              )  as poi\n" +
                 "                    ) as poi\n" +
-                "  where poi.email ilike  '%" + email + "%'";
+                "  where poi.email ilike  '%" + email.toLowerCase() + "%'";
 
     }
 

@@ -19,14 +19,14 @@ public class PolicyCheckerService {
     public List<Request> searchFilter(List<Request> rs, String email) {
 
         return rs.stream().filter(request ->
-                        isRequestor(request,email) ||
-                        isSuppliesOfficeMemberOrDelegate(request,email) ||
-                        isScientificCoordinator(request,email) ||
-                        isPOYOrDelegate(request,email) ||
-                        isInstituteDirectorOrDelegate(request,email)||
-                        isAccountingRegistratorOrDelegate(request,email) ||
-                        isAccountingPaymentOrDelegate(request,email) ||
-                        isInspectionTeamOrDelegate(request,email)
+                        isRequestor(request,email.toLowerCase()) ||
+                        isSuppliesOfficeMemberOrDelegate(request,email.toLowerCase()) ||
+                        isScientificCoordinator(request,email.toLowerCase()) ||
+                        isPOYOrDelegate(request,email.toLowerCase()) ||
+                        isInstituteDirectorOrDelegate(request,email.toLowerCase())||
+                        isAccountingRegistratorOrDelegate(request,email.toLowerCase()) ||
+                        isAccountingPaymentOrDelegate(request,email.toLowerCase()) ||
+                        isInspectionTeamOrDelegate(request,email.toLowerCase())
         ).collect(Collectors.toList());
     }
 
@@ -41,10 +41,10 @@ public class PolicyCheckerService {
         if(inspectionTeam!=null){
             for(PersonOfInterest operator:inspectionTeam){
 
-                if(operator.getEmail().equals(email))
+                if(operator.getEmail().equals(email.toLowerCase()))
                     return true;
 
-                if(isDelegate(operator.getDelegates(),email))
+                if(isDelegate(operator.getDelegates(),email.toLowerCase()))
                     return true;
 
             }
@@ -53,42 +53,42 @@ public class PolicyCheckerService {
     }
 
     public boolean isAccountingPaymentOrDelegate(Request request, String email) {
-        return request.getProject().getInstitute().getAccountingPayment().getEmail().equals(email)
-            || isDelegate(request.getProject().getInstitute().getAccountingPayment().getDelegates(),email);
+        return request.getProject().getInstitute().getAccountingPayment().getEmail().equals(email.toLowerCase())
+            || isDelegate(request.getProject().getInstitute().getAccountingPayment().getDelegates(),email.toLowerCase());
     }
 
     public boolean isAccountingRegistratorOrDelegate(Request request, String email) {
-        return request.getProject().getInstitute().getAccountingRegistration().getEmail().equals(email)
-            || isDelegate(request.getProject().getInstitute().getAccountingRegistration().getDelegates(),email);
+        return request.getProject().getInstitute().getAccountingRegistration().getEmail().equals(email.toLowerCase())
+            || isDelegate(request.getProject().getInstitute().getAccountingRegistration().getDelegates(),email.toLowerCase());
     }
 
 
 
     public boolean isInstituteDirectorOrDelegate(Request request, String email) {
-        return request.getProject().getInstitute().getDirector().getEmail().equals(email)
-            || isDelegate(request.getProject().getInstitute().getDirector().getDelegates(),email);
+        return request.getProject().getInstitute().getDirector().getEmail().equals(email.toLowerCase())
+            || isDelegate(request.getProject().getInstitute().getDirector().getDelegates(),email.toLowerCase());
     }
 
     public boolean isPOYOrDelegate(Request request, String email) {
-        return request.getProject().getInstitute().getOrganization().getPoy().getEmail().equals(email)
-            || isDelegate(request.getProject().getInstitute().getOrganization().getPoy().getDelegates(),email);
+        return request.getProject().getInstitute().getOrganization().getPoy().getEmail().equals(email.toLowerCase())
+            || isDelegate(request.getProject().getInstitute().getOrganization().getPoy().getDelegates(),email.toLowerCase());
     }
 
     public boolean isSuppliesOfficeMemberOrDelegate(Request request, String email) {
-        return request.getProject().getInstitute().getSuppliesOffice().getEmail().equals(email);
+        return request.getProject().getInstitute().getSuppliesOffice().getEmail().equals(email.toLowerCase());
     }
 
     public boolean isDelegate(List<Delegate> delegates, String email) {
         if(delegates!=null){
             for(Delegate delegate:delegates)
-                if(delegate.getEmail().equals(email))
+                if(delegate.getEmail().equals(email.toLowerCase()))
                     return true;
         }
         return false;
     }
 
     public boolean isRequestor(Request request, String email) {
-        return request.getUser().getEmail().equals(email);
+        return request.getUser().getEmail().equals(email.toLowerCase());
     }
 
     public boolean updateFilter(RequestSummary requestSummary, String email) {
@@ -97,81 +97,81 @@ public class PolicyCheckerService {
         Request request = requestSummary.getRequest();
         switch (requestSummary.getBaseInfo().getStage()) {
             case "1":
-                value = isRequestor(request,email);
+                value = isRequestor(request,email.toLowerCase());
                 break;
             case "2":
-                value =  isScientificCoordinator(request,email);
+                value =  isScientificCoordinator(request,email.toLowerCase());
                 break;
             case "3":
-                value = isOperatorOrDelegate(request,email);
+                value = isOperatorOrDelegate(request,email.toLowerCase());
                 break;
             case "4":
-                value = isPOYOrDelegate(request,email);
+                value = isPOYOrDelegate(request,email.toLowerCase());
                 break;
             case "5a":
-                value = isDiataktisOrDelegate(request,email);
+                value = isDiataktisOrDelegate(request,email.toLowerCase());
                 break;
             case "5b":
-                value = isMemberOfABOrDelegate(request,email);
+                value = isMemberOfABOrDelegate(request,email.toLowerCase());
                 break;
             case "6":
-                value = isDiaugeiaOrDelegate(request,email);
+                value = isDiaugeiaOrDelegate(request,email.toLowerCase());
                 break;
             case "7":
                 if(request.getType().equals("trip"))
-                    value = isTravelManagerOrDelegate(request,email) || isRequestor(request,email);
+                    value = isTravelManagerOrDelegate(request,email.toLowerCase()) || isRequestor(request,email.toLowerCase());
                 else
-                    value = isSuppliesOfficeMemberOrDelegate(request,email) || isRequestor(request,email);
+                    value = isSuppliesOfficeMemberOrDelegate(request,email.toLowerCase()) || isRequestor(request,email.toLowerCase());
                 break;
             case "8":
-                value = isInspectionTeamOrDelegate(request,email);
+                value = isInspectionTeamOrDelegate(request,email.toLowerCase());
                 break;
             case "9":
-                value = isPOYOrDelegate(request,email);
+                value = isPOYOrDelegate(request,email.toLowerCase());
                 break;
             case "10":
-                value = isDiataktisOrDelegate(request,email);
+                value = isDiataktisOrDelegate(request,email.toLowerCase());
                 break;
             case "11":
-                value = isDiaugeiaOrDelegate(request,email);
+                value = isDiaugeiaOrDelegate(request,email.toLowerCase());
                 break;
             case "12":
-                value = isAccountingRegistratorOrDelegate(request,email);
+                value = isAccountingRegistratorOrDelegate(request,email.toLowerCase());
                 break;
             case "13":
-                value = isAccountingPaymentOrDelegate(request,email);
+                value = isAccountingPaymentOrDelegate(request,email.toLowerCase());
                 break;
         }
         return value;
     }
 
     public Boolean isTravelManagerOrDelegate(Request request, String email) {
-        return request.getProject().getInstitute().getTravelManager().getEmail().equals(email)
-                || isDelegate(request.getProject().getInstitute().getTravelManager().getDelegates(),email);
+        return request.getProject().getInstitute().getTravelManager().getEmail().equals(email.toLowerCase())
+                || isDelegate(request.getProject().getInstitute().getTravelManager().getDelegates(),email.toLowerCase());
     }
 
     public Boolean isDiataktisOrDelegate(Request request, String email) {
-        return request.getProject().getInstitute().getDiataktis().getEmail().equals(email)
-                || isDelegate(request.getProject().getInstitute().getOrganization().getDirector().getDelegates(),email);
+        return request.getProject().getInstitute().getDiataktis().getEmail().equals(email.toLowerCase())
+                || isDelegate(request.getProject().getInstitute().getOrganization().getDirector().getDelegates(),email.toLowerCase());
     }
 
     public Boolean isDiaugeiaOrDelegate(Request request, String email) {
-        return request.getProject().getInstitute().getDiaugeia().getEmail().equals(email)
-                || isDelegate(request.getProject().getInstitute().getDiaugeia().getDelegates(), email);
+        return request.getProject().getInstitute().getDiaugeia().getEmail().equals(email.toLowerCase())
+                || isDelegate(request.getProject().getInstitute().getDiaugeia().getDelegates(), email.toLowerCase());
     }
 
     public Boolean isMemberOfABOrDelegate(Request request, String email) {
-        return request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getEmail().equals(email)
-                || isDelegate(request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getDelegates(), email);
+        return request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getEmail().equals(email.toLowerCase())
+                || isDelegate(request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio().getDelegates(), email.toLowerCase());
     }
 
     public boolean isOrganizationDirectorOrDelegate(Request request, String email) {
-        return request.getProject().getInstitute().getOrganization().getDirector().getEmail().equals(email)
-                || isDelegate(request.getProject().getInstitute().getOrganization().getDirector().getDelegates(),email);
+        return request.getProject().getInstitute().getOrganization().getDirector().getEmail().equals(email.toLowerCase())
+                || isDelegate(request.getProject().getInstitute().getOrganization().getDirector().getDelegates(),email.toLowerCase());
     }
 
     public boolean isAdmin(Request request, String email) {
-        return admins.contains(email);
+        return admins.contains(email.toLowerCase());
     }
 
     public boolean isOperatorOrDelegate(Request request, String email) {
@@ -181,10 +181,10 @@ public class PolicyCheckerService {
         if(operators!=null){
             for(PersonOfInterest operator:operators){
 
-                if(operator.getEmail().equals(email))
+                if(operator.getEmail().equals(email.toLowerCase()))
                     return true;
 
-                if(isDelegate(operator.getDelegates(),email))
+                if(isDelegate(operator.getDelegates(),email.toLowerCase()))
                     return true;
 
             }

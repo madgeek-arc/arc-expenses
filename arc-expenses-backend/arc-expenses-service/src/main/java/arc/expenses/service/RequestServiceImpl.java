@@ -278,30 +278,30 @@ public class RequestServiceImpl extends GenericService<Request> {
         StringBuilder user_clause = new StringBuilder();
 
         if(!admins.contains(email)) {
-            user_clause.append(" ( r.request_requester = '"  + email + "' or " +
-                    " r.request_project_operator @> '{"+'"' + email + '"' + "}' or " +
-                    " r.request_organization_inspectionteam @> '{"+'"' + email + '"' + "}' or " +
-                    " r.request_organization_inspectionteam_delegate @> '{"+'"' + email + '"' + "}' or " +
-                    " r.request_project_operator_delegate @> '{"+'"' + email + '"' + "}' or " +
-                    " r.request_project_scientificCoordinator = '"  + email + "' or " +
-                    " r.request_institute_travelmanager = '"  + email + "' or " +
-                    " r.request_organization_poy = '"  + email + "' or " +
-                    " r.request_organization_dioikitikoSumvoulio = '"  + email + "' or " +
-                    " r.request_organization_dioikitikoSumvoulio_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_organization_poy_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_travelmanager_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_accountingRegistration = '"  + email + "' or " +
-                    " r.request_institute_diaugeia = '"  + email + "' or " +
-                    " r.request_institute_accountingPayment = '"  + email + "' or " +
-                    " r.request_institute_accountingDirector = '"  + email + "' or " +
-                    " r.request_institute_accountingDirector_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_accountingRegistration_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_accountingPayment_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_diaugeia_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_organization_director = '"  + email + "' or " +
-                    " r.request_institute_director = '"  + email + "' or " +
-                    " r.request_organization_director_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_director_delegate @>  '{"+'"' + email + '"' + "}' ) ");
+            user_clause.append(" ( r.request_requester = '"  + email.toLowerCase() + "' or " +
+                    " r.request_project_operator @> '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " r.request_organization_inspectionteam @> '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " r.request_organization_inspectionteam_delegate @> '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " r.request_project_operator_delegate @> '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " r.request_project_scientificCoordinator = '"  + email.toLowerCase() + "' or " +
+                    " r.request_institute_travelmanager = '"  + email.toLowerCase() + "' or " +
+                    " r.request_organization_poy = '"  + email.toLowerCase() + "' or " +
+                    " r.request_organization_dioikitikoSumvoulio = '"  + email.toLowerCase() + "' or " +
+                    " r.request_organization_dioikitikoSumvoulio_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " r.request_organization_poy_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " r.request_institute_travelmanager_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " r.request_institute_accountingRegistration = '"  + email.toLowerCase() + "' or " +
+                    " r.request_institute_diaugeia = '"  + email.toLowerCase() + "' or " +
+                    " r.request_institute_accountingPayment = '"  + email.toLowerCase() + "' or " +
+                    " r.request_institute_accountingDirector = '"  + email.toLowerCase() + "' or " +
+                    " r.request_institute_accountingDirector_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " r.request_institute_accountingRegistration_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " r.request_institute_accountingPayment_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " r.request_institute_diaugeia_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " r.request_organization_director = '"  + email.toLowerCase() + "' or " +
+                    " r.request_institute_director = '"  + email.toLowerCase() + "' or " +
+                    " r.request_organization_director_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " r.request_institute_director_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' ) ");
         }
         return user_clause;
     }
@@ -309,36 +309,36 @@ public class RequestServiceImpl extends GenericService<Request> {
     public List<Request> getPendingRequests(String email) {
 
         //language=SQL
-        String whereClause = " (  ( r.request_project_operator <@ '{"+'"' + email + '"' + "} or  request_project_operator_delegate <@ '{"+'"' + email + '"' + "}')"
+        String whereClause = " (  ( r.request_project_operator <@ '{"+'"' + email.toLowerCase() + '"' + "} or  request_project_operator_delegate <@ '{"+'"' + email.toLowerCase() + '"' + "}')"
                            + "      and ( request_stage = 3 ) "
                            + "    ) "
-                           + " or ( ( request_institute_suppliesOffice = '" + email + "' or request_institute_suppliesOffice_delegate <@ '{"+'"' + email + '"' + "}')" +
+                           + " or ( ( request_institute_suppliesOffice = '" + email.toLowerCase() + "' or request_institute_suppliesOffice_delegate <@ '{"+'"' + email.toLowerCase() + '"' + "}')" +
                                     "and request_stage = 7 and request_type != trip ) "
-                           + " or ( request_institute_travelManager = '" + email + "' or request_institute_travelManager_delegate <@ '{"+'"' + email + '"' + "}')" +
+                           + " or ( request_institute_travelManager = '" + email.toLowerCase() + "' or request_institute_travelManager_delegate <@ '{"+'"' + email.toLowerCase() + '"' + "}')" +
                                     "' and request_stage = 7 and request_type = trip ) "
-                           + " or ( request_project_scientificCoordinator = '" + email + "' and request_stage = 2 ) "
-                           + " or ( ( request_organization_poy =  '" + email + "' or  request_organization_poy_delegate = "  + email + " ) "
+                           + " or ( request_project_scientificCoordinator = '" + email.toLowerCase() + "' and request_stage = 2 ) "
+                           + " or ( ( request_organization_poy =  '" + email.toLowerCase() + "' or  request_organization_poy_delegate = "  + email.toLowerCase() + " ) "
                            + "      and ( request_stage = 4 or request_stage = 9 ) "
                            + "    ) "
-                           + " or ( ( request_institute_director =  " + email + " or  request_institute_director_delegate <@ '{"+'"' + email + '"' + "}')"
+                           + " or ( ( request_institute_director =  " + email.toLowerCase() + " or  request_institute_director_delegate <@ '{"+'"' + email.toLowerCase() + '"' + "}')"
                            + "      and ( request_stage = 5a or request_stage = 10 ) "
                            + "    ) "
-                           + " or ( ( request_organization_dioikitikoSumvoulio =  '" + email + "' or  request_organization_dioikitikoSumvoulio_delegate <@ '{"+'"' + email + '"' + "}')"
+                           + " or ( ( request_organization_dioikitikoSumvoulio =  '" + email.toLowerCase() + "' or  request_organization_dioikitikoSumvoulio_delegate <@ '{"+'"' + email.toLowerCase() + '"' + "}')"
                            + "      and request_stage = 5b "
                            + "    ) "
-                           + " or ( ( request_institute_diaugeia =  '" + email + "' or  request_institute_diaugeia_delegate <@ '{"+'"' + email + '"' + "}')"
+                           + " or ( ( request_institute_diaugeia =  '" + email.toLowerCase() + "' or  request_institute_diaugeia_delegate <@ '{"+'"' + email.toLowerCase() + '"' + "}')"
                            + "      and ( request_stage = 6 or request_stage = 11 ) "
                            + "    ) "
-                           + " or ( ( request_organization_inspectionTeam <@ '{"+'"' + email + '"' + "} or  request_organization_inspectionTeam_delegate <@ '{"+'"' + email + '"' + "}')"
+                           + " or ( ( request_organization_inspectionTeam <@ '{"+'"' + email.toLowerCase() + '"' + "} or  request_organization_inspectionTeam_delegate <@ '{"+'"' + email.toLowerCase() + '"' + "}')"
                            + "      and request_stage = 8 "
                            + "    ) "
-                           + " or ( ( request_institute_accountingRegistration =  '" + email + "' or  request_institute_accountingRegistration_delegate <@ '{"+'"' + email + '"' + "}')"
+                           + " or ( ( request_institute_accountingRegistration =  '" + email.toLowerCase() + "' or  request_institute_accountingRegistration_delegate <@ '{"+'"' + email.toLowerCase() + '"' + "}')"
                            + "      and request_stage = 12 "
                            + "    ) "
-                           + " or ( ( request_institute_accountingPayment =  '" + email + "' or  request_institute_accountingPayment_delegate <@ '{"+'"' + email + '"' + "}')"
+                           + " or ( ( request_institute_accountingPayment =  '" + email.toLowerCase() + "' or  request_institute_accountingPayment_delegate <@ '{"+'"' + email.toLowerCase() + '"' + "}')"
                            + "      and request_stage = 13 "
                            + "    ) "
-                            + " or (  request_requester =  '" + email + "' and  request_stage = 7 )";
+                            + " or (  request_requester =  '" + email.toLowerCase() + "' and  request_stage = 7 )";
 
         LOGGER.info(whereClause);
 

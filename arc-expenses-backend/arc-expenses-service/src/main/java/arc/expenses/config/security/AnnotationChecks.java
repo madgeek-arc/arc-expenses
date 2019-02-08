@@ -30,18 +30,18 @@ public class AnnotationChecks {
     PolicyCheckerService policyCheckerService;
 
     public boolean isValidRequest(RequestApproval requestApproval, String email){
-        return requestApproval!=null && isValidRequest(requestService.get(requestApproval.getRequestId()),email);
+        return requestApproval!=null && isValidRequest(requestService.get(requestApproval.getRequestId()),email.toLowerCase());
     }
 
     public boolean isValidRequest(RequestPayment requestPayment, String email){
-        return requestPayment!=null && isValidRequest(requestService.get(requestPayment.getRequestId()),email);
+        return requestPayment!=null && isValidRequest(requestService.get(requestPayment.getRequestId()),email.toLowerCase());
     }
 
     public boolean isValidRequest(Browsing<RequestPayment> requestPayment, String email){
 
         List<RequestPayment> rs = requestPayment.getResults();
         for(RequestPayment rp : rs){
-            if(!isValidRequest(requestService.get(rp.getRequestId()),email))
+            if(!isValidRequest(requestService.get(rp.getRequestId()),email.toLowerCase()))
                 return false;
         }
         return true;
@@ -49,22 +49,22 @@ public class AnnotationChecks {
 
 
     public boolean isValidRequest(Request request , String email){
-        return  request!=null && policyCheckerService.isRequestor(request,email) ||
-                policyCheckerService.isSuppliesOfficeMemberOrDelegate(request,email) ||
-                policyCheckerService.isScientificCoordinator(request,email) ||
-                policyCheckerService.isPOYOrDelegate(request,email) ||
-                policyCheckerService.isInstituteDirectorOrDelegate(request,email)||
-                policyCheckerService.isOperatorOrDelegate(request,email) ||
-                policyCheckerService.isAccountingRegistratorOrDelegate(request,email) ||
-                policyCheckerService.isAccountingPaymentOrDelegate(request,email) ||
-                policyCheckerService.isDiaugeiaOrDelegate(request,email) ||
-                policyCheckerService.isDiataktisOrDelegate(request,email) ||
-                policyCheckerService.isMemberOfABOrDelegate(request,email) ||
-                policyCheckerService.isOrganizationDirectorOrDelegate(request,email) ||
-                policyCheckerService.isTravelManagerOrDelegate(request,email) ||
-                policyCheckerService.isAdmin(request,email) ||
-                policyCheckerService.isTravelManagerOrDelegate(request,email) ||
-                policyCheckerService.isInspectionTeamOrDelegate(request,email);
+        return  request!=null && policyCheckerService.isRequestor(request,email.toLowerCase()) ||
+                policyCheckerService.isSuppliesOfficeMemberOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isScientificCoordinator(request,email.toLowerCase()) ||
+                policyCheckerService.isPOYOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isInstituteDirectorOrDelegate(request,email.toLowerCase())||
+                policyCheckerService.isOperatorOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isAccountingRegistratorOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isAccountingPaymentOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isDiaugeiaOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isDiataktisOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isMemberOfABOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isOrganizationDirectorOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isTravelManagerOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isAdmin(request,email.toLowerCase()) ||
+                policyCheckerService.isTravelManagerOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isInspectionTeamOrDelegate(request,email.toLowerCase());
     }
 
     public boolean validateDownload(String requestId,String mode,String email){
@@ -77,22 +77,22 @@ public class AnnotationChecks {
         else
             request = requestService.get(requestId);
         //TODO change authorization
-        return request!=null && policyCheckerService.isRequestor(request,email) ||
-                policyCheckerService.isSuppliesOfficeMemberOrDelegate(request,email) ||
-                policyCheckerService.isScientificCoordinator(request,email) ||
-                policyCheckerService.isPOYOrDelegate(request,email) ||
-                policyCheckerService.isInstituteDirectorOrDelegate(request,email)||
-                policyCheckerService.isAccountingRegistratorOrDelegate(request,email) ||
-                policyCheckerService.isAccountingPaymentOrDelegate(request,email) ||
-                policyCheckerService.isDiaugeiaOrDelegate(request,email) ||
-                policyCheckerService.isDiataktisOrDelegate(request,email) ||
-                policyCheckerService.isMemberOfABOrDelegate(request,email) ||
-                policyCheckerService.isTravelManagerOrDelegate(request,email) ||
-                policyCheckerService.isOrganizationDirectorOrDelegate(request,email) ||
-                policyCheckerService.isAdmin(request,email) ||
-                policyCheckerService.isTravelManagerOrDelegate(request,email) ||
-                policyCheckerService.isOperatorOrDelegate(request,email) ||
-                policyCheckerService.isInspectionTeamOrDelegate(request,email);
+        return request!=null && policyCheckerService.isRequestor(request,email.toLowerCase()) ||
+                policyCheckerService.isSuppliesOfficeMemberOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isScientificCoordinator(request,email.toLowerCase()) ||
+                policyCheckerService.isPOYOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isInstituteDirectorOrDelegate(request,email.toLowerCase())||
+                policyCheckerService.isAccountingRegistratorOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isAccountingPaymentOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isDiaugeiaOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isDiataktisOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isMemberOfABOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isTravelManagerOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isOrganizationDirectorOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isAdmin(request,email.toLowerCase()) ||
+                policyCheckerService.isTravelManagerOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isOperatorOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isInspectionTeamOrDelegate(request,email.toLowerCase());
     }
 
 }
