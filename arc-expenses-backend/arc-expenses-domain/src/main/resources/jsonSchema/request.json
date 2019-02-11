@@ -4,7 +4,7 @@
   "title": "Request",
   "type": "object",
   "properties": {
-    "currentState" : {
+    "currentStage" : {
       "type" : "string"
     },
     "stage1": {
