@@ -35,7 +35,7 @@ public class AclService extends JdbcMutableAclService{
                     if(acl.getEntries().get(i).getSid().equals(sid)){
                         System.out.println("Removing "+sid);
                         acl.deleteAce(i);
-                        break;
+                        i--;
                     }
                 }
             }
@@ -51,7 +51,8 @@ public class AclService extends JdbcMutableAclService{
 
         AclImpl acl = (AclImpl) readAclById(new ObjectIdentityImpl(Request.class, id));
         for(Sid principal : newPrincipal){
-            acl.insertAce(acl.getEntries().size(), ArcPermission.UPGRADE, principal, true);
+            acl.insertAce(acl.getEntries().size(), ArcPermission.APPROVE, principal, true);
+            acl.insertAce(acl.getEntries().size(), ArcPermission.REJECT, principal, true);
             acl.insertAce(acl.getEntries().size(), ArcPermission.DOWNGRADE, principal, true);
         }
         updateAcl(acl);

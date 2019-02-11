@@ -3,12 +3,6 @@
   "title": "Stage8",
   "type": "object",
   "properties": {
-    "inspectionTeam": {
-      "type": "array",
-      "items": {
-        "javaType": "gr.athenarc.domain.User"
-      }
-    },
     "checkRegularity": { "type": "boolean"},
     "checkLegality": { "type": "boolean"},
     "approved": { "type": "boolean"}

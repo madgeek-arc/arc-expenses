@@ -47,7 +47,7 @@ import java.util.*;
 @Service("requestService")
 public class RequestServiceImpl extends GenericService<Request> {
 
-    private static Logger LOGGER = LogManager.getLogger(RequestServiceImpl.class);
+    private static Logger logger = LogManager.getLogger(RequestServiceImpl.class);
 
     @Autowired
     private StoreRESTClient storeRESTClient;
@@ -118,12 +118,12 @@ public class RequestServiceImpl extends GenericService<Request> {
                                 Optional.ofNullable((Request) msg.getHeaders().get("requestObj"))
                                         .ifPresent(request ->{
                                             request.setCurrentState(state.getId()+""); // <-- casting to String causes uncertain behavior. Keep it this way
-//                                            try {
-//                                                LOGGER.info("Updating "+ requestToUpdate.getId()+" request's stage to " + state.getId());
-//                                                update(requestToUpdate, requestToUpdate.getId());
-//                                            } catch (ResourceNotFoundException e) {
-//                                                throw new ServiceException("Request with id " + requestId + " not found");
-//                                            }
+                                            try {
+                                                logger.info("Updating "+ request.getId()+" request's stage to " + state.getId());
+                                                update(request, request.getId());
+                                            } catch (ResourceNotFoundException e) {
+                                                throw new ServiceException("Request with id " + request.getId() + " not found");
+                                            }
                                             msg.getHeaders().replace("requestObj",request);
                                         });
                             });
@@ -133,15 +133,16 @@ public class RequestServiceImpl extends GenericService<Request> {
                     sma.resetStateMachine(new DefaultStateMachineContext<>(
                             Stages.valueOf((request.getCurrentState() == null ? Stages.Stage1.name() : request.getCurrentState())), null, null, null));
 
-                    LOGGER.info("Resetting machine of request " + request.getId() + " at state " + sm.getState().getId());
+                    logger.info("Resetting machine of request " + request.getId() + " at state " + sm.getState().getId());
                 });
 
         sm.start();
         return sm;
     }
 
-    @PreAuthorize("hasPermission(#request,'UPGRADE')")
+    @PreAuthorize("hasPermission(#request,'APPROVE')")
     public void approve(Request request, HttpServletRequest req) {
+        logger.info("Approving request with id " + request.getId());
         StateMachine<Stages, StageEvents> sm = this.build(request);
         Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.APPROVE)
                 .setHeader("requestObj", request)
@@ -155,8 +156,40 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
 
+    @PreAuthorize("hasPermission(#request,'REJECT')")
+    public void reject(Request request, HttpServletRequest req) {
+        logger.info("Rejecting request with id " + request.getId());
+        StateMachine<Stages, StageEvents> sm = this.build(request);
+        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.REJECT)
+                .setHeader("requestObj", request)
+                .setHeader("restRequest", req)
+                .build();
+        sm.sendEvent(eventsMessage);
+
+        sm.stop();
+
+    }
+
+
+    @PreAuthorize("hasPermission(#request,'DOWNGRADE')")
+    public void downgrade(Request request, HttpServletRequest req) {
+        logger.info("Downgrading request with id " + request.getId());
+        StateMachine<Stages, StageEvents> sm = this.build(request);
+        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.DOWNGRADE)
+                .setHeader("requestObj", request)
+                .setHeader("restRequest", req)
+                .build();
+
+        sm.sendEvent(eventsMessage);
+        if(sm.hasStateMachineError())
+            throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
+        sm.stop();
+
+    }
+
     @PreAuthorize("hasPermission(#request,'CANCEL')")
     public void cancel(Request request) throws Exception {
+        logger.info("Canceling request with id " + request.getId());
         request.setRequestStatus(Request.RequestStatus.CANCELLED);
         RequestApproval requestApproval = requestApprovalService.getByField("request_id", request.getId());
         if(requestApproval!=null)
@@ -289,7 +322,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                 return parserPool.deserialize(request,Request.class).getId();
             }
         } catch (IOException e) {
-            LOGGER.debug("Error on search controller",e);
+            logger.debug("Error on search controller",e);
         }
         return null;
     }
@@ -362,7 +395,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         query +=  "  limit " + quantity +
                   "  offset " + from;
 
-        LOGGER.info(query);
+        logger.info(query);
         List<Septet<String,String,String,String,String,String,String>> resultSet =  new JdbcTemplate(dataSource)
                 .query(query,requestSummaryMapper);
 
@@ -541,7 +574,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                            + "    ) "
                             + " or (  request_requester =  '" + email + "' and  request_stage = 7 )";
 
-        LOGGER.info(whereClause);
+        logger.info(whereClause);
 
 
         Paging<Resource> rs = searchService.cqlQuery(
@@ -575,7 +608,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         try {
             storeRESTClient.storeFile(file.getBytes(),archiveID,fileName);
         } catch (IOException e) {
-            LOGGER.info(e);
+            logger.info(e);
             return new ResponseEntity<>("ERROR",HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(archiveID+"/"+fileName,HttpStatus.OK);
@@ -591,7 +624,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 //            storeRESTClient.downloadFile(attachment.getUrl(), temp.getAbsolutePath());
 //            return new FileInputStream(temp);
 //        } catch (Exception e) {
-//            LOGGER.error("error downloading file", e);
+//            logger.error("error downloading file", e);
 //        }
 //
 //        return null;
@@ -651,7 +684,7 @@ public class RequestServiceImpl extends GenericService<Request> {
             try {
                 update(request,request.getId());
             } catch (ResourceNotFoundException e) {
-                LOGGER.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
+                logger.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
             }
         }
     }
@@ -665,7 +698,7 @@ public class RequestServiceImpl extends GenericService<Request> {
             try {
                 update(request,request.getId());
             } catch (ResourceNotFoundException e) {
-                LOGGER.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
+                logger.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
             }
         }
     }
@@ -679,7 +712,7 @@ public class RequestServiceImpl extends GenericService<Request> {
             try {
                 update(request,request.getId());
             } catch (ResourceNotFoundException e) {
-                LOGGER.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
+                logger.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
             }
         }
     }

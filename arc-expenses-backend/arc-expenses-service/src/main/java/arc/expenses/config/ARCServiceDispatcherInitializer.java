@@ -1,5 +1,6 @@
 package arc.expenses.config;
 
+import arc.expenses.config.stateMachine.StateMachineConfiguration;
 import com.thetransactioncompany.cors.CORSFilter;
 import eu.openminted.registry.core.configuration.HibernateConfiguration;
 import org.springframework.web.filter.CharacterEncodingFilter;

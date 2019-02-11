@@ -71,10 +71,44 @@ public class RequestController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @ApiOperation("Reject request")
+    @RequestMapping(value = "/reject/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity reject(
+            @PathVariable("requestId") String requestId,
+            HttpServletRequest req
+    ){
+
+        Request request = requestService.get(requestId);
+        if(request==null)
+            throw new ServiceException("Request not found");
+        try {
+            requestService.reject(request,req);
+        }catch (Exception ex){
+            throw new ServiceException(ex.getMessage());
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation("Downgrade request")
+    @RequestMapping(value = "/downgrade/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity downgrade(
+            @PathVariable("requestId") String requestId,
+            HttpServletRequest req
+    ){
+        Request request = requestService.get(requestId);
+        if(request==null)
+            throw new ServiceException("Request not found");
+        try {
+            requestService.downgrade(request,req);
+        }catch (Exception ex){
+            throw new ServiceException(ex.getMessage());
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     @ApiOperation("Cancel request")
     @RequestMapping(value = "/cancel/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity cancelRequest(
+    public ResponseEntity cancel(
             @PathVariable("requestId") String requestId) throws Exception {
         Request request = requestService.get(requestId);
         if(request==null)

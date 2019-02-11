@@ -55,8 +55,9 @@ public class RequestListener {
         AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(Request.class, request.getId()));
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.REJECT, new PrincipalSid(request.getProject().getScientificCoordinator().getEmail()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.APPROVE, new PrincipalSid(request.getProject().getScientificCoordinator().getEmail()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.DOWNGRADE, new PrincipalSid(request.getProject().getScientificCoordinator().getEmail()), true);
-        acl.insertAce(acl.getEntries().size(), ArcPermission.UPGRADE, new PrincipalSid(request.getProject().getScientificCoordinator().getEmail()), true);
 
         aclService.updateAcl(acl);
 

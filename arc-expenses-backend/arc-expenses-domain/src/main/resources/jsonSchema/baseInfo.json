@@ -17,7 +17,13 @@
     },
     "status": {
       "type": "string",
-      "enum": ["CANCELLED", "PENDING", "REJECTED"]
+      "enum": [
+        "CANCELLED",
+        "PENDING",
+        "ACCEPTED",
+        "UNDER_REVIEW",
+        "REJECTED"
+      ]
     }
   }
 }

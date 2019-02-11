@@ -34,6 +34,7 @@
       "type": "string"
     },
     "totalCost": {
+      "_comment" : "Replace with NUMBER, default 0",
       "type": "string"
     },
     "scientificCoordinatorAsDiataktis": {
