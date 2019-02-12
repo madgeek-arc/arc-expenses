@@ -8,6 +8,7 @@ public class RequestFatClass {
     private String id;
     private String type;
     private User user;
+    private Trip trip;
     private Project project;
     private Stage1 stage1;
     private Stage2 stage2;
@@ -183,5 +184,13 @@ public class RequestFatClass {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Trip getTrip() {
+        return trip;
+    }
+
+    public void setTrip(Trip trip) {
+        this.trip = trip;
     }
 }
