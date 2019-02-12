@@ -109,7 +109,10 @@ public class PolicyCheckerService {
                 value = isPOYOrDelegate(request,email.toLowerCase());
                 break;
             case "5a":
-                value = isDiataktisOrDelegate(request,email.toLowerCase());
+                if(request.getType().equals("trip"))
+                    value = isViceDirectorOrDelegate(request,email.toLowerCase());
+                else
+                    value = isDiataktisOrDelegate(request,email.toLowerCase());
                 break;
             case "5b":
                 value = isMemberOfABOrDelegate(request,email.toLowerCase());
@@ -143,6 +146,11 @@ public class PolicyCheckerService {
                 break;
         }
         return value;
+    }
+
+    private Boolean isViceDirectorOrDelegate(Request request, String email) {
+        return request.getProject().getInstitute().getOrganization().getViceDirector().getEmail().equals(email.toLowerCase())
+                || isDelegate(request.getProject().getInstitute().getOrganization().getViceDirector().getDelegates(),email.toLowerCase());
     }
 
     public Boolean isTravelManagerOrDelegate(Request request, String email) {
