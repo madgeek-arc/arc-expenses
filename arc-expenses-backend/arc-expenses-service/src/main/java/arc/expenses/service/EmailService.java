@@ -342,7 +342,17 @@ public class EmailService {
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
                 break;
             case "5a":
-                personsOfInterest.add(request.getProject().getInstitute().getDiataktis());
+                if(request.getType().equals("trip")){
+                    if ( (request.getUser().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())
+                            || (request.getTrip().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())) {
+                        if ( (request.getUser().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()) ||
+                                (request.getTrip().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()))
+                            personsOfInterest.add(request.getProject().getInstitute().getOrganization().getViceDirector());
+                        else
+                            personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDirector());
+                    }
+                }else
+                    personsOfInterest.add(request.getProject().getInstitute().getDiataktis());
                 break;
             case "5b":
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio());
@@ -363,7 +373,17 @@ public class EmailService {
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
                 break;
             case "10":
-                personsOfInterest.add(request.getProject().getInstitute().getDiataktis());
+                if(request.getType().equals("trip")){
+                    if ( (request.getUser().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())
+                            || (request.getTrip().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())) {
+                        if ( (request.getUser().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()) ||
+                                (request.getTrip().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()))
+                            personsOfInterest.add(request.getProject().getInstitute().getOrganization().getViceDirector());
+                        else
+                            personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDirector());
+                    }
+                }else
+                    personsOfInterest.add(request.getProject().getInstitute().getDiataktis());
                 break;
             case "11":
                 personsOfInterest.add(request.getProject().getInstitute().getDiaugeia());

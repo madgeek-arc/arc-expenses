@@ -46,6 +46,7 @@ public class Converter {
         requestFatClass.setStage5a(newRequestApproval.getStage5a());
         requestFatClass.setStage5b(newRequestApproval.getStage5b());
         requestFatClass.setStage6(newRequestApproval.getStage6());
+        requestFatClass.setTrip(request.getTrip());
 
         return requestFatClass;
     }
@@ -68,6 +69,7 @@ public class Converter {
         requestFatClass.setStage11(requestPayment.getStage11());
         requestFatClass.setStage12(requestPayment.getStage12());
         requestFatClass.setStage13(requestPayment.getStage13());
+        requestFatClass.setTrip(request.getTrip());
 
         return requestFatClass;
     }
