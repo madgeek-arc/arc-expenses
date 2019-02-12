@@ -117,7 +117,8 @@ public class PolicyCheckerService {
                             value = isViceDirectorOrDelegate(request,email.toLowerCase());
                         else
                             value = isInstituteDirectorOrDelegate(request,email.toLowerCase());
-                    }
+                    }else
+                        value = isDiataktisOrDelegate(request,email.toLowerCase());
                 }else
                     value = isDiataktisOrDelegate(request,email.toLowerCase());
                 break;
@@ -148,7 +149,8 @@ public class PolicyCheckerService {
                             value = isViceDirectorOrDelegate(request,email.toLowerCase());
                         else
                             value = isInstituteDirectorOrDelegate(request,email.toLowerCase());
-                    }
+                    }else
+                        value = isDiataktisOrDelegate(request,email.toLowerCase());
                 }else
                     value = isDiataktisOrDelegate(request,email.toLowerCase());
                 break;
