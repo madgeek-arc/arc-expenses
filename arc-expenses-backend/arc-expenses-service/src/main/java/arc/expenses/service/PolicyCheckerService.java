@@ -109,9 +109,16 @@ public class PolicyCheckerService {
                 value = isPOYOrDelegate(request,email.toLowerCase());
                 break;
             case "5a":
-                if(request.getType().equals("trip"))
-                    value = isViceDirectorOrDelegate(request,email.toLowerCase());
-                else
+                if(request.getType().equals("trip")){
+                    if ( (request.getUser().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())
+                            || (request.getTrip().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())) {
+                        if ( (request.getUser().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()) ||
+                                (request.getTrip().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()))
+                            value = isViceDirectorOrDelegate(request,email.toLowerCase());
+                        else
+                            value = isInstituteDirectorOrDelegate(request,email.toLowerCase());
+                    }
+                }else
                     value = isDiataktisOrDelegate(request,email.toLowerCase());
                 break;
             case "5b":
@@ -133,7 +140,17 @@ public class PolicyCheckerService {
                 value = isPOYOrDelegate(request,email.toLowerCase());
                 break;
             case "10":
-                value = isDiataktisOrDelegate(request,email.toLowerCase());
+                if(request.getType().equals("trip")){
+                    if ( (request.getUser().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())
+                            || (request.getTrip().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())) {
+                        if ( (request.getUser().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()) ||
+                                (request.getTrip().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()))
+                            value = isViceDirectorOrDelegate(request,email.toLowerCase());
+                        else
+                            value = isInstituteDirectorOrDelegate(request,email.toLowerCase());
+                    }
+                }else
+                    value = isDiataktisOrDelegate(request,email.toLowerCase());
                 break;
             case "11":
                 value = isDiaugeiaOrDelegate(request,email.toLowerCase());
