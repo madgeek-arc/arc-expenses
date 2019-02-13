@@ -8,7 +8,7 @@ public class RequestFatClass {
     private String id;
     private Request.Type type;
     private User user;
-    private Project project;
+    private String projectId;
     private Stage1 stage1;
     private Stage2 stage2;
     private Stage3 stage3;
@@ -28,12 +28,12 @@ public class RequestFatClass {
         return request_id;
     }
 
-    public Project getProject() {
-        return project;
+    public String getProject() {
+        return projectId;
     }
 
-    public void setProject(Project project) {
-        this.project = project;
+    public void setProject(String project) {
+        this.projectId = project;
     }
 
     public void setRequest_id(String request_id) {

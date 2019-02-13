@@ -44,7 +44,7 @@
   "required": [
     "id",
     "name",
-    "institute",
+    "instituteId",
     "scientificCoordinator",
     "operator"
   ]
