@@ -109,17 +109,7 @@ public class PolicyCheckerService {
                 value = isPOYOrDelegate(request,email.toLowerCase());
                 break;
             case "5a":
-                if(request.getType().equals("trip")){
-                    if ( (request.getUser().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())
-                            || (request.getTrip().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())) {
-                        if ( (request.getUser().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()) ||
-                                (request.getTrip().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()))
-                            value = isViceDirectorOrDelegate(request,email.toLowerCase());
-                        else
-                            value = isInstituteDirectorOrDelegate(request,email.toLowerCase());
-                    }
-                }else
-                    value = isDiataktisOrDelegate(request,email.toLowerCase());
+                value = isProperPOI(request,email.toLowerCase());
                 break;
             case "5b":
                 value = isMemberOfABOrDelegate(request,email.toLowerCase());
@@ -140,17 +130,7 @@ public class PolicyCheckerService {
                 value = isPOYOrDelegate(request,email.toLowerCase());
                 break;
             case "10":
-                if(request.getType().equals("trip")){
-                    if ( (request.getUser().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())
-                            || (request.getTrip().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())) {
-                        if ( (request.getUser().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()) ||
-                                (request.getTrip().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()))
-                            value = isViceDirectorOrDelegate(request,email.toLowerCase());
-                        else
-                            value = isInstituteDirectorOrDelegate(request,email.toLowerCase());
-                    }
-                }else
-                    value = isDiataktisOrDelegate(request,email.toLowerCase());
+                value = isProperPOI(request,email.toLowerCase());
                 break;
             case "11":
                 value = isDiaugeiaOrDelegate(request,email.toLowerCase());
@@ -165,7 +145,27 @@ public class PolicyCheckerService {
         return value;
     }
 
-    private Boolean isViceDirectorOrDelegate(Request request, String email) {
+    private Boolean isProperPOI(Request request, String email) {
+        Boolean value;
+        String requester = request.getUser().getEmail();
+        String diataktis = request.getProject().getInstitute().getDiataktis().getEmail();
+        String traveller = "";
+        if(request.getTrip()!=null)
+            traveller = request.getTrip().getEmail();
+        String organizationDirector = request.getProject().getInstitute().getOrganization().getDirector().getEmail();
+
+        if(requester.equals(diataktis) || traveller.equals(diataktis))
+            if(requester.equals(organizationDirector) || traveller.equals(organizationDirector))
+                value = isViceDirectorOrDelegate(request,email);
+            else
+                value = isOrganizationDirectorOrDelegate(request,email);
+        else
+            value = isDiataktisOrDelegate(request,email);
+
+        return value;
+    }
+
+    public Boolean isViceDirectorOrDelegate(Request request, String email) {
         return request.getProject().getInstitute().getOrganization().getViceDirector().getEmail().equals(email.toLowerCase())
                 || isDelegate(request.getProject().getInstitute().getOrganization().getViceDirector().getDelegates(),email.toLowerCase());
     }
