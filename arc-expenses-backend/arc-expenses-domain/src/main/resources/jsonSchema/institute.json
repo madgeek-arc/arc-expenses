@@ -40,7 +40,7 @@
   "required": [
     "id",
     "name",
-    "organization",
+    "organizationId",
     "director",
     "accountingRegistration",
     "accountingPayment",
