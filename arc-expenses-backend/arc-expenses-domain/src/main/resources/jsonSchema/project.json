@@ -12,8 +12,8 @@
     "acronym": {
       "type": "string"
     },
-    "institute": {
-      "javaType": "gr.athenarc.domain.Institute"
+    "instituteId": {
+      "type": "string"
     },
     "parentProject": {
       "type": "string"

@@ -30,7 +30,9 @@
       "description": "The archiveId of the request.",
       "type": "string"
     },
-    "project": { "javaType": "gr.athenarc.domain.Project" },
+    "projectId": {
+      "type": "string"
+    },
     "user": {
       "javaType": "gr.athenarc.domain.User" },
     "requesterPosition": {
