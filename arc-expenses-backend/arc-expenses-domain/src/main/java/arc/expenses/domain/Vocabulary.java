@@ -6,12 +6,14 @@ public class Vocabulary  {
 
     private String projectID;
     private String projectAcronym;
+    private String instituteId;
     private String instituteName;
 
-    public Vocabulary(String project_id, String project_acronym, String project_institute) {
+    public Vocabulary(String project_id, String project_acronym, String project_institute, String instituteName) {
         this.projectID=project_id;
         this.projectAcronym=project_acronym;
-        this.instituteName=project_institute;
+        this.instituteId =project_institute;
+        this.instituteName=instituteName;
     }
 
 
@@ -29,6 +31,14 @@ public class Vocabulary  {
 
     public void setProjectAcronym(String projectAcronym) {
         this.projectAcronym = projectAcronym;
+    }
+
+    public String getInstituteId() {
+        return instituteId;
+    }
+
+    public void setInstituteId(String instituteId) {
+        this.instituteId = instituteId;
     }
 
     public String getInstituteName() {

@@ -15,12 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
@@ -279,61 +281,66 @@ public class RequestServiceImpl extends GenericService<Request> {
                                                  List<BaseInfo.Status> status, List<Request.Type> types, String searchField,
                                                  List<String> stages, OrderByType orderType,
                                                  OrderByField orderField) {
-//
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        String roles = "";
-//        for(GrantedAuthority grantedAuthority : authentication.getAuthorities()){
-//            roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");
-//        }
-//        String aclEntriesQuery = "SELECT object_id_identity FROM acl_object_identity INNER JOIN (select distinct acl_object_identity from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+") as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id";
-//
-//
-//        String viewQuery = "select project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as stage, payment_view.stage as stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";
-//        viewQuery+=" inner join (" + aclEntriesQuery+") as acls on acls.object_id_identity=request_view.request_id";
-//
-//        viewQuery+= " where (approval_view.status in ? or payment_view.status in ?) and request_view.request_type in ? and (approval_view.stage in ? or payment_view.stage in ?) and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? ) order by "+orderField.toString()+" "  +  orderType.toString() + " offset ? limit ?";
-//
-//
-//        return new JdbcTemplate(dataSource).query(viewQuery, ps -> {
-//            ps.setArray(1, dataSource.getConnection().createArrayOf("VARCHAR", status.toArray()));
-//            ps.setArray(2, dataSource.getConnection().createArrayOf("VARCHAR", status.toArray()));
-//            ps.setArray(3, dataSource.getConnection().createArrayOf("VARCHAR", types.toArray()));
-//            ps.setArray(4, dataSource.getConnection().createArrayOf("VARCHAR", stages.toArray()));
-//            ps.setArray(5, dataSource.getConnection().createArrayOf("VARCHAR", stages.toArray()));
-//            ps.setString(6, searchField);
-//            ps.setString(7, searchField);
-//            ps.setString(8, searchField);
-//            ps.setString(9, searchField);
-//            ps.setString(10, searchField);
-//            ps.setInt(11, from);
-//            ps.setInt(12, quantity);
-//        }, rs -> {
-//            List<RequestSummary> results = new ArrayList<>();
-//            while(rs.next()){
-//                BaseInfo baseInfo = new BaseInfo();
-//                if(!rs.getString("approval_status").isEmpty())
-//                    baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("approval_status")));
-//                if(!rs.getString("payment_status").isEmpty())
-//                    baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("payment_status")));
-//
-//                if(!rs.getString("approval_stage").isEmpty())
-//                    baseInfo.setStage(rs.getString("approval_status"));
-//                if(!rs.getString("payment_stage").isEmpty())
-//                    baseInfo.setStage(rs.getString("payment_stage"));
-//
-//                Request request = get(rs.getString("request_id"));
-//                baseInfo.setRequestId(request.getId());
-//                RequestSummary requestSummary = new RequestSummary();
-//
-//                requestSummary.setBaseInfo(baseInfo);
-//                requestSummary.setRequest(request);
-//
-//                results.add(requestSummary);
-//            }
-//            return new Paging<>(results.size(),from, from + results.size(), results, new ArrayList<>());
-//        });
-        return null;
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String roles = "";
+        for(GrantedAuthority grantedAuthority : authentication.getAuthorities()){
+            roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");
+        }
+        String aclEntriesQuery = "SELECT object_id_identity FROM acl_object_identity INNER JOIN (select distinct acl_object_identity from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+") as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id";
+
+
+        String viewQuery = "select project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as stage, payment_view.stage as stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";
+        viewQuery+=" inner join (" + aclEntriesQuery+") as acls on acls.object_id_identity=request_view.request_id";
+
+        viewQuery+= " where (approval_view.status in ? or payment_view.status in ?) and request_view.request_type in ? and (approval_view.stage in ? or payment_view.stage in ?) "+(searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
+
+
+        return new JdbcTemplate(dataSource).query(viewQuery, ps -> {
+            ps.setArray(1, dataSource.getConnection().createArrayOf("VARCHAR", status.toArray()));
+            ps.setArray(2, dataSource.getConnection().createArrayOf("VARCHAR", status.toArray()));
+            ps.setArray(3, dataSource.getConnection().createArrayOf("VARCHAR", types.toArray()));
+            ps.setArray(4, dataSource.getConnection().createArrayOf("VARCHAR", stages.toArray()));
+            ps.setArray(5, dataSource.getConnection().createArrayOf("VARCHAR", stages.toArray()));
+            if(!searchField.isEmpty()) {
+                ps.setString(6, searchField);
+                ps.setString(7, searchField);
+                ps.setString(8, searchField);
+                ps.setString(9, searchField);
+                ps.setString(10, searchField);
+                ps.setInt(11, from);
+                ps.setInt(12, quantity);
+            }else{
+                ps.setInt(6, from);
+                ps.setInt(7, quantity);
+            }
+
+        }, rs -> {
+            List<RequestSummary> results = new ArrayList<>();
+            while(rs.next()){
+                BaseInfo baseInfo = new BaseInfo();
+                if(!rs.getString("approval_status").isEmpty())
+                    baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("approval_status")));
+                if(!rs.getString("payment_status").isEmpty())
+                    baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("payment_status")));
+
+                if(!rs.getString("approval_stage").isEmpty())
+                    baseInfo.setStage(rs.getString("approval_status"));
+                if(!rs.getString("payment_stage").isEmpty())
+                    baseInfo.setStage(rs.getString("payment_stage"));
+
+                Request request = get(rs.getString("request_id"));
+                baseInfo.setRequestId(request.getId());
+                RequestSummary requestSummary = new RequestSummary();
+
+                requestSummary.setBaseInfo(baseInfo);
+                requestSummary.setRequest(request);
+
+                results.add(requestSummary);
+            }
+            return new Paging<>(results.size(),from, from + results.size(), results, new ArrayList<>());
+        });
     }
 
     public List<Request> getPendingRequests(String email) {

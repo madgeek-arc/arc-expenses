@@ -37,12 +37,12 @@ public class ProjectServiceImpl extends GenericService<Project> {
     public List<Vocabulary> getAllProjectNames() {
 
         return new JdbcTemplate(dataSource)
-                .query("select project_id ,project_acronym,project_institute from project_view",vocabularyRowMapper);
+                .query("select project_view.project_id ,project_view.project_acronym,project_view.project_institute, institute_view.institute_name from project_view inner join institute_view on project_view.project_institute=institute_view.institute_id; ",vocabularyRowMapper);
 
     }
 
     private RowMapper<Vocabulary> vocabularyRowMapper = (rs, i) ->
-            new Vocabulary(rs.getString("project_id"),rs.getString("project_acronym"), rs.getString("project_institute"));
+            new Vocabulary(rs.getString("project_id"),rs.getString("project_acronym"), rs.getString("project_institute"), rs.getString("institute_name"));
 
 
     public Paging<Project> getAllProjects(String from,String quantity,Authentication auth) {
