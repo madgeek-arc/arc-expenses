@@ -1,16 +1,17 @@
 package arc.expenses.controller;
 
+import arc.expenses.domain.OrderByField;
+import arc.expenses.domain.OrderByType;
 import arc.expenses.domain.RequestSummary;
-import arc.expenses.service.*;
+import arc.expenses.service.RequestApprovalServiceImpl;
+import arc.expenses.service.RequestPaymentServiceImpl;
+import arc.expenses.service.RequestServiceImpl;
 import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.SearchService;
 import eu.openminted.registry.core.service.ServiceException;
-import gr.athenarc.domain.Request;
-import gr.athenarc.domain.RequestApproval;
-import gr.athenarc.domain.RequestPayment;
-import gr.athenarc.domain.Stage1;
+import gr.athenarc.domain.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -40,9 +41,6 @@ public class RequestController {
 
     @Autowired
     RequestServiceImpl requestService;
-
-    @Autowired
-    PolicyCheckerService policyCheckerService;
 
     @Autowired
     SearchService searchService;
@@ -150,28 +148,7 @@ public class RequestController {
         return requestService.add(type,projectId,subject,requesterPosition,supplier,supplierSelectionMethod,amount,files,destination,firstName,lastName,email);
     }
 
-
-    @RequestMapping(value = "/addRequest", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    synchronized Request addRequest(@RequestBody Request request, Authentication auth) {
-        request.setId(requestService.generateID());
-        request.setArchiveId(requestService.createArchive());
-        return requestService.add(request, auth);
-    }
-
-
-
-
-
-    /*////////////////////////////////////////////////////////////////////////////////////////
-                                        OLD STUFF
-      ////////////////////////////////////////////////////////////////////////////////////////
-     */
-
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)
-//    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public Request getById(@PathVariable("id") String id) throws ResourceNotFoundException {
         Request request = requestService.get(id);
         if(request == null)
@@ -179,18 +156,22 @@ public class RequestController {
         return request;
     }
 
-    @RequestMapping(value =  "/getAll", method = RequestMethod.GET)
-    public Paging<RequestSummary> getAllRequests(@RequestParam(value = "from",required=false,defaultValue = "0") String from,
-                                                 @RequestParam(value = "quantity",required=false,defaultValue = "10") String quantity,
-                                                 @RequestParam(value = "status") List<String> status,
-                                                 @RequestParam(value = "type") List<String> type,
-                                                 @RequestParam(value = "searchField",required=false) String searchField,
-                                                 @RequestParam(value = "stage") List<String> stage,
-                                                 @RequestParam(value = "order",required=false,defaultValue = "ASC") String orderType,
-                                                 @RequestParam(value = "orderField") String orderField,
-                                                 @RequestParam(value = "email") String email) {
+    /*////////////////////////////////////////////////////////////////////////////////////////
+                                        OLD STUFF
+      ////////////////////////////////////////////////////////////////////////////////////////
+     */
 
-        return requestService.criteriaSearch(from,quantity,status,type,searchField,stage,orderType,orderField,email);
+    @RequestMapping(value =  "/getAll", method = RequestMethod.GET)
+    public Paging<RequestSummary> getAllRequests(@RequestParam(value = "from",required=false,defaultValue = "0") int from,
+                                                 @RequestParam(value = "quantity",required=false,defaultValue = "10") int quantity,
+                                                 @RequestParam(value = "status") List<BaseInfo.Status> status,
+                                                 @RequestParam(value = "type") List<Request.Type> type,
+                                                 @RequestParam(value = "searchField",required=false, defaultValue = "") String searchField,
+                                                 @RequestParam(value = "stage") List<String> stage,
+                                                 @RequestParam(value = "order",required=false,defaultValue = "ASC") OrderByType orderType,
+                                                 @RequestParam(value = "orderField") OrderByField orderField) {
+
+        return requestService.criteriaSearch(from,quantity,status,type,searchField,stage,orderType,orderField);
 
     }
 
@@ -209,9 +190,6 @@ public class RequestController {
     ResponseEntity<Boolean> isEditable(@RequestBody RequestSummary requestSummary,
                                        @RequestParam("email") String email) {
 
-
-        if(policyCheckerService.updateFilter(requestSummary,email))
-            return new ResponseEntity<>( true, HttpStatus.OK);
         return new ResponseEntity<>( false, HttpStatus.OK);
     }
 

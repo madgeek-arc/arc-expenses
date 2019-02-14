@@ -54,6 +54,8 @@ public class AclService extends JdbcMutableAclService{
             acl.insertAce(acl.getEntries().size(), ArcPermission.APPROVE, principal, true);
             acl.insertAce(acl.getEntries().size(), ArcPermission.REJECT, principal, true);
             acl.insertAce(acl.getEntries().size(), ArcPermission.DOWNGRADE, principal, true);
+            acl.insertAce(acl.getEntries().size(), ArcPermission.READ, principal, true);
+            acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, principal, true);
         }
         updateAcl(acl);
         deleteEntries(oldPrincipal,id, Request.class);

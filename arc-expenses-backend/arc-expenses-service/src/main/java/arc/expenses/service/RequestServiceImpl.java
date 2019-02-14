@@ -1,9 +1,6 @@
 package arc.expenses.service;
 
-import arc.expenses.domain.RequestSummary;
-import arc.expenses.domain.StageEvents;
-import arc.expenses.domain.Stages;
-import arc.expenses.utils.Converter;
+import arc.expenses.domain.*;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
@@ -14,15 +11,13 @@ import gr.athenarc.domain.*;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.codehaus.plexus.util.FileUtils;
-import org.javatuples.Septet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.core.Authentication;
@@ -38,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
-import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -117,7 +111,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                             Optional.ofNullable(message).ifPresent(msg -> {
                                 Optional.ofNullable((Request) msg.getHeaders().get("requestObj"))
                                         .ifPresent(request ->{
-                                            request.setCurrentState(state.getId()+""); // <-- casting to String causes uncertain behavior. Keep it this way
+                                            request.setCurrentStage(state.getId()+""); // <-- casting to String causes uncertain behavior. Keep it this way
                                             try {
                                                 logger.info("Updating "+ request.getId()+" request's stage to " + state.getId());
                                                 update(request, request.getId());
@@ -131,13 +125,19 @@ public class RequestServiceImpl extends GenericService<Request> {
                     });
 
                     sma.resetStateMachine(new DefaultStateMachineContext<>(
-                            Stages.valueOf((request.getCurrentState() == null ? Stages.Stage1.name() : request.getCurrentState())), null, null, null));
+                            Stages.valueOf((request.getCurrentStage() == null ? Stages.Stage1.name() : request.getCurrentStage())), null, null, null));
 
                     logger.info("Resetting machine of request " + request.getId() + " at state " + sm.getState().getId());
                 });
 
         sm.start();
         return sm;
+    }
+
+    @Override
+    @PostAuthorize("hasPermission(#returnObject,'READ')")
+    public Request get(String id) {
+        return super.get(id);
     }
 
     @PreAuthorize("hasPermission(#request,'APPROVE')")
@@ -220,7 +220,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         }
         User user = userService.getByField("user_email",(String) authentication.getPrincipal());
         request.setUser(user);
-        request.setProject(project);
+        request.setProjectId(projectId);
         request.setRequesterPosition(requesterPosition);
 
         Stage1 stage1 = new Stage1(LocalDate.now().toEpochDay()+"", subject, supplier, supplierSelectionMethod, amount, amount);
@@ -237,62 +237,9 @@ public class RequestServiceImpl extends GenericService<Request> {
             trip.setLastname((lastName.isEmpty() ? user.getLastname() : lastName));
             request.setTrip(trip);
         }
-        request.setCurrentState(Stages.Stage2.name());
+        request.setCurrentStage(Stages.Stage2.name());
         return super.add(request, authentication);
     }
-
-    private RequestApproval stage2(RequestApproval requestApproval, String mode) throws Exception {
-        User user = userService.getByField("user_email",(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        boolean checkFeasibility = false;
-        boolean checkNecessity = false;
-        boolean approved = false;
-        String comment = "";
-        List<Attachment> attachments = new ArrayList<>();
-        String stage = "";
-        BaseInfo.Status status = BaseInfo.Status.PENDING;
-
-        switch (mode){
-            case "upgrade":
-                stage = "3";
-                status = BaseInfo.Status.PENDING;
-                approved = true;
-                checkFeasibility = true;
-                checkNecessity = true;
-
-                break;
-            case "downgrade":
-                break;
-            case "reject":
-                Request request = get(requestApproval.getRequestId());
-                request.setRequestStatus(Request.RequestStatus.REJECTED);
-                update(request, request.getId());
-                stage = "2";
-                status = BaseInfo.Status.REJECTED;
-                approved = false;
-
-                break;
-            default:
-                break;
-        }
-
-
-//        requestApproval.
-        requestApproval.setStage(stage);
-        requestApproval.setStatus(status);
-        return requestApproval;
-    }
-
-
-
-
-
-    private File multipartToFile(MultipartFile multipart) throws IllegalStateException, IOException
-    {
-        File convFile = new File( multipart.getOriginalFilename());
-        multipart.transferTo(convFile);
-        return convFile;
-    }
-
 
     public String getMaxID() {
 
@@ -328,216 +275,65 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
 
-    public Paging<RequestSummary> criteriaSearch(String from, String quantity,
-                                                 List<String> status, List<String> type, String searchField,
-                                                 List<String> stage, String orderType,
-                                                 String orderField, String email) {
-
-        String query =  "select request_id,id,creation_date,request_project_acronym,request_institute,request_stage , count(*) over () as total_rows from (       ( select distinct(r.request_id) as request_id ,a.approval_id as id,(res2.payload::json)->'stage1'->>'requestDate' as creation_date,         r.request_project_acronym as request_project_acronym , r.request_institute as request_institute , a.stage as request_stage , r.request_type as request_type        from request_view r , approval_view a , resource res1, resource res2           where r.request_id = a.request_id  and res1.fk_name = 'approval'          and a.id  = res1.id AND r.id = res2.id          AND res2.fk_name = 'request' " ;
-
-
-
-        StringBuilder searchField_clause = this.getSearchFieldClause(searchField);
-        if(searchField_clause.length()!=0)
-            query+= "  and  " + searchField_clause.toString();
-
-
-        StringBuilder user_clause = this.getUserClause(email);
-        if(user_clause.length()!=0)
-            query+= " and " + user_clause.toString();
-
-        StringBuilder stage_clause = this.getStageClause("a",stage);
-        if( stage_clause.length()!=0)
-            query+= " and  " + stage_clause.toString();
-
-        StringBuilder status_clause = this.getStatusClause("a",status);
-        if(status_clause.length()!=0)
-            query+= " and " + status_clause.toString();
-
-        StringBuilder type_clause = this.getTypeClause(type);
-        if(type_clause.length()!=0)
-            query+= " and " + type_clause.toString();
-
-
-        query+=" )" +
-               " union " +
-               " ( select distinct(r.request_id) as request_id,p.payment_id as id,(res2.payload::json)->'stage1'->>'requestDate' as creation_date ," +
-               " r.request_project_acronym as request_project_acronym , r.request_institute as request_institute , p.stage as request_stage , r.request_type as request_type" +
-               " from request_view r , payment_view p , resource res1, resource res2   " +
-               " where r.request_id = p.request_id  and res1.fk_name = 'payment' " +
-               " and p.id  = res1.id AND r.id = res2.id "+
-                " AND res2.fk_name = 'request' " ;
-
-        searchField_clause = this.getSearchFieldClause(searchField);
-        if(searchField_clause.length()!=0)
-            query+= "  and  " + searchField_clause.toString();
-
-        user_clause = this.getUserClause(email);
-        if(user_clause.length()!=0)
-            query+= " and " + user_clause.toString();
-
-        stage_clause = this.getStageClause("p",stage);
-        if( stage_clause.length()!=0)
-            query+= " and  " + stage_clause.toString();
-
-        status_clause = this.getStatusClause("p",status);
-        if(status_clause.length()!=0)
-            query+= " and " + status_clause.toString();
-
-        type_clause = this.getTypeClause(type);
-        if(type_clause.length()!=0)
-            query+= " and " + type_clause.toString();
-
-        query += ")) as foo ";
-
-
-        query +=  "  order by "+orderField + " "  + orderType;
-        query +=  "  limit " + quantity +
-                  "  offset " + from;
-
-        logger.info(query);
-        List<Septet<String,String,String,String,String,String,String>> resultSet =  new JdbcTemplate(dataSource)
-                .query(query,requestSummaryMapper);
-
-        List<RequestSummary> rs = new ArrayList<>();
-        int total = 0;
-        for(Septet<String,String,String,String,String,String,String> septet : resultSet){
-            RequestSummary requestSummary = new RequestSummary();
-            total = Integer.parseInt(septet.getValue6());
-            if(septet.getValue1().contains("a"))
-                requestSummary.setBaseInfo(Converter.toBaseInfo(requestApprovalService.get(septet.getValue1())));
-            else
-                requestSummary.setBaseInfo(Converter.toBaseInfo(requestPaymentService.get(septet.getValue1())));
-
-            requestSummary.setRequest(get(requestSummary.getBaseInfo().getRequestId()));
-            rs.add(requestSummary);
-        }
-
-        return new Paging<>(total,Integer.parseInt(from),Integer.parseInt(quantity),rs,null);
-    }
-
-    private StringBuilder getTypeClause(List<String> type) {
-
-        StringBuilder status_clause = new StringBuilder();
-        StringBuilder in_clause = new StringBuilder();
-
-        if(!type.get(0).equals("all")){
-            status_clause.append("r.request_type in ");
-            in_clause.append("(");
-            for(int i=0;i<type.size();i++)
-                in_clause.append("'").append(type.get(i)).append("'").append(",");
-            in_clause.deleteCharAt(in_clause.length()-1);
-            in_clause.append(")");
-
-            status_clause.append(in_clause.toString());
-        }
-        return status_clause;
-
-    }
-
-    private StringBuilder getSearchFieldClause(String searchField) {
-
-        StringBuilder searchField_clause = new StringBuilder();
-
-        if(searchField!=null && !searchField.equals(""))
-            searchField_clause.append( "( (res2.payload::json->>'user')::text ilike '%")
-                                .append(searchField).append("%'")
-                                .append( " or  ")
-                                .append( "( r.request_project ilike '%")
-                                .append(searchField).append("%')")
-                                .append( " or  ")
-                                .append( "( r.request_institute ilike '%")
-                                .append(searchField).append("%')")
-                                .append( " or  ")
-                                .append( "( r.request_id ilike '%")
-                                .append(searchField).append("%')")
-                                .append( " or  ")
-                                .append( "( ((res2.payload::json)->'project'->>'operator')::text ilike '%")
-                                .append(searchField).append("%')")
-                                .append( " or  ")
-                                .append( "( ((res2.payload::json)->'project'->>'scientificCoordinator')::text ilike '%")
-                                .append(searchField).append("%') )");
-
-        return searchField_clause;
-    }
-
-    private RowMapper<Septet<String,String,String,String,String,String,String>> requestSummaryMapper = (rs, i) ->
-            Septet.with(rs.getString("request_id"),
-                rs.getString("id"),
-                rs.getString("creation_date"),
-                rs.getString("request_project_acronym"),
-                rs.getString("request_institute"),
-                rs.getString("request_stage"),
-                rs.getString("total_rows"));
-
-    private StringBuilder getStatusClause(String table,List<String> status) {
-        StringBuilder status_clause = new StringBuilder();
-        StringBuilder in_clause = new StringBuilder();
-
-        if(!status.get(0).equals("all")){
-            status_clause.append(table).append(".status in ");
-
-            in_clause.append("(");
-            for(int i=0;i<status.size();i++){
-                if(status.get(i).equals("'pending'"))
-                    in_clause.append(" 'under_review', ");
-                in_clause.append("'").append(status.get(i)).append("'").append(",");
-            }
-            in_clause.deleteCharAt(in_clause.length()-1);
-            in_clause.append(")");
-
-            status_clause.append(in_clause.toString());
-        }
-        return status_clause;
-    }
-
-    private StringBuilder getStageClause(String table,List<String> stage) {
-
-        StringBuilder stage_clause = new StringBuilder();
-        StringBuilder in_clause = new StringBuilder();
-
-        if(!stage.get(0).equals("all")){
-            stage_clause.append(table).append(".stage in ");
-            in_clause.append("(");
-            for(int i=0;i<stage.size();i++)
-                in_clause.append("'").append(stage.get(i)).append("'").append(",");
-            in_clause.deleteCharAt(in_clause.length()-1);
-            in_clause.append(")");
-
-            stage_clause.append(in_clause.toString());
-        }
-        return stage_clause;
-    }
-
-    private StringBuilder getUserClause(String email) {
-
-        StringBuilder user_clause = new StringBuilder();
-
-        if(!admins.contains(email)) {
-            user_clause.append(" ( r.request_requester = '"  + email + "' or " +
-                    " r.request_project_operator @> '{"+'"' + email + '"' + "}' or " +
-                    " r.request_organization_inspectionteam @> '{"+'"' + email + '"' + "}' or " +
-                    " r.request_organization_inspectionteam_delegate @> '{"+'"' + email + '"' + "}' or " +
-                    " r.request_project_operator_delegate @> '{"+'"' + email + '"' + "}' or " +
-                    " r.request_project_scientificCoordinator = '"  + email + "' or " +
-                    " r.request_institute_travelmanager = '"  + email + "' or " +
-                    " r.request_organization_poy = '"  + email + "' or " +
-                    " r.request_organization_poy_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_travelmanager_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_accountingRegistration = '"  + email + "' or " +
-                    " r.request_institute_diaugeia = '"  + email + "' or " +
-                    " r.request_institute_accountingPayment = '"  + email + "' or " +
-                    " r.request_institute_accountingDirector = '"  + email + "' or " +
-                    " r.request_institute_accountingDirector_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_accountingRegistration_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_accountingPayment_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_diaugeia_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_organization_director = '"  + email + "' or " +
-                    " r.request_institute_director = '"  + email + "' or " +
-                    " r.request_organization_director_delegate @>  '{"+'"' + email + '"' + "}' or " +
-                    " r.request_institute_director_delegate @>  '{"+'"' + email + '"' + "}' ) ");
-        }
-        return user_clause;
+    public Paging<RequestSummary> criteriaSearch(int from, int quantity,
+                                                 List<BaseInfo.Status> status, List<Request.Type> types, String searchField,
+                                                 List<String> stages, OrderByType orderType,
+                                                 OrderByField orderField) {
+//
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        String roles = "";
+//        for(GrantedAuthority grantedAuthority : authentication.getAuthorities()){
+//            roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");
+//        }
+//        String aclEntriesQuery = "SELECT object_id_identity FROM acl_object_identity INNER JOIN (select distinct acl_object_identity from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+") as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id";
+//
+//
+//        String viewQuery = "select project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as stage, payment_view.stage as stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";
+//        viewQuery+=" inner join (" + aclEntriesQuery+") as acls on acls.object_id_identity=request_view.request_id";
+//
+//        viewQuery+= " where (approval_view.status in ? or payment_view.status in ?) and request_view.request_type in ? and (approval_view.stage in ? or payment_view.stage in ?) and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? ) order by "+orderField.toString()+" "  +  orderType.toString() + " offset ? limit ?";
+//
+//
+//        return new JdbcTemplate(dataSource).query(viewQuery, ps -> {
+//            ps.setArray(1, dataSource.getConnection().createArrayOf("VARCHAR", status.toArray()));
+//            ps.setArray(2, dataSource.getConnection().createArrayOf("VARCHAR", status.toArray()));
+//            ps.setArray(3, dataSource.getConnection().createArrayOf("VARCHAR", types.toArray()));
+//            ps.setArray(4, dataSource.getConnection().createArrayOf("VARCHAR", stages.toArray()));
+//            ps.setArray(5, dataSource.getConnection().createArrayOf("VARCHAR", stages.toArray()));
+//            ps.setString(6, searchField);
+//            ps.setString(7, searchField);
+//            ps.setString(8, searchField);
+//            ps.setString(9, searchField);
+//            ps.setString(10, searchField);
+//            ps.setInt(11, from);
+//            ps.setInt(12, quantity);
+//        }, rs -> {
+//            List<RequestSummary> results = new ArrayList<>();
+//            while(rs.next()){
+//                BaseInfo baseInfo = new BaseInfo();
+//                if(!rs.getString("approval_status").isEmpty())
+//                    baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("approval_status")));
+//                if(!rs.getString("payment_status").isEmpty())
+//                    baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("payment_status")));
+//
+//                if(!rs.getString("approval_stage").isEmpty())
+//                    baseInfo.setStage(rs.getString("approval_status"));
+//                if(!rs.getString("payment_stage").isEmpty())
+//                    baseInfo.setStage(rs.getString("payment_stage"));
+//
+//                Request request = get(rs.getString("request_id"));
+//                baseInfo.setRequestId(request.getId());
+//                RequestSummary requestSummary = new RequestSummary();
+//
+//                requestSummary.setBaseInfo(baseInfo);
+//                requestSummary.setRequest(request);
+//
+//                results.add(requestSummary);
+//            }
+//            return new Paging<>(results.size(),from, from + results.size(), results, new ArrayList<>());
+//        });
+        return null;
     }
 
     public List<Request> getPendingRequests(String email) {
@@ -613,132 +409,6 @@ public class RequestServiceImpl extends GenericService<Request> {
         }
         return new ResponseEntity<>(archiveID+"/"+fileName,HttpStatus.OK);
 
-    }
-
-//    public InputStream downloadFile(String mode,String id, String stage) {
-//
-//        List<Attachment> attachment = getAttachments(mode,id,stage);//.get(Integer.parseInt(index));
-//        try {
-//            File temp = File.createTempFile("file", "tmp");
-//            temp.deleteOnExit();
-//            storeRESTClient.downloadFile(attachment.getUrl(), temp.getAbsolutePath());
-//            return new FileInputStream(temp);
-//        } catch (Exception e) {
-//            logger.error("error downloading file", e);
-//        }
-//
-//        return null;
-//    }
-//
-//    public List<Attachment> getAttachments(String mode ,String id, String stage) {
-//        Attachment attachment;
-//
-//        if(mode.equals("request"))
-//            return get(id).getStage1().getAttachments();
-//        else if(mode.equals("approval")){
-//            switch (stage) {
-//                case "2":
-//                    return requestApprovalService.get(id).getStage2().getAttachments();
-//                case "3":
-//                    return requestApprovalService.get(id).getStage3().getAttachments();
-//                case "4":
-//                    return requestApprovalService.get(id).getStage4().getAttachments();
-//                case "5a":
-//                    return requestApprovalService.get(id).getStage5a().getAttachments();
-//                case "5b":
-//                    return requestApprovalService.get(id).getStage5b().getAttachments();
-//                case "6":
-//                    return requestApprovalService.get(id).getStage6().getAttachments();
-//                default:
-//                    return new ArrayList<>();
-//            }
-//        }else{
-//            switch (stage) {
-//                case "7":
-//                    return requestPaymentService.get(id).getStage7().getAttachments();
-//                case "8":
-//                    return requestPaymentService.get(id).getStage8().getAttachments();
-//                case "9":
-//                    return requestPaymentService.get(id).getStage9().getAttachments();
-//                case "10":
-//                    return requestPaymentService.get(id).getStage10().getAttachments();
-//                case "11":
-//                    return requestPaymentService.get(id).getStage11().getAttachments();
-//                case "12":
-//                    return requestPaymentService.get(id).getStage12().getAttachments();
-//                case "13":
-//                    return requestPaymentService.get(id).getStage13().getAttachments();
-//                default:
-//                    return new ArrayList<>();
-//            }
-//        }
-//    }
-
-
-    public void cascadeAll(Organization organization, Authentication authentication) {
-        List<Resource> resources = getRequestsPerOrganization(organization.getId(),authentication);
-
-        for(Resource resource:resources){
-            Request request = parserPool.deserialize(resource,typeParameterClass);
-            request.getProject().getInstitute().setOrganization(organization);
-            try {
-                update(request,request.getId());
-            } catch (ResourceNotFoundException e) {
-                logger.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
-            }
-        }
-    }
-
-    public void cascadeAll(Project project, Authentication authentication) {
-        List<Resource> resources = getRequestsPerProject(project.getId(),authentication);
-
-        for(Resource resource:resources){
-            Request request = parserPool.deserialize(resource,typeParameterClass);
-            request.setProject(project);
-            try {
-                update(request,request.getId());
-            } catch (ResourceNotFoundException e) {
-                logger.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
-            }
-        }
-    }
-
-    public void cascadeAll(Institute institute, Authentication authentication) {
-        List<Resource> resources = getRequestsPerInstitute(institute.getId(),authentication);
-
-        for(Resource resource:resources){
-            Request request = parserPool.deserialize(resource,typeParameterClass);
-            request.getProject().setInstitute(institute);
-            try {
-                update(request,request.getId());
-            } catch (ResourceNotFoundException e) {
-                logger.debug("error on updating request ( " + request.getId() + " ) on cascade all ", e);
-            }
-        }
-    }
-
-    public List<Resource> getRequestsPerProject(String id, Authentication authentication) {
-        return getByValue("request_project",id,authentication);
-    }
-
-    public List<Resource> getRequestsPerInstitute(String id,Authentication authentication) {
-        return getByValue("request_institute",id,authentication);
-    }
-
-    public List<Resource> getRequestsPerOrganization(String id,Authentication authentication) {
-        return getByValue("request_institute_organization",id,authentication);
-    }
-
-
-    private List<Resource> getByValue(String field,String id,Authentication authentication){
-
-        String query = field + "= \"" + id + "\"";
-
-        Paging<Resource> rs = searchService.cqlQuery(
-                query,"request",
-                1000,0,
-                "", "ASC");
-        return rs.getResults();
     }
 
 }

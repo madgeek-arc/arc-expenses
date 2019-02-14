@@ -110,7 +110,7 @@ class BulkImportService {
             Institute institute = new Institute();
             institute.setId(line[0].trim());
             institute.setName(line[1].trim());
-            institute.setOrganization(organizationService.getByField("organization_name",line[2].trim()));
+            institute.setOrganizationId(organizationService.getByField("organization_name",line[2].trim()).getId());
 
             institute.setDirector(parserPOY(line[3]));
             institute.getDirector().setDelegates(delegateParser(line[3]));
@@ -164,7 +164,7 @@ class BulkImportService {
             project.setId(line[0].trim());
             project.setName(line[1].trim());
             project.setAcronym(line[2].trim());
-            project.setInstitute(instituteService.get(line[3].trim()));
+            project.setInstituteId(instituteService.get(line[3].trim()).getId());
             project.setParentProject(line[4].trim());
 
             project.setScientificCoordinator(parserPOY(line[5]));

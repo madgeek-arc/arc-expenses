@@ -153,51 +153,51 @@ public class RequestWrapper implements StageInterface {
             case "1":
                 personsOfInterest = null;
                 break;
-            case "2":
-                personsOfInterest.add(request.getProject().getScientificCoordinator());
-                break;
-            case "3":
-                personsOfInterest.addAll(request.getProject().getOperator());
-                break;
-            case "4":
-                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
-                break;
-            case "5":
-                personsOfInterest.add(request.getProject().getInstitute().getDirector());
-                break;
-            case "5a":
-                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDirector());
-                break;
-            case "UploadInvoice":
-                personsOfInterest = null;
-                break;
-            case "5b":
-                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio());
-                break;
-            case "6":
-                personsOfInterest.add(request.getProject().getInstitute().getDiaugeia());
-                break;
-            case "7":
-                personsOfInterest.addAll(request.getProject().getOperator());
-                break;
-            case "8":
-                personsOfInterest.addAll(request.getProject().getInstitute().getOrganization().getInspectionTeam());
-                break;
-            case "9":
-                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
-                break;
-            case "10":
-                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDirector());
-                break;
-            case "11":
-                personsOfInterest.add(request.getProject().getInstitute().getDiaugeia());
-                break;
-            case "12":
-                personsOfInterest.add(request.getProject().getInstitute().getAccountingRegistration());
-                break;
-            case "13":
-                personsOfInterest.add(request.getProject().getInstitute().getAccountingPayment());
-                break;
+//            case "2":
+//                personsOfInterest.add(request.getProject().getScientificCoordinator());
+//                break;
+//            case "3":
+//                personsOfInterest.addAll(request.getProject().getOperator());
+//                break;
+//            case "4":
+//                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
+//                break;
+//            case "5":
+//                personsOfInterest.add(request.getProject().getInstitute().getDirector());
+//                break;
+//            case "5a":
+//                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDirector());
+//                break;
+//            case "UploadInvoice":
+//                personsOfInterest = null;
+//                break;
+//            case "5b":
+//                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio());
+//                break;
+//            case "6":
+//                personsOfInterest.add(request.getProject().getInstitute().getDiaugeia());
+//                break;
+//            case "7":
+//                personsOfInterest.addAll(request.getProject().getOperator());
+//                break;
+//            case "8":
+//                personsOfInterest.addAll(request.getProject().getInstitute().getOrganization().getInspectionTeam());
+//                break;
+//            case "9":
+//                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
+//                break;
+//            case "10":
+//                personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDirector());
+//                break;
+//            case "11":
+//                personsOfInterest.add(request.getProject().getInstitute().getDiaugeia());
+//                break;
+//            case "12":
+//                personsOfInterest.add(request.getProject().getInstitute().getAccountingRegistration());
+//                break;
+//            case "13":
+//                personsOfInterest.add(request.getProject().getInstitute().getAccountingPayment());
+//                break;
             default:
                 return null;
         }

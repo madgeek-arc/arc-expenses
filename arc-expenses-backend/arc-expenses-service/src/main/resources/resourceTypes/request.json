@@ -11,6 +11,11 @@
       "type": "java.lang.String"
     },
     {
+      "name": "current_stage",
+      "path": "$.currentStage",
+      "type": "java.lang.String"
+    },
+    {
       "name": "request_status",
       "path": "$.requestStatus",
       "type": "java.lang.String"
@@ -21,174 +26,8 @@
       "type": "java.lang.String"
     },
     {
-      "name": "request_institute",
-      "path": "$.project.institute.id",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_institute_organization",
-      "path": "$.project.institute.organization.id",
-      "type": "java.lang.String"
-    },
-    {
       "name": "request_project",
-      "path": "$.project.id",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_project_acronym",
-      "path": "$.project.acronym",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_project_operator",
-      "path": "$.project.operator[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_project_operator_delegate",
-      "path": "$.project.operator[*].delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_project_scientificCoordinator",
-      "path": "$.project.scientificCoordinator.email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_organization_poy",
-      "path": "$.project.institute.organization.poy.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_organization_poy_delegate",
-      "path": "$.project.institute.organization.poy.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_organization_director",
-      "path": "$.project.institute.organization.director.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_organization_director_delegate",
-      "path": "$.project.institute.organization.director.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_organization_dioikitikoSumvoulio",
-      "path": "$.project.institute.organization.dioikitikoSumvoulio.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_organization_dioikitikoSumvoulio_delegate",
-      "path": "$.project.institute.organization.dioikitikoSumvoulio.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_institute_travelManager",
-      "path": "$.project.institute.travelManager.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_institute_travelManager_delegate",
-      "path": "$.project.institute.travelManager.delegates[*].email",
-      "type": "java.lang.String"
-    },
-
-    {
-      "name": "request_institute_suppliesOffice",
-      "path": "$.project.institute.suppliesOffice.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_institute_suppliesOffice_delegate",
-      "path": "$.project.institute.suppliesOffice.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_institute_director",
-      "path": "$.project.institute.director.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_institute_director_delegate",
-      "path": "$.project.institute.director.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_institute_accountingRegistration",
-      "path": "$.project.institute.accountingRegistration.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_institute_accountingRegistration_delegate",
-      "path": "$.project.institute.accountingRegistration.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_institute_accountingPayment",
-      "path": "$.project.institute.accountingPayment.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_institute_accountingPayment_delegate",
-      "path": "$.project.institute.accountingPayment.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_institute_accountingDirector",
-      "path": "$.project.institute.accountingDirector.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_institute_accountingDirector_delegate",
-      "path": "$.project.institute.accountingDirector.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_organization_inspectionTeam",
-      "path": "$.project.institute.organization.inspectionTeam[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_organization_inspectionTeam_delegate",
-      "path": "$.project.institute.organization.inspectionTeam[*].delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_institute_diaugeia",
-      "path": "$.project.institute.diaugeia.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_institute_diaugeia_delegate",
-      "path": "$.project.institute.diaugeia.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "request_institute_diataktis",
-      "path": "$.project.institute.diataktis.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "request_institute_diataktis_delegate",
-      "path": "$.project.institute.diataktis.delegates[*].email",
+      "path": "$.projectId",
       "type": "java.lang.String"
     }
   ],

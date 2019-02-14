@@ -1,22 +1,14 @@
 package arc.expenses.service;
 
 import arc.expenses.domain.Vocabulary;
-import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
-import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
-import gr.athenarc.domain.Institute;
-import gr.athenarc.domain.Organization;
 import gr.athenarc.domain.Project;
-import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
-import org.codehaus.groovy.tools.GrapeMain;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -32,9 +24,6 @@ public class ProjectServiceImpl extends GenericService<Project> {
 
     @Autowired
     DataSource dataSource;
-
-    @Autowired
-    CascadeService cascadeService;
 
     public ProjectServiceImpl() {
         super(Project.class);
@@ -104,55 +93,6 @@ public class ProjectServiceImpl extends GenericService<Project> {
     @Override
     public Project update(Project project, Authentication authentication) throws ResourceNotFoundException {
         update(project,project.getId());
-        cascadeService.cascadeAll(project,authentication);
         return project;
-    }
-
-    public void cascadeAll(Institute institute, Authentication authentication) {
-        List<Resource> resources = getProjectsPerInstitute(institute.getId(),authentication);
-
-        for(Resource resource:resources){
-            Project project = parserPool.deserialize(resource,typeParameterClass);
-            project.setInstitute(institute);
-            try {
-                update(project,project.getId());
-            } catch (ResourceNotFoundException e) {
-                LOGGER.debug("error on updating project ( " + project.getId() + " ) on cascade all ", e);
-            }
-        }
-    }
-
-    public void cascadeAll(Organization organization, Authentication authentication) {
-        List<Resource> resources = getProjectsPerOrganization(organization.getId(),authentication);
-
-        for(Resource resource:resources){
-            Project project = parserPool.deserialize(resource,typeParameterClass);
-            project.getInstitute().setOrganization(organization);
-            try {
-                update(project,project.getId());
-            } catch (ResourceNotFoundException e) {
-                LOGGER.debug("error on updating project ( " + project.getId() + " ) on cascade all ", e);
-            }
-        }
-    }
-
-    public List<Resource> getProjectsPerOrganization(String id, Authentication authentication) {
-        return getByValue("project_organization",id,authentication);
-    }
-
-    public List<Resource> getProjectsPerInstitute(String id,Authentication authentication) {
-        return getByValue("project_institute",id,authentication);
-    }
-
-
-    private List<Resource> getByValue(String field,String id,Authentication authentication){
-
-        String query = field + "= \"" + id + "\"";
-
-        Paging<Resource> rs = searchService.cqlQuery(
-                query,"project",
-                1000,0,
-                "", "ASC");
-        return rs.getResults();
     }
 }

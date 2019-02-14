@@ -3,6 +3,7 @@ package arc.expenses.config.stateMachine;
 import arc.expenses.domain.StageEvents;
 import arc.expenses.domain.Stages;
 import arc.expenses.service.AclService;
+import arc.expenses.service.ProjectServiceImpl;
 import arc.expenses.service.RequestApprovalServiceImpl;
 import arc.expenses.service.UserServiceImpl;
 import eu.openminted.registry.core.service.ServiceException;
@@ -48,6 +49,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
 
     @Autowired
     AclService aclService;
+
+    @Autowired
+    ProjectServiceImpl projectService;
 
     @Autowired
     private UserServiceImpl userService;
@@ -124,7 +128,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     try {
                         modifyRequest(context, true, true, false,"1", BaseInfo.Status.UNDER_REVIEW);
                         aclService.updateAclEntries(
-                                Collections.singletonList(new PrincipalSid(request.getProject().getScientificCoordinator().getEmail())),
+                                Collections.singletonList(new PrincipalSid(projectService.get(request.getProjectId()).getScientificCoordinator().getEmail())),
                                 Collections.singletonList(new PrincipalSid(request.getUser().getEmail())),
                                 request.getId());
                     } catch (Exception e) {
@@ -146,8 +150,8 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         try {
                             modifyRequest(context, true, true, true, "3", BaseInfo.Status.PENDING);
                             aclService.updateAclEntries(
-                                    Collections.singletonList(new PrincipalSid(request.getProject().getScientificCoordinator().getEmail())),
-                                    request.getProject().getOperator().stream().flatMap(entry -> Stream.of(new PrincipalSid(entry.getEmail()))).collect(Collectors.toList()),
+                                    Collections.singletonList(new PrincipalSid(projectService.get(request.getProjectId()).getScientificCoordinator().getEmail())),
+                                    projectService.get(request.getProjectId()).getOperator().stream().flatMap(entry -> Stream.of(new PrincipalSid(entry.getEmail()))).collect(Collectors.toList()),
                                     request.getId());
 
                         } catch (Exception e) {
@@ -196,7 +200,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                             try {
                                 modifyRequest(context, true, true, false,"2", BaseInfo.Status.UNDER_REVIEW);
                                 aclService.updateAclEntries(
-                                        Collections.singletonList(new PrincipalSid(request.getProject().getScientificCoordinator().getEmail())),
+                                        Collections.singletonList(new PrincipalSid(projectService.get(request.getProjectId()).getScientificCoordinator().getEmail())),
                                         Collections.singletonList(new PrincipalSid(request.getUser().getEmail())),
                                         request.getId());
                             } catch (Exception e) {

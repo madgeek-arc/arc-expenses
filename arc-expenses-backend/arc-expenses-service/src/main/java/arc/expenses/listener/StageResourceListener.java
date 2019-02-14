@@ -1,12 +1,8 @@
 package arc.expenses.listener;
 
-import arc.expenses.domain.RequestFatClass;
-import arc.expenses.mail.EmailMessage;
 import arc.expenses.mail.JavaMailer;
 import arc.expenses.messages.StageMessages;
-import arc.expenses.service.EmailService;
 import arc.expenses.service.RequestServiceImpl;
-import arc.expenses.utils.Converter;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.monitor.ResourceListener;
 import eu.openminted.registry.core.service.ParserService;
@@ -19,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 
 
@@ -39,9 +33,6 @@ public class StageResourceListener implements ResourceListener {
     StageMessages stageMessages;
 
     @Autowired
-    EmailService emailService;
-
-    @Autowired
     RequestServiceImpl requestService;
 
     @Value("${mail.restore:false}")
@@ -57,8 +48,8 @@ public class StageResourceListener implements ResourceListener {
         if (resource.getResourceType().getName().equals("approval") && !Boolean.parseBoolean(restore) &&!adminResourceUpdate) {
             RequestApproval requestApproval = parserPool.deserialize(resource, RequestApproval.class);
             if(requestApproval.getStage().equals("2")){
-                sendEmails("1","2",requestApproval.getStatus().value(),
-                        Converter.toRequestFatClass(requestService.get(requestApproval.getRequestId()),requestApproval));
+//                sendEmails("1","2",requestApproval.getStatus().value(),
+//                        Converter.toRequestFatClass(requestService.get(requestApproval.getRequestId()),requestApproval));
             }
         }
     }
@@ -93,8 +84,8 @@ public class StageResourceListener implements ResourceListener {
                 logger.debug("Prev Request: " + previousRequestApproval.toString());
                 logger.debug("New Request : " + newRequestApproval.toString());
 
-                sendEmails(previousRequestApproval.getStage(),newRequestApproval.getStage(),
-                        newRequestApproval.getStatus().value(),Converter.toRequestFatClass(request,newRequestApproval));
+//                sendEmails(previousRequestApproval.getStage(),newRequestApproval.getStage(),
+//                        newRequestApproval.getStatus().value(),Converter.toRequestFatClass(request,newRequestApproval));
             }
         }
 
@@ -110,17 +101,10 @@ public class StageResourceListener implements ResourceListener {
                 logger.debug("Prev Request: " + previousRequestPayment.toString());
                 logger.debug("New Request : " + newRequestPayment.toString());
 
-                sendEmails(previousRequestPayment.getStage(),newRequestPayment.getStage(),
-                        newRequestPayment.getStatus().value(),Converter.toRequestFatClass(request,newRequestPayment));
+//                sendEmails(previousRequestPayment.getStage(),newRequestPayment.getStage(),
+//                        newRequestPayment.getStatus().value(),Converter.toRequestFatClass(request,newRequestPayment));
             }
         }
-    }
-
-
-    private void sendEmails(String oldStage, String newStage , String status, RequestFatClass requestFatClass){
-        List<EmailMessage> messages = emailService.prepareMessages(oldStage,newStage,status,requestFatClass);
-        messages.forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
-        messages.forEach(logger::info);
     }
 
     @Async

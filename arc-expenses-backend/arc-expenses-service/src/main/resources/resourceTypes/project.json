@@ -24,12 +24,7 @@
     {
       "primaryKey":false,
       "name": "project_institute",
-      "path": "$.institute.id",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "project_organization",
-      "path": "$.institute.organization.id",
+      "path": "$.instituteId",
       "type": "java.lang.String"
     },
     {
@@ -42,144 +37,11 @@
       "name": "project_scientificCoordinator",
       "path": "$.scientificCoordinator.email",
       "type": "java.lang.String"
-    },
-    {
-      "name": "project_organization_poy",
-      "path": "$.institute.organization.poy.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_organization_poy_delegate",
-      "path": "$.institute.organization.poy.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "project_organization_director",
-      "path": "$.institute.organization.director.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_organization_director_delegate",
-      "path": "$.institute.organization.director.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "project_organization_dioikitikoSumvoulio",
-      "path": "$.institute.organization.dioikitikoSumvoulio.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_organization_dioikitikoSumvoulio_delegate",
-      "path": "$.institute.organization.dioikitikoSumvoulio.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "project_institute_travelManager",
-      "path": "$.institute.travelManager.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_institute_travelManager_delegate",
-      "path": "$.institute.travelManager.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "project_institute_suppliesOffice",
-      "path": "$.institute.suppliesOffice.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_institute_suppliesOffice_delegate",
-      "path": "$.institute.suppliesOffice.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "project_institute_director",
-      "path": "$.institute.director.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_institute_director_delegate",
-      "path": "$.institute.director.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "project_institute_accountingRegistration",
-      "path": "$.institute.accountingRegistration.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_institute_accountingRegistration_delegate",
-      "path": "$.institute.accountingRegistration.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "project_institute_accountingPayment",
-      "path": "$.institute.accountingPayment.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_institute_accountingPayment_delegate",
-      "path": "$.institute.accountingPayment.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "project_institute_accountingDirector",
-      "path": "$.institute.accountingDirector.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_institute_accountingDirector_delegate",
-      "path": "$.institute.accountingDirector.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_organization_inspectionTeam",
-      "path": "$.institute.organization.inspectionTeam[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_organization_inspectionTeam_delegate",
-      "path": "$.institute.organization.inspectionTeam[*].delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "project_institute_diaugeia",
-      "path": "$.institute.diaugeia.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_institute_diaugeia_delegate",
-      "path": "$.institute.diaugeia.delegates[*].email",
-      "type": "java.lang.String"
-    },
-    {
-      "name": "project_institute_diataktis",
-      "path": "$.institute.diataktis.email",
-      "type": "java.lang.String"
-    },
-    {
-      "multivalued": true,
-      "name": "project_institute_diataktis_delegate",
-      "path": "$.institute.diataktis.delegates[*].email",
-      "type": "java.lang.String"
     }
   ],
   "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
   "name": "project",
   "aliasGroup" : null,
   "payloadType": "json",
-  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/master/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/project.json"
+  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/project.json"
 }

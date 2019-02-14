@@ -1,12 +1,9 @@
 package arc.expenses.service;
 
-import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Organization;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +12,6 @@ import java.util.Map;
 
 @Service("organizationService")
 public class OrganizationServiceImpl extends GenericService<Organization>{
-
-    @Autowired
-    CascadeService cascadeService;
 
     public OrganizationServiceImpl() {
         super(Organization.class);
@@ -54,7 +48,6 @@ public class OrganizationServiceImpl extends GenericService<Organization>{
     @Override
     public Organization update(Organization organization,Authentication authentication) throws ResourceNotFoundException {
         update(organization,organization.getId());
-        cascadeService.cascadeAll(organization,authentication);
         return organization;
     }
 }

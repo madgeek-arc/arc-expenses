@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -69,15 +67,10 @@ public class UserServiceImpl extends GenericService<User> {
         if(admins.contains(email))
             roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
-
-        List<Integer> count =  new NamedParameterJdbcTemplate(dataSource)
-                .query(createExecutiveQuery(email),countMapper);
-        if(count.get(0) > 0)
+        if(isExecutive(email))
             roles.add(new SimpleGrantedAuthority("ROLE_EXECUTIVE"));
 
-        List<String> operators = new NamedParameterJdbcTemplate(dataSource)
-                .query(createOperatorQuery(email),emailMapper);
-        if(operators.contains(email))
+        if(isOperator(email))
             roles.add(new SimpleGrantedAuthority("ROLE_OPERATOR"));
 
         roles.add(new SimpleGrantedAuthority("ROLE_USER"));
@@ -86,37 +79,42 @@ public class UserServiceImpl extends GenericService<User> {
 
     }
 
-    private String createOperatorQuery(String email) {
+    private boolean isOperator(String email) {
 
-        return "  select distinct(regexp_replace(email,'[^[:alpha:]]','')) as email\n" +
-                " from (select split_part(regexp_matches(((payload::json)->>'operator')::text,'(?:\"email\":\")(.*?)(?:\",\"firstname\":\"(.*?)(?:\",\"lastname\":\"(.*?)(?:\")))','g')::text,',',1) as email\n" +
-                "      from resource\n" +
-                "      where fk_name = 'project') as foo";
+
+        return searchService.cqlQuery("operator="+email,"project",1,0,"","ASC").getResults().size()>0;
 
     }
 
-    private String createExecutiveQuery(String email) {
+    private boolean isExecutive(String email) {
 
-        return "select count(*) as count from request_view r \n" +
-                "where  r.request_project_operator @> '{\"" + email + "\"}' or  r.request_project_operator_delegate @> '{\"" + email + "\"}' "
-                + "  or  r.request_project_scientificCoordinator = '" + email
-                + "' or  r.request_organization_poy = '" + email + "' or  r.request_organization_poy_delegate @>  '{\"" + email + "\"}' or  r.request_institute_accountingRegistration = '" + email
-                + "' or  r.request_institute_diaugeia = '" + email + "' or  r.request_institute_accountingPayment = '" + email + "' or  r.request_institute_accountingDirector = '" + email
-                + "' or  r.request_institute_accountingDirector_delegate @>  '{\"" + email + "\"}' or  r.request_institute_accountingRegistration_delegate @>  '{\"" + email + "\"}' "
-                + "  or  r.request_institute_accountingPayment_delegate @>  '{\"" + email + "\"}' or  r.request_institute_diaugeia_delegate @>  '{\"" + email + "\"}' "
-                + "  or  r.request_organization_director = '" + email + "' or  r.request_institute_director = '" + email
-                + "' or  r.request_organization_director_delegate @>  '{\"" + email + "\"}'  or  r.request_institute_director_delegate @>  '{\"" + email + "\"}'  "
-                + "  or  r.request_organization_inspectionTeam @> '{\"" + email +  "\"}'     or  request_organization_inspectionTeam_delegate @> '{\"" + email + "\"}' "
-                + "  or  r.request_institute_travelmanager =  '" + email + "' or r.request_institute_suppliesoffice =  '" + email
-                + "' or  request_institute_travelmanager_delegate @>  '{\"" + email +  "\"}'  or request_institute_suppliesoffice_delegate @> '{\"" + email +  "\"}'";
+        String cqlQuery = "operator="+email+
+                " or operator_delegate="+email+
+                " or scientificCoordinator="+email+
+                " or poy="+email+
+                " or poy_delegate="+email+
+                " or accountingRegistration="+email+
+                " or diaugeia="+email+
+                " or accountingPayment="+email+
+                " or accountingDirector="+email+
+                " or accountingDirector_delegate="+email+
+                " or accountingRegistration_delegate="+email+
+                " or accountingPayment_delegate="+email+
+                " or diaugeia_delegate="+email+
+                " or director="+email+
+                " or director_delegate="+email+
+                " or inspectionTeam="+email+
+                " or inspectionTeam_delegate="+email+
+                " or travelmanager="+email+
+                " or suppliesoffice="+email+
+                " or travelmanager_delegate="+email+
+                " or suppliesoffice_delegate="+email;
+
+
+        return searchService.cqlQuery(cqlQuery,"*",1,0,"","ASC").getResults().size()>0;
+
 
     }
-
-    private RowMapper<Integer> countMapper = (rs, i) ->
-            Integer.valueOf(rs.getString("count"));
-
-    private RowMapper<String> emailMapper = (rs, i) ->
-            (rs.getString("email"));
 
     public List<User> getUsersWithImmediateEmailPreference() {
 
@@ -133,10 +131,6 @@ public class UserServiceImpl extends GenericService<User> {
             resultSet.add(parserPool.deserialize(resource,typeParameterClass));
         }
         return resultSet;
-    }
-
-    public String getSignatureArchiveID() {
-        return DS_ARCHIVE;
     }
 
     public ResponseEntity<Object> upLoadSignatureFile(String email,MultipartFile file) {

@@ -1,5 +1,6 @@
 package arc.expenses.controller;
 
+import arc.expenses.service.OrganizationServiceImpl;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Organization;
@@ -7,10 +8,8 @@ import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import arc.expenses.service.OrganizationServiceImpl;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/organization")
@@ -27,12 +26,9 @@ public class OrganizationController {
     }
 
 
-    @RequestMapping(value = "/add", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    Organization addOrganization(@RequestBody Organization organization, Authentication auth) {
-        return organizationService.add(organization, auth);
+    @RequestMapping(value = "/add", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Organization addOrganization(@RequestBody Organization organization) {
+        return organizationService.add(organization, SecurityContextHolder.getContext().getAuthentication());
     }
 
     @RequestMapping(value =  "/getAll", method = RequestMethod.GET)

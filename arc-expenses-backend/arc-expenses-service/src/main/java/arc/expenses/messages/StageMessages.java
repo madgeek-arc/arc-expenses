@@ -388,19 +388,19 @@ public class StageMessages {
             date = new SimpleDateFormat("dd/MM/yyyy").format(new Date(Long.parseLong(request.getStage1().getRequestDate())));
         }
 
-        requestInfo
-                .append("\n\nΑριθμός πρωτοκόλου: ")
-                .append(request.getId())
-                .append("\nΈργο: ")
-                .append(request.getProject().getAcronym())
-                .append("\nΗμερομηνία: ")
-                .append(date)
-                .append("\nΠοσό: " + euro)
-                .append(request.getStage1().getAmountInEuros())
-                .append("\nΘέμα: ")
-                .append(request.getStage1().getSubject())
-                .append("\n\nΜπορείτε να παρακολουθήσετε την εξέλιξή του ακολουθώντας τον παρακάτω σύνδεσμο: \n")
-                .append(createLink(request.getId()));
+//        requestInfo
+//                .append("\n\nΑριθμός πρωτοκόλου: ")
+//                .append(request.getId())
+//                .append("\nΈργο: ")
+//                .append(request.getProject().getAcronym())
+//                .append("\nΗμερομηνία: ")
+//                .append(date)
+//                .append("\nΠοσό: " + euro)
+//                .append(request.getStage1().getAmountInEuros())
+//                .append("\nΘέμα: ")
+//                .append(request.getStage1().getSubject())
+//                .append("\n\nΜπορείτε να παρακολουθήσετε την εξέλιξή του ακολουθώντας τον παρακάτω σύνδεσμο: \n")
+//                .append(createLink(request.getId()));
 
         return requestInfo.toString();
     }

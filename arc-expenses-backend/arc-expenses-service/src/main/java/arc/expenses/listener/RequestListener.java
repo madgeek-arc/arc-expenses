@@ -2,7 +2,9 @@ package arc.expenses.listener;
 
 import arc.expenses.acl.ArcPermission;
 import arc.expenses.service.AclService;
+import arc.expenses.service.ProjectServiceImpl;
 import arc.expenses.service.RequestApprovalServiceImpl;
+import arc.expenses.service.RequestPaymentServiceImpl;
 import gr.athenarc.domain.BaseInfo;
 import gr.athenarc.domain.Request;
 import gr.athenarc.domain.RequestApproval;
@@ -32,6 +34,12 @@ public class RequestListener {
     RequestApprovalServiceImpl requestApprovalService;
 
     @Autowired
+    RequestPaymentServiceImpl requestPaymentService;
+
+    @Autowired
+    ProjectServiceImpl projectService;
+
+    @Autowired
     AclService aclService;
 
     @AfterReturning(pointcut = "execution(* arc.expenses.service.RequestServiceImpl.add(..))", returning = "request")
@@ -55,9 +63,13 @@ public class RequestListener {
         AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(Request.class, request.getId()));
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new GrantedAuthoritySid("ROLE_ADMIN"), true);
-        acl.insertAce(acl.getEntries().size(), ArcPermission.REJECT, new PrincipalSid(request.getProject().getScientificCoordinator().getEmail()), true);
-        acl.insertAce(acl.getEntries().size(), ArcPermission.APPROVE, new PrincipalSid(request.getProject().getScientificCoordinator().getEmail()), true);
-        acl.insertAce(acl.getEntries().size(), ArcPermission.DOWNGRADE, new PrincipalSid(request.getProject().getScientificCoordinator().getEmail()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.REJECT, new PrincipalSid(projectService.get(request.getProjectId()).getScientificCoordinator().getEmail()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.APPROVE, new PrincipalSid(projectService.get(request.getProjectId()).getScientificCoordinator().getEmail()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.DOWNGRADE, new PrincipalSid(projectService.get(request.getProjectId()).getScientificCoordinator().getEmail()), true);
 
         aclService.updateAcl(acl);
 
