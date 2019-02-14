@@ -20,7 +20,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,9 +49,6 @@ public class RequestServiceImpl extends GenericService<Request> {
     private StoreRESTClient storeRESTClient;
 
     @Autowired
-    private MutableAclService aclService;
-
-    @Autowired
     RequestApprovalServiceImpl requestApprovalService;
 
     @Autowired
@@ -60,6 +56,12 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     @Autowired
     ProjectServiceImpl projectService;
+
+    @Autowired
+    InstituteServiceImpl instituteService;
+
+    @Autowired
+    OrganizationServiceImpl organizationService;
 
     @Autowired
     UserServiceImpl userService;
@@ -328,12 +330,21 @@ public class RequestServiceImpl extends GenericService<Request> {
                     baseInfo.setStage(rs.getString("payment_stage"));
 
                 Request request = get(rs.getString("request_id"));
+                Project project = projectService.get(request.getProjectId());
+                Institute institute = instituteService.get(project.getInstituteId());
+                Organization organization = organizationService.get(institute.getId());
+
+
                 baseInfo.setRequestId(request.getId());
                 RequestSummary requestSummary = new RequestSummary();
 
                 requestSummary.setBaseInfo(baseInfo);
                 requestSummary.setRequest(request);
                 requestSummary.setCanEdit(rs.getBoolean("canedit"));
+                requestSummary.setProject(project);
+                requestSummary.setInstitute(institute);
+                requestSummary.setOrganization(organization);
+
 
                 results.add(requestSummary);
             }

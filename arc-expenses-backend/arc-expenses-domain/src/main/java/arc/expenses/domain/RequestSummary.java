@@ -1,12 +1,14 @@
 package arc.expenses.domain;
 
-import gr.athenarc.domain.BaseInfo;
-import gr.athenarc.domain.Request;
+import gr.athenarc.domain.*;
 
 public class RequestSummary {
 
     private BaseInfo baseInfo;
     private Request request;
+    private Project project;
+    private Institute institute;
+    private Organization organization;
     private boolean canEdit;
 
     public RequestSummary() { }
@@ -33,5 +35,29 @@ public class RequestSummary {
 
     public void setCanEdit(boolean canEdit) {
         this.canEdit = canEdit;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public Institute getInstitute() {
+        return institute;
+    }
+
+    public void setInstitute(Institute institute) {
+        this.institute = institute;
+    }
+
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
     }
 }
