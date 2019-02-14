@@ -5,11 +5,11 @@ import gr.athenarc.domain.*;
 public class RequestSummary {
 
     private BaseInfo baseInfo;
-    private String request_id;
-    private String request_type;
-    private String project_acronym;
-    private String institute_name;
-    private String request_full_name;
+    private String requestId;
+    private String requestType;
+    private String projectAcronym;
+    private String instituteName;
+    private String requestFullName;
     private boolean canEdit;
 
     public RequestSummary() { }
@@ -31,43 +31,43 @@ public class RequestSummary {
         this.canEdit = canEdit;
     }
 
-    public String getRequest_id() {
-        return request_id;
+    public String getRequestId() {
+        return requestId;
     }
 
-    public void setRequest_id(String request_id) {
-        this.request_id = request_id;
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
-    public String getRequest_type() {
-        return request_type;
+    public String getRequestType() {
+        return requestType;
     }
 
-    public void setRequest_type(String request_type) {
-        this.request_type = request_type;
+    public void setRequestType(String requestType) {
+        this.requestType = requestType;
     }
 
-    public String getProject_acronym() {
-        return project_acronym;
+    public String getProjectAcronym() {
+        return projectAcronym;
     }
 
-    public void setProject_acronym(String project_acronym) {
-        this.project_acronym = project_acronym;
+    public void setProjectAcronym(String projectAcronym) {
+        this.projectAcronym = projectAcronym;
     }
 
-    public String getInstitute_name() {
-        return institute_name;
+    public String getInstituteName() {
+        return instituteName;
     }
 
-    public void setInstitute_name(String institute_name) {
-        this.institute_name = institute_name;
+    public void setInstituteName(String instituteName) {
+        this.instituteName = instituteName;
     }
 
-    public String getRequest_full_name() {
-        return request_full_name;
+    public String getRequestFullName() {
+        return requestFullName;
     }
 
-    public void setRequest_full_name(String request_full_name) {
-        this.request_full_name = request_full_name;
+    public void setRequestFullName(String requestFullName) {
+        this.requestFullName = requestFullName;
     }
 }

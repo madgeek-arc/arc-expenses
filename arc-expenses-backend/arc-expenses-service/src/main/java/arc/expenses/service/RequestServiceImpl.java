@@ -339,12 +339,12 @@ public class RequestServiceImpl extends GenericService<Request> {
                 RequestSummary requestSummary = new RequestSummary();
 
                 requestSummary.setBaseInfo(baseInfo);
-                requestSummary.setRequest_id(request.getId());
+                requestSummary.setRequestId(request.getId());
                 requestSummary.setCanEdit(rs.getBoolean("canedit"));
-                requestSummary.setRequest_full_name(request.getUser().getFirstname() + " " + request.getUser().getLastname());
-                requestSummary.setRequest_type(request.getType().toString());
-                requestSummary.setProject_acronym(project.getAcronym());
-                requestSummary.setInstitute_name(institute.getName());
+                requestSummary.setRequestFullName(request.getUser().getFirstname() + " " + request.getUser().getLastname());
+                requestSummary.setRequestType(request.getType().toString());
+                requestSummary.setProjectAcronym(project.getAcronym());
+                requestSummary.setInstituteName(institute.getName());
 
 
                 results.add(requestSummary);
