@@ -9,6 +9,10 @@ public class Vocabulary  {
     private String instituteId;
     private String instituteName;
 
+    public Vocabulary(){
+
+    }
+
     public Vocabulary(String project_id, String project_acronym, String project_institute, String instituteName) {
         this.projectID=project_id;
         this.projectAcronym=project_acronym;

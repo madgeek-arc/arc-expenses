@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("requestService")
 public class RequestServiceImpl extends GenericService<Request> {
@@ -137,7 +138,7 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
     @Override
-    @PostAuthorize("hasPermission(#returnObject,'READ')")
+    @PostAuthorize("hasPermission(#returnObject,'EDIT')")
     public Request get(String id) {
         return super.get(id);
     }
@@ -158,7 +159,7 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
 
-    @PreAuthorize("hasPermission(#request,'REJECT')")
+    @PreAuthorize("hasPermission(#request,'EDIT')")
     public void reject(Request request, HttpServletRequest req) {
         logger.info("Rejecting request with id " + request.getId());
         StateMachine<Stages, StageEvents> sm = this.build(request);
@@ -173,7 +174,7 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
 
-    @PreAuthorize("hasPermission(#request,'DOWNGRADE')")
+    @PreAuthorize("hasPermission(#request,'EDIT')")
     public void downgrade(Request request, HttpServletRequest req) {
         logger.info("Downgrading request with id " + request.getId());
         StateMachine<Stages, StageEvents> sm = this.build(request);
@@ -282,52 +283,48 @@ public class RequestServiceImpl extends GenericService<Request> {
                                                  List<String> stages, OrderByType orderType,
                                                  OrderByField orderField) {
 
+        //TODO prepare statement for stages
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String roles = "";
         for(GrantedAuthority grantedAuthority : authentication.getAuthorities()){
             roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");
         }
-        String aclEntriesQuery = "SELECT object_id_identity FROM acl_object_identity INNER JOIN (select distinct acl_object_identity from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+") as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id";
+        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, CASE WHEN mask=256 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+") as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id";
 
 
-        String viewQuery = "select project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as stage, payment_view.stage as stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";
+        String viewQuery = "select acls.canEdit as canEdit, project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as approval_stage, payment_view.stage as payment_stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";
         viewQuery+=" inner join (" + aclEntriesQuery+") as acls on acls.object_id_identity=request_view.request_id";
 
-        viewQuery+= " where (approval_view.status in ? or payment_view.status in ?) and request_view.request_type in ? and (approval_view.stage in ? or payment_view.stage in ?) "+(searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
+        viewQuery+= " where (approval_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") or payment_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+")) and request_view.request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") and (approval_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") or payment_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+")) "+(!searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
 
 
         return new JdbcTemplate(dataSource).query(viewQuery, ps -> {
-            ps.setArray(1, dataSource.getConnection().createArrayOf("VARCHAR", status.toArray()));
-            ps.setArray(2, dataSource.getConnection().createArrayOf("VARCHAR", status.toArray()));
-            ps.setArray(3, dataSource.getConnection().createArrayOf("VARCHAR", types.toArray()));
-            ps.setArray(4, dataSource.getConnection().createArrayOf("VARCHAR", stages.toArray()));
-            ps.setArray(5, dataSource.getConnection().createArrayOf("VARCHAR", stages.toArray()));
             if(!searchField.isEmpty()) {
-                ps.setString(6, searchField);
-                ps.setString(7, searchField);
-                ps.setString(8, searchField);
-                ps.setString(9, searchField);
-                ps.setString(10, searchField);
-                ps.setInt(11, from);
-                ps.setInt(12, quantity);
-            }else{
+                ps.setString(1, searchField);
+                ps.setString(2, searchField);
+                ps.setString(3, searchField);
+                ps.setString(4, searchField);
+                ps.setString(5, searchField);
                 ps.setInt(6, from);
                 ps.setInt(7, quantity);
+            }else{
+                ps.setInt(1, from);
+                ps.setInt(2, quantity);
             }
-
         }, rs -> {
             List<RequestSummary> results = new ArrayList<>();
             while(rs.next()){
                 BaseInfo baseInfo = new BaseInfo();
-                if(!rs.getString("approval_status").isEmpty())
+                if(rs.getString("approval_status") !=null && !rs.getString("approval_status").isEmpty())
                     baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("approval_status")));
-                if(!rs.getString("payment_status").isEmpty())
+                if(rs.getString("payment_status") !=null && !rs.getString("payment_status").isEmpty())
                     baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("payment_status")));
 
-                if(!rs.getString("approval_stage").isEmpty())
-                    baseInfo.setStage(rs.getString("approval_status"));
-                if(!rs.getString("payment_stage").isEmpty())
+                if(rs.getString("approval_stage") !=null && !rs.getString("approval_stage").isEmpty())
+                    baseInfo.setStage(rs.getString("approval_stage"));
+                if(rs.getString("payment_stage") !=null && !rs.getString("payment_stage").isEmpty())
                     baseInfo.setStage(rs.getString("payment_stage"));
 
                 Request request = get(rs.getString("request_id"));
@@ -336,6 +333,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
                 requestSummary.setBaseInfo(baseInfo);
                 requestSummary.setRequest(request);
+                requestSummary.setCanEdit(rs.getBoolean("canedit"));
 
                 results.add(requestSummary);
             }

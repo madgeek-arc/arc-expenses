@@ -67,9 +67,7 @@ public class RequestListener {
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new GrantedAuthoritySid("ROLE_ADMIN"), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
-        acl.insertAce(acl.getEntries().size(), ArcPermission.REJECT, new PrincipalSid(projectService.get(request.getProjectId()).getScientificCoordinator().getEmail()), true);
-        acl.insertAce(acl.getEntries().size(), ArcPermission.APPROVE, new PrincipalSid(projectService.get(request.getProjectId()).getScientificCoordinator().getEmail()), true);
-        acl.insertAce(acl.getEntries().size(), ArcPermission.DOWNGRADE, new PrincipalSid(projectService.get(request.getProjectId()).getScientificCoordinator().getEmail()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(projectService.get(request.getProjectId()).getScientificCoordinator().getEmail()), true);
 
         aclService.updateAcl(acl);
 

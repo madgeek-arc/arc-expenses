@@ -7,6 +7,7 @@ public class RequestSummary {
 
     private BaseInfo baseInfo;
     private Request request;
+    private boolean canEdit;
 
     public RequestSummary() { }
 
@@ -24,5 +25,13 @@ public class RequestSummary {
 
     public void setRequest(Request request) {
         this.request = request;
+    }
+
+    public boolean isCanEdit() {
+        return canEdit;
+    }
+
+    public void setCanEdit(boolean canEdit) {
+        this.canEdit = canEdit;
     }
 }

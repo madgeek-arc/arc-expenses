@@ -7,6 +7,7 @@ import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Project;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service("projectService")
+@CacheConfig(cacheNames = "vocabularies")
 public class ProjectServiceImpl extends GenericService<Project> {
 
     private Logger LOGGER = Logger.getLogger(ProjectServiceImpl.class);
@@ -32,6 +34,11 @@ public class ProjectServiceImpl extends GenericService<Project> {
     @Override
     public String getResourceType() {
         return "project";
+    }
+
+    @Override
+    public Project add(Project project, Authentication u) {
+        return super.add(project, u);
     }
 
     public List<Vocabulary> getAllProjectNames() {

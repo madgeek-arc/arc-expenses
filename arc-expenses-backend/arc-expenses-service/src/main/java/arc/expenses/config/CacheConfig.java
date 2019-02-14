@@ -38,14 +38,14 @@ public class CacheConfig {
     }
 
     @Bean
-    RedisTemplate<Object, Object> redisTemplate() {
+    public RedisTemplate<Object, Object> redisTemplate() {
         RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<Object, Object>();
         redisTemplate.setConnectionFactory(jedisConnectionFactory());
         return redisTemplate;
     }
 
     @Bean
-    CacheManager cacheManager() {
+    public CacheManager cacheManager() {
 
         RedisCacheManager cacheManager = new RedisCacheManager(redisTemplate());
         HashMap<String, Long> expiresIn = new HashMap<>();
