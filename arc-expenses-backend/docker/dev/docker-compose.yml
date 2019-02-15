@@ -11,6 +11,14 @@ services:
     restart: unless-stopped
 
 
+  mailer:
+    container_name: mailer
+    build: ../../mailer
+    networks:
+      - arcnet
+    restart: unless-stopped
+
+
 
   arc_proxy_shibboleth:
       container_name: arc_proxy_shibboleth
