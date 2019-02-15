@@ -14,12 +14,13 @@
 
 	<properties>
 		<!-- WARNING: do NOT downgrade registry.core version from 1.4.6, it has a bug in resource listener -->
-		<registry.core.version>2.1.2-SNAPSHOT</registry.core.version>
+		<registry.core.version>2.1.1-SNAPSHOT</registry.core.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<modules>
-		<module>./arc-expenses-domain</module>
-		<module>./arc-expenses-service</module>
+		<module>service</module>
+		<module>domain</module>
+		<module>mailer</module>
 	</modules>
 </project>

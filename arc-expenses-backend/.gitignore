@@ -13,7 +13,7 @@
 **/*.idea
 **/*.iml
 
-**/arc-expenses-docker/
+docker/
 **/arc-expenses-operations/
 
 # Sensitive or high-churn files:
