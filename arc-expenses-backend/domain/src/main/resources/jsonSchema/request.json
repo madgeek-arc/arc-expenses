@@ -34,7 +34,14 @@
       "type": "string"
     },
     "user": {
-      "javaType": "gr.athenarc.domain.User" },
+      "javaType": "gr.athenarc.domain.User"
+    },
+    "onBehalfOf": {
+      "javaType": "gr.athenarc.domain.User"
+    },
+    "diataktis": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
     "requesterPosition": {
       "description": "Position of the requester in the Institute.",
       "title": "Requester Position",
