@@ -342,17 +342,7 @@ public class EmailService {
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
                 break;
             case "5a":
-                if(request.getType().equals("trip")){
-                    if ( (request.getUser().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())
-                            || (request.getTrip().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())) {
-                        if ( (request.getUser().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()) ||
-                                (request.getTrip().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()))
-                            personsOfInterest.add(request.getProject().getInstitute().getOrganization().getViceDirector());
-                        else
-                            personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDirector());
-                    }
-                }else
-                    personsOfInterest.add(request.getProject().getInstitute().getDiataktis());
+                personsOfInterest.add(getDiataktis(request));
                 break;
             case "5b":
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio());
@@ -373,17 +363,7 @@ public class EmailService {
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
                 break;
             case "10":
-                if(request.getType().equals("trip")){
-                    if ( (request.getUser().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())
-                            || (request.getTrip().getEmail() == request.getProject().getInstitute().getDiataktis().getEmail())) {
-                        if ( (request.getUser().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()) ||
-                                (request.getTrip().getEmail() == request.getProject().getInstitute().getOrganization().getDirector().getEmail()))
-                            personsOfInterest.add(request.getProject().getInstitute().getOrganization().getViceDirector());
-                        else
-                            personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDirector());
-                    }
-                }else
-                    personsOfInterest.add(request.getProject().getInstitute().getDiataktis());
+                personsOfInterest.add(getDiataktis(request));
                 break;
             case "11":
                 personsOfInterest.add(request.getProject().getInstitute().getDiaugeia());
@@ -398,6 +378,25 @@ public class EmailService {
                 return null;
         }
         return personsOfInterest;
+    }
+
+    private PersonOfInterest getDiataktis(RequestFatClass request) {
+        Boolean value = false;
+
+        String requester = request.getUser().getEmail();
+        String diataktis = request.getProject().getInstitute().getDiataktis().getEmail();
+        String traveller = "";
+        if(request.getTrip()!=null)
+            traveller = request.getTrip().getEmail();
+        String organizationDirector = request.getProject().getInstitute().getOrganization().getDirector().getEmail();
+
+        if(requester.equals(diataktis) || traveller.equals(diataktis))
+            if(requester.equals(organizationDirector) || traveller.equals(organizationDirector))
+                return request.getProject().getInstitute().getOrganization().getViceDirector();
+            else
+                return request.getProject().getInstitute().getOrganization().getDirector();
+        else
+            return request.getProject().getInstitute().getDiataktis();
     }
 
     private List<EmailMessage> prepareMessages(RequestFatClass requestFatClass, List<PersonOfInterest> personOfInterests,
