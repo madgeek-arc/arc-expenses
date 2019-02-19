@@ -61,8 +61,11 @@
           "REJECTED"
         ]
     },
-    "scientificCoordinatorAsDiataktis": {
-      "type": "boolean"
+    "pois": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "trip": {
       "javaType": "gr.athenarc.domain.Trip" }
