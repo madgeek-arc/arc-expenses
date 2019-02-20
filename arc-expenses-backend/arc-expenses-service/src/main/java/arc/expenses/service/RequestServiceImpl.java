@@ -2,17 +2,13 @@ package arc.expenses.service;
 
 import arc.expenses.config.StoreRestConfig;
 import arc.expenses.domain.RequestSummary;
-import arc.expenses.domain.Vocabulary;
 import arc.expenses.utils.Converter;
-import eu.openminted.registry.core.domain.Browsing;
-import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.*;
 import org.apache.log4j.Logger;
-import org.codehaus.groovy.tools.GrapeMain;
 import org.javatuples.Septet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +26,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service("requestService")
 public class RequestServiceImpl extends GenericService<Request> {
