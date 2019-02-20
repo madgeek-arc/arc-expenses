@@ -29,6 +29,9 @@ public class EmailService {
     @Autowired
     RequestServiceImpl requestService;
 
+    @Autowired
+    PolicyCheckerService policyCheckerService;
+
     public enum UserType {USER, previousPersonOfInterest, nextPersonOfInterest}
 
     public enum RequestType {TRAVEL, OTHER}
@@ -342,7 +345,7 @@ public class EmailService {
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
                 break;
             case "5a":
-                personsOfInterest.add(getDiataktis(request));
+                personsOfInterest.add(getDiataktisOrScientificCoordinator(request));
                 break;
             case "5b":
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getDioikitikoSumvoulio());
@@ -363,7 +366,7 @@ public class EmailService {
                 personsOfInterest.add(request.getProject().getInstitute().getOrganization().getPoy());
                 break;
             case "10":
-                personsOfInterest.add(getDiataktis(request));
+                personsOfInterest.add(getDiataktisOrScientificCoordinator(request));
                 break;
             case "11":
                 personsOfInterest.add(request.getProject().getInstitute().getDiaugeia());
@@ -380,11 +383,11 @@ public class EmailService {
         return personsOfInterest;
     }
 
-    private PersonOfInterest getDiataktis(RequestFatClass request) {
+    private PersonOfInterest getDiataktisOrScientificCoordinator(RequestFatClass request) {
         Boolean value = false;
 
         String requester = request.getUser().getEmail();
-        String diataktis = request.getProject().getInstitute().getDiataktis().getEmail();
+        String diataktis = policyCheckerService.getDiataktisOrScientificCoordinator(requestService.get(request.getRequest_id())).getEmail();
         String traveller = "";
         if(request.getTrip()!=null)
             traveller = request.getTrip().getEmail();

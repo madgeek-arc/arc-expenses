@@ -172,7 +172,7 @@ public class PolicyCheckerService {
         return value;
     }
 
-    private PersonOfInterest getDiataktisOrScientificCoordinator(Request request) {
+    public PersonOfInterest getDiataktisOrScientificCoordinator(Request request) {
 
         if(request.getProject().getScientificCoordinatorAsDiataktis())
             if(scientificCoordinatorCanApprove(request))
