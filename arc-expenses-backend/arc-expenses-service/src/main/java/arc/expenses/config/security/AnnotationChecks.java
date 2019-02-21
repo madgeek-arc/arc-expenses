@@ -51,6 +51,7 @@ public class AnnotationChecks {
     public boolean isValidRequest(Request request , String email){
         return  request!=null && policyCheckerService.isRequestor(request,email.toLowerCase()) ||
                 policyCheckerService.isSuppliesOfficeMemberOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isViceDirectorOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isScientificCoordinator(request,email.toLowerCase()) ||
                 policyCheckerService.isPOYOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isInstituteDirectorOrDelegate(request,email.toLowerCase())||
@@ -79,6 +80,7 @@ public class AnnotationChecks {
         //TODO change authorization
         return request!=null && policyCheckerService.isRequestor(request,email.toLowerCase()) ||
                 policyCheckerService.isSuppliesOfficeMemberOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isViceDirectorOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isScientificCoordinator(request,email.toLowerCase()) ||
                 policyCheckerService.isPOYOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isInstituteDirectorOrDelegate(request,email.toLowerCase())||

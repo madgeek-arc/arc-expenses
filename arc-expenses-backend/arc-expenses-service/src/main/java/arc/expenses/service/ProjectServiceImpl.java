@@ -157,4 +157,37 @@ public class ProjectServiceImpl extends GenericService<Project> {
                 "", "ASC");
         return rs.getResults();
     }
+
+    public double getApprovedRequestsByScientificCoordinator(Request request) {
+        String scientificCoordinator = request.getProject().getScientificCoordinator().getEmail();
+        float totalApprovals = getTotalApprovalsAmount(scientificCoordinator);
+        float totalPayments = getTotalPaymentsAmount(scientificCoordinator);
+        return totalApprovals+totalPayments;
+    }
+
+    private float getTotalPaymentsAmount(String scientificCoordinator) {
+
+        String query = "select sum(((rs.payload::json)->'stage1'->>'finalAmount')::float) as total\n" +
+                "from request_view r,resource rs\n" +
+                "where r.request_id in ( select request_id from payment_view where stage = '11'  )\n" +
+                "and r.request_project_scientificcoordinator = '" + scientificCoordinator + "'"+
+                "and r.id = rs.id and rs.fk_name = 'request' ";
+
+        return new JdbcTemplate(dataSource).query(query,floatRowMapper).get(0);
+    }
+
+    private float getTotalApprovalsAmount(String scientificCoordinator) {
+
+        String query = "select sum(((rs.payload::json)->'stage1'->>'finalAmount')::float) as total\n" +
+                "from request_view r,resource rs\n" +
+                "where r.request_id in ( select request_id from approval_view where stage = '6'\n" +
+                "                        except\n" +
+                "                        select request_id from payment_view where stage = '11'  )\n" +
+                "and r.request_project_scientificcoordinator = '" + scientificCoordinator + "'"+
+                "and r.id = rs.id and rs.fk_name = 'request' ";
+
+        return new JdbcTemplate(dataSource).query(query,floatRowMapper).get(0);
+    }
+
+    private RowMapper<Float> floatRowMapper = (rs, i) -> (rs.getFloat("total"));
 }

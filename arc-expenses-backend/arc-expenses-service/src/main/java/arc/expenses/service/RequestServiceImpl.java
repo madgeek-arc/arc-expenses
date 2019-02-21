@@ -2,17 +2,13 @@ package arc.expenses.service;
 
 import arc.expenses.config.StoreRestConfig;
 import arc.expenses.domain.RequestSummary;
-import arc.expenses.domain.Vocabulary;
 import arc.expenses.utils.Converter;
-import eu.openminted.registry.core.domain.Browsing;
-import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.*;
 import org.apache.log4j.Logger;
-import org.codehaus.groovy.tools.GrapeMain;
 import org.javatuples.Septet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +26,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service("requestService")
 public class RequestServiceImpl extends GenericService<Request> {
@@ -276,6 +274,8 @@ public class RequestServiceImpl extends GenericService<Request> {
     private StringBuilder getUserClause(String email) {
 
         StringBuilder user_clause = new StringBuilder();
+        String requestOrganizationDirector = getOrganizationDirector();
+        String diataktis = getDiataktis();
 
         if(!admins.contains(email)) {
             user_clause.append(" ( r.request_requester = '"  + email.toLowerCase() + "' or " +
@@ -301,10 +301,36 @@ public class RequestServiceImpl extends GenericService<Request> {
                     " r.request_organization_director = '"  + email.toLowerCase() + "' or " +
                     " r.request_institute_director = '"  + email.toLowerCase() + "' or " +
                     " r.request_organization_director_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
-                    " r.request_institute_director_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' ) ");
+                    " r.request_institute_director_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
+                    " ( (r.request_requester in (" + diataktis + ") or (res2.payload::json)->'trip'->>'email' in (" +diataktis +") " +
+                    "   and not(r.request_requester = '"+ requestOrganizationDirector + "' or (res2.payload::json)->'trip'->>'email' = '" +  requestOrganizationDirector  + "')" +
+                    "   and r.request_organization_director = '"  + email.toLowerCase() + "' ))" +
+                    " or ( (r.request_requester in (" + diataktis + ") or (res2.payload::json)->'trip'->>'email' in (" + diataktis +") " +
+                    "   and (r.request_requester = '"+ requestOrganizationDirector + "' or (res2.payload::json)->'trip'->>'email' = '" +  requestOrganizationDirector  + "')" +
+                    "   and r.request_organization_vicedirector = '"  + email.toLowerCase() + "' )))");
         }
         return user_clause;
     }
+
+    private String getDiataktis() {
+        List<String> rs =  new JdbcTemplate(dataSource)
+                .query("select distinct(request_institute_diataktis) rd from request_view ;",rowMapper);
+
+        StringBuilder result = new StringBuilder();
+        for(int i=0;i<rs.size();i++)
+            result.append("'").append(rs.get(i)).append("'").append(",");
+        result.deleteCharAt(result.length()-1);
+        return result.toString();
+    }
+
+    private String getOrganizationDirector() {
+        return new JdbcTemplate(dataSource)
+                .query("select request_organization_director as rd from request_view limit 1;",rowMapper).get(0);
+    }
+
+    private RowMapper<String> rowMapper = (rs, i) -> rs.getString("rd");
+
+
 
     public List<Request> getPendingRequests(String email) {
 

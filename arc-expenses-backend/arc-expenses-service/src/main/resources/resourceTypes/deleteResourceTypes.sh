@@ -5,7 +5,7 @@
 #done
 
 for i in   user organization project request institute approval payment; do
-	psql -h $1 -Uvrasidas registry <<endOfMessage
+	PGPASSWORD=paparia psql -h $1 -Uvrasidas -p 5433 registry <<endOfMessage
 
 delete from stringindexedfield_values where stringindexedfield_id in (select id from stringindexedfield where resource_id in (select id from resource where fk_name='$i'));
 delete from stringindexedfield where id in (select id from stringindexedfield where resource_id in (select id from resource where fk_name='$i'));
@@ -34,11 +34,11 @@ delete from resourcetype where name='$i';
 delete from schemadatabase where originalurl = '$i';
 DROP VIEW ${i}_view;
 endOfMessage
-	curl -X DELETE http://$1:9200/$i
-	curl -X DELETE -k  https://$1/arc-expenses-service/resourceType/$i
+	curl -X DELETE http://$2:9200/$i
+	curl -X DELETE   http://$1:8080/arc-expenses-service/resourceType/$i
 done
 
-psql -h $1 -Uvrasidas registry <<endOfMessage
+PGPASSWORD=paparia psql -h $1 -Uvrasidas -p 5433 registry <<endOfMessage
 delete from schemadatabase where originalurl like '%.xsd';
 endOfMessage
 
