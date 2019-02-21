@@ -13,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -35,16 +36,6 @@ public class ARCServiceConfiguration implements WebMvcConfigurer {
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
-    }
-
-    @Bean(initMethod = "migrate")
-    public Flyway flyway(){
-        Flyway flyway = new Flyway();
-        flyway.setBaselineOnMigrate(true);
-        flyway.setLocations("classpath:migrations/");
-        flyway.setDataSource(dataSource);
-        flyway.setOutOfOrder(true);
-        return flyway;
     }
 
     @Bean
@@ -74,6 +65,13 @@ public class ARCServiceConfiguration implements WebMvcConfigurer {
         PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
         propertyPlaceholderConfigurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
         return propertyPlaceholderConfigurer;
+    }
+
+    @PostConstruct
+    public void flywayMigration(){
+        Flyway flyway = Flyway.configure().dataSource(dataSource).locations("classpath:db/migrations").load();
+        flyway.baseline();
+        flyway.migrate();
     }
 
 }

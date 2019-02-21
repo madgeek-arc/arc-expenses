@@ -3,6 +3,7 @@ package arc.expenses.controller;
 import arc.expenses.domain.OrderByField;
 import arc.expenses.domain.OrderByType;
 import arc.expenses.domain.RequestSummary;
+import arc.expenses.service.AclService;
 import arc.expenses.service.RequestApprovalServiceImpl;
 import arc.expenses.service.RequestPaymentServiceImpl;
 import arc.expenses.service.RequestServiceImpl;
@@ -51,19 +52,23 @@ public class RequestController {
     @Autowired
     RequestPaymentServiceImpl requestPaymentService;
 
+    @Autowired
+    private AclService aclService;
+
     @ApiOperation("Approve request")
     @RequestMapping(value = "/approve/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity approve(
             @PathVariable("requestId") String requestId,
-            HttpServletRequest req
-    ) throws Exception {
+            HttpServletRequest req){
 
         Request request = requestService.get(requestId);
+
         if(request==null)
             throw new ServiceException("Request not found");
         try {
             requestService.approve(request,req);
         }catch (Exception ex){
+            ex.printStackTrace();
             throw new ServiceException(ex.getMessage());
         }
         return new ResponseEntity<>(HttpStatus.OK);
@@ -162,7 +167,7 @@ public class RequestController {
                                                  @RequestParam(value = "status") List<BaseInfo.Status> status,
                                                  @RequestParam(value = "type") List<Request.Type> type,
                                                  @RequestParam(value = "searchField",required=false, defaultValue = "") String searchField,
-                                                 @RequestParam(value = "stage") List<Integer> stage,
+                                                 @RequestParam(value = "stage") List<String> stage,
                                                  @RequestParam(value = "order",required=false,defaultValue = "ASC") OrderByType orderType,
                                                  @RequestParam(value = "orderField") OrderByField orderField) {
 

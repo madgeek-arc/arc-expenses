@@ -26,10 +26,8 @@ public class AclConfiguration {
     DataSource dataSource;
 
     @Bean
-    public MethodSecurityExpressionHandler
-    defaultMethodSecurityExpressionHandler() {
-        DefaultMethodSecurityExpressionHandler expressionHandler
-                = new DefaultMethodSecurityExpressionHandler();
+    public MethodSecurityExpressionHandler defaultMethodSecurityExpressionHandler() {
+        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
         expressionHandler.setPermissionEvaluator(permissionEvaluator());
         return expressionHandler;
     }

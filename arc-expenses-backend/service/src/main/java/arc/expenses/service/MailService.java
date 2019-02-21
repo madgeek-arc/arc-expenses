@@ -21,7 +21,7 @@ public class MailService {
     @Qualifier("jmsQueueTemplate")
     JmsTemplate jmsTemplate;
 
-    void sendMail(String type, List<String> whoTo){
+    public void sendMail(String type, List<String> whoTo){
 
         logger.info("Sending mail of type "+type + " to " + whoTo.stream().collect(Collectors.joining(",")));
 
@@ -30,7 +30,7 @@ public class MailService {
         jsonObject.put("to",whoTo);
 
         logger.info(jsonObject.toString());
-        jmsTemplate.convertAndSend("mailbox", jsonObject.toString());
+//        jmsTemplate.convertAndSend("mailbox", jsonObject.toString());
     }
 
 }

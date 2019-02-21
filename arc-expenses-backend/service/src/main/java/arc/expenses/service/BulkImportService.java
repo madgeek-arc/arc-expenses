@@ -174,7 +174,7 @@ class BulkImportService {
 
             project.setStartDate(line[7].trim());
             project.setEndDate(line[8].trim());
-            project.setTotalCost(line[9].trim());
+            project.setTotalCost(Double.parseDouble(line[9].trim()));
 
             project.setScientificCoordinatorAsDiataktis(parseBoolean(line[10].trim()));
             projectService.add(project,null); //TODO(Check for authentication here)

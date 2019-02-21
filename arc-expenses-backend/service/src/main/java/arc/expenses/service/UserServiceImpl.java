@@ -88,9 +88,9 @@ public class UserServiceImpl extends GenericService<User> {
 
     private boolean isExecutive(String email) {
 
-        String cqlQuery = "operator="+email+
-                " or operator_delegate="+email+
-                " or scientificCoordinator="+email+
+        String cqlQuery = "project_operator="+email+
+                " or project_operator_delegate="+email+
+                " or project_scientificCoordinator="+email+
                 " or poy="+email+
                 " or poy_delegate="+email+
                 " or accountingRegistration="+email+

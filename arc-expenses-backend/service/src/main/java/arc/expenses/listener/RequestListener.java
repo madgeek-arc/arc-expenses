@@ -5,9 +5,7 @@ import arc.expenses.service.AclService;
 import arc.expenses.service.ProjectServiceImpl;
 import arc.expenses.service.RequestApprovalServiceImpl;
 import arc.expenses.service.RequestPaymentServiceImpl;
-import gr.athenarc.domain.BaseInfo;
-import gr.athenarc.domain.Request;
-import gr.athenarc.domain.RequestApproval;
+import gr.athenarc.domain.*;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -60,6 +58,7 @@ public class RequestListener {
         }catch (AlreadyExistsException ex){
             logger.debug("Object identity already exists");
         }
+        Project project = projectService.get(request.getProjectId());
         AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(Request.class, request.getId()));
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new GrantedAuthoritySid("ROLE_ADMIN"), true);
@@ -67,8 +66,11 @@ public class RequestListener {
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new GrantedAuthoritySid("ROLE_ADMIN"), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
-        acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(projectService.get(request.getProjectId()).getScientificCoordinator().getEmail()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
+        for(Delegate person : project.getScientificCoordinator().getDelegates())
+            acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(person.getEmail()), true);
 
+        acl.setOwner(new GrantedAuthoritySid(("ROLE_EXECUTIVE")));
         aclService.updateAcl(acl);
 
     }

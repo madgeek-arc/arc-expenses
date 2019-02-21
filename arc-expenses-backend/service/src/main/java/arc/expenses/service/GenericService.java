@@ -1,7 +1,5 @@
 package arc.expenses.service;
 
-import arc.expenses.acl.ArcPermission;
-import arc.expenses.mail.JavaMailer;
 import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Resource;
@@ -13,20 +11,9 @@ import eu.openminted.registry.core.service.SearchService;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.acls.domain.AclImpl;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.domain.ObjectIdentityImpl;
-import org.springframework.security.acls.domain.PrincipalSid;
-import org.springframework.security.acls.model.MutableAclService;
-import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.net.UnknownHostException;
-import java.util.concurrent.ExecutionException;
 
 public abstract class GenericService<T> extends AbstractGenericService<T> implements ResourceCRUDService<T, Authentication> {
 
@@ -71,8 +58,6 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
 
     @Override
     public T add(T t, Authentication u) {
-        logger.info("Creating a new " + typeParameterClass.getName() + " object");
-
         String serialized = null;
 
         serialized = parserPool.serialize(t, ParserService.ParserServiceTypes.JSON);

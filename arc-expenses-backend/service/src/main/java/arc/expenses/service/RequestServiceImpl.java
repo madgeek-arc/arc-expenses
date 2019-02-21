@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -143,12 +142,11 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
     @Override
-    @PostAuthorize("hasPermission(#returnObject,'EDIT')")
     public Request get(String id) {
         return super.get(id);
     }
 
-    @PreAuthorize("hasPermission(#request,'APPROVE')")
+    @PreAuthorize("hasPermission(#request,'EDIT')")
     public void approve(Request request, HttpServletRequest req) {
         logger.info("Approving request with id " + request.getId());
         StateMachine<Stages, StageEvents> sm = this.build(request);
@@ -158,6 +156,8 @@ public class RequestServiceImpl extends GenericService<Request> {
                 .build();
 
         sm.sendEvent(eventsMessage);
+        if(sm.hasStateMachineError())
+            throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
 
         sm.stop();
 
@@ -173,6 +173,8 @@ public class RequestServiceImpl extends GenericService<Request> {
                 .setHeader("restRequest", req)
                 .build();
         sm.sendEvent(eventsMessage);
+        if(sm.hasStateMachineError())
+            throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
 
         sm.stop();
 
@@ -198,13 +200,15 @@ public class RequestServiceImpl extends GenericService<Request> {
     @PreAuthorize("hasPermission(#request,'CANCEL')")
     public void cancel(Request request) throws Exception {
         logger.info("Canceling request with id " + request.getId());
-        request.setRequestStatus(Request.RequestStatus.CANCELLED);
-        RequestApproval requestApproval = requestApprovalService.getByField("request_id", request.getId());
-        if(requestApproval!=null)
-            requestApproval.setStatus(BaseInfo.Status.CANCELLED);
+        StateMachine<Stages, StageEvents> sm = this.build(request);
+        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.CANCEL)
+                .setHeader("requestObj", request)
+                .build();
 
-        requestApprovalService.update(requestApproval, requestApproval.getId());
-        update(request,request.getId());
+        sm.sendEvent(eventsMessage);
+        if(sm.hasStateMachineError())
+            throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
+        sm.stop();
     }
 
     public Request add(Request.Type type, String projectId, String subject, Request.RequesterPosition requesterPosition, String supplier, Stage1.SupplierSelectionMethod supplierSelectionMethod, double amount, Optional<List<MultipartFile>> files, String destination, String firstName, String lastName, String email) throws Exception {
@@ -218,9 +222,6 @@ public class RequestServiceImpl extends GenericService<Request> {
         if(((supplierSelectionMethod == Stage1.SupplierSelectionMethod.AWARD_PROCEDURE || supplierSelectionMethod == Stage1.SupplierSelectionMethod.MARKET_RESEARCH) || amount>2500) && !files.isPresent())
            throw new ServiceException("Files must be included");
 
-        List<String> emailReceivers = new ArrayList<>();
-
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         Request request = new Request();
@@ -231,6 +232,28 @@ public class RequestServiceImpl extends GenericService<Request> {
         if(project == null)
             throw new ServiceException("Project with id "+projectId+" not found");
 
+        User user = userService.getByField("user_email",(String) authentication.getPrincipal());
+
+        List<String> pois = new ArrayList<>();
+
+        request.setUser(user);
+        request.setProjectId(projectId);
+        request.setRequesterPosition(requesterPosition);
+
+        //diataktis
+        Institute institute = instituteService.get(project.getInstituteId());
+        Organization organization = organizationService.get(institute.getOrganizationId());
+        request.setDiataktis(institute.getDiataktis());
+
+        if(project.getScientificCoordinatorAsDiataktis() && amount<=2500  && exceedsProjectBudget(project.getScientificCoordinator(),projectId, amount))
+            request.setDiataktis(project.getScientificCoordinator());
+
+        if(user.getEmail().equals(request.getDiataktis().getEmail())){
+            if(user.getEmail().equals(organization.getDirector().getEmail()))
+                request.setDiataktis(organization.getViceDirector());
+            else
+                request.setDiataktis(organization.getDirector());
+        }
 
         ArrayList<Attachment> attachments = new ArrayList<>();
         if(files.isPresent()){
@@ -239,12 +262,6 @@ public class RequestServiceImpl extends GenericService<Request> {
                 attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage1"));
             }
         }
-        User user = userService.getByField("user_email",(String) authentication.getPrincipal());
-
-        request.setUser(user);
-        request.setProjectId(projectId);
-        request.setRequesterPosition(requesterPosition);
-
 
         Stage1 stage1 = new Stage1(LocalDate.now().toEpochDay()+"", subject, supplier, supplierSelectionMethod, amount, amount);
         stage1.setAttachments(attachments);
@@ -252,28 +269,50 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         request.setRequestStatus(Request.RequestStatus.PENDING);
 
-        if(!destination.isEmpty()){
+        if(!destination.isEmpty()) {
             Trip trip = new Trip();
             trip.setDestination(destination);
             trip.setEmail((email.isEmpty() ? user.getEmail() : email));
             trip.setFirstname((firstName.isEmpty() ? user.getFirstname() : firstName));
             trip.setLastname((lastName.isEmpty() ? user.getLastname() : lastName));
             request.setTrip(trip);
-            if(!email.isEmpty())
-                emailReceivers.add(email);
+            if (!email.isEmpty()) {
+                if (!pois.contains(email))
+                    pois.add(email);
+                request.setOnBehalfOf(email);
+            }
         }
 
-//        emailReceivers.add(project.getScientificCoordinator().getEmail());
-        emailReceivers.add(user.getEmail());
+        if(!pois.contains(project.getScientificCoordinator().getEmail()))
+            pois.add(project.getScientificCoordinator().getEmail());
+
+        if(!pois.contains(user.getEmail()))
+            pois.add(user.getEmail());
+
+        for(Delegate delegate : project.getScientificCoordinator().getDelegates())
+            if(!pois.contains(delegate.getEmail()))
+                pois.add(delegate.getEmail());
+
 
         request.setCurrentStage(Stages.Stage2.name());
+        request.setPois(pois);
 
         request = super.add(request, authentication);
 
-        mailService.sendMail("Initial", emailReceivers);
+        mailService.sendMail("Initial", request.getPois());
 
         return request;
     }
+
+    private boolean exceedsProjectBudget(PersonOfInterest scientificCoordinator, String projectId, Double amount){
+
+        String budgetQuery = "select CASE WHEN sum(request_final_amount) + "+amount+" >(0.25 * project_view.project_total_cost) THEN false ELSE true END AS canBeDiataktis from request_view INNER JOIN project_view ON project_view.project_id=request_view.request_project WHERE request_view.request_diataktis='"+scientificCoordinator.getEmail()+"' AND project_view.project_id='"+projectId+"' GROUP BY project_view.project_total_cost;";
+
+        return new JdbcTemplate(dataSource).query(budgetQuery , rs -> {
+            return rs.getBoolean("canbediataktis");
+        });
+    }
+
 
     public String getMaxID() {
 
@@ -311,7 +350,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     public Paging<RequestSummary> criteriaSearch(int from, int quantity,
                                                  List<BaseInfo.Status> status, List<Request.Type> types, String searchField,
-                                                 List<Integer> stages, OrderByType orderType,
+                                                 List<String> stages, OrderByType orderType,
                                                  OrderByField orderField) {
 
         //TODO prepare statement for stages
@@ -322,7 +361,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         for(GrantedAuthority grantedAuthority : authentication.getAuthorities()){
             roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");
         }
-        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, CASE WHEN mask=256 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+") as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id";
+        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, CASE WHEN mask=32 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+") as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id";
 
 
         String viewQuery = "select acls.canEdit as canEdit, request_view.creation_date as creation_date, project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as approval_stage, payment_view.stage as payment_stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";

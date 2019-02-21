@@ -15,6 +15,11 @@
       "multivalued":false
     },
     {
+      "name": "project_total_cost",
+      "path": "$.totalCost",
+      "type": "java.lang.Float"
+    },
+    {
       "multivalued": true,
       "primaryKey":false,
       "name": "project_operator",
@@ -43,5 +48,5 @@
   "name": "project",
   "aliasGroup" : null,
   "payloadType": "json",
-  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/project.json"
+  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/domain/src/main/resources/jsonSchema/project.json"
 }

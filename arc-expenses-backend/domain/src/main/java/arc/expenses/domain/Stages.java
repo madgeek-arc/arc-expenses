@@ -7,6 +7,7 @@ public enum Stages {
     Stage2,
     Stage3,
     Stage4,
+    Stage5,
     Stage5a,
     Stage5b,
     Stage6,

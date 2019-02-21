@@ -29,11 +29,21 @@
       "name": "request_project",
       "path": "$.projectId",
       "type": "java.lang.String"
+    },
+    {
+      "name": "request_diataktis",
+      "path": "$.diataktis.email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_final_amount",
+      "path": "$.stage1.finalAmount",
+      "type": "java.lang.Float"
     }
   ],
   "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
   "name": "request",
   "aliasGroup" : "requestGroup",
   "payloadType": "json",
-  "schemaUrl":"https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/request.json"
+  "schemaUrl":"https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/domain/src/main/resources/jsonSchema/request.json"
 }

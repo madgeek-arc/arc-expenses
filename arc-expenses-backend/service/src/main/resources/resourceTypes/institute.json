@@ -115,5 +115,5 @@
   "name": "institute",
   "aliasGroup" : null,
   "payloadType": "json",
-  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/institute.json"
+  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/domain/src/main/resources/jsonSchema/institute.json"
 }

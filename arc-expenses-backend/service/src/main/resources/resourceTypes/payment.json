@@ -25,5 +25,5 @@
   "name": "payment",
   "aliasGroup" : "requestGroup",
   "payloadType": "json",
-  "schemaUrl":"https://raw.githubusercontent.com/madgeek-arc/arc-expenses/master/arc-expenses-backend/arc-expenses-domain/src/main/resources/jsonSchema/requestPayment.json"
+  "schemaUrl":"https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/domain/src/main/resources/jsonSchema/requestPayment.json"
 }

@@ -1,6 +1,5 @@
 package arc.expenses.config;
 
-import arc.expenses.config.stateMachine.StateMachineConfiguration;
 import com.thetransactioncompany.cors.CORSFilter;
 import eu.openminted.registry.core.configuration.HibernateConfiguration;
 import eu.openminted.registry.core.configuration.JmsConfiguration;
@@ -21,7 +20,6 @@ public class ARCServiceDispatcherInitializer extends AbstractAnnotationConfigDis
         return new Class[]{
                 ARCServiceConfiguration.class,
                 HibernateConfiguration.class,
-                StateMachineConfiguration.class,
                 JmsConfiguration.class
         };
     }
