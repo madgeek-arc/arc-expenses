@@ -3,7 +3,7 @@ package arc.expenses.domain;
 public enum OrderByType {
 
     ASC("ASC"),
-    DSC("DSC");
+    DSC("DESC");
 
     private final String text;
 
