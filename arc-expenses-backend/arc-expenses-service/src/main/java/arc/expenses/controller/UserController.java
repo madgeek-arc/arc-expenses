@@ -1,7 +1,7 @@
 package arc.expenses.controller;
 
 import arc.expenses.config.SAMLAuthenticationToken;
-import arc.expenses.service.UserServiceImpl;
+import arc.expenses.UserServiceImpl;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.User;
 import io.swagger.annotations.Api;

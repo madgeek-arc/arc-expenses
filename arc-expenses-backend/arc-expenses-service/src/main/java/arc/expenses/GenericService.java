@@ -1,4 +1,4 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;

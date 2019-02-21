@@ -1,4 +1,4 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import com.bazaarvoice.jolt.CardinalityTransform;
 import com.bazaarvoice.jolt.Chainr;

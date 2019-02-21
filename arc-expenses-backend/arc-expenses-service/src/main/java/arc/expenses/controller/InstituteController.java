@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import arc.expenses.service.InstituteServiceImpl;
-
-import java.util.List;
+import arc.expenses.InstituteServiceImpl;
 
 @RestController
 @RequestMapping(value = "/institute")

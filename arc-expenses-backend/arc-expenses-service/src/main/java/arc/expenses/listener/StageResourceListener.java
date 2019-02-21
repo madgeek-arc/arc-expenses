@@ -4,8 +4,8 @@ import arc.expenses.domain.RequestFatClass;
 import arc.expenses.mail.EmailMessage;
 import arc.expenses.mail.JavaMailer;
 import arc.expenses.messages.StageMessages;
-import arc.expenses.service.EmailService;
-import arc.expenses.service.RequestServiceImpl;
+import arc.expenses.EmailService;
+import arc.expenses.RequestServiceImpl;
 import arc.expenses.utils.Converter;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.monitor.ResourceListener;
@@ -21,8 +21,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 
 
 @Component

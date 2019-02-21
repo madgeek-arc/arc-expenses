@@ -1,10 +1,10 @@
 package arc.expenses.controller;
 
 import arc.expenses.domain.RequestSummary;
-import arc.expenses.service.PolicyCheckerService;
-import arc.expenses.service.RequestApprovalServiceImpl;
-import arc.expenses.service.RequestPaymentServiceImpl;
-import arc.expenses.service.RequestServiceImpl;
+import arc.expenses.PolicyCheckerService;
+import arc.expenses.RequestApprovalServiceImpl;
+import arc.expenses.RequestPaymentServiceImpl;
+import arc.expenses.RequestServiceImpl;
 import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
@@ -29,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController

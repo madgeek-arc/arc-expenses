@@ -21,5 +21,6 @@
 	<modules>
 		<module>./arc-expenses-domain</module>
 		<module>./arc-expenses-service</module>
+		<module>./arc-expenses-data-migration</module>
 	</modules>
 </project>

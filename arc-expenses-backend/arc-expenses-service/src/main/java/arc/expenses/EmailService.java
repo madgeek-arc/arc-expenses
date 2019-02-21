@@ -1,4 +1,4 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import arc.expenses.domain.RequestFatClass;
 import arc.expenses.mail.EmailMessage;
@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static arc.expenses.service.EmailService.RequestState.*;
-import static arc.expenses.service.EmailService.RequestType.*;
-import static arc.expenses.service.EmailService.UserType.*;
+import static arc.expenses.EmailService.RequestState.*;
+import static arc.expenses.EmailService.RequestType.*;
+import static arc.expenses.EmailService.UserType.*;
 
 
 @Component

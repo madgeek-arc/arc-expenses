@@ -1,7 +1,6 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import arc.expenses.domain.Vocabulary;
-import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
@@ -11,12 +10,9 @@ import gr.athenarc.domain.Organization;
 import gr.athenarc.domain.Project;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
-import org.codehaus.groovy.tools.GrapeMain;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 

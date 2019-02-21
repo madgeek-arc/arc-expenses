@@ -1,4 +1,4 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import arc.expenses.config.StoreRestConfig;
 import arc.expenses.domain.RequestSummary;

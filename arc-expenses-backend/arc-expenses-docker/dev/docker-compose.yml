@@ -19,14 +19,14 @@ services:
 #      - source: db_file
 #    restart: unless-stopped
 
-  platform:
-    container_name: platform
-    build: ../../../arc-expenses-ui
-    ports:
-      - "3000:80"
-    networks:
-      - arcnet
-    restart: unless-stopped
+#  platform:
+#    container_name: platform
+#    build: ../../../arc-expenses-ui
+#    ports:
+#      - "3000:80"
+#    networks:
+#      - arcnet
+#    restart: unless-stopped
 
 
 
@@ -117,16 +117,16 @@ services:
 #    depends_on:
 #      - ldap
 
-#  db:
-#    container_name: postgres
-#    build: registry-postgres
-#    ports:
-#      - "5432:5432"
-#    volumes:
-#      - pgdata:/var/lib/postgresql/data
-#    networks:
-#      - arcnet
-#    restart: unless-stopped
+  db:
+    container_name: postgres
+    build: registry-postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - arcnet
+    restart: unless-stopped
   jms:
     container_name: jms
     image: rmohr/activemq:5.14.0-alpine
@@ -135,34 +135,33 @@ services:
     networks:
       - arcnet
     restart: unless-stopped
-#  elastic:
-#    container_name: elastic
-#    image: docker.elastic.co/elasticsearch/elasticsearch:5.2.2
-#    #image: elasticsearch:5.2.2-alpine
-#    environment:
-#      - cluster.name=docker-cluster
-#      - bootstrap.memory_lock=true
-#      - xpack.security.enabled=false
-#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-#    ulimits:
-#      memlock:
-#        soft: -1
-#        hard: -1
-#      nofile:
-#        soft: 65536
-#        hard: 65536
+  elastic:
+    container_name: elastic
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.2.2
+    #image: elasticsearch:5.2.2-alpine
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
 #    mem_limit: 1g
-#    cap_add:
-#      - IPC_LOCK
-##    volumes:
-##      - esdata1:/usr/share/elasticsearch/data
-#    ports:
-#      - "9222:9200"
-#      - "9333:9300"
-#
-#    networks:
-#      - esnet
-#    restart: unless-stopped
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - "9222:9200"
+      - "9333:9300"
+    networks:
+      - arcnet
+    restart: unless-stopped
 #  elasticsearch2:
 #    image: docker.elastic.co/elasticsearch/elasticsearch:5.2.2
 #    #image: elasticsearch:5.2.2-alpine

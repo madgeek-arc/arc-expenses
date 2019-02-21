@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import arc.expenses.service.ProjectServiceImpl;
+import arc.expenses.ProjectServiceImpl;
 
 import java.util.List;
 

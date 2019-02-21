@@ -2,8 +2,8 @@ package arc.expenses.messages;
 
 import arc.expenses.mail.EmailMessage;
 import arc.expenses.mail.JavaMailer;
-import arc.expenses.service.RequestServiceImpl;
-import arc.expenses.service.UserServiceImpl;
+import arc.expenses.RequestServiceImpl;
+import arc.expenses.UserServiceImpl;
 import eu.openminted.registry.core.domain.FacetFilter;
 import gr.athenarc.domain.Request;
 import gr.athenarc.domain.User;

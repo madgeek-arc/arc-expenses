@@ -1,4 +1,4 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import arc.expenses.domain.RequestSummary;
 import gr.athenarc.domain.Delegate;
