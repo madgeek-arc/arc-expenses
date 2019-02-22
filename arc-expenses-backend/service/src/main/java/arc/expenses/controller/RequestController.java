@@ -2,6 +2,7 @@ package arc.expenses.controller;
 
 import arc.expenses.domain.OrderByField;
 import arc.expenses.domain.OrderByType;
+import arc.expenses.domain.RequestResponse;
 import arc.expenses.domain.RequestSummary;
 import arc.expenses.service.AclService;
 import arc.expenses.service.RequestApprovalServiceImpl;
@@ -12,7 +13,10 @@ import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.SearchService;
 import eu.openminted.registry.core.service.ServiceException;
-import gr.athenarc.domain.*;
+import gr.athenarc.domain.BaseInfo;
+import gr.athenarc.domain.Request;
+import gr.athenarc.domain.RequestPayment;
+import gr.athenarc.domain.Stage1;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -193,65 +197,9 @@ public class RequestController {
         return requestService.upLoadFile(mode,archiveID,stage,file);
     }
 
-//    @RequestMapping(value = "/store/download", method = RequestMethod.GET)
-//    @ResponseBody
-//    @PreAuthorize("@annotationChecks.validateDownload(#requestId,#mode,authentication.principal)")
-//    public void downloadFile(@RequestParam("mode") String mode,
-//                             @RequestParam("requestId") String requestId,
-//                             @RequestParam("stage") String stage,
-//                            // @RequestParam("index") String index,
-//                             HttpServletResponse response) throws IOException, ResourceNotFoundException {
-//        Attachment attachment = requestService.getAttachment(mode,requestId,stage);;//.get(Integer.parseInt(index));
-//
-//        if(attachment == null)
-//            throw new ResourceNotFoundException();
-//
-//        response.setContentType(attachment.getMimetype());
-//        response.setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFilename() + "\"");
-//        IOUtils.copyLarge(requestService.downloadFile(mode,requestId,stage), response.getOutputStream());
-//    }
-
-    @RequestMapping(value = "/addRequestApproval", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    synchronized RequestApproval addRequestApproval(@RequestBody RequestApproval requestApproval, Authentication auth) {
-        requestApproval.setId(requestApprovalService.generateID(requestApproval.getRequestId()));
-        return requestApprovalService.add(requestApproval,auth);
-    }
-
-    @RequestMapping(value = "/updateRequestApproval", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    RequestApproval updateRequestApproval(@RequestBody RequestApproval requestApproval) throws ResourceNotFoundException {
-        return requestApprovalService.update(requestApproval,requestApproval.getId());
-    }
-
-    @RequestMapping(value = "/addRequestPayment", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-
-    @ResponseBody
-    synchronized RequestPayment addRequestPayment(@RequestBody RequestPayment requestPayment, Authentication auth) {
-        requestPayment.setId(requestPaymentService.generateID(requestPayment.getRequestId()));
-        return requestPaymentService.add(requestPayment,auth);
-    }
-
-    @RequestMapping(value = "/updateRequestPayment", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    RequestPayment updateRequestPayment(@RequestBody RequestPayment requestPayment) throws ResourceNotFoundException {
-        return requestPaymentService.update(requestPayment,requestPayment.getId());
-    }
-
     @RequestMapping(value =  "/approval/getById/{id}", method = RequestMethod.GET)
-    public RequestApproval getApprovalById(@PathVariable("id") String id) throws ResourceNotFoundException {
-        RequestApproval requestApproval = requestApprovalService.get(id);
-        if(requestApproval == null)
-            throw new ResourceNotFoundException();
-        return requestApproval;
+    public ResponseEntity<RequestResponse> getApprovalById(@PathVariable("id") String id) throws Exception {
+        return new ResponseEntity(requestApprovalService.getRequestResponse(id),HttpStatus.OK);
     }
 
     @RequestMapping(value =  "/payment/getById/{id}", method = RequestMethod.GET)

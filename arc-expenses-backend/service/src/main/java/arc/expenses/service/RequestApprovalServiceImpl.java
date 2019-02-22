@@ -1,13 +1,37 @@
 package arc.expenses.service;
 
-import gr.athenarc.domain.RequestApproval;
+import arc.expenses.domain.RequestResponse;
+import eu.openminted.registry.core.service.ServiceException;
+import gr.athenarc.domain.*;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.model.Sid;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service("requestApproval")
 public class RequestApprovalServiceImpl extends GenericService<RequestApproval> {
+
+    @Autowired
+    private RequestServiceImpl requestService;
+
+    @Autowired
+    private ProjectServiceImpl projectService;
+
+    @Autowired
+    private InstituteServiceImpl instituteService;
+
+    @Autowired
+    private UserServiceImpl userService;
+
+    @Autowired
+    private AclService aclService;
 
 
     public RequestApprovalServiceImpl() {
@@ -30,6 +54,57 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         return null;
     }
 
+
+    public RequestResponse getRequestResponse(String id) throws Exception {
+        RequestApproval requestApproval = get(id);
+        if(requestApproval == null)
+            throw new ServiceException("Request approval not found");
+
+        Request request = requestService.get(requestApproval.getRequestId());
+        Project project = projectService.get(request.getProjectId());
+        Institute institute = instituteService.get(project.getInstituteId());
+
+        Map<String, Stage> stages = new HashMap<>();
+
+        RequestResponse requestResponse = new RequestResponse();
+
+        BaseInfo baseInfo = new BaseInfo();
+        baseInfo.setId(requestApproval.getId());
+        baseInfo.setCreationDate(requestApproval.getCreationDate());
+        baseInfo.setRequestId(requestApproval.getRequestId());
+        baseInfo.setStage(requestApproval.getStage());
+        baseInfo.setStatus(requestApproval.getStatus());
+
+        stages.put("1",request.getStage1());
+        List<Class> stagesClasses = Arrays.stream(RequestApproval.class.getDeclaredFields()).filter(p-> Stage.class.isAssignableFrom(p.getType())).flatMap(p -> Stream.of(p.getType())).collect(Collectors.toList());
+        for(Class stageClass : stagesClasses){
+            if(RequestApproval.class.getMethod("get"+stageClass.getSimpleName()).invoke(requestApproval)!=null)
+                 stages.put(stageClass.getSimpleName().replace("Stage",""),(Stage) RequestApproval.class.getMethod("get"+stageClass.getSimpleName()).invoke(requestApproval));
+        }
+        requestResponse.setBaseInfo(baseInfo);
+        requestResponse.setRequesterPosition(request.getRequesterPosition());
+        requestResponse.setType(request.getType());
+        requestResponse.setRequestStatus(request.getRequestStatus());
+        requestResponse.setStages(stages);
+        requestResponse.setProjectAcronym(project.getAcronym());
+        requestResponse.setInstituteName(institute.getName());
+        requestResponse.setRequesterFullName(request.getUser().getFirstname() + " " + request.getUser().getLastname());
+        if(request.getOnBehalfOf()!=null) {
+            User user = userService.getByField("user_email",request.getOnBehalfOf());
+            requestResponse.setOnBehalfFullName(user.getFirstname() + " " + user.getLastname());
+        }
+
+        if(request.getTrip()!=null)
+            requestResponse.setTripDestination(request.getTrip().getDestination());
+
+        List<Sid> sids = new ArrayList<>();
+        sids.add(new PrincipalSid((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()));
+        requestResponse.setCanEdit(aclService.readAclById(new ObjectIdentityImpl(Request.class,request.getId()),sids).getEntries().isEmpty());
+
+        return requestResponse;
+    }
+
+
     public String generateID(String requestId) {
         //String maxID = getMaxID();
         //if(maxID == null)
@@ -38,6 +113,9 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
          //   return requestId+"-a"+(Integer.valueOf(maxID.split("-a")[1])+1);
 
     }
+
+
+
 
     @Override
     public RequestApproval getByField(String key, String value) throws Exception {

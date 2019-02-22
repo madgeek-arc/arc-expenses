@@ -79,6 +79,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
 
     @Override
     public void configure(StateMachineTransitionConfigurer<Stages, StageEvents> transitions) throws Exception {
+
         transitions.withExternal()
                 .source(Stages.Stage1)
                 .target(Stages.Stage2)
