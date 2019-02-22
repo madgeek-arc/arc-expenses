@@ -213,7 +213,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     public Request add(Request.Type type, String projectId, String subject, Request.RequesterPosition requesterPosition, String supplier, Stage1.SupplierSelectionMethod supplierSelectionMethod, double amount, Optional<List<MultipartFile>> files, String destination, String firstName, String lastName, String email) throws Exception {
 
-        if((type == Request.Type.REGULAR || type == Request.Type.CONTRACT) && supplierSelectionMethod ==null)
+        if((type == Request.Type.REGULAR || type == Request.Type.SERVICES_CONTRACT) && supplierSelectionMethod ==null)
             throw new ServiceException("Supplier selection method cannot be empty");
 
         if(supplierSelectionMethod != Stage1.SupplierSelectionMethod.AWARD_PROCEDURE && supplier.isEmpty())
