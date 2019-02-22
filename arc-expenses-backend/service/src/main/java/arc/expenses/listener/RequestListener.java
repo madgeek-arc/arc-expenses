@@ -19,7 +19,7 @@ import org.springframework.security.acls.model.AlreadyExistsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Aspect
 @Component
@@ -47,7 +47,7 @@ public class RequestListener {
         RequestApproval requestApproval = new RequestApproval();
         requestApproval.setId(request.getId()+"-a1");
         requestApproval.setRequestId(request.getId());
-        requestApproval.setCreationDate(new Date().getTime()+"");
+        requestApproval.setCreationDate(LocalDate.now().toEpochDay());
         requestApproval.setStage("2");
         requestApproval.setStatus(BaseInfo.Status.PENDING);
 

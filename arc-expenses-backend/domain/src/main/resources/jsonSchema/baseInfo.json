@@ -10,7 +10,8 @@
       "type": "string"
     },
     "creationDate": {
-      "type": "string"
+      "type":"string",
+      "format":"utc-millisec"
     },
     "stage": {
       "type": "string"

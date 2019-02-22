@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -169,9 +168,10 @@ public class RequestController {
                                                  @RequestParam(value = "searchField",required=false, defaultValue = "") String searchField,
                                                  @RequestParam(value = "stage") List<String> stage,
                                                  @RequestParam(value = "order",required=false,defaultValue = "ASC") OrderByType orderType,
-                                                 @RequestParam(value = "orderField") OrderByField orderField) {
+                                                 @RequestParam(value = "orderField") OrderByField orderField,
+                                                 @RequestParam(value = "editable", required = false, defaultValue = "false") boolean canEdit) {
 
-        return requestService.criteriaSearch(from,quantity,status,type,searchField,stage,orderType,orderField);
+        return requestService.criteriaSearch(from,quantity,status,type,searchField,stage,orderType,orderField, canEdit);
 
     }
 
@@ -247,7 +247,6 @@ public class RequestController {
     }
 
     @RequestMapping(value =  "/approval/getById/{id}", method = RequestMethod.GET)
-    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public RequestApproval getApprovalById(@PathVariable("id") String id) throws ResourceNotFoundException {
         RequestApproval requestApproval = requestApprovalService.get(id);
         if(requestApproval == null)
@@ -256,7 +255,6 @@ public class RequestController {
     }
 
     @RequestMapping(value =  "/payment/getById/{id}", method = RequestMethod.GET)
-    @PostAuthorize("@annotationChecks.isValidRequest(returnObject,authentication.principal)")
     public RequestPayment getPaymentById(@PathVariable("id") String id) throws ResourceNotFoundException {
         RequestPayment requestPayment = requestPaymentService.get(id);
         if(requestPayment == null)

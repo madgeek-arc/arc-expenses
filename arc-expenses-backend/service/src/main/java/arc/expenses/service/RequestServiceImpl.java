@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
@@ -216,11 +217,13 @@ public class RequestServiceImpl extends GenericService<Request> {
         if((type == Request.Type.REGULAR || type == Request.Type.SERVICES_CONTRACT) && supplierSelectionMethod ==null)
             throw new ServiceException("Supplier selection method cannot be empty");
 
-        if(supplierSelectionMethod != Stage1.SupplierSelectionMethod.AWARD_PROCEDURE && supplier.isEmpty())
-            throw new ServiceException("Supplier cannot be empty");
+        if(type == Request.Type.REGULAR || type == Request.Type.SERVICES_CONTRACT) {
+            if (supplierSelectionMethod != Stage1.SupplierSelectionMethod.AWARD_PROCEDURE && supplier.isEmpty())
+                throw new ServiceException("Supplier cannot be empty");
 
-        if(((supplierSelectionMethod == Stage1.SupplierSelectionMethod.AWARD_PROCEDURE || supplierSelectionMethod == Stage1.SupplierSelectionMethod.MARKET_RESEARCH) || amount>2500) && !files.isPresent())
-           throw new ServiceException("Files must be included");
+            if (((supplierSelectionMethod == Stage1.SupplierSelectionMethod.AWARD_PROCEDURE || supplierSelectionMethod == Stage1.SupplierSelectionMethod.MARKET_RESEARCH) || amount > 2500) && !files.isPresent())
+                throw new ServiceException("Files must be included");
+        }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -231,6 +234,13 @@ public class RequestServiceImpl extends GenericService<Request> {
         Project project = projectService.get(projectId);
         if(project == null)
             throw new ServiceException("Project with id "+projectId+" not found");
+        Institute institute = instituteService.get(project.getInstituteId());
+        if(institute == null)
+            throw new ServiceException("Institute with id "+ project.getInstituteId()+ " not found");
+
+        Organization organization = organizationService.get(institute.getOrganizationId());
+        if(organization == null)
+            throw new ServiceException("Organization with id "+ institute.getOrganizationId()+ " not found");
 
         User user = userService.getByField("user_email",(String) authentication.getPrincipal());
 
@@ -241,11 +251,9 @@ public class RequestServiceImpl extends GenericService<Request> {
         request.setRequesterPosition(requesterPosition);
 
         //diataktis
-        Institute institute = instituteService.get(project.getInstituteId());
-        Organization organization = organizationService.get(institute.getOrganizationId());
         request.setDiataktis(institute.getDiataktis());
 
-        if(project.getScientificCoordinatorAsDiataktis() && amount<=2500  && exceedsProjectBudget(project.getScientificCoordinator(),projectId, amount))
+        if((project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis()) && amount<=2500  && exceedsProjectBudget(project.getScientificCoordinator(),projectId, amount))
             request.setDiataktis(project.getScientificCoordinator());
 
         if(user.getEmail().equals(request.getDiataktis().getEmail())){
@@ -351,7 +359,8 @@ public class RequestServiceImpl extends GenericService<Request> {
     public Paging<RequestSummary> criteriaSearch(int from, int quantity,
                                                  List<BaseInfo.Status> status, List<Request.Type> types, String searchField,
                                                  List<String> stages, OrderByType orderType,
-                                                 OrderByField orderField) {
+                                                 OrderByField orderField,
+                                                 boolean canEdit) {
 
         //TODO prepare statement for stages
 
@@ -364,11 +373,10 @@ public class RequestServiceImpl extends GenericService<Request> {
         String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, CASE WHEN mask=32 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+") as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id";
 
 
-        String viewQuery = "select acls.canEdit as canEdit, request_view.creation_date as creation_date, project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as approval_stage, payment_view.stage as payment_stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";
+        String viewQuery = "select acls.canEdit as canEdit, request_view.creation_date as creation_date, project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as approval_stage, payment_view.stage as payment_stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute, approval_view.approval_id as approval_id, CASE WHEN payment_view.payment_id IS NULL OR payment_view.payment_id='' THEN approval_view.approval_id ELSE payment_view.payment_id END AS baseinfo_id from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";
         viewQuery+=" inner join (" + aclEntriesQuery+") as acls on acls.object_id_identity=request_view.request_id";
 
-        viewQuery+= " where (approval_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") or payment_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+")) and request_view.request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") and (approval_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") or payment_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+")) "+(!searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
-
+        viewQuery+= " where (approval_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") or payment_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+")) and request_view.request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true" : "" )+" and (approval_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") or payment_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+")) "+(!searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
 
         return new JdbcTemplate(dataSource).query(viewQuery, ps -> {
             if(!searchField.isEmpty()) {
@@ -400,15 +408,19 @@ public class RequestServiceImpl extends GenericService<Request> {
                 Request request = get(rs.getString("request_id"));
                 Project project = projectService.get(request.getProjectId());
                 Institute institute = instituteService.get(project.getInstituteId());
-                Organization organization = organizationService.get(institute.getId());
 
+                baseInfo.setId(rs.getString("baseinfo_id"));
 
-                baseInfo.setCreationDate(rs.getString("creation_date"));
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                try {
+                    baseInfo.setCreationDate(sdf.parse(rs.getString("creation_date")).getTime());
+                } catch (ParseException e) {
+                    logger.warn("Failed to parse creation date from sql query");
+                }
                 baseInfo.setRequestId(request.getId());
                 RequestSummary requestSummary = new RequestSummary();
 
                 requestSummary.setBaseInfo(baseInfo);
-                requestSummary.setRequestId(request.getId());
                 requestSummary.setCanEdit(rs.getBoolean("canedit"));
                 requestSummary.setRequestFullName(request.getUser().getFirstname() + " " + request.getUser().getLastname());
                 requestSummary.setRequestType(request.getType().toString());

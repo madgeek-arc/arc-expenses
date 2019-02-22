@@ -10,7 +10,8 @@
       "javaType": "gr.athenarc.domain.User"
     },
     "date": {
-      "type": "string"
+      "type": "string",
+      "format":"utc-millisec"
     },
     "comment": {
       "type": "string"

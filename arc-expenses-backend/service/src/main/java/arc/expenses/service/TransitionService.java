@@ -1,0 +1,284 @@
+package arc.expenses.service;
+
+
+import arc.expenses.domain.StageEvents;
+import arc.expenses.domain.Stages;
+import eu.openminted.registry.core.service.ServiceException;
+import eu.openminted.store.restclient.StoreRESTClient;
+import gr.athenarc.domain.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.codehaus.plexus.util.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
+import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.model.Sid;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.statemachine.StateContext;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+@Service("transitionService")
+public class TransitionService{
+
+    private static Logger logger = LogManager.getLogger(TransitionService.class);
+
+    @Autowired
+    private RequestApprovalServiceImpl requestApprovalService;
+
+    @Autowired
+    private AclService aclService;
+
+    @Autowired
+    private ProjectServiceImpl projectService;
+
+    @Autowired
+    private InstituteServiceImpl instituteService;
+
+    @Autowired
+    private OrganizationServiceImpl organizationService;
+
+    @Autowired
+    private RequestServiceImpl requestService;
+
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private StoreRESTClient storeRESTClient;
+
+    @Autowired
+    private UserServiceImpl userService;
+
+
+    public boolean checkContains(Message<StageEvents> message, Class stageClass){
+        Request request = message.getHeaders().get("requestObj", Request.class);
+
+        if(request == null) {
+            return false;
+        }
+
+        HttpServletRequest req = message.getHeaders().get("restRequest", HttpServletRequest.class);
+        if(req == null) {
+            return false;
+        }
+        List<String> requiredFields = Arrays.stream(stageClass.getDeclaredFields()).filter(p -> p.isAnnotationPresent(NotNull.class)).flatMap(p -> Stream.of(p.getName())).collect(Collectors.toList());
+        Map<String, String[]> parameters = req.getParameterMap();
+        for(String field: requiredFields){
+            if(!parameters.containsKey(field)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void cancelRequest(
+            StateContext<Stages, StageEvents> context,
+            String stage) throws Exception {
+
+        Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
+        request.setRequestStatus(Request.RequestStatus.CANCELLED);
+
+        RequestApproval requestApproval = requestApprovalService.getByField("request_id", request.getId());
+        requestApproval.setStage(stage+"");
+        requestApproval.setStatus(BaseInfo.Status.CANCELLED);
+        requestApprovalService.update(requestApproval,requestApproval.getId());
+
+        mailService.sendMail("Canceled",request.getPois());
+
+        requestService.update(request, request.getId());
+        aclService.deleteAcl(new ObjectIdentityImpl(Request.class,request.getId()), true);
+    }
+
+    public void modifyRequest(
+            StateContext<Stages, StageEvents> context,
+            Stage stage,
+            String stageString,
+            BaseInfo.Status status) throws Exception {
+
+        HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
+        MultipartHttpServletRequest multiPartRequest = context.getMessage().getHeaders().get("restRequest", MultipartHttpServletRequest.class);
+
+        Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
+        String comment = Optional.ofNullable(req.getParameter("comment")).orElse("");
+
+        ArrayList<Attachment> attachments = new ArrayList<>();
+        for(MultipartFile file : multiPartRequest.getFiles("files")){
+            storeRESTClient.storeFile(file.getBytes(), request.getArchiveId(), file.getOriginalFilename());
+            attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage1"));
+        }
+
+        RequestApproval requestApproval = requestApprovalService.getByField("request_id",request.getId());
+        stage.setAttachments(attachments);
+        stage.setComment(comment);
+        try {
+            User user = userService.getByField("user_email",(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+            stage.setUser(user);
+        } catch (Exception e) {
+            throw new ServiceException("User not found");
+        }
+
+        if(stage instanceof Stage1)
+            request.setStage1((Stage1) stage);
+        else if(stage instanceof Stage2)
+            requestApproval.setStage2((Stage2) stage);
+        else if(stage instanceof Stage3)
+            requestApproval.setStage3((Stage3) stage);
+        else if(stage instanceof Stage4)
+            requestApproval.setStage4((Stage4) stage);
+        else if(stage instanceof Stage5a)
+            requestApproval.setStage5a((Stage5a) stage);
+
+
+
+        requestApproval.setStage(stageString);
+        requestApproval.setStatus(status);
+        requestApprovalService.update(requestApproval,requestApproval.getId());
+
+        if(status == BaseInfo.Status.REJECTED){
+//            aclService.deleteAcl(new ObjectIdentityImpl(Request.class,request.getId()), true);
+            mailService.sendMail("Rejected", request.getPois());
+        }
+    }
+    public void approve(StateContext<Stages, StageEvents> context, String fromStage, String toStage, Stage stage) throws Exception {
+        Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
+        modifyRequest(context, stage, toStage, BaseInfo.Status.PENDING);
+        Map<String,List<Sid>> returnValues = updatingPermissions(fromStage,toStage,request, "Approve");
+
+        List<String> pois = request.getPois();
+
+        returnValues.get("grant").forEach(granted -> {
+            if(!pois.contains(((PrincipalSid) granted).getPrincipal())){
+                pois.add(((PrincipalSid) granted).getPrincipal());
+            }
+        });
+
+        request.setPois(pois);
+        requestService.update(request,request.getId());
+    }
+
+    public void reject(StateContext<Stages, StageEvents> context,Stage stage, String rejectedAt) throws Exception {
+        modifyRequest(context, stage,rejectedAt, BaseInfo.Status.REJECTED);
+    }
+
+
+    public void downgrade(StateContext<Stages, StageEvents> context, String fromStage, String toStage, Stage stage){
+        Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
+        MultipartHttpServletRequest req = context.getMessage().getHeaders().get("restRequest", MultipartHttpServletRequest.class);
+        String comment = Optional.ofNullable(req.getParameter("comment")).orElse("");
+        if(comment.isEmpty()) {
+            context.getStateMachine().setStateMachineError(new ServiceException("We need a comment!"));
+            throw new ServiceException("We need a comment!");
+        }
+        try {
+            modifyRequest(context, stage,toStage, BaseInfo.Status.UNDER_REVIEW);
+            updatingPermissions(fromStage,toStage,request,"Downgrade");
+        } catch (Exception e) {
+            logger.error("Error occurred on approval of request " + request.getId(),e);
+            throw new ServiceException(e.getMessage());
+        }
+    }
+
+    private Map<String,List<Sid>> updatingPermissions(String from, String to, Request request, String mailType){
+        List<Sid> revokeAccess = new ArrayList<>();
+        List<Sid> grantAccess = new ArrayList<>();
+        Project project = projectService.get(request.getProjectId());
+        Institute institute = instituteService.get(project.getInstituteId());
+        Organization organization = organizationService.get(institute.getOrganizationId());
+
+        switch (from){
+            case "2":
+                revokeAccess.add(new PrincipalSid(project.getScientificCoordinator().getEmail()));
+                project.getScientificCoordinator().getDelegates().forEach(person -> revokeAccess.add(new PrincipalSid(person.getEmail())));
+                break;
+            case "3":
+                PersonOfInterest scientificCoordinator = projectService.get(request.getProjectId()).getScientificCoordinator();
+                revokeAccess.add(new PrincipalSid(scientificCoordinator.getEmail()));
+                scientificCoordinator.getDelegates().forEach(person -> revokeAccess.add(new PrincipalSid(person.getEmail())));
+                break;
+            case "4":
+                revokeAccess.add(new PrincipalSid(organization.getPoy().getEmail()));
+                organization.getPoy().getDelegates().forEach(delegate -> {
+                    revokeAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+                break;
+            case "5a":
+                revokeAccess.add(new PrincipalSid(request.getDiataktis().getEmail()));
+                request.getDiataktis().getDelegates().forEach( delegate -> {
+                    revokeAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+                break;
+            case "5b":
+                revokeAccess.add(new PrincipalSid(organization.getDioikitikoSumvoulio().getEmail()));
+                organization.getDioikitikoSumvoulio().getDelegates().forEach(delegate -> revokeAccess.add(new PrincipalSid(delegate.getEmail())));
+                break;
+            default:
+                break;
+
+        }
+
+        switch (to){
+            case "1":
+                grantAccess.add(new PrincipalSid(request.getUser().getEmail()));
+                break;
+            case "2":
+                grantAccess.add(new PrincipalSid(request.getUser().getEmail()));
+                break;
+            case "3":
+                project.getOperator().forEach(entry -> {
+                    grantAccess.add(new PrincipalSid(entry.getEmail()));
+                    entry.getDelegates().forEach(person -> {
+                        grantAccess.add(new PrincipalSid(person.getEmail()));
+                    });
+                });
+                break;
+            case "4":
+                grantAccess.add(new PrincipalSid(organization.getPoy().getEmail()));
+                organization.getPoy().getDelegates().forEach(delegate -> {
+                    grantAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+                break;
+            case "5a":
+                grantAccess.add(new PrincipalSid(request.getDiataktis().getEmail()));
+                request.getDiataktis().getDelegates().forEach( delegate -> {
+                    grantAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+                break;
+            case "5b":
+                grantAccess.add(new PrincipalSid(organization.getDioikitikoSumvoulio().getEmail()));
+                organization.getDioikitikoSumvoulio().getDelegates().forEach(delegate -> {
+                    grantAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+                break;
+            case "6":
+                grantAccess.add(new PrincipalSid(institute.getDiaugeia().getEmail()));
+                institute.getDiaugeia().getDelegates().forEach(delegate -> {
+                    grantAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+                break;
+            default:
+                break;
+        }
+
+        aclService.updateAclEntries(revokeAccess,grantAccess,request.getId());
+        mailService.sendMail(mailType, grantAccess.stream().map(entry -> ((PrincipalSid) entry).getPrincipal()).collect(Collectors.toList()));
+
+        HashMap<String,List<Sid>> hashMap = new HashMap<>();
+        hashMap.put("revoke",revokeAccess);
+        hashMap.put("grant",grantAccess);
+
+        return hashMap;
+
+    }
+
+
+}

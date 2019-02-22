@@ -5,7 +5,6 @@ import gr.athenarc.domain.*;
 public class RequestSummary {
 
     private BaseInfo baseInfo;
-    private String requestId;
     private String requestType;
     private String projectAcronym;
     private String instituteName;
@@ -29,14 +28,6 @@ public class RequestSummary {
 
     public void setCanEdit(boolean canEdit) {
         this.canEdit = canEdit;
-    }
-
-    public String getRequestId() {
-        return requestId;
-    }
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
     }
 
     public String getRequestType() {
