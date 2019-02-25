@@ -48,7 +48,7 @@ public class UserController {
                     u.setSignatureArchiveId(userService.getSignatureArchiveID());
                     u.setImmediateEmails("false");
                     u.setReceiveEmails("false");
-                    u.setAttachment(null);
+                    u.setAttachments(null);
                     user = userService.add(u,authentication);
                 }
                 body.put("user",user);
@@ -77,9 +77,9 @@ public class UserController {
         return userService.getUsersWithImmediateEmailPreference();
     }
 
-    @RequestMapping(value = "/store/uploadSignatureFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+   /* @RequestMapping(value = "/store/uploadSignatureFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> upLoadSignatureFile(@RequestParam("email") String email,
                                              @RequestParam("file") MultipartFile file) throws IOException {
         return userService.upLoadSignatureFile(email,file);
-    }
+    }*/
 }

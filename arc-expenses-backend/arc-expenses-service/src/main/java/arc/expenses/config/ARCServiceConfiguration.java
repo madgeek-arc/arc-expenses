@@ -14,7 +14,7 @@ import javax.xml.bind.JAXBContext;
 @EnableWebMvc
 @EnableAsync
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@ComponentScan(basePackages = {"eu.openminted.registry.core","arc.expenses.*"})
+@ComponentScan(basePackages = {"eu.openminted.registry.core","arc.expenses"})
 @PropertySource(value = {"classpath:application.properties", "classpath:registry.properties"})
 public class ARCServiceConfiguration extends WebMvcConfigurerAdapter {
 

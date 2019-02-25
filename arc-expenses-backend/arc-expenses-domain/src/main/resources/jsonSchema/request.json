@@ -14,8 +14,11 @@
         "supplierSelectionMethod": { "type": "string" },
         "amountInEuros": { "type": "number" },
         "finalAmount": { "type": "number" },
-        "attachment": {
-          "javaType": "gr.athenarc.domain.Attachment"
+        "attachments": {
+          "type": "array",
+          "items": {
+            "javaType": "gr.athenarc.domain.Attachment"
+          }
         }
       }
     },

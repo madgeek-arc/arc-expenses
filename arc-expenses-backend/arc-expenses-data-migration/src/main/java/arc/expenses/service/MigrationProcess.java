@@ -1,12 +1,14 @@
 package arc.expenses.service;
 
+import arc.expenses.service.transformations.CustomCardinalityTransform;
+import arc.expenses.service.transformations.CustomShiftTransform;
 import com.bazaarvoice.jolt.JsonUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,8 +20,12 @@ public class MigrationProcess {
 
     @Autowired
     CustomCardinalityTransform customCardinalityTransform;
+
+    @Autowired
+    CustomShiftTransform customShiftTransform;
+
     Properties properties = new Properties();
-    String[] folders = {"approval","payment","request"};
+    String[] folders = {"approval","payment","request","user"};
     String currentFolder = null;
 
     @PostConstruct
@@ -42,8 +48,20 @@ public class MigrationProcess {
     }
 
     private void migrateFile(Path path) {
-        Object transformed = customCardinalityTransform.transform(path.toString());
-        writeObjectToFile(path,transformed);
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            InputStream inputStream = new FileInputStream(path.toString());
+            Object toTransform = mapper.readValue(inputStream,Object.class);
+            Object transformed = applyTransformations(toTransform);
+            writeObjectToFile(path,transformed);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Object applyTransformations(Object toTransform) {
+        return customCardinalityTransform.transform(customShiftTransform.transform(toTransform));
     }
 
     public void writeObjectToFile(Path path,Object transformed) {

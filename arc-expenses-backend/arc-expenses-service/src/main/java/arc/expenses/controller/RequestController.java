@@ -119,8 +119,8 @@ public class RequestController {
     public ResponseEntity<Object> uploadFile(@RequestParam("archiveID") String archiveID,
                                              @RequestParam("stage") String stage,
                                              @RequestParam("mode") String mode,
-                                             @RequestParam("file") MultipartFile file) throws IOException {
-        return requestService.upLoadFile(mode,archiveID,stage,file);
+                                             @RequestParam("files") MultipartFile[] files) throws IOException {
+        return requestService.upLoadFile(mode,archiveID,stage,files);
     }
 
     @RequestMapping(value = "/store/download", method = RequestMethod.GET)
@@ -129,16 +129,16 @@ public class RequestController {
     public void downloadFile(@RequestParam("mode") String mode,
                              @RequestParam("requestId") String requestId,
                              @RequestParam("stage") String stage,
-                            // @RequestParam("index") String index,
+                             @RequestParam("filename") String filename,
                              HttpServletResponse response) throws IOException, ResourceNotFoundException {
-        Attachment attachment = requestService.getAttachment(mode,requestId,stage);;//.get(Integer.parseInt(index));
+        Attachment attachment = requestService.getAttachment(mode,requestId,stage,filename);
 
         if(attachment == null)
             throw new ResourceNotFoundException();
 
         response.setContentType(attachment.getMimetype());
         response.setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFilename() + "\"");
-        IOUtils.copyLarge(requestService.downloadFile(mode,requestId,stage), response.getOutputStream());
+        IOUtils.copyLarge(requestService.downloadFile(attachment), response.getOutputStream());
     }
 
     @RequestMapping(value = "/addRequestApproval", method = RequestMethod.POST,

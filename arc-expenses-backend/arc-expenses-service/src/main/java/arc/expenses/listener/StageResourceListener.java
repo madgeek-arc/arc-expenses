@@ -53,13 +53,13 @@ public class StageResourceListener implements ResourceListener {
     public void resourceAdded(Resource resource) {
         logger.debug("Adding a resource");
 
-        if (resource.getResourceType().getName().equals("approval") && !Boolean.parseBoolean(restore) &&!adminResourceUpdate) {
+       /* if (resource.getResourceType().getName().equals("approval") && !Boolean.parseBoolean(restore) &&!adminResourceUpdate) {
             RequestApproval requestApproval = parserPool.deserialize(resource, RequestApproval.class);
             if(requestApproval.getStage().equals("2")){
                 sendEmails("1","2",requestApproval.getStatus(),
                         Converter.toRequestFatClass(requestService.get(requestApproval.getRequestId()),requestApproval));
             }
-        }
+        }*/
     }
 
     @Async

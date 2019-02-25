@@ -3,6 +3,7 @@ package arc.expenses;
 import arc.expenses.config.StoreRestConfig;
 import arc.expenses.domain.RequestSummary;
 import arc.expenses.utils.Converter;
+import com.sun.org.apache.xpath.internal.operations.Mult;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
@@ -387,29 +388,34 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
     public ResponseEntity<Object> upLoadFile(String mode,String archiveID,
-                                             String stage, MultipartFile file) {
+                                             String stage, MultipartFile[] files) {
 
+        List<String> urls = new ArrayList<>();
+        String fileName;
+        String url;
 
         if(!mode.equals("request"))
-            archiveID += "/"+mode;
+            archiveID += "/"+mode+"/"+stage;
 
-        String fileName = stage;
-        if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(archiveID,fileName).getResponse()))
-            storeRESTClient.deleteFile(archiveID,fileName);
 
-        try {
-            storeRESTClient.storeFile(file.getBytes(),archiveID,fileName);
-        } catch (IOException e) {
-            LOGGER.info(e);
-            return new ResponseEntity<>("ERROR",HttpStatus.INTERNAL_SERVER_ERROR);
+        for(MultipartFile file : files){
+            fileName = file.getOriginalFilename();
+            try {
+                if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(archiveID,fileName).getResponse()))
+                    storeRESTClient.deleteFile(archiveID,fileName);
+
+                url = archiveID+"/"+fileName;
+                storeRESTClient.storeFile(file.getBytes(),archiveID,fileName);
+            } catch (IOException e) {
+                LOGGER.info(e);
+                return new ResponseEntity<>("ERROR",HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            urls.add(url);
         }
-        return new ResponseEntity<>(archiveID+"/"+fileName,HttpStatus.OK);
-
+        return new ResponseEntity<>(urls,HttpStatus.OK);
     }
 
-    public InputStream downloadFile(String mode,String id, String stage) {
-
-        Attachment attachment = getAttachment(mode,id,stage);//.get(Integer.parseInt(index));
+    public InputStream downloadFile(Attachment attachment) {
         try {
             File temp = File.createTempFile("file", "tmp");
             temp.deleteOnExit();
@@ -418,37 +424,36 @@ public class RequestServiceImpl extends GenericService<Request> {
         } catch (Exception e) {
             LOGGER.error("error downloading file", e);
         }
-
         return null;
     }
 
-    public Attachment getAttachment(String mode ,String id, String stage) {
+    public Attachment getAttachment(String mode ,String id, String stage,String filename) {
         Attachment attachment;
 
         if(mode.equals("request"))
-            return get(id).getStage1().getAttachment();
+            return getAttachmentByFilename(get(id).getStage1().getAttachments(),filename);
         else if(mode.equals("approval")){
             switch (stage) {
                 case "2":
-                    attachment = requestApprovalService.get(id).getStage2().getAttachment();
+                    attachment = getAttachmentByFilename(requestApprovalService.get(id).getStage2().getAttachments(),filename);
                     break;
                 case "3":
-                    attachment = requestApprovalService.get(id).getStage3().getAttachment();
+                    attachment = getAttachmentByFilename(requestApprovalService.get(id).getStage3().getAttachments(),filename);
                     break;
                 case "4":
-                    attachment = requestApprovalService.get(id).getStage4().getAttachment();
+                    attachment = getAttachmentByFilename(requestApprovalService.get(id).getStage4().getAttachments(),filename);
                     break;
                 case "5":
-                    attachment = requestApprovalService.get(id).getStage5().getAttachment();
+                    attachment = getAttachmentByFilename(requestApprovalService.get(id).getStage5().getAttachments(),filename);
                     break;
                 case "5a":
-                    attachment = requestApprovalService.get(id).getStage5a().getAttachment();
+                    attachment = getAttachmentByFilename(requestApprovalService.get(id).getStage5a().getAttachments(),filename);
                     break;
                 case "5b":
-                    attachment = requestApprovalService.get(id).getStage5b().getAttachment();
+                    attachment = getAttachmentByFilename(requestApprovalService.get(id).getStage5b().getAttachments(),filename);
                     break;
                 case "6":
-                    attachment = requestApprovalService.get(id).getStage6().getAttachment();
+                    attachment = getAttachmentByFilename(requestApprovalService.get(id).getStage6().getAttachments(),filename);
                     break;
                 default:
                     return null;
@@ -456,31 +461,39 @@ public class RequestServiceImpl extends GenericService<Request> {
         }else{
             switch (stage) {
                 case "7":
-                    attachment = requestPaymentService.get(id).getStage7().getAttachment();
+                    attachment = getAttachmentByFilename(requestPaymentService.get(id).getStage7().getAttachments(),filename);
                     break;
                 case "8":
-                    attachment = requestPaymentService.get(id).getStage8().getAttachment();
+                    attachment = getAttachmentByFilename(requestPaymentService.get(id).getStage8().getAttachments(),filename);
                     break;
                 case "9":
-                    attachment = requestPaymentService.get(id).getStage9().getAttachment();
+                    attachment = getAttachmentByFilename(requestPaymentService.get(id).getStage9().getAttachments(),filename);
                     break;
                 case "10":
-                    attachment = requestPaymentService.get(id).getStage10().getAttachment();
+                    attachment = getAttachmentByFilename(requestPaymentService.get(id).getStage10().getAttachments(),filename);
                     break;
                 case "11":
-                    attachment = requestPaymentService.get(id).getStage11().getAttachment();
+                    attachment = getAttachmentByFilename(requestPaymentService.get(id).getStage11().getAttachments(),filename);
                     break;
                 case "12":
-                    attachment = requestPaymentService.get(id).getStage12().getAttachment();
+                    attachment = getAttachmentByFilename(requestPaymentService.get(id).getStage12().getAttachments(),filename);
                     break;
                 case "13":
-                    attachment = requestPaymentService.get(id).getStage13().getAttachment();
+                    attachment = getAttachmentByFilename(requestPaymentService.get(id).getStage13().getAttachments(),filename);
                     break;
                 default:
                     return null;
             }
         }
         return attachment;
+    }
+
+    private Attachment getAttachmentByFilename(List<Attachment> attachments,String filename){
+
+        for(Attachment attachment:attachments)
+            if(attachment.getFilename().equals(filename))
+                return attachment;
+        return null;
     }
 
 

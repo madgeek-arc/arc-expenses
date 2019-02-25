@@ -12,8 +12,11 @@
     "signatureArchiveId": { "type": "string" },
     "receiveEmails": { "type": "string" },
     "immediateEmails": { "type": "string" },
-    "attachment": {
-      "javaType": "gr.athenarc.domain.Attachment"
+    "attachments": {
+      "type": "array",
+      "items": {
+        "javaType": "gr.athenarc.domain.Attachment"
+      }
     }
   },
   "required": [
