@@ -33,6 +33,23 @@ services:
         - arcnet
       restart: unless-stopped
 
+  store-service:
+    image: docker.openminted.eu/omtd-store-service
+    ports:
+      - "8090:8080"
+    networks:
+      - arcnet
+    volumes:
+      - storeData:/tmp/omtd-store-service/storage
+    env_file: arc-store-service.env
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+        max_attempts: 20
+        delay: 5s
+
 
   idp:
       build: ./idp
@@ -91,7 +108,6 @@ services:
   elastic:
     container_name: elastic
     image: docker.elastic.co/elasticsearch/elasticsearch:5.5.3
-    #image: elasticsearch:5.2.2-alpine
     environment:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
@@ -119,6 +135,8 @@ volumes:
   esdata2:
     driver: local
   pgdata:
+    driver: local
+  storeData:
     driver: local
 
 networks:

@@ -312,7 +312,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         return request;
     }
 
-    private boolean exceedsProjectBudget(PersonOfInterest scientificCoordinator, String projectId, Double amount){
+    public boolean exceedsProjectBudget(PersonOfInterest scientificCoordinator, String projectId, Double amount){
 
         String budgetQuery = "select CASE WHEN sum(request_final_amount) + "+amount+" >(0.25 * project_view.project_total_cost) THEN false ELSE true END AS canBeDiataktis from request_view INNER JOIN project_view ON project_view.project_id=request_view.request_project WHERE request_view.request_diataktis='"+scientificCoordinator.getEmail()+"' AND project_view.project_id='"+projectId+"' GROUP BY project_view.project_total_cost;";
 

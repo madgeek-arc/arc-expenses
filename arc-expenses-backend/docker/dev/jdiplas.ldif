@@ -1,8 +1,0 @@
-dn: uid=jdiplas@gmail.com, ou=people, dc=example, dc=org
-cn: jdiplas@gmail.com
-objectClass: inetOrgPerson
-objectClass: top
-sn: Diplas
-givenName: Ioannis
-mail: jdiplas@ilsp.gr
-uid: jdiplas@ilsp.gr

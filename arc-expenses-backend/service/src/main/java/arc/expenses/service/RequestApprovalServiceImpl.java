@@ -5,13 +5,16 @@ import eu.openminted.registry.core.service.ServiceException;
 import gr.athenarc.domain.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.domain.ObjectIdentityImpl;
-import org.springframework.security.acls.domain.PrincipalSid;
-import org.springframework.security.acls.model.Sid;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,8 +34,7 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
     private UserServiceImpl userService;
 
     @Autowired
-    private AclService aclService;
-
+    private DataSource dataSource;
 
     public RequestApprovalServiceImpl() {
         super(RequestApproval.class);
@@ -97,9 +99,7 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         if(request.getTrip()!=null)
             requestResponse.setTripDestination(request.getTrip().getDestination());
 
-        List<Sid> sids = new ArrayList<>();
-        sids.add(new PrincipalSid((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()));
-        requestResponse.setCanEdit(aclService.readAclById(new ObjectIdentityImpl(Request.class,request.getId()),sids).getEntries().isEmpty());
+        requestResponse.setCanEdit(canEdit(request.getId()));
 
         return requestResponse;
     }
@@ -111,6 +111,25 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         return requestId+"-a1";
         //else
          //   return requestId+"-a"+(Integer.valueOf(maxID.split("-a")[1])+1);
+
+    }
+
+
+    private boolean canEdit(String requestId){
+        String roles = "";
+        for(GrantedAuthority grantedAuthority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()){
+            roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");
+        }
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, CASE WHEN mask=32 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+email+"' and acl_entry.mask=32) as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id where acl_object_identity.object_id_identity='"+requestId+"'";
+        System.out.println(aclEntriesQuery);
+        return new JdbcTemplate(dataSource).query(aclEntriesQuery , rs -> {
+
+            if(rs.next())
+                return rs.getBoolean("canEdit");
+            else
+                return false;
+        });
 
     }
 
