@@ -122,7 +122,6 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         }
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, CASE WHEN mask=32 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+email+"' and acl_entry.mask=32) as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id where acl_object_identity.object_id_identity='"+requestId+"'";
-        System.out.println(aclEntriesQuery);
         return new JdbcTemplate(dataSource).query(aclEntriesQuery , rs -> {
 
             if(rs.next())
