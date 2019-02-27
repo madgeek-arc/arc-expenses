@@ -61,7 +61,7 @@ public class MigrationProcess {
     }
 
     private Object applyTransformations(Object toTransform) {
-        return customCardinalityTransform.transform(customShiftTransform.transform(toTransform));
+        return customCardinalityTransform.transform(customShiftTransform.transform(toTransform,currentFolder),currentFolder);
     }
 
     public void writeObjectToFile(Path path,Object transformed) {

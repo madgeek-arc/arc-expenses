@@ -1,8 +1,0 @@
-{
-  "stage*": {
-    "attachment": "&1.attachments",
-    "*": "&1.&"
-  },
-  "*": "&"
-}
-

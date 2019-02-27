@@ -116,11 +116,12 @@ public class RequestController {
     }
 
     @RequestMapping(value = "/store/uploadFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> uploadFile(@RequestParam("archiveID") String archiveID,
+    public ResponseEntity<Object> uploadFile(@RequestParam("id") String id,
+                                             @RequestParam("archiveID") String archiveID,
                                              @RequestParam("stage") String stage,
                                              @RequestParam("mode") String mode,
                                              @RequestParam("files") MultipartFile[] files) throws IOException {
-        return requestService.upLoadFile(mode,archiveID,stage,files);
+        return requestService.upLoadFile(id,mode,archiveID,stage,files);
     }
 
     @RequestMapping(value = "/store/download", method = RequestMethod.GET)

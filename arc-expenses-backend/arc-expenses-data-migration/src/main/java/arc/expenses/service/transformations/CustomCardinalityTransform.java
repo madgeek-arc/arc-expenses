@@ -12,7 +12,7 @@ import java.io.InputStream;
 public class CustomCardinalityTransform implements Transformation {
 
     @Override
-    public Object transform(Object toTransform) {
+    public Object transform(Object toTransform,String resourceType) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();

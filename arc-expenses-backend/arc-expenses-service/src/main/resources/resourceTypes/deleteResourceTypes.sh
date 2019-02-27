@@ -5,7 +5,7 @@
 #done
 
 for i in   user organization project request institute approval payment; do
-	PGPASSWORD=paparia psql -h $1 -Uvrasidas -p 5433 registry <<endOfMessage
+	PGPASSWORD=paparia psql -h $1 -Uvrasidas -p 5432 registry <<endOfMessage
 
 delete from stringindexedfield_values where stringindexedfield_id in (select id from stringindexedfield where resource_id in (select id from resource where fk_name='$i'));
 delete from stringindexedfield where id in (select id from stringindexedfield where resource_id in (select id from resource where fk_name='$i'));
@@ -14,7 +14,7 @@ delete from booleanindexedfield_values where booleanindexedfield_id in (select i
 delete from booleanindexedfield where id in (select id from stringindexedfield where resource_id in (select id from resource where fk_name='$i'));
 
 delete from floatindexedfield_values where floatindexedfield_id in (select id from floatindexedfield where resource_id in (select id from resource where fk_name='$i'));
-delete from floatindexedfield where id in (select id from stringindexedfield where resource_id in (select id from resource where fk_name='$i'));
+delete from floatindexedfield where id in (select id from floatindexedfield where resource_id in (select id from resource where fk_name='$i'));
 
 delete from longindexedfield_values where longindexedfield_id in (select id from longindexedfield where resource_id in (select id from resource where fk_name='$i'));
 delete from longindexedfield where id in (select id from stringindexedfield where resource_id in (select id from resource where fk_name='$i'));
@@ -38,7 +38,7 @@ endOfMessage
 	curl -X DELETE   http://$1:8080/arc-expenses-service/resourceType/$i
 done
 
-PGPASSWORD=paparia psql -h $1 -Uvrasidas -p 5433 registry <<endOfMessage
+PGPASSWORD=paparia psql -h $1 -Uvrasidas -p 5432 registry <<endOfMessage
 delete from schemadatabase where originalurl like '%.xsd';
 endOfMessage
 

@@ -84,7 +84,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                 .query("select r.request_id as maxID\n" +
                         "from request_view r , resource res\n" +
                         "where fk_name = 'request' and r.id = res.id\n" +
-                        "order by creation_date desc\n" +
+                        "order by r.creation_date desc\n" +
                         "limit 1",maxIDRowMapper).get(0);
     }
 
@@ -387,7 +387,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         return storeRESTClient.createArchive().getResponse();
     }
 
-    public ResponseEntity<Object> upLoadFile(String mode,String archiveID,
+    public ResponseEntity<Object> upLoadFile(String id,String mode,String archiveID,
                                              String stage, MultipartFile[] files) {
 
         List<String> urls = new ArrayList<>();
@@ -395,7 +395,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         String url;
 
         if(!mode.equals("request"))
-            archiveID += "/"+mode+"/"+stage;
+            archiveID += "/"+mode+ "/" + id + "/"+stage;
 
 
         for(MultipartFile file : files){

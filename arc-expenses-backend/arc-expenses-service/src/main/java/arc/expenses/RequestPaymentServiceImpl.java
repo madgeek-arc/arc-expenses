@@ -75,7 +75,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
                 .query("select r.payment_id as maxID\n" +
                         "from payment_view r , resource res\n" +
                         "where fk_name = 'payment' and r.id = res.id and r.request_id = '" + requestId  + "'" +
-                        " order by creation_date desc\n" +
+                        " order by r.creation_date desc\n" +
                         "limit 1;",maxIDRowMapper);
     }
 
