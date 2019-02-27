@@ -26,6 +26,9 @@
       "description": "The archiveId of the request.",
       "type": "string"
     },
+    "finalAmount": {
+      "type": "number"
+    },
     "projectId": {
       "type": "string"
     },
@@ -65,5 +68,8 @@
     },
     "trip": {
       "javaType": "gr.athenarc.domain.Trip" }
-  }
+  },
+  "required": [
+    "finalAmount"
+  ]
 }

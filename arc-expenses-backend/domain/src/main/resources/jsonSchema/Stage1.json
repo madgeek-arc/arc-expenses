@@ -26,10 +26,6 @@
     },
     "amountInEuros": {
       "type": "number"
-    },
-    "finalAmount": {
-      "type": "number"
     }
-  },
-  "required": ["finalAmount"]
+  }
 }
