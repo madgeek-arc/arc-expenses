@@ -132,7 +132,7 @@ public class RequestController {
             @ApiImplicitParam(name = "supplier", value = "Who is the supplier of the request", dataType = "string", paramType = "form"),
             @ApiImplicitParam(name = "supplier_selection_method", value = "The method of supply", dataType = "string", paramType = "form"),
             @ApiImplicitParam(name = "amount", value = "Money of request", required = true, dataType = "double", paramType = "form"),
-            @ApiImplicitParam(name = "files", value = "Attachments about request", dataType = "file", paramType = "form"),
+            @ApiImplicitParam(name = "attachments", value = "Attachments about request", dataType = "file", paramType = "form"),
             @ApiImplicitParam(name = "destination", value = "Destination for trip (if such request)", dataType = "string", paramType = "form"),
             @ApiImplicitParam(name = "firstName", value = "First name of the yoloman (if such request)", dataType = "string", paramType = "form"),
             @ApiImplicitParam(name = "lastName", value = "Last name of the yoloman (if such request)", dataType = "string", paramType = "form"),
@@ -147,7 +147,7 @@ public class RequestController {
             @RequestParam(value = "supplier", required = false, defaultValue = "") String supplier,
             @RequestParam(value = "supplier_selection_method", required = false, defaultValue = "") Stage1.SupplierSelectionMethod supplierSelectionMethod,
             @RequestParam(value = "amount") double amount,
-            @RequestParam(value = "files") Optional<List<MultipartFile>> files,
+            @RequestParam(value = "attachments") Optional<List<MultipartFile>> files,
             @RequestParam(value = "destination", required = false, defaultValue = "") String destination,
             @RequestParam(value = "firstName", required = false, defaultValue = "") String firstName,
             @RequestParam(value = "lastName", required = false, defaultValue = "") String lastName,
@@ -200,14 +200,6 @@ public class RequestController {
     @RequestMapping(value =  "/approval/getById/{id}", method = RequestMethod.GET)
     public ResponseEntity<RequestResponse> getApprovalById(@PathVariable("id") String id) throws Exception {
         return new ResponseEntity(requestApprovalService.getRequestResponse(id),HttpStatus.OK);
-    }
-
-    @RequestMapping(value =  "/payment/getById/{id}", method = RequestMethod.GET)
-    public RequestPayment getPaymentById(@PathVariable("id") String id) throws ResourceNotFoundException {
-        RequestPayment requestPayment = requestPaymentService.get(id);
-        if(requestPayment == null)
-            throw new ResourceNotFoundException();
-        return requestPayment;
     }
 
     @RequestMapping(value =  "/payments/getByRequestId/{request_id}", method = RequestMethod.GET)

@@ -91,7 +91,7 @@ public class UserServiceImpl extends GenericService<User> {
         String cqlQuery = "project_operator="+email+
                 " or project_operator_delegate="+email+
                 " or project_scientificCoordinator="+email+
-                " or poy="+email+
+                " or organization_poy="+email+
                 " or poy_delegate="+email+
                 " or accountingRegistration="+email+
                 " or diaugeia="+email+

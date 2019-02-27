@@ -12,9 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static arc.expenses.messages.StageMessages.RequestState.*;
@@ -384,9 +382,9 @@ public class StageMessages {
         StringBuilder requestInfo = new StringBuilder();
         String date = null;
 
-        if (request.getStage1().getRequestDate() != null) {
-            date = new SimpleDateFormat("dd/MM/yyyy").format(new Date(Long.parseLong(request.getStage1().getRequestDate())));
-        }
+//        if (request.getStage1().getRequestDate() != null) {
+//            date = new SimpleDateFormat("dd/MM/yyyy").format(new Date(Long.parseLong(request.getStage1().getRequestDate())));
+//        }
 
 //        requestInfo
 //                .append("\n\nΑριθμός πρωτοκόλου: ")

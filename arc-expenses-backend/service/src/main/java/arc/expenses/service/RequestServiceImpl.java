@@ -1,5 +1,6 @@
 package arc.expenses.service;
 
+import arc.expenses.acl.ArcPermission;
 import arc.expenses.domain.*;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
@@ -19,6 +20,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.acls.domain.AclImpl;
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
+import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.model.AlreadyExistsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,28 +55,31 @@ public class RequestServiceImpl extends GenericService<Request> {
     private StoreRESTClient storeRESTClient;
 
     @Autowired
-    RequestApprovalServiceImpl requestApprovalService;
+    private RequestApprovalServiceImpl requestApprovalService;
 
     @Autowired
-    RequestPaymentServiceImpl requestPaymentService;
+    private RequestPaymentServiceImpl requestPaymentService;
 
     @Autowired
-    ProjectServiceImpl projectService;
+    private ProjectServiceImpl projectService;
 
     @Autowired
-    InstituteServiceImpl instituteService;
+    private InstituteServiceImpl instituteService;
 
     @Autowired
-    OrganizationServiceImpl organizationService;
+    private OrganizationServiceImpl organizationService;
 
     @Autowired
-    UserServiceImpl userService;
+    private UserServiceImpl userService;
 
     @Autowired
-    DataSource dataSource;
+    private DataSource dataSource;
 
     @Autowired
-    MailService mailService;
+    private MailService mailService;
+
+    @Autowired
+    private AclService aclService;
 
     @Autowired
     private StateMachineFactory<Stages, StageEvents> factory;
@@ -271,10 +280,6 @@ public class RequestServiceImpl extends GenericService<Request> {
             }
         }
 
-        Stage1 stage1 = new Stage1(LocalDate.now().toEpochDay()+"", subject, supplier, supplierSelectionMethod, amount, amount);
-        stage1.setAttachments(attachments);
-        request.setStage1(stage1);
-
         request.setRequestStatus(Request.RequestStatus.PENDING);
 
         if(!destination.isEmpty()) {
@@ -301,23 +306,73 @@ public class RequestServiceImpl extends GenericService<Request> {
             if(!pois.contains(delegate.getEmail()))
                 pois.add(delegate.getEmail());
 
-
         request.setCurrentStage(Stages.Stage2.name());
         request.setPois(pois);
+        request.setFinalAmount(amount);
+
 
         request = super.add(request, authentication);
 
+
+        Stage1 stage1 = new Stage1(LocalDate.now().toEpochDay()+"", subject, supplier, supplierSelectionMethod, amount);
+        stage1.setAttachments(attachments);
+
+        RequestApproval requestApproval = createRequestApproval(request);
+        requestApproval.setStage1(stage1);
+
+        requestApprovalService.update(requestApproval,requestApproval.getId());
         mailService.sendMail("Initial", request.getPois());
 
         return request;
     }
+
+
+    private RequestApproval createRequestApproval(Request request) {
+        logger.debug("Request with id " + request.getId() + " has just been created");
+
+        RequestApproval requestApproval = new RequestApproval();
+        requestApproval.setId(request.getId()+"-a1");
+        requestApproval.setRequestId(request.getId());
+        requestApproval.setCreationDate(LocalDate.now().toEpochDay());
+        requestApproval.setStage("2");
+        requestApproval.setStatus(BaseInfo.Status.PENDING);
+
+        requestApproval = requestApprovalService.add(requestApproval, null);
+
+        try{
+            aclService.createAcl(new ObjectIdentityImpl(Request.class, request.getId()));
+        }catch (AlreadyExistsException ex){
+            logger.debug("Object identity already exists");
+        }
+        Project project = projectService.get(request.getProjectId());
+        AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(Request.class, request.getId()));
+        acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
+        for(Delegate person : project.getScientificCoordinator().getDelegates())
+            acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(person.getEmail()), true);
+
+        acl.setOwner(new GrantedAuthoritySid(("ROLE_EXECUTIVE")));
+        aclService.updateAcl(acl);
+
+
+        return requestApproval;
+    }
+
 
     public boolean exceedsProjectBudget(PersonOfInterest scientificCoordinator, String projectId, Double amount){
 
         String budgetQuery = "select CASE WHEN sum(request_final_amount) + "+amount+" >(0.25 * project_view.project_total_cost) THEN false ELSE true END AS canBeDiataktis from request_view INNER JOIN project_view ON project_view.project_id=request_view.request_project WHERE request_view.request_diataktis='"+scientificCoordinator.getEmail()+"' AND project_view.project_id='"+projectId+"' GROUP BY project_view.project_total_cost;";
 
         return new JdbcTemplate(dataSource).query(budgetQuery , rs -> {
-            return rs.getBoolean("canbediataktis");
+            if(rs.next())
+                return rs.getBoolean("canbediataktis");
+            else
+                return false;
         });
     }
 
@@ -370,7 +425,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         for(GrantedAuthority grantedAuthority : authentication.getAuthorities()){
             roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");
         }
-        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, CASE WHEN mask=32 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+") as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id";
+        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, mask, CASE WHEN mask=32 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+" ) as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id WHERE acl_entries.mask=32";
 
 
         String viewQuery = "select acls.canEdit as canEdit, request_view.creation_date as creation_date, project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as approval_stage, payment_view.stage as payment_stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute, approval_view.approval_id as approval_id, CASE WHEN payment_view.payment_id IS NULL OR payment_view.payment_id='' THEN approval_view.approval_id ELSE payment_view.payment_id END AS baseinfo_id from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";

@@ -45,6 +45,25 @@ public class AclService extends JdbcMutableAclService{
 
     }
 
+    public void removePermissionFromSid(List<Permission> permissions, Sid principal, String id, Class persistentClass) {
+        ObjectIdentity objectIdentity = new ObjectIdentityImpl(persistentClass, id);
+        try {
+            MutableAcl acl = (MutableAcl) readAclById(objectIdentity);
+            for(int i=0; i<acl.getEntries().size();i++){
+                for(Permission permission: permissions) {
+                    if (acl.getEntries().get(i).getSid().equals(principal) && acl.getEntries().get(i).getPermission() == permission) {
+                        acl.deleteAce(i);
+                        i--;
+                    }
+                }
+            }
+            updateAcl(acl);
+        } catch (NotFoundException nfe) {
+            logger.error("Could not delete acl entries" ,nfe);
+        }
+
+    }
+
     public void updateAclEntries(List<Sid> oldPrincipal, List<Sid> newPrincipal, String id){
         deleteEntries(oldPrincipal,id, Request.class);
 

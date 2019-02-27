@@ -77,7 +77,6 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         baseInfo.setStage(requestApproval.getStage());
         baseInfo.setStatus(requestApproval.getStatus());
 
-        stages.put("1",request.getStage1());
         List<Class> stagesClasses = Arrays.stream(RequestApproval.class.getDeclaredFields()).filter(p-> Stage.class.isAssignableFrom(p.getType())).flatMap(p -> Stream.of(p.getType())).collect(Collectors.toList());
         for(Class stageClass : stagesClasses){
             if(RequestApproval.class.getMethod("get"+stageClass.getSimpleName()).invoke(requestApproval)!=null)
