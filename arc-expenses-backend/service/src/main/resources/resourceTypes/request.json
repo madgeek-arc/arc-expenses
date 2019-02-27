@@ -37,7 +37,7 @@
     },
     {
       "name": "request_final_amount",
-      "path": "$.stage1.finalAmount",
+      "path": "$.finalAmount",
       "type": "java.lang.Float"
     }
   ],
