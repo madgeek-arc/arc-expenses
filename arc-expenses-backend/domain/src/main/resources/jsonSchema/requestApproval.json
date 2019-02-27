@@ -3,6 +3,13 @@
   "title": "RequestApproval",
   "type": "object",
   "properties": {
+    "currentStage" : {
+      "type" : "string"
+    },
+    "stage1": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage1"
+    },
     "stage2": {
       "type": "object",
       "javaType": "gr.athenarc.domain.Stage2"

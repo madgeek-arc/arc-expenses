@@ -7,10 +7,6 @@
     "currentStage" : {
       "type" : "string"
     },
-    "stage1": {
-      "type": "object",
-      "javaType": "gr.athenarc.domain.Stage1"
-    },
     "id": {
       "description": "The unique identifier of the request.",
       "title": "Request ID",

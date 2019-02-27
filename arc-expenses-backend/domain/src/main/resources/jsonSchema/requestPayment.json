@@ -8,6 +8,9 @@
     "javaType" : "gr.athenarc.domain.BaseInfo"
   },
   "properties": {
+    "currentStage" : {
+      "type" : "string"
+    },
     "stage7": {
       "type": "object",
       "javaType": "gr.athenarc.domain.Stage7"

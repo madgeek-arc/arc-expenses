@@ -11,6 +11,7 @@ public enum Stages {
     Stage5a,
     Stage5b,
     Stage6,
+    Stage6Choice,
     Stage7,
     Stage8,
     Stage9,
@@ -18,4 +19,5 @@ public enum Stages {
     Stage11,
     Stage12,
     Stage13,
+    FINISHED
 }
