@@ -1,4 +1,3 @@
-/*
 package arc.expenses.config.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,4 +47,3 @@ public class SessionConfig extends WebSecurityConfigurerAdapter{
     }
 
 }
-*/

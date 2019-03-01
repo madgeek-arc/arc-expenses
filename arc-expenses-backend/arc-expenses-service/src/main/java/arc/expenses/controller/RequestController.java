@@ -126,13 +126,13 @@ public class RequestController {
 
     @RequestMapping(value = "/store/download", method = RequestMethod.GET)
     @ResponseBody
-    @PreAuthorize("@annotationChecks.validateDownload(#requestId,#mode,authentication.principal)")
+    @PreAuthorize("@annotationChecks.validateDownload(#id,#mode,authentication.principal)")
     public void downloadFile(@RequestParam("mode") String mode,
-                             @RequestParam("requestId") String requestId,
+                             @RequestParam("id") String id,
                              @RequestParam("stage") String stage,
                              @RequestParam("filename") String filename,
                              HttpServletResponse response) throws IOException, ResourceNotFoundException {
-        Attachment attachment = requestService.getAttachment(mode,requestId,stage,filename);
+        Attachment attachment = requestService.getAttachment(mode,id,stage,filename);
 
         if(attachment == null)
             throw new ResourceNotFoundException();

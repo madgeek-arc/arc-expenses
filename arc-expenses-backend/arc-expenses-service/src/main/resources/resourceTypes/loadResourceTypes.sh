@@ -23,4 +23,3 @@ done
 wait
 echo "FINISHED UPLOADING RESOURCE TYPES"
 notify-send "Finished Uploading Resources" "Successful :\n\n$UPLOADED\n\nFailed :\n$FAILED\n"
-a
