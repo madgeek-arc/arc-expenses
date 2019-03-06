@@ -8,17 +8,5 @@
       },
       "*": "&"
     }
-  },
-  {
-    "operation": "default",
-    "spec": {
-      "stage2": {},
-      "stage3": {},
-      "stage4": {},
-      "stage5": {},
-      "stage5a": {},
-      "stage5b": {},
-      "stage6": {}
-    }
   }
 ]
