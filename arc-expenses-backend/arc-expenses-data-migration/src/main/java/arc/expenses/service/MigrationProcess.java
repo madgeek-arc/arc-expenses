@@ -1,7 +1,6 @@
 package arc.expenses.service;
 
-import arc.expenses.service.transformations.CustomCardinalityTransform;
-import arc.expenses.service.transformations.CustomShiftTransform;
+import arc.expenses.service.transformations.CustomChainrTransform;
 import com.bazaarvoice.jolt.JsonUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +20,7 @@ import java.util.stream.Stream;
 public class MigrationProcess {
 
     @Autowired
-    CustomCardinalityTransform customCardinalityTransform;
-
-    @Autowired
-    CustomShiftTransform customShiftTransform;
+    CustomChainrTransform customChainrTransform;
 
     Properties properties = new Properties();
     String[] folders = {"approval","payment","request","user"};
@@ -63,7 +59,7 @@ public class MigrationProcess {
     }
 
     private Object applyTransformations(Object toTransform) {
-        return customCardinalityTransform.transform(customShiftTransform.transform(toTransform,currentFolder),currentFolder);
+        return customChainrTransform.transform(toTransform,currentFolder);
     }
 
     public void writeObjectToFile(Path path,Object transformed) {
