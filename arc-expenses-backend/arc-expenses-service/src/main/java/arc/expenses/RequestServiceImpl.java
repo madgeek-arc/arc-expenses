@@ -301,6 +301,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                     " r.request_institute_diaugeia_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " r.request_organization_director = '"  + email.toLowerCase() + "' or " +
                     " r.request_institute_director = '"  + email.toLowerCase() + "' or " +
+                    " (res2.payload::json)->'trip'->>'email' = '" +  email.toLowerCase()  + "' or " +
                     " r.request_organization_director_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " r.request_institute_director_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " ( (r.request_requester in (" + diataktis + ") or (res2.payload::json)->'trip'->>'email' in (" +diataktis +") " +

@@ -63,7 +63,7 @@ public class AnnotationChecks {
                 policyCheckerService.isOrganizationDirectorOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isTravelManagerOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isAdmin(request,email.toLowerCase()) ||
-                policyCheckerService.isTravelManagerOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isTraveller(request,email.toLowerCase()) ||
                 policyCheckerService.isInspectionTeamOrDelegate(request,email.toLowerCase());
     }
 
@@ -91,7 +91,7 @@ public class AnnotationChecks {
                 policyCheckerService.isTravelManagerOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isOrganizationDirectorOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isAdmin(request,email.toLowerCase()) ||
-                policyCheckerService.isTravelManagerOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isTraveller(request,email.toLowerCase()) ||
                 policyCheckerService.isOperatorOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isInspectionTeamOrDelegate(request,email.toLowerCase());
     }

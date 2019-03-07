@@ -244,4 +244,10 @@ public class PolicyCheckerService {
         return false;
 
     }
+
+    public boolean isTraveller(Request request, String email) {
+        if(request.getType().equals("trip"))
+            return request.getTrip().getEmail().equals(email);
+        return false;
+    }
 }
