@@ -53,13 +53,13 @@ public class StageResourceListener implements ResourceListener {
     public void resourceAdded(Resource resource) {
         logger.debug("Adding a resource");
 
-       /* if (resource.getResourceType().getName().equals("approval") && !Boolean.parseBoolean(restore) &&!adminResourceUpdate) {
+        if (resource.getResourceType().getName().equals("approval") && !Boolean.parseBoolean(restore) &&!adminResourceUpdate) {
             RequestApproval requestApproval = parserPool.deserialize(resource, RequestApproval.class);
             if(requestApproval.getStage().equals("2")){
                 sendEmails("1","2",requestApproval.getStatus(),
                         Converter.toRequestFatClass(requestService.get(requestApproval.getRequestId()),requestApproval));
             }
-        }*/
+        }
     }
 
     @Async
@@ -118,7 +118,7 @@ public class StageResourceListener implements ResourceListener {
 
     private void sendEmails(String oldStage, String newStage , String status, RequestFatClass requestFatClass){
         List<EmailMessage> messages = emailService.prepareMessages(oldStage,newStage,status,requestFatClass);
-       // messages.forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
+        messages.forEach(e -> javaMailer.sendEmail(e.getRecipient(), e.getSubject(), e.getText()));
         messages.forEach(logger::info);
     }
 
