@@ -39,8 +39,8 @@ public class UserController {
                 user = userService.getByField("user_email",authentication.getEmail());
                 if(user == null){
                     User u = new User();
-                    u.setId(authentication.getEmail());
-                    u.setEmail(authentication.getEmail());
+                    u.setId(authentication.getEmail().toLowerCase());
+                    u.setEmail(authentication.getEmail().toLowerCase());
                     u.setFirstnameLatin(authentication.getFirstname());
                     u.setFirstname("null");
                     u.setLastnameLatin(authentication.getLastname());

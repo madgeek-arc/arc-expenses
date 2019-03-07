@@ -45,8 +45,15 @@ public class PolicyCheckerService {
         if(inspectionTeam!=null){
             for(PersonOfInterest operator:inspectionTeam){
 
+                if(operator.getEmail().equals(email.toLowerCase()) && request.getUser().getEmail().equals(email))
+                    return false;
+
                 if(operator.getEmail().equals(email.toLowerCase()))
                     return true;
+
+                if(request.getType().equals("trip") && request.getTrip().getEmail().equals(email.toLowerCase())
+                       &&  operator.getEmail().equals(email.toLowerCase()))
+                    return false;
 
                 if(isDelegate(operator.getDelegates(),email.toLowerCase()))
                     return true;
@@ -174,7 +181,7 @@ public class PolicyCheckerService {
 
     public PersonOfInterest getDiataktisOrScientificCoordinator(Request request) {
 
-        if(request.getProject().getScientificCoordinatorAsDiataktis())
+        if(request.getProject().getScientificCoordinatorAsDiataktis() != null && request.getProject().getScientificCoordinatorAsDiataktis())
             if(scientificCoordinatorCanApprove(request))
                 return request.getProject().getScientificCoordinator();
 

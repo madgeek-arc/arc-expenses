@@ -156,23 +156,23 @@ public class ProjectServiceImpl extends GenericService<Project> {
 
     public double getApprovedRequestsByScientificCoordinator(Request request) {
         String scientificCoordinator = request.getProject().getScientificCoordinator().getEmail();
-        float totalApprovals = getTotalApprovalsAmount(scientificCoordinator);
-        float totalPayments = getTotalPaymentsAmount(scientificCoordinator);
+        float totalApprovals = getTotalApprovalsAmount(scientificCoordinator,request.getProject().getId());
+        float totalPayments = getTotalPaymentsAmount(scientificCoordinator,request.getProject().getId());
         return totalApprovals+totalPayments;
     }
 
-    private float getTotalPaymentsAmount(String scientificCoordinator) {
+    private float getTotalPaymentsAmount(String scientificCoordinator,String projectId) {
 
         String query = "select sum(((rs.payload::json)->'stage1'->>'finalAmount')::float) as total\n" +
                 "from request_view r,resource rs\n" +
                 "where r.request_id in ( select request_id from payment_view where stage = '11'  )\n" +
                 "and r.request_project_scientificcoordinator = '" + scientificCoordinator + "'"+
-                "and r.id = rs.id and rs.fk_name = 'request' ";
+                "and r.id = rs.id and rs.fk_name = 'request' and cast(rs.payload::json->'project'->'id' as varchar) = '" + projectId + "'";
 
         return new JdbcTemplate(dataSource).query(query,floatRowMapper).get(0);
     }
 
-    private float getTotalApprovalsAmount(String scientificCoordinator) {
+    private float getTotalApprovalsAmount(String scientificCoordinator,String projectId) {
 
         String query = "select sum(((rs.payload::json)->'stage1'->>'finalAmount')::float) as total\n" +
                 "from request_view r,resource rs\n" +
@@ -180,7 +180,7 @@ public class ProjectServiceImpl extends GenericService<Project> {
                 "                        except\n" +
                 "                        select request_id from payment_view where stage = '11'  )\n" +
                 "and r.request_project_scientificcoordinator = '" + scientificCoordinator + "'"+
-                "and r.id = rs.id and rs.fk_name = 'request' ";
+                "and r.id = rs.id and rs.fk_name = 'request' and cast(rs.payload::json->'project'->'id' as varchar) = '" + projectId + "'";
 
         return new JdbcTemplate(dataSource).query(query,floatRowMapper).get(0);
     }

@@ -279,28 +279,28 @@ public class RequestServiceImpl extends GenericService<Request> {
         String diataktis = getDiataktis();
 
         if(!admins.contains(email)) {
-            user_clause.append(" ( r.request_requester = '"  + email.toLowerCase() + "' or " +
+            user_clause.append(" ( lower(r.request_requester) = '"  + email.toLowerCase() + "' or " +
                     " r.request_project_operator @> '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " r.request_organization_inspectionteam @> '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " r.request_organization_inspectionteam_delegate @> '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " r.request_project_operator_delegate @> '{"+'"' + email.toLowerCase() + '"' + "}' or " +
-                    " r.request_project_scientificCoordinator = '"  + email.toLowerCase() + "' or " +
-                    " r.request_institute_travelmanager = '"  + email.toLowerCase() + "' or " +
-                    " r.request_organization_poy = '"  + email.toLowerCase() + "' or " +
-                    " r.request_organization_dioikitikoSumvoulio = '"  + email.toLowerCase() + "' or " +
+                    " lower(r.request_project_scientificCoordinator) = '"  + email.toLowerCase() + "' or " +
+                    " lower(r.request_institute_travelmanager) = '"  + email.toLowerCase() + "' or " +
+                    " lower(r.request_organization_poy) = '"  + email.toLowerCase() + "' or " +
+                    " lower(r.request_organization_dioikitikoSumvoulio) = '"  + email.toLowerCase() + "' or " +
                     " r.request_organization_dioikitikoSumvoulio_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " r.request_organization_poy_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " r.request_institute_travelmanager_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
-                    " r.request_institute_accountingRegistration = '"  + email.toLowerCase() + "' or " +
-                    " r.request_institute_diaugeia = '"  + email.toLowerCase() + "' or " +
-                    " r.request_institute_accountingPayment = '"  + email.toLowerCase() + "' or " +
-                    " r.request_institute_accountingDirector = '"  + email.toLowerCase() + "' or " +
+                    " lower(r.request_institute_accountingRegistration) = '"  + email.toLowerCase() + "' or " +
+                    " lower(r.request_institute_diaugeia) = '"  + email.toLowerCase() + "' or " +
+                    " lower(r.request_institute_accountingPayment) = '"  + email.toLowerCase() + "' or " +
+                    " lower(r.request_institute_accountingDirector) = '"  + email.toLowerCase() + "' or " +
                     " r.request_institute_accountingDirector_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " r.request_institute_accountingRegistration_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " r.request_institute_accountingPayment_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " r.request_institute_diaugeia_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
-                    " r.request_organization_director = '"  + email.toLowerCase() + "' or " +
-                    " r.request_institute_director = '"  + email.toLowerCase() + "' or " +
+                    " lower(r.request_organization_director) = '"  + email.toLowerCase() + "' or " +
+                    " lower(r.request_institute_director) = '"  + email.toLowerCase() + "' or " +
                     " (res2.payload::json)->'trip'->>'email' = '" +  email.toLowerCase()  + "' or " +
                     " r.request_organization_director_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " r.request_institute_director_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
