@@ -304,10 +304,10 @@ public class RequestServiceImpl extends GenericService<Request> {
                     " (res2.payload::json)->'trip'->>'email' = '" +  email.toLowerCase()  + "' or " +
                     " r.request_organization_director_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
                     " r.request_institute_director_delegate @>  '{"+'"' + email.toLowerCase() + '"' + "}' or " +
-                    " ( (r.request_requester in (" + diataktis + ") or (res2.payload::json)->'trip'->>'email' in (" +diataktis +") " +
+                    " (( (r.request_requester in (" + diataktis + ") or (res2.payload::json)->'trip'->>'email' in (" +diataktis +") )" +
                     "   and not(r.request_requester = '"+ requestOrganizationDirector + "' or (res2.payload::json)->'trip'->>'email' = '" +  requestOrganizationDirector  + "')" +
                     "   and r.request_organization_director = '"  + email.toLowerCase() + "' ))" +
-                    " or ( (r.request_requester in (" + diataktis + ") or (res2.payload::json)->'trip'->>'email' in (" + diataktis +") " +
+                    " or (( (r.request_requester in (" + diataktis + ") or (res2.payload::json)->'trip'->>'email' in (" + diataktis +")) " +
                     "   and (r.request_requester = '"+ requestOrganizationDirector + "' or (res2.payload::json)->'trip'->>'email' = '" +  requestOrganizationDirector  + "')" +
                     "   and r.request_organization_vicedirector = '"  + email.toLowerCase() + "' )))");
         }

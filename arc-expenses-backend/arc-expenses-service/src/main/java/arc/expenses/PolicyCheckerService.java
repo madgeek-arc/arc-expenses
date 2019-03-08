@@ -99,7 +99,7 @@ public class PolicyCheckerService {
     }
 
     public boolean isRequestor(Request request, String email) {
-        return request.getUser().getEmail().equals(email.toLowerCase());
+        return request.getUser().getEmail().toLowerCase().equals(email.toLowerCase());
     }
 
     public boolean updateFilter(RequestSummary requestSummary, String email) {
