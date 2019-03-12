@@ -490,10 +490,13 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
     private Attachment getAttachmentByFilename(List<Attachment> attachments,String filename){
-
-        for(Attachment attachment:attachments)
-            if(attachment.getFilename().equals(filename))
+        String name = null;
+        filename = filename.replace(" ","+");
+        for(Attachment attachment:attachments) {
+            name = attachment.getFilename().replace(" ","+");
+            if (name.equals(filename))
                 return attachment;
+        }
         return null;
     }
 
