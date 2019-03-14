@@ -29,6 +29,9 @@
     "finalAmount": {
       "type": "number"
     },
+    "paymentCycles": {
+      "type": "integer"
+    },
     "projectId": {
       "type": "string"
     },

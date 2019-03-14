@@ -92,7 +92,6 @@
                     <sourceDirectory>${basedir}/src/main/resources/jsonSchema/</sourceDirectory>
                     <targetPackage>${project.groupId}.domain</targetPackage>
                     <outputDirectory>target/generated-sources/jsonSchema</outputDirectory>
-                    <useLongIntegers>true</useLongIntegers>
                     <includeConstructors>true</includeConstructors>
                     <includeJsr303Annotations>true</includeJsr303Annotations>
                 </configuration>

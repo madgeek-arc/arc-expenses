@@ -1,17 +1,17 @@
 package arc.expenses.service;
 
 
-import arc.expenses.acl.ArcPermission;
 import arc.expenses.domain.StageEvents;
 import arc.expenses.domain.Stages;
-import eu.openminted.registry.core.service.ServiceException;
+import eu.openminted.registry.core.domain.Browsing;
+import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.plexus.util.FileUtils;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.Message;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Sid;
@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -64,20 +63,23 @@ public class TransitionService{
     private RequestPaymentServiceImpl requestPaymentService;
 
 
-    public boolean checkContains(Message<StageEvents> message, Class stageClass){
+    public boolean checkContains(StateContext<Stages, StageEvents> context, Class stageClass){
 
-        if(message.getHeaders().get("requestObj", Request.class) == null && message.getHeaders().get("paymentObj", RequestPayment.class)==null) {
+        if(context.getMessage().getHeaders().get("requestObj", Request.class) == null && context.getMessage().getHeaders().get("paymentObj", RequestPayment.class)==null) {
+            context.getStateMachine().setStateMachineError(new ServiceException("Both request and payment objects are empty"));
             return false;
         }
 
-        HttpServletRequest req = message.getHeaders().get("restRequest", HttpServletRequest.class);
+        HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
         if(req == null) {
+            context.getStateMachine().setStateMachineError(new ServiceException("Http request is empty"));
             return false;
         }
         List<String> requiredFields = Arrays.stream(stageClass.getDeclaredFields()).filter(p -> p.isAnnotationPresent(NotNull.class)).flatMap(p -> Stream.of(p.getName())).collect(Collectors.toList());
         Map<String, String[]> parameters = req.getParameterMap();
         for(String field: requiredFields){
             if(!parameters.containsKey(field)) {
+                context.getStateMachine().setStateMachineError(new ServiceException(field + " is required"));
                 return false;
             }
         }
@@ -128,7 +130,7 @@ public class TransitionService{
             BaseInfo.Status status) throws Exception {
 
         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
-        MultipartHttpServletRequest multiPartRequest = context.getMessage().getHeaders().get("restRequest", MultipartHttpServletRequest.class);
+        MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
 
         Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
         String comment = Optional.ofNullable(req.getParameter("comment")).orElse("");
@@ -136,7 +138,7 @@ public class TransitionService{
         ArrayList<Attachment> attachments = new ArrayList<>();
         for(MultipartFile file : multiPartRequest.getFiles("attachments")){
             storeRESTClient.storeFile(file.getBytes(), request.getArchiveId(), file.getOriginalFilename());
-            attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage1"));
+            attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
         }
 
         RequestApproval requestApproval = requestApprovalService.getByField("request_id",request.getId());
@@ -182,7 +184,7 @@ public class TransitionService{
             BaseInfo.Status status) throws Exception {
 
         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
-        MultipartHttpServletRequest multiPartRequest = context.getMessage().getHeaders().get("restRequest", MultipartHttpServletRequest.class);
+        MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
 
         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
         Request request = requestService.get(requestPayment.getRequestId());
@@ -191,7 +193,7 @@ public class TransitionService{
         ArrayList<Attachment> attachments = new ArrayList<>();
         for(MultipartFile file : multiPartRequest.getFiles("attachments")){
             storeRESTClient.storeFile(file.getBytes(), request.getArchiveId(), file.getOriginalFilename());
-            attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage1"));
+            attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
         }
 
         stage.setAttachments(attachments);
@@ -229,55 +231,29 @@ public class TransitionService{
         }
     }
 
-    public void movingToStage7(StateContext<Stages, StageEvents> context) throws Exception {
-        Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
-        String toStage = "7";
-        if(request.getType() == Request.Type.CONTRACT) {
-            modifyRequestApproval(context, new Stage6(), "13", BaseInfo.Status.ACCEPTED);
-            toStage = "13";
-        }else{
-            RequestPayment requestPayment = new RequestPayment();
-            requestPayment.setId(request.getId()+"-p1");
-            requestPayment.setRequestId(request.getId());
-            requestPayment.setCreationDate(LocalDate.now().toEpochDay());
-            requestPayment.setStage("7");
-            requestPayment.setStatus(BaseInfo.Status.PENDING);
-            requestPayment.setCurrentStage(Stages.Stage7.name());
-            requestPaymentService.add(requestPayment,null);
-            toStage = "7";
-
-        }
-        Map<String,List<Sid>> returnValues = updatingPermissions("6",toStage, request,"Approve");
-
-        List<String> pois = request.getPois();
-
-        returnValues.get("grant").forEach(granted -> {
-            if(!pois.contains(((PrincipalSid) granted).getPrincipal())){
-                pois.add(((PrincipalSid) granted).getPrincipal());
-            }
-        });
-
-        aclService.removePermissionFromSid(Collections.singletonList(ArcPermission.CANCEL),new PrincipalSid(request.getUser().getEmail()),request.getId(),Request.class); //request can no longer get canceled
-        request.setPois(pois);
-        requestService.update(request,request.getId());
-
-    }
-
     public void approveApproval(StateContext<Stages, StageEvents> context, String fromStage, String toStage, Stage stage) throws Exception {
         Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
         modifyRequestApproval(context, stage, toStage, BaseInfo.Status.PENDING);
-        Map<String,List<Sid>> returnValues = updatingPermissions(fromStage,toStage,request, "Approve");
+        updatingPermissions(fromStage,toStage,request, "Approve");
 
-        List<String> pois = request.getPois();
+        if(toStage.equals("5a") || toStage.equals("5b")){
+            Project project = projectService.get(request.getProjectId());
+            Institute institute = instituteService.get(project.getInstituteId());
+            Organization organization = organizationService.get(institute.getOrganizationId());
 
-        returnValues.get("grant").forEach(granted -> {
-            if(!pois.contains(((PrincipalSid) granted).getPrincipal())){
-                pois.add(((PrincipalSid) granted).getPrincipal());
+            request.setDiataktis(institute.getDiataktis());
+
+            if((project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis()) && request.getFinalAmount()<=2500  && requestService.exceedsProjectBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
+                request.setDiataktis(project.getScientificCoordinator());
+
+            if(request.getUser().getEmail().equals(request.getDiataktis().getEmail())){
+                if(request.getUser().getEmail().equals(organization.getDirector().getEmail()))
+                    request.setDiataktis(organization.getViceDirector());
+                else
+                    request.setDiataktis(organization.getDirector());
             }
-        });
+        }
 
-        request.setPois(pois);
-        requestService.update(request,request.getId());
     }
 
     public void approvePayment(StateContext<Stages, StageEvents> context, String fromStage, String toStage, Stage stage) throws Exception {
@@ -286,18 +262,20 @@ public class TransitionService{
 
         Request request = requestService.get(requestPayment.getRequestId());
 
-        Map<String,List<Sid>> returnValues = updatingPermissions(fromStage,toStage, request, "Approve");
 
-        List<String> pois = request.getPois();
-
-        returnValues.get("grant").forEach(granted -> {
-            if(!pois.contains(((PrincipalSid) granted).getPrincipal())){
-                pois.add(((PrincipalSid) granted).getPrincipal());
+        if(toStage.equals("13") && fromStage.equals("13")){ // that's the signal for a finished payment
+            Browsing<RequestPayment> payments = requestPaymentService.getPayments(request.getId(),null);
+            if(payments.getTotal()>=request.getPaymentCycles()){ //if we have reached the max of payment cycles then request should be automatically move to FINISHED state
+                requestService.finalize(request);
+            }else{ //if we haven't yet, create another payment request
+                requestPaymentService.createPayment(request);
+                updatingPermissions("6","7", request,"Approve");
             }
-        });
+        }
 
-        request.setPois(pois);
-        requestService.update(request,request.getId());
+
+        updatingPermissions(fromStage,toStage, request, "Approve");
+
     }
 
     public void rejectApproval(StateContext<Stages, StageEvents> context, Stage stage, String rejectedAt) throws Exception {
@@ -311,7 +289,7 @@ public class TransitionService{
 
     public void downgradeApproval(StateContext<Stages, StageEvents> context, String fromStage, String toStage, Stage stage){
         Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
-        MultipartHttpServletRequest req = context.getMessage().getHeaders().get("restRequest", MultipartHttpServletRequest.class);
+        MultipartHttpServletRequest req = (MultipartHttpServletRequest) context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
         String comment = Optional.ofNullable(req.getParameter("comment")).orElse("");
         if(comment.isEmpty()) {
             context.getStateMachine().setStateMachineError(new ServiceException("We need a comment!"));
@@ -329,7 +307,7 @@ public class TransitionService{
 
     public void downgradePayment(StateContext<Stages, StageEvents> context, String fromStage, String toStage, Stage stage){
         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
-        MultipartHttpServletRequest req = context.getMessage().getHeaders().get("restRequest", MultipartHttpServletRequest.class);
+        MultipartHttpServletRequest req = (MultipartHttpServletRequest) context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
         String comment = Optional.ofNullable(req.getParameter("comment")).orElse("");
         if(comment.isEmpty()) {
             context.getStateMachine().setStateMachineError(new ServiceException("We need a comment!"));
@@ -345,7 +323,7 @@ public class TransitionService{
         }
     }
 
-    private Map<String,List<Sid>> updatingPermissions(String from, String to, Request request, String mailType){
+    public void updatingPermissions(String from, String to, Request request, String mailType){
         List<Sid> revokeAccess = new ArrayList<>();
         List<Sid> grantAccess = new ArrayList<>();
         Project project = projectService.get(request.getProjectId());
@@ -353,6 +331,9 @@ public class TransitionService{
         Organization organization = organizationService.get(institute.getOrganizationId());
 
         switch (from){
+            case "1":
+                revokeAccess.add(new PrincipalSid(request.getUser().getEmail()));
+                break;
             case "2":
                 revokeAccess.add(new PrincipalSid(project.getScientificCoordinator().getEmail()));
                 project.getScientificCoordinator().getDelegates().forEach(person -> revokeAccess.add(new PrincipalSid(person.getEmail())));
@@ -362,12 +343,14 @@ public class TransitionService{
                 revokeAccess.add(new PrincipalSid(scientificCoordinator.getEmail()));
                 scientificCoordinator.getDelegates().forEach(person -> revokeAccess.add(new PrincipalSid(person.getEmail())));
                 break;
+            case "9":
             case "4":
                 revokeAccess.add(new PrincipalSid(organization.getPoy().getEmail()));
                 organization.getPoy().getDelegates().forEach(delegate -> {
                     revokeAccess.add(new PrincipalSid(delegate.getEmail()));
                 });
                 break;
+            case "10":
             case "5a":
                 revokeAccess.add(new PrincipalSid(request.getDiataktis().getEmail()));
                 request.getDiataktis().getDelegates().forEach( delegate -> {
@@ -378,6 +361,7 @@ public class TransitionService{
                 revokeAccess.add(new PrincipalSid(organization.getDioikitikoSumvoulio().getEmail()));
                 organization.getDioikitikoSumvoulio().getDelegates().forEach(delegate -> revokeAccess.add(new PrincipalSid(delegate.getEmail())));
                 break;
+            case "11":
             case "6":
                 revokeAccess.add(new PrincipalSid(institute.getDiaugeia().getEmail()));
                 institute.getDiaugeia().getDelegates().forEach(delegate -> revokeAccess.add(new PrincipalSid(delegate.getEmail())));
@@ -395,6 +379,26 @@ public class TransitionService{
                     });
                 }
                 break;
+            case "8":
+                organization.getInspectionTeam().forEach(inspector -> {
+                    revokeAccess.add(new PrincipalSid(inspector.getEmail()));
+                    inspector.getDelegates().forEach(delegate -> {
+                        revokeAccess.add(new PrincipalSid(delegate.getEmail()));
+                    });
+                });
+                break;
+            case "12":
+                revokeAccess.add(new PrincipalSid(institute.getAccountingRegistration().getEmail()));
+                institute.getAccountingRegistration().getDelegates().forEach(delegate -> {
+                    revokeAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+                break;
+            case "13":
+                revokeAccess.add(new PrincipalSid(institute.getAccountingPayment().getEmail()));
+                institute.getAccountingPayment().getDelegates().forEach(delegate -> {
+                    revokeAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+                break;
             default:
                 break;
 
@@ -405,7 +409,8 @@ public class TransitionService{
                 grantAccess.add(new PrincipalSid(request.getUser().getEmail()));
                 break;
             case "2":
-                grantAccess.add(new PrincipalSid(request.getUser().getEmail()));
+                grantAccess.add(new PrincipalSid(project.getScientificCoordinator().getEmail()));
+                project.getScientificCoordinator().getDelegates().forEach(person -> grantAccess.add(new PrincipalSid(person.getEmail())));
                 break;
             case "3":
                 project.getOperator().forEach(entry -> {
@@ -415,12 +420,15 @@ public class TransitionService{
                     });
                 });
                 break;
+            case "9":
             case "4":
                 grantAccess.add(new PrincipalSid(organization.getPoy().getEmail()));
                 organization.getPoy().getDelegates().forEach(delegate -> {
                     grantAccess.add(new PrincipalSid(delegate.getEmail()));
                 });
                 break;
+
+            case "10":
             case "5a":
                 grantAccess.add(new PrincipalSid(request.getDiataktis().getEmail()));
                 request.getDiataktis().getDelegates().forEach( delegate -> {
@@ -433,6 +441,7 @@ public class TransitionService{
                     grantAccess.add(new PrincipalSid(delegate.getEmail()));
                 });
                 break;
+            case "11":
             case "6":
                 grantAccess.add(new PrincipalSid(institute.getDiaugeia().getEmail()));
                 institute.getDiaugeia().getDelegates().forEach(delegate -> {
@@ -460,6 +469,18 @@ public class TransitionService{
                     });
                 });
                 break;
+            case "12":
+                grantAccess.add(new PrincipalSid(institute.getAccountingRegistration().getEmail()));
+                institute.getAccountingRegistration().getDelegates().forEach(delegate -> {
+                    grantAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+                break;
+            case "13":
+                grantAccess.add(new PrincipalSid(institute.getAccountingPayment().getEmail()));
+                institute.getAccountingPayment().getDelegates().forEach(delegate -> {
+                    grantAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+                break;
             default:
                 break;
         }
@@ -467,11 +488,20 @@ public class TransitionService{
         aclService.updateAclEntries(revokeAccess,grantAccess,request.getId());
         mailService.sendMail(mailType, grantAccess.stream().map(entry -> ((PrincipalSid) entry).getPrincipal()).collect(Collectors.toList()));
 
-        HashMap<String,List<Sid>> hashMap = new HashMap<>();
-        hashMap.put("revoke",revokeAccess);
-        hashMap.put("grant",grantAccess);
+        List<String> pois = request.getPois();
 
-        return hashMap;
+        grantAccess.forEach(granted -> {
+            if(!pois.contains(((PrincipalSid) granted).getPrincipal())){
+                pois.add(((PrincipalSid) granted).getPrincipal());
+            }
+        });
+
+        request.setPois(pois);
+        try {
+            requestService.update(request,request.getId());
+        } catch (ResourceNotFoundException e) {
+            logger.error("Failed to update request with POIs",e);
+        }
 
     }
 

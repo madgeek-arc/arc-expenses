@@ -4,7 +4,6 @@ import arc.expenses.domain.OrderByField;
 import arc.expenses.domain.OrderByType;
 import arc.expenses.domain.RequestResponse;
 import arc.expenses.domain.RequestSummary;
-import arc.expenses.service.AclService;
 import arc.expenses.service.RequestApprovalServiceImpl;
 import arc.expenses.service.RequestPaymentServiceImpl;
 import arc.expenses.service.RequestServiceImpl;
@@ -55,8 +54,24 @@ public class RequestController {
     @Autowired
     RequestPaymentServiceImpl requestPaymentService;
 
-    @Autowired
-    private AclService aclService;
+
+    @ApiOperation("Finalize request")
+    @RequestMapping(value = "/finalize/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity finalize(
+            @PathVariable("requestId") String requestId){
+
+        Request request = requestService.get(requestId);
+
+        if(request==null)
+            throw new ServiceException("Request not found");
+        try {
+            requestService.finalize(request);
+        }catch (Exception ex){
+            ex.printStackTrace();
+            throw new ServiceException(ex.getMessage());
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     @ApiOperation("Approve request")
     @RequestMapping(value = "/approve/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -147,13 +162,14 @@ public class RequestController {
             @RequestParam(value = "supplier", required = false, defaultValue = "") String supplier,
             @RequestParam(value = "supplier_selection_method", required = false, defaultValue = "") Stage1.SupplierSelectionMethod supplierSelectionMethod,
             @RequestParam(value = "amount") double amount,
+            @RequestParam(value = "cycles", required = false, defaultValue = "0") int cycles,
             @RequestParam(value = "attachments") Optional<List<MultipartFile>> files,
             @RequestParam(value = "destination", required = false, defaultValue = "") String destination,
             @RequestParam(value = "firstName", required = false, defaultValue = "") String firstName,
             @RequestParam(value = "lastName", required = false, defaultValue = "") String lastName,
             @RequestParam(value = "email", required = false, defaultValue = "") String email
     ) throws Exception {
-        return requestService.add(type,projectId,subject,requesterPosition,supplier,supplierSelectionMethod,amount,files,destination,firstName,lastName,email);
+        return requestService.add(type,projectId,subject,requesterPosition,supplier,supplierSelectionMethod,amount,files,destination,firstName,lastName,email, cycles);
     }
 
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)

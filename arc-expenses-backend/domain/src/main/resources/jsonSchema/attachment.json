@@ -10,7 +10,7 @@
       "type": "string"
     },
     "size": {
-      "type": "integer"
+      "javaType": "java.lang.Long"
     },
     "url": {
       "type": "string"

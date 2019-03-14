@@ -4,6 +4,7 @@ import gr.athenarc.domain.*;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.*;
@@ -70,7 +71,11 @@ public class ARCServiceConfiguration implements WebMvcConfigurer {
     @PostConstruct
     public void flywayMigration(){
         Flyway flyway = Flyway.configure().dataSource(dataSource).locations("classpath:db/migrations").load();
-        flyway.baseline();
+        try {
+            flyway.baseline();
+        }catch (FlywayException ex){
+            logger.warn("Flyway exception on baseline",ex);
+        }
         flyway.migrate();
     }
 

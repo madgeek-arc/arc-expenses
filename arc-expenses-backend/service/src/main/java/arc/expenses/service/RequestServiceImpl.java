@@ -156,6 +156,23 @@ public class RequestServiceImpl extends GenericService<Request> {
         return super.get(id);
     }
 
+
+    @PreAuthorize("hasPermission(#request,'EDIT')")
+    public void finalize(Request request){
+        logger.info("Finalizing request with id " + request.getId());
+        StateMachine<Stages, StageEvents> sm = this.build(request);
+        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.FINALIZE)
+                .setHeader("requestObj", request)
+                .build();
+
+        sm.sendEvent(eventsMessage);
+        if(sm.hasStateMachineError())
+            throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
+
+        sm.stop();
+    }
+
+
     @PreAuthorize("hasPermission(#request,'EDIT')")
     public void approve(Request request, HttpServletRequest req) {
         logger.info("Approving request with id " + request.getId());
@@ -221,7 +238,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         sm.stop();
     }
 
-    public Request add(Request.Type type, String projectId, String subject, Request.RequesterPosition requesterPosition, String supplier, Stage1.SupplierSelectionMethod supplierSelectionMethod, double amount, Optional<List<MultipartFile>> files, String destination, String firstName, String lastName, String email) throws Exception {
+    public Request add(Request.Type type, String projectId, String subject, Request.RequesterPosition requesterPosition, String supplier, Stage1.SupplierSelectionMethod supplierSelectionMethod, double amount, Optional<List<MultipartFile>> files, String destination, String firstName, String lastName, String email, int cycles) throws Exception {
 
         if((type == Request.Type.REGULAR || type == Request.Type.SERVICES_CONTRACT) && supplierSelectionMethod ==null)
             throw new ServiceException("Supplier selection method cannot be empty");
@@ -240,6 +257,10 @@ public class RequestServiceImpl extends GenericService<Request> {
         request.setType(type);
         request.setId(generateID());
         request.setArchiveId(createArchive());
+        request.setPaymentCycles(cycles);
+
+
+
         Project project = projectService.get(projectId);
         if(project == null)
             throw new ServiceException("Project with id "+projectId+" not found");
@@ -258,25 +279,13 @@ public class RequestServiceImpl extends GenericService<Request> {
         request.setUser(user);
         request.setProjectId(projectId);
         request.setRequesterPosition(requesterPosition);
-
-        //diataktis
         request.setDiataktis(institute.getDiataktis());
-
-        if((project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis()) && amount<=2500  && exceedsProjectBudget(project.getScientificCoordinator(),projectId, amount))
-            request.setDiataktis(project.getScientificCoordinator());
-
-        if(user.getEmail().equals(request.getDiataktis().getEmail())){
-            if(user.getEmail().equals(organization.getDirector().getEmail()))
-                request.setDiataktis(organization.getViceDirector());
-            else
-                request.setDiataktis(organization.getDirector());
-        }
 
         ArrayList<Attachment> attachments = new ArrayList<>();
         if(files.isPresent()){
             for(MultipartFile file : files.get()){
                 storeRESTClient.storeFile(file.getBytes(), request.getArchiveId(), file.getOriginalFilename());
-                attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage1"));
+                attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()), file.getSize(), request.getArchiveId()+"/stage1"));
             }
         }
 
@@ -314,7 +323,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         request = super.add(request, authentication);
 
 
-        Stage1 stage1 = new Stage1(LocalDate.now().toEpochDay()+"", subject, supplier, supplierSelectionMethod, amount);
+        Stage1 stage1 = new Stage1(LocalDate.now().toEpochDay()+"", amount, subject, supplier, supplierSelectionMethod, amount);
         stage1.setAttachments(attachments);
 
         RequestApproval requestApproval = createRequestApproval(request);
@@ -425,13 +434,15 @@ public class RequestServiceImpl extends GenericService<Request> {
         for(GrantedAuthority grantedAuthority : authentication.getAuthorities()){
             roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");
         }
-        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, mask, CASE WHEN mask=32 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+" ) as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id WHERE acl_entries.mask=32";
+        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct on(acl_object_identity) acl_object_identity, CASE WHEN mask=32 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+" ORDER BY acl_object_identity,canedit DESC ) as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id";
 
 
         String viewQuery = "select acls.canEdit as canEdit, request_view.creation_date as creation_date, project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as approval_stage, payment_view.stage as payment_stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute, approval_view.approval_id as approval_id, CASE WHEN payment_view.payment_id IS NULL OR payment_view.payment_id='' THEN approval_view.approval_id ELSE payment_view.payment_id END AS baseinfo_id from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";
         viewQuery+=" inner join (" + aclEntriesQuery+") as acls on acls.object_id_identity=request_view.request_id";
 
         viewQuery+= " where (approval_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") or payment_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+")) and request_view.request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true" : "" )+" and (approval_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") or payment_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+")) "+(!searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
+
+        System.out.println(viewQuery);
 
         return new JdbcTemplate(dataSource).query(viewQuery, ps -> {
             if(!searchField.isEmpty()) {

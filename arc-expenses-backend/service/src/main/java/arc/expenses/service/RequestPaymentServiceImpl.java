@@ -7,6 +7,7 @@ import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.ServiceException;
+import gr.athenarc.domain.BaseInfo;
 import gr.athenarc.domain.Request;
 import gr.athenarc.domain.RequestPayment;
 import org.apache.log4j.LogManager;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,6 +161,16 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         sm.stop();
     }
 
+    public RequestPayment createPayment(Request request){
+        RequestPayment requestPayment = new RequestPayment();
+        requestPayment.setId(request.getId()+"-p1");
+        requestPayment.setRequestId(request.getId());
+        requestPayment.setCreationDate(LocalDate.now().toEpochDay());
+        requestPayment.setStage("7");
+        requestPayment.setStatus(BaseInfo.Status.PENDING);
+        requestPayment.setCurrentStage(Stages.Stage7.name());
+        return add(requestPayment,null);
+    }
 
     public Browsing<RequestPayment> getPayments(String id, Authentication u) throws Exception {
         FacetFilter filter = new FacetFilter();
