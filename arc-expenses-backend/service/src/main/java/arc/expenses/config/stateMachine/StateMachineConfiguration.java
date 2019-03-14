@@ -125,6 +125,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     try {
                         RequestApproval requestApproval = requestApprovalService.getApproval(request.getId());
                         Stage1 stage1 = Optional.ofNullable(requestApproval.getStage1()).orElse(new Stage1());
+
                         transitionService.downgradeApproval(context,"2","1",stage1);
                     } catch (Exception e) {
                         logger.error("Error occurred on downgradeApproval of request " + request.getId(),e);
@@ -203,6 +204,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                             HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
 
                             Stage3 stage3 = new Stage3(true,true,false,"",true);
+                            stage3.setDate(new Date().toInstant().toEpochMilli());
                             stage3.setLoan(Boolean.parseBoolean(Optional.ofNullable(req.getParameter("loan")).orElse("false")));
                             if(stage3.getLoan()) {
                                 String loanSource = Optional.ofNullable(req.getParameter("loanSource")).orElse("");
@@ -280,6 +282,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .action(context -> {
                         try {
                             Stage4 stage4 = new Stage4(true,true,true);
+                            stage4.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.approveApproval(context,"4","5a",stage4);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request ",e);
@@ -429,6 +432,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
                         try {
                             Stage5b stage5b = new Stage5b(true);
+                            stage5b.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.approveApproval(context,"5b","6",stage5b);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request " + request.getId(),e);
@@ -598,6 +602,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         try {
                             Stage7 stage7 = Optional.ofNullable(payment.getStage7()).orElse(new Stage7());
                             stage7.setApproved(false);
+                            stage7.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.rejectPayment(context, stage7,"7");
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of payment " + payment.getId(),e);
@@ -633,6 +638,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         try {
 
                             Stage7 stage7 = new Stage7(true);
+                            stage7.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.approvePayment(context,"7","8",stage7);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request ",e);
@@ -682,7 +688,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .guard(stateContext -> transitionService.checkContains(stateContext, Stage8.class))
                     .action(context -> {
                         try {
-                            transitionService.approvePayment(context,"8","9",new Stage8(true, true, true));
+                            Stage8 stage8 = new Stage8(true, true, true);
+                            stage8.setDate(new Date().toInstant().toEpochMilli());
+                            transitionService.approvePayment(context,"8","9",stage8);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request ",e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -731,7 +739,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .guard(stateContext -> transitionService.checkContains(stateContext, Stage9.class))
                     .action(context -> {
                         try {
-                            transitionService.approvePayment(context,"9","10",new Stage9(true, true, true));
+                            Stage9 stage9 = new Stage9(true, true, true);
+                            stage9.setDate(new Date().toInstant().toEpochMilli());
+                            transitionService.approvePayment(context,"9","10",stage9);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request ",e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -780,7 +790,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .guard(stateContext -> transitionService.checkContains(stateContext, Stage10.class))
                     .action(context -> {
                         try {
-                            transitionService.approvePayment(context,"10","11",new Stage10(true));
+                            Stage10 stage10 =new Stage10(true);
+                            stage10.setDate(new Date().toInstant().toEpochMilli());
+                            transitionService.approvePayment(context,"10","11", stage10);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request ",e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -811,7 +823,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .guard(stateContext -> transitionService.checkContains(stateContext, Stage11.class))
                     .action(context -> {
                         try {
-                            transitionService.approvePayment(context,"11","12",new Stage11());
+                            Stage11 stage11 = new Stage11();
+                            stage11.setDate(new Date().toInstant().toEpochMilli());
+                            transitionService.approvePayment(context,"11","12",stage11);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request ",e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -859,7 +873,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .guard(stateContext -> transitionService.checkContains(stateContext, Stage12.class))
                     .action(context -> {
                         try {
-                            transitionService.approvePayment(context,"12","13",new Stage12(true));
+                            Stage12 stage12 = new Stage12(true);
+                            stage12.setDate(new Date().toInstant().toEpochMilli());
+                            transitionService.approvePayment(context,"12","13",stage12);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request ",e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -907,7 +923,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .guard(stateContext -> transitionService.checkContains(stateContext, Stage13.class))
                     .action(context -> {
                         try {
-                            transitionService.approvePayment(context,"13","13",new Stage12(true));
+                            Stage13 stage13 = new Stage13(true);
+                            stage13.setDate(new Date().toInstant().toEpochMilli());
+                            transitionService.approvePayment(context,"13","13",stage13);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request ",e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
