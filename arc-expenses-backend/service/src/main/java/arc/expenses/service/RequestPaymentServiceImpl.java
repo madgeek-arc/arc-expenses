@@ -27,11 +27,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service("requestPayment")
 public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
@@ -165,7 +161,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         RequestPayment requestPayment = new RequestPayment();
         requestPayment.setId(request.getId()+"-p1");
         requestPayment.setRequestId(request.getId());
-        requestPayment.setCreationDate(LocalDate.now().toEpochDay());
+        requestPayment.setCreationDate(new Date().toInstant().toEpochMilli());
         requestPayment.setStage("7");
         requestPayment.setStatus(BaseInfo.Status.PENDING);
         requestPayment.setCurrentStage(Stages.Stage7.name());

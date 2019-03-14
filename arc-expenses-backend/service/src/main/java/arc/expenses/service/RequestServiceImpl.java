@@ -39,10 +39,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,9 +56,6 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     @Autowired
     private RequestApprovalServiceImpl requestApprovalService;
-
-    @Autowired
-    private RequestPaymentServiceImpl requestPaymentService;
 
     @Autowired
     private ProjectServiceImpl projectService;
@@ -80,6 +77,9 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     @Autowired
     private AclService aclService;
+
+    @Autowired
+    private RequestPaymentServiceImpl requestPaymentService;
 
     @Autowired
     private StateMachineFactory<Stages, StageEvents> factory;
@@ -284,7 +284,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         ArrayList<Attachment> attachments = new ArrayList<>();
         if(files.isPresent()){
             for(MultipartFile file : files.get()){
-                storeRESTClient.storeFile(file.getBytes(), request.getArchiveId(), file.getOriginalFilename());
+                storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/stage1", file.getOriginalFilename());
                 attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()), file.getSize(), request.getArchiveId()+"/stage1"));
             }
         }
@@ -323,7 +323,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         request = super.add(request, authentication);
 
 
-        Stage1 stage1 = new Stage1(LocalDate.now().toEpochDay()+"", amount, subject, supplier, supplierSelectionMethod, amount);
+        Stage1 stage1 = new Stage1(new Date().toInstant().toEpochMilli()+"", amount, subject, supplier, supplierSelectionMethod, amount);
         stage1.setAttachments(attachments);
 
         RequestApproval requestApproval = createRequestApproval(request);
@@ -342,7 +342,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         RequestApproval requestApproval = new RequestApproval();
         requestApproval.setId(request.getId()+"-a1");
         requestApproval.setRequestId(request.getId());
-        requestApproval.setCreationDate(LocalDate.now().toEpochDay());
+        requestApproval.setCreationDate(new Date().toInstant().toEpochMilli());
         requestApproval.setStage("2");
         requestApproval.setStatus(BaseInfo.Status.PENDING);
 
@@ -358,10 +358,14 @@ public class RequestServiceImpl extends GenericService<Request> {
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new GrantedAuthoritySid("ROLE_ADMIN"), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
+        //TO-DO remove
+        acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new GrantedAuthoritySid("ROLE_ADMIN"), true);
         for(Delegate person : project.getScientificCoordinator().getDelegates())
             acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(person.getEmail()), true);
 
@@ -574,5 +578,19 @@ public class RequestServiceImpl extends GenericService<Request> {
         return new ResponseEntity<>(archiveID+"/"+fileName,HttpStatus.OK);
 
     }
+
+    @PreAuthorize("hasPermission(#request,'READ')")
+    public File downloadFile(File file,Request request,String url) {
+        try {
+            storeRESTClient.downloadFile(url, file.getAbsolutePath());
+            return file;
+        } catch (Exception e) {
+            logger.error("error downloading file", e);
+        }
+        return null;
+    }
+
+
+
 
 }

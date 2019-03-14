@@ -137,7 +137,7 @@ public class TransitionService{
 
         ArrayList<Attachment> attachments = new ArrayList<>();
         for(MultipartFile file : multiPartRequest.getFiles("attachments")){
-            storeRESTClient.storeFile(file.getBytes(), request.getArchiveId(), file.getOriginalFilename());
+            storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/stage"+stageString, file.getOriginalFilename());
             attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
         }
 
@@ -192,7 +192,7 @@ public class TransitionService{
 
         ArrayList<Attachment> attachments = new ArrayList<>();
         for(MultipartFile file : multiPartRequest.getFiles("attachments")){
-            storeRESTClient.storeFile(file.getBytes(), request.getArchiveId(), file.getOriginalFilename());
+            storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/stage"+stageString, file.getOriginalFilename());
             attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
         }
 
@@ -339,9 +339,12 @@ public class TransitionService{
                 project.getScientificCoordinator().getDelegates().forEach(person -> revokeAccess.add(new PrincipalSid(person.getEmail())));
                 break;
             case "3":
-                PersonOfInterest scientificCoordinator = projectService.get(request.getProjectId()).getScientificCoordinator();
-                revokeAccess.add(new PrincipalSid(scientificCoordinator.getEmail()));
-                scientificCoordinator.getDelegates().forEach(person -> revokeAccess.add(new PrincipalSid(person.getEmail())));
+                project.getOperator().forEach(entry -> {
+                    revokeAccess.add(new PrincipalSid(entry.getEmail()));
+                    entry.getDelegates().forEach(person -> {
+                        revokeAccess.add(new PrincipalSid(person.getEmail()));
+                    });
+                });
                 break;
             case "9":
             case "4":

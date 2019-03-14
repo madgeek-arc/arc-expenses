@@ -9,17 +9,18 @@ import arc.expenses.service.RequestPaymentServiceImpl;
 import arc.expenses.service.RequestServiceImpl;
 import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.Paging;
+import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
+import eu.openminted.registry.core.service.ParserPool;
 import eu.openminted.registry.core.service.SearchService;
 import eu.openminted.registry.core.service.ServiceException;
-import gr.athenarc.domain.BaseInfo;
-import gr.athenarc.domain.Request;
-import gr.athenarc.domain.RequestPayment;
-import gr.athenarc.domain.Stage1;
+import eu.openminted.store.restclient.StoreRESTClient;
+import gr.athenarc.domain.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -43,10 +47,17 @@ public class RequestController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestController.class);
 
     @Autowired
+    private StoreRESTClient storeRESTClient;
+
+
+    @Autowired
     RequestServiceImpl requestService;
 
     @Autowired
     SearchService searchService;
+
+    @Autowired
+    ParserPool parserPool;
 
     @Autowired
     RequestApprovalServiceImpl requestApprovalService;
@@ -212,6 +223,33 @@ public class RequestController {
                                              @RequestParam("file") MultipartFile file) throws IOException {
         return requestService.upLoadFile(mode,archiveID,stage,file);
     }
+
+    @RequestMapping(value = "/store/download", method = RequestMethod.GET)
+    @ResponseBody
+    public void downloadFile(@RequestParam("archiveId") String archiveId,
+                               @RequestParam("filename") String filename,
+                               HttpServletResponse response) throws IOException {
+        Request request = new Request();
+
+        List rs = searchService.cqlQuery("searchableArea=*"+ archiveId.substring(0,archiveId.lastIndexOf("/"))+"*","*").getResults();
+        Resource resource;
+        if(rs.size() > 0) {
+            resource = (Resource) rs.get(0);
+            if(resource.getResourceTypeName().equals("approval"))
+                request = requestService.get(parserPool.deserialize(resource, RequestApproval.class).getRequestId());
+            else if(resource.getResourceTypeName().equals("payment"))
+                request = requestService.get(parserPool.deserialize(resource, RequestPayment.class).getRequestId());
+            else if (resource.getResourceTypeName().equals("request"))
+                request = parserPool.deserialize(resource, Request.class);
+        }else{
+            request = null;
+        }
+        File temp = File.createTempFile(filename, "tmp");
+        temp = requestService.downloadFile(temp,request,archiveId+"/"+filename);
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        IOUtils.copyLarge(new FileInputStream(temp), response.getOutputStream());
+    }
+
 
     @RequestMapping(value =  "/approval/getById/{id}", method = RequestMethod.GET)
     public ResponseEntity<RequestResponse> getApprovalById(@PathVariable("id") String id) throws Exception {

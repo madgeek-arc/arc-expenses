@@ -23,8 +23,8 @@ import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.Optional;
 
@@ -142,7 +142,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
                         try {
                             Stage2 stage2 = new Stage2(true,true,true);
-                            stage2.setDate(LocalDate.now().toEpochDay());
+                            stage2.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.approveApproval(context,"2","3",stage2);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request " + request.getId(),e);
@@ -173,7 +173,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
                         try {
                             Stage2 stage2 = new Stage2(true,true,true);
-                            stage2.setDate(LocalDate.now().toEpochDay());
+                            stage2.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.rejectApproval(context, stage2,"2");
                         } catch (Exception e) {
                             logger.error("Error occurred on rejection of request " + request.getId());
@@ -188,7 +188,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .event(StageEvents.DOWNGRADE)
                     .action(context -> {
                         Stage2 stage2 = new Stage2(true,true,false);
-                        stage2.setDate(LocalDate.now().toEpochDay());
+                        stage2.setDate(new Date().toInstant().toEpochMilli());
                         transitionService.downgradeApproval(context,"3","2",stage2);
                     })
                     .and()
