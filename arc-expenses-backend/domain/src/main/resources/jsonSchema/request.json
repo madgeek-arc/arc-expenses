@@ -39,7 +39,7 @@
       "javaType": "gr.athenarc.domain.User"
     },
     "onBehalfOf": {
-      "type": "string"
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
     },
     "diataktis": {
       "javaType": "gr.athenarc.domain.PersonOfInterest"
