@@ -1,5 +1,6 @@
 package arc.expenses.controller;
 
+import arc.expenses.domain.RequestResponse;
 import arc.expenses.service.RequestPaymentServiceImpl;
 import arc.expenses.service.RequestServiceImpl;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
@@ -35,11 +36,11 @@ public class PaymentController {
     RequestPaymentServiceImpl requestPaymentService;
 
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)
-    public RequestPayment getPaymentById(@PathVariable("id") String id) throws ResourceNotFoundException {
-        RequestPayment requestPayment = requestPaymentService.get(id);
-        if(requestPayment == null)
+    public RequestResponse getPaymentById(@PathVariable("id") String id) throws Exception {
+        RequestResponse requestResponse = requestPaymentService.getRequestResponse(id);
+        if(requestResponse == null)
             throw new ResourceNotFoundException();
-        return requestPayment;
+        return requestResponse;
     }
 
     @ApiOperation("Approve payment")

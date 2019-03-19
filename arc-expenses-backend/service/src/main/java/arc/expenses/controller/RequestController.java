@@ -167,6 +167,7 @@ public class RequestController {
     @RequestMapping(value = "/add", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public Request addRequest(
             @RequestParam(value = "projectId") String projectId,
+            @RequestParam(value = "onBehalf", required = false, defaultValue = "false") boolean onBehalf,
             @RequestParam(value = "requester_position") Request.RequesterPosition requesterPosition,
             @RequestParam(value = "subject") String subject,
             @RequestParam(value = "type") Request.Type type,
@@ -180,7 +181,7 @@ public class RequestController {
             @RequestParam(value = "lastName", required = false, defaultValue = "") String lastName,
             @RequestParam(value = "email", required = false, defaultValue = "") String email
     ) throws Exception {
-        return requestService.add(type,projectId,subject,requesterPosition,supplier,supplierSelectionMethod,amount,files,destination,firstName,lastName,email, cycles);
+        return requestService.add(type,projectId,subject,requesterPosition,supplier,supplierSelectionMethod,amount,files,destination,firstName,lastName,email, cycles, onBehalf);
     }
 
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)

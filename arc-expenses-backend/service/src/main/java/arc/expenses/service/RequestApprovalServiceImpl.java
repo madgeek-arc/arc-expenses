@@ -91,8 +91,7 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         requestResponse.setInstituteName(institute.getName());
         requestResponse.setRequesterFullName(request.getUser().getFirstname() + " " + request.getUser().getLastname());
         if(request.getOnBehalfOf()!=null) {
-            User user = userService.getByField("user_email",request.getOnBehalfOf());
-            requestResponse.setOnBehalfFullName(user.getFirstname() + " " + user.getLastname());
+            requestResponse.setOnBehalfFullName(request.getOnBehalfOf().getFirstname() + " " + request.getOnBehalfOf().getLastname());
         }
 
         if(request.getTrip()!=null)
@@ -114,7 +113,7 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
     }
 
 
-    private boolean canEdit(String requestId){
+    public boolean canEdit(String requestId){
         String roles = "";
         for(GrantedAuthority grantedAuthority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()){
             roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");

@@ -238,7 +238,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         sm.stop();
     }
 
-    public Request add(Request.Type type, String projectId, String subject, Request.RequesterPosition requesterPosition, String supplier, Stage1.SupplierSelectionMethod supplierSelectionMethod, double amount, Optional<List<MultipartFile>> files, String destination, String firstName, String lastName, String email, int cycles) throws Exception {
+    public Request add(Request.Type type, String projectId, String subject, Request.RequesterPosition requesterPosition, String supplier, Stage1.SupplierSelectionMethod supplierSelectionMethod, double amount, Optional<List<MultipartFile>> files, String destination, String firstName, String lastName, String email, int cycles, boolean onBehalf) throws Exception {
 
         if((type == Request.Type.REGULAR || type == Request.Type.SERVICES_CONTRACT) && supplierSelectionMethod ==null)
             throw new ServiceException("Supplier selection method cannot be empty");
@@ -260,7 +260,6 @@ public class RequestServiceImpl extends GenericService<Request> {
         request.setPaymentCycles(cycles);
 
 
-
         Project project = projectService.get(projectId);
         if(project == null)
             throw new ServiceException("Project with id "+projectId+" not found");
@@ -275,6 +274,11 @@ public class RequestServiceImpl extends GenericService<Request> {
         User user = userService.getByField("user_email",(String) authentication.getPrincipal());
 
         List<String> pois = new ArrayList<>();
+
+        if(onBehalf) {
+            request.setOnBehalfOf(new PersonOfInterest(email,firstName,lastName,new ArrayList<>()));
+            pois.add(email);
+        }
 
         request.setUser(user);
         request.setProjectId(projectId);
@@ -301,7 +305,6 @@ public class RequestServiceImpl extends GenericService<Request> {
             if (!email.isEmpty()) {
                 if (!pois.contains(email))
                     pois.add(email);
-                request.setOnBehalfOf(email);
             }
         }
 
@@ -357,15 +360,18 @@ public class RequestServiceImpl extends GenericService<Request> {
         AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(Request.class, request.getId()));
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new GrantedAuthoritySid("ROLE_ADMIN"), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
+        if(request.getOnBehalfOf()!=null)
+            acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(request.getOnBehalfOf().getEmail()), true);
+
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new GrantedAuthoritySid("ROLE_ADMIN"), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
+
         acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
-        //TO-DO remove
-        acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new GrantedAuthoritySid("ROLE_ADMIN"), true);
         for(Delegate person : project.getScientificCoordinator().getDelegates())
             acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(person.getEmail()), true);
 

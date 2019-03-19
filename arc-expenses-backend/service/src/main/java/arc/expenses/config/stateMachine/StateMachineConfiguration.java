@@ -23,10 +23,7 @@ import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.Optional;
+import java.util.*;
 
 @Configuration
 @EnableStateMachineFactory
@@ -48,6 +45,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
 
     @Autowired
     private AclService aclService;
+
+    @Autowired
+    private MailService mailService;
 
 
     @Override
@@ -628,6 +628,16 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .source(Stages.Stage7)
                     .target(Stages.FINISHED)
                     .event(StageEvents.FINALIZE)
+                    .action(stateContext -> {
+                        Request request = stateContext.getMessage().getHeaders().get("requestObj", Request.class);
+
+                        List<String> sendFinal = new ArrayList<>();
+                        sendFinal.add(request.getUser().getEmail());
+                        if(request.getOnBehalfOf()!=null)
+                            sendFinal.add(request.getOnBehalfOf().getEmail());
+
+                        mailService.sendMail("Finalized",sendFinal);
+                    })
                     .and()
                 .withExternal()
                     .source(Stages.Stage7)

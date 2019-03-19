@@ -1,5 +1,6 @@
 package arc.expenses.service;
 
+import arc.expenses.domain.RequestResponse;
 import arc.expenses.domain.StageEvents;
 import arc.expenses.domain.Stages;
 import eu.openminted.registry.core.domain.Browsing;
@@ -7,9 +8,7 @@ import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.ServiceException;
-import gr.athenarc.domain.BaseInfo;
-import gr.athenarc.domain.Request;
-import gr.athenarc.domain.RequestPayment;
+import gr.athenarc.domain.*;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +27,26 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service("requestPayment")
 public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
 
     private static Logger logger = LogManager.getLogger(RequestPaymentServiceImpl.class);
+
+    @Autowired
+    private RequestApprovalServiceImpl requestApprovalService;
+
+    @Autowired
+    private RequestServiceImpl requestService;
+
+    @Autowired
+    private ProjectServiceImpl projectService;
+
+    @Autowired
+    private InstituteServiceImpl instituteService;
 
     public RequestPaymentServiceImpl() {
         super(RequestPayment.class);
@@ -155,6 +168,55 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
             throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
 
         sm.stop();
+    }
+
+
+    public RequestResponse getRequestResponse(String id) throws Exception {
+        RequestPayment requestPayment = get(id);
+        if(requestPayment == null)
+            throw new ServiceException("Request approval not found");
+
+        RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
+
+        Request request = requestService.get(requestApproval.getRequestId());
+        Project project = projectService.get(request.getProjectId());
+        Institute institute = instituteService.get(project.getInstituteId());
+
+        Map<String, Stage> stages = new HashMap<>();
+
+        RequestResponse requestResponse = new RequestResponse();
+
+        BaseInfo baseInfo = new BaseInfo();
+        baseInfo.setId(requestPayment.getId());
+        baseInfo.setCreationDate(requestPayment.getCreationDate());
+        baseInfo.setRequestId(requestPayment.getRequestId());
+        baseInfo.setStage(requestPayment.getStage());
+        baseInfo.setStatus(requestPayment.getStatus());
+
+        stages.put("1",requestApproval.getStage1());
+        List<Class> stagesClasses = Arrays.stream(RequestPayment.class.getDeclaredFields()).filter(p-> Stage.class.isAssignableFrom(p.getType())).flatMap(p -> Stream.of(p.getType())).collect(Collectors.toList());
+        for(Class stageClass : stagesClasses){
+            if(RequestPayment.class.getMethod("get"+stageClass.getSimpleName()).invoke(requestPayment)!=null)
+                stages.put(stageClass.getSimpleName().replace("Stage",""),(Stage) RequestPayment.class.getMethod("get"+stageClass.getSimpleName()).invoke(requestPayment));
+        }
+        requestResponse.setBaseInfo(baseInfo);
+        requestResponse.setRequesterPosition(request.getRequesterPosition());
+        requestResponse.setType(request.getType());
+        requestResponse.setRequestStatus(request.getRequestStatus());
+        requestResponse.setStages(stages);
+        requestResponse.setProjectAcronym(project.getAcronym());
+        requestResponse.setInstituteName(institute.getName());
+        requestResponse.setRequesterFullName(request.getUser().getFirstname() + " " + request.getUser().getLastname());
+        if(request.getOnBehalfOf()!=null) {
+            requestResponse.setOnBehalfFullName(request.getOnBehalfOf().getFirstname() + " " + request.getOnBehalfOf().getLastname());
+        }
+
+        if(request.getTrip()!=null)
+            requestResponse.setTripDestination(request.getTrip().getDestination());
+
+        requestResponse.setCanEdit(requestApprovalService.canEdit(request.getId()));
+
+        return requestResponse;
     }
 
     public RequestPayment createPayment(Request request){
