@@ -221,7 +221,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
     public RequestPayment createPayment(Request request){
         RequestPayment requestPayment = new RequestPayment();
-        requestPayment.setId(request.getId()+"-p1");
+        requestPayment.setId(generateID(request.getId()));
         requestPayment.setRequestId(request.getId());
         requestPayment.setCreationDate(new Date().toInstant().toEpochMilli());
         requestPayment.setStage("7");

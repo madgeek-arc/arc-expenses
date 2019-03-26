@@ -270,6 +270,7 @@ public class TransitionService{
             }else{ //if we haven't yet, create another payment request
                 requestPaymentService.createPayment(request);
                 updatingPermissions("6","7", request,"Approve");
+                return;
             }
         }
 
