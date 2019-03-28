@@ -2,7 +2,6 @@ package arc.expenses.service;
 
 
 import arc.expenses.acl.ArcPermission;
-import gr.athenarc.domain.Request;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.acls.domain.AclImpl;
@@ -64,10 +63,10 @@ public class AclService extends JdbcMutableAclService{
 
     }
 
-    public void updateAclEntries(List<Sid> oldPrincipal, List<Sid> newPrincipal, String id){
-        deleteEntries(oldPrincipal,id, Request.class);
+    public void updateAclEntries(List<Sid> oldPrincipal, List<Sid> newPrincipal, String id, Class persistentClass){
+        deleteEntries(oldPrincipal,id, persistentClass);
 
-        AclImpl acl = (AclImpl) readAclById(new ObjectIdentityImpl(Request.class, id));
+        AclImpl acl = (AclImpl) readAclById(new ObjectIdentityImpl(persistentClass, id));
         for(Sid principal : newPrincipal){
             acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, principal, true);
             acl.insertAce(acl.getEntries().size(), ArcPermission.READ, principal, true);

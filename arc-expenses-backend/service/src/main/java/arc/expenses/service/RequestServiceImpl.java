@@ -1,11 +1,13 @@
 package arc.expenses.service;
 
 import arc.expenses.acl.ArcPermission;
-import arc.expenses.domain.*;
+import arc.expenses.domain.OrderByField;
+import arc.expenses.domain.OrderByType;
+import arc.expenses.domain.RequestSummary;
+import arc.expenses.domain.Stages;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
-import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.ServiceException;
 import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.*;
@@ -17,8 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.AclImpl;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -28,16 +28,9 @@ import org.springframework.security.acls.model.AlreadyExistsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.statemachine.StateMachine;
-import org.springframework.statemachine.config.StateMachineFactory;
-import org.springframework.statemachine.state.State;
-import org.springframework.statemachine.support.DefaultStateMachineContext;
-import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
-import org.springframework.statemachine.transition.Transition;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
@@ -81,10 +74,6 @@ public class RequestServiceImpl extends GenericService<Request> {
     @Autowired
     private RequestPaymentServiceImpl requestPaymentService;
 
-    @Autowired
-    private StateMachineFactory<Stages, StageEvents> factory;
-
-
     @Value("#{'${admin.emails}'.split(',')}")
     private List<String> admins;
 
@@ -113,129 +102,9 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
 
-    private StateMachine<Stages, StageEvents> build(Request request){
-
-        StateMachine<Stages, StageEvents> sm = this.factory.getStateMachine(request.getId());
-        sm.stop();
-
-        sm.getStateMachineAccessor()
-                .doWithAllRegions(sma -> {
-
-                    sma.addStateMachineInterceptor( new StateMachineInterceptorAdapter<Stages, StageEvents>(){
-
-                        @Override
-                        public void postStateChange(State state, Message message, Transition transition, StateMachine stateMachine) {
-                            Optional.ofNullable(message).ifPresent(msg -> {
-                                Optional.ofNullable((Request) msg.getHeaders().get("requestObj"))
-                                        .ifPresent(request ->{
-                                            request.setCurrentStage(state.getId()+""); // <-- casting to String causes uncertain behavior. Keep it this way
-                                            try {
-                                                logger.info("Updating "+ request.getId()+" request's stage to " + state.getId());
-                                                update(request, request.getId());
-                                            } catch (ResourceNotFoundException e) {
-                                                throw new ServiceException("Request with id " + request.getId() + " not found");
-                                            }
-                                            msg.getHeaders().replace("requestObj",request);
-                                        });
-                            });
-                        }
-                    });
-
-                    sma.resetStateMachine(new DefaultStateMachineContext<>(
-                            Stages.valueOf((request.getCurrentStage() == null ? Stages.Stage1.name() : request.getCurrentStage())), null, null, null));
-
-                    logger.info("Resetting machine of request " + request.getId() + " at state " + sm.getState().getId());
-                });
-
-        sm.start();
-        return sm;
-    }
-
     @Override
     public Request get(String id) {
         return super.get(id);
-    }
-
-
-    @PreAuthorize("hasPermission(#request,'EDIT')")
-    public void finalize(Request request){
-        logger.info("Finalizing request with id " + request.getId());
-        StateMachine<Stages, StageEvents> sm = this.build(request);
-        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.FINALIZE)
-                .setHeader("requestObj", request)
-                .build();
-
-        sm.sendEvent(eventsMessage);
-        if(sm.hasStateMachineError())
-            throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
-
-        sm.stop();
-    }
-
-
-    @PreAuthorize("hasPermission(#request,'EDIT')")
-    public void approve(Request request, HttpServletRequest req) {
-        logger.info("Approving request with id " + request.getId());
-        StateMachine<Stages, StageEvents> sm = this.build(request);
-        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.APPROVE)
-                .setHeader("requestObj", request)
-                .setHeader("restRequest", req)
-                .build();
-
-        sm.sendEvent(eventsMessage);
-        if(sm.hasStateMachineError())
-            throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
-
-        sm.stop();
-
-    }
-
-
-    @PreAuthorize("hasPermission(#request,'EDIT')")
-    public void reject(Request request, HttpServletRequest req) {
-        logger.info("Rejecting request with id " + request.getId());
-        StateMachine<Stages, StageEvents> sm = this.build(request);
-        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.REJECT)
-                .setHeader("requestObj", request)
-                .setHeader("restRequest", req)
-                .build();
-        sm.sendEvent(eventsMessage);
-        if(sm.hasStateMachineError())
-            throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
-
-        sm.stop();
-
-    }
-
-
-    @PreAuthorize("hasPermission(#request,'EDIT')")
-    public void downgrade(Request request, HttpServletRequest req) {
-        logger.info("Downgrading request with id " + request.getId());
-        StateMachine<Stages, StageEvents> sm = this.build(request);
-        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.DOWNGRADE)
-                .setHeader("requestObj", request)
-                .setHeader("restRequest", req)
-                .build();
-
-        sm.sendEvent(eventsMessage);
-        if(sm.hasStateMachineError())
-            throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
-        sm.stop();
-
-    }
-
-    @PreAuthorize("hasPermission(#request,'CANCEL')")
-    public void cancel(Request request) throws Exception {
-        logger.info("Canceling request with id " + request.getId());
-        StateMachine<Stages, StageEvents> sm = this.build(request);
-        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.CANCEL)
-                .setHeader("requestObj", request)
-                .build();
-
-        sm.sendEvent(eventsMessage);
-        if(sm.hasStateMachineError())
-            throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
-        sm.stop();
     }
 
     public Request add(Request.Type type, String projectId, String subject, Request.RequesterPosition requesterPosition, String supplier, Stage1.SupplierSelectionMethod supplierSelectionMethod, double amount, Optional<List<MultipartFile>> files, String destination, String firstName, String lastName, String email, int cycles, boolean onBehalf) throws Exception {
@@ -330,6 +199,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         stage1.setAttachments(attachments);
 
         RequestApproval requestApproval = createRequestApproval(request);
+        requestApproval.setCurrentStage(Stages.Stage2.name());
         requestApproval.setStage1(stage1);
 
         requestApprovalService.update(requestApproval,requestApproval.getId());
@@ -352,12 +222,12 @@ public class RequestServiceImpl extends GenericService<Request> {
         requestApproval = requestApprovalService.add(requestApproval, null);
 
         try{
-            aclService.createAcl(new ObjectIdentityImpl(Request.class, request.getId()));
+            aclService.createAcl(new ObjectIdentityImpl(RequestApproval.class, requestApproval.getId()));
         }catch (AlreadyExistsException ex){
             logger.debug("Object identity already exists");
         }
         Project project = projectService.get(request.getProjectId());
-        AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(Request.class, request.getId()));
+        AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(RequestApproval.class, requestApproval.getId()));
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new GrantedAuthoritySid("ROLE_ADMIN"), true);
 
@@ -444,11 +314,11 @@ public class RequestServiceImpl extends GenericService<Request> {
         for(GrantedAuthority grantedAuthority : authentication.getAuthorities()){
             roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");
         }
-        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct on(acl_object_identity) acl_object_identity, CASE WHEN mask=32 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+" ORDER BY acl_object_identity,canedit DESC ) as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id";
+        String aclEntriesQuery = "SELECT acl_class.class as class, object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct on(acl_object_identity) acl_object_identity, CASE WHEN mask=32 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+" ORDER BY acl_object_identity,canedit DESC ) as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id INNER JOIN acl_class ON acl_class.id=acl_object_identity.object_id_class";
 
 
-        String viewQuery = "select acls.canEdit as canEdit, request_view.creation_date as creation_date, project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as approval_stage, payment_view.stage as payment_stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute, approval_view.approval_id as approval_id, CASE WHEN payment_view.payment_id IS NULL OR payment_view.payment_id='' THEN approval_view.approval_id ELSE payment_view.payment_id END AS baseinfo_id from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";
-        viewQuery+=" inner join (" + aclEntriesQuery+") as acls on acls.object_id_identity=request_view.request_id";
+        String viewQuery = "select acls.class, acls.canEdit as canEdit, request_view.creation_date as creation_date, project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as approval_stage, payment_view.stage as payment_stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute, approval_view.approval_id as approval_id, CASE WHEN acls.class='gr.athenarc.domain.RequestApproval' THEN approval_view.approval_id ELSE payment_view.payment_id END AS baseinfo_id from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";
+        viewQuery+=" inner join (" + aclEntriesQuery+") as acls on acls.object_id_identity=approval_view.approval_id or acls.object_id_identity=payment_view.payment_id ";
 
         viewQuery+= " where (approval_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") or payment_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+")) and request_view.request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true" : "" )+" and (approval_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") or payment_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+")) "+(!searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
 
@@ -471,9 +341,9 @@ public class RequestServiceImpl extends GenericService<Request> {
             List<RequestSummary> results = new ArrayList<>();
             while(rs.next()){
                 BaseInfo baseInfo = new BaseInfo();
-                if(rs.getString("approval_status") !=null && !rs.getString("approval_status").isEmpty())
+                if(rs.getString("approval_status") !=null && !rs.getString("approval_status").isEmpty() && rs.getString("class").equals("gr.athenarc.domain.RequestApproval"))
                     baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("approval_status")));
-                if(rs.getString("payment_status") !=null && !rs.getString("payment_status").isEmpty())
+                if(rs.getString("payment_status") !=null && !rs.getString("payment_status").isEmpty() && rs.getString("class").equals("gr.athenarc.domain.RequestPayment"))
                     baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("payment_status")));
 
                 if(rs.getString("approval_stage") !=null && !rs.getString("approval_stage").isEmpty())

@@ -49,7 +49,6 @@ public class RequestController {
     @Autowired
     private StoreRESTClient storeRESTClient;
 
-
     @Autowired
     RequestServiceImpl requestService;
 
@@ -66,17 +65,16 @@ public class RequestController {
     RequestPaymentServiceImpl requestPaymentService;
 
 
-    @ApiOperation("Finalize request")
+    @ApiOperation("Finalize request approval")
     @RequestMapping(value = "/finalize/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity finalize(
-            @PathVariable("requestId") String requestId){
+            @PathVariable("requestId") String requestId) throws Exception {
 
-        Request request = requestService.get(requestId);
-
-        if(request==null)
-            throw new ServiceException("Request not found");
+        RequestApproval requestApproval = requestApprovalService.getApproval(requestId);
+        if(requestApproval==null)
+            throw new ServiceException("Request approval not found");
         try {
-            requestService.finalize(request);
+            requestApprovalService.finalize(requestApproval);
         }catch (Exception ex){
             ex.printStackTrace();
             throw new ServiceException(ex.getMessage());
@@ -84,18 +82,17 @@ public class RequestController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation("Approve request")
+    @ApiOperation("Approve request approval")
     @RequestMapping(value = "/approve/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity approve(
             @PathVariable("requestId") String requestId,
-            HttpServletRequest req){
+            HttpServletRequest req) throws Exception {
 
-        Request request = requestService.get(requestId);
-
-        if(request==null)
-            throw new ServiceException("Request not found");
+        RequestApproval requestApproval = requestApprovalService.getApproval(requestId);
+        if(requestApproval==null)
+            throw new ServiceException("Request approval not found");
         try {
-            requestService.approve(request,req);
+            requestApprovalService.approve(requestApproval ,req);
         }catch (Exception ex){
             ex.printStackTrace();
             throw new ServiceException(ex.getMessage());
@@ -103,49 +100,50 @@ public class RequestController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation("Reject request")
+    @ApiOperation("Reject request approval ")
     @RequestMapping(value = "/reject/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity reject(
             @PathVariable("requestId") String requestId,
             HttpServletRequest req
-    ){
+    ) throws Exception {
 
-        Request request = requestService.get(requestId);
-        if(request==null)
-            throw new ServiceException("Request not found");
+        RequestApproval requestApproval = requestApprovalService.getApproval(requestId);
+        if(requestApproval==null)
+            throw new ServiceException("Request approval not found");
         try {
-            requestService.reject(request,req);
+            requestApprovalService.reject(requestApproval,req);
         }catch (Exception ex){
             throw new ServiceException(ex.getMessage());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation("Downgrade request")
+    @ApiOperation("Downgrade request approval")
     @RequestMapping(value = "/downgrade/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity downgrade(
             @PathVariable("requestId") String requestId,
             HttpServletRequest req
-    ){
-        Request request = requestService.get(requestId);
-        if(request==null)
-            throw new ServiceException("Request not found");
+    ) throws Exception {
+        RequestApproval requestApproval = requestApprovalService.getApproval(requestId);
+        if(requestApproval==null)
+            throw new ServiceException("Request approval not found");
         try {
-            requestService.downgrade(request,req);
+            requestApprovalService.downgrade(requestApproval,req);
         }catch (Exception ex){
             throw new ServiceException(ex.getMessage());
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation("Cancel request")
+    @ApiOperation("Cancel request approval")
     @RequestMapping(value = "/cancel/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity cancel(
             @PathVariable("requestId") String requestId) throws Exception {
-        Request request = requestService.get(requestId);
-        if(request==null)
-            throw new ServiceException("Request not found");
-        requestService.cancel(request);
+
+        RequestApproval requestApproval = requestApprovalService.getApproval(requestId);
+        if(requestApproval==null)
+            throw new ServiceException("Request approval not found");
+        requestApprovalService.cancel(requestApproval);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

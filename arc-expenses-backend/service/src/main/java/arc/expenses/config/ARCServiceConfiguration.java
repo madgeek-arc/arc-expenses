@@ -74,7 +74,7 @@ public class ARCServiceConfiguration implements WebMvcConfigurer {
         try {
             flyway.baseline();
         }catch (FlywayException ex){
-            logger.warn("Flyway exception on baseline",ex);
+            logger.warn("Flyway exception on baseline");
         }
         flyway.migrate();
     }

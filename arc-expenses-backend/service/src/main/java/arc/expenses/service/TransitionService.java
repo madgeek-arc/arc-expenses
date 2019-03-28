@@ -65,8 +65,8 @@ public class TransitionService{
 
     public boolean checkContains(StateContext<Stages, StageEvents> context, Class stageClass){
 
-        if(context.getMessage().getHeaders().get("requestObj", Request.class) == null && context.getMessage().getHeaders().get("paymentObj", RequestPayment.class)==null) {
-            context.getStateMachine().setStateMachineError(new ServiceException("Both request and payment objects are empty"));
+        if(context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class) == null && context.getMessage().getHeaders().get("paymentObj", RequestPayment.class)==null) {
+            context.getStateMachine().setStateMachineError(new ServiceException("Both request approval and payment objects are empty"));
             return false;
         }
 
@@ -91,10 +91,10 @@ public class TransitionService{
             StateContext<Stages, StageEvents> context,
             String stage) throws Exception {
 
-        Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
+        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+        Request request = requestService.get(requestApproval.getRequestId());
         request.setRequestStatus(Request.RequestStatus.CANCELLED);
 
-        RequestApproval requestApproval = requestApprovalService.getByField("request_id", request.getId());
         requestApproval.setStage(stage+"");
         requestApproval.setStatus(BaseInfo.Status.CANCELLED);
         requestApprovalService.update(requestApproval,requestApproval.getId());
@@ -132,7 +132,9 @@ public class TransitionService{
         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
         MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
 
-        Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
+        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+        Request request = requestService.get(requestApproval.getRequestId());
+
         String comment = Optional.ofNullable(req.getParameter("comment")).orElse("");
 
         ArrayList<Attachment> attachments = new ArrayList<>();
@@ -141,7 +143,6 @@ public class TransitionService{
             attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
         }
 
-        RequestApproval requestApproval = requestApprovalService.getByField("request_id",request.getId());
         stage.setAttachments(attachments);
         stage.setComment(comment);
         try {
@@ -232,9 +233,10 @@ public class TransitionService{
     }
 
     public void approveApproval(StateContext<Stages, StageEvents> context, String fromStage, String toStage, Stage stage) throws Exception {
-        Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
+        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+        Request request = requestService.get(requestApproval.getRequestId());
         modifyRequestApproval(context, stage, toStage, BaseInfo.Status.PENDING);
-        updatingPermissions(fromStage,toStage,request, "Approve");
+        updatingPermissions(fromStage,toStage,request, "Approve", RequestApproval.class,requestApproval.getId());
 
         if(toStage.equals("5a") || toStage.equals("5b")){
             Project project = projectService.get(request.getProjectId());
@@ -252,6 +254,8 @@ public class TransitionService{
                 else
                     request.setDiataktis(organization.getDirector());
             }
+
+            requestService.update(request,request.getId());
         }
 
     }
@@ -266,16 +270,16 @@ public class TransitionService{
         if(toStage.equals("13") && fromStage.equals("13")){ // that's the signal for a finished payment
             Browsing<RequestPayment> payments = requestPaymentService.getPayments(request.getId(),null);
             if(payments.getTotal()>=request.getPaymentCycles()){ //if we have reached the max of payment cycles then request should be automatically move to FINISHED state
-                requestService.finalize(request);
+                requestApprovalService.finalize(requestApprovalService.getApproval(request.getId()));
             }else{ //if we haven't yet, create another payment request
                 requestPaymentService.createPayment(request);
-                updatingPermissions("6","7", request,"Approve");
+                updatingPermissions("6","7", request,"Approve",RequestPayment.class,requestPayment.getId());
                 return;
             }
         }
 
 
-        updatingPermissions(fromStage,toStage, request, "Approve");
+        updatingPermissions(fromStage,toStage, request, "Approve",RequestPayment.class,requestPayment.getId());
 
     }
 
@@ -289,7 +293,7 @@ public class TransitionService{
 
 
     public void downgradeApproval(StateContext<Stages, StageEvents> context, String fromStage, String toStage, Stage stage){
-        Request request = context.getMessage().getHeaders().get("requestObj", Request.class);
+        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
         MultipartHttpServletRequest req = (MultipartHttpServletRequest) context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
         String comment = Optional.ofNullable(req.getParameter("comment")).orElse("");
         if(comment.isEmpty()) {
@@ -297,10 +301,11 @@ public class TransitionService{
             throw new ServiceException("We need a comment!");
         }
         try {
+            Request request = requestService.get(requestApproval.getRequestId());
             modifyRequestApproval(context, stage,toStage, BaseInfo.Status.UNDER_REVIEW);
-            updatingPermissions(fromStage,toStage,request,"Downgrade");
+            updatingPermissions(fromStage,toStage,request,"Downgrade",RequestApproval.class,requestApproval.getId());
         } catch (Exception e) {
-            logger.error("Error occurred on approval of request " + request.getId(),e);
+            logger.error("Error occurred on approval of request " + requestApproval.getId(),e);
             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
             throw new ServiceException(e.getMessage());
         }
@@ -316,7 +321,7 @@ public class TransitionService{
         }
         try {
             modifyRequestPayment(context, stage,toStage, BaseInfo.Status.UNDER_REVIEW);
-            updatingPermissions(fromStage,toStage,requestService.get(requestPayment.getRequestId()),"Downgrade");
+            updatingPermissions(fromStage,toStage,requestService.get(requestPayment.getRequestId()),"Downgrade", RequestPayment.class,requestPayment.getId());
         } catch (Exception e) {
             logger.error("Error occurred on approval of payment " + requestPayment.getId(),e);
             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -324,7 +329,7 @@ public class TransitionService{
         }
     }
 
-    public void updatingPermissions(String from, String to, Request request, String mailType){
+    public void updatingPermissions(String from, String to, Request request, String mailType, Class persistentClass, String id){
         List<Sid> revokeAccess = new ArrayList<>();
         List<Sid> grantAccess = new ArrayList<>();
         Project project = projectService.get(request.getProjectId());
@@ -489,8 +494,9 @@ public class TransitionService{
                 break;
         }
 
-        aclService.updateAclEntries(revokeAccess,grantAccess,request.getId());
-        mailService.sendMail(mailType, grantAccess.stream().map(entry -> ((PrincipalSid) entry).getPrincipal()).collect(Collectors.toList()));
+        aclService.updateAclEntries(revokeAccess,grantAccess,id, persistentClass);
+        if(!mailType.isEmpty())
+            mailService.sendMail(mailType, grantAccess.stream().map(entry -> ((PrincipalSid) entry).getPrincipal()).collect(Collectors.toList()));
 
         List<String> pois = request.getPois();
 

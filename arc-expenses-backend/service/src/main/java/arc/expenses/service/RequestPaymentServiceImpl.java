@@ -1,5 +1,6 @@
 package arc.expenses.service;
 
+import arc.expenses.acl.ArcPermission;
 import arc.expenses.domain.RequestResponse;
 import arc.expenses.domain.StageEvents;
 import arc.expenses.domain.Stages;
@@ -12,9 +13,15 @@ import gr.athenarc.domain.*;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.acls.domain.AclImpl;
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
+import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.model.AlreadyExistsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
@@ -48,6 +55,16 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     @Autowired
     private InstituteServiceImpl instituteService;
 
+    @Autowired
+    private OrganizationServiceImpl organizationService;
+
+    @Autowired
+    private AclService aclService;
+
+    @Autowired
+    @Lazy
+    private StateMachineFactory<Stages, StageEvents> factory;
+
     public RequestPaymentServiceImpl() {
         super(RequestPayment.class);
     }
@@ -56,11 +73,6 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     public String getResourceType() {
         return "payment";
     }
-
-
-    @Autowired
-    private StateMachineFactory<Stages, StageEvents> factory;
-
 
     private StateMachine<Stages, StageEvents> build(RequestPayment payment){
 
@@ -214,7 +226,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         if(request.getTrip()!=null)
             requestResponse.setTripDestination(request.getTrip().getDestination());
 
-        requestResponse.setCanEdit(requestApprovalService.canEdit(request.getId()));
+        requestResponse.setCanEdit(requestApprovalService.canEdit(requestPayment.getId()));
 
         return requestResponse;
     }
@@ -227,7 +239,43 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         requestPayment.setStage("7");
         requestPayment.setStatus(BaseInfo.Status.PENDING);
         requestPayment.setCurrentStage(Stages.Stage7.name());
-        return add(requestPayment,null);
+
+        requestPayment = add(requestPayment,null);
+
+        try{
+            aclService.createAcl(new ObjectIdentityImpl(RequestPayment.class, requestPayment.getId()));
+        }catch (AlreadyExistsException ex){
+            logger.debug("Object identity already exists");
+        }
+        Project project = projectService.get(request.getProjectId());
+        Institute institute = instituteService.get(project.getInstituteId());
+
+        AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(RequestPayment.class, requestPayment.getId()));
+        if(request.getType() == Request.Type.TRIP) {
+            acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(institute.getTravelManager().getEmail()), true);
+            acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(institute.getTravelManager().getEmail()), true);
+            acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(institute.getTravelManager().getEmail()), true);
+            institute.getTravelManager().getDelegates().forEach(delegate -> {
+                acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(delegate.getEmail()), true);
+                acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(delegate.getEmail()), true);
+                acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(delegate.getEmail()), true);
+            });
+        }else{
+            acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(institute.getSuppliesOffice().getEmail()), true);
+            acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(institute.getSuppliesOffice().getEmail()), true);
+            acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(institute.getSuppliesOffice().getEmail()), true);
+            institute.getTravelManager().getDelegates().forEach(delegate -> {
+                acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(delegate.getEmail()), true);
+                acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(delegate.getEmail()), true);
+                acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(delegate.getEmail()), true);
+            });
+        }
+        acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+        acl.setOwner(new GrantedAuthoritySid(("ROLE_EXECUTIVE")));
+        aclService.updateAcl(acl);
+
+        return requestPayment;
     }
 
     public Browsing<RequestPayment> getPayments(String id, Authentication u) throws Exception {
