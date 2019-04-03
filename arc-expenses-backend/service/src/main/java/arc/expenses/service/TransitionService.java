@@ -92,6 +92,7 @@ public class TransitionService{
             String stage) throws Exception {
 
         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+
         Request request = requestService.get(requestApproval.getRequestId());
         request.setRequestStatus(Request.RequestStatus.CANCELLED);
 
@@ -110,8 +111,12 @@ public class TransitionService{
             String stage) throws Exception {
 
         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+        HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
+        boolean wholeRequest = Boolean.parseBoolean(Optional.ofNullable(req.getParameter("cancel_request")).orElse("false"));
+
         Request request = requestService.get(requestPayment.getRequestId());
-        request.setRequestStatus(Request.RequestStatus.CANCELLED);
+        if(wholeRequest)
+            request.setRequestStatus(Request.RequestStatus.CANCELLED);
 
         requestPayment.setStage(stage+"");
         requestPayment.setStatus(BaseInfo.Status.CANCELLED);
@@ -170,8 +175,16 @@ public class TransitionService{
 
         requestApproval.setStage(stageString);
         requestApproval.setStatus(status);
+        if(status== BaseInfo.Status.ACCEPTED) {
+            requestApproval.setCurrentStage(Stages.FINISHED.name());
+            if(request.getType() == Request.Type.CONTRACT){
+                request.setRequestStatus(Request.RequestStatus.ACCEPTED);
+            }else{
+                requestPaymentService.createPayment(request);
+            }
+            requestService.update(request,request.getId());
+        }
         requestApprovalService.update(requestApproval,requestApproval.getId());
-
         if(status == BaseInfo.Status.REJECTED){
 //            aclService.deleteAcl(new ObjectIdentityImpl(Request.class,request.getId()), true);
             mailService.sendMail("Rejected", request.getPois());
@@ -280,6 +293,7 @@ public class TransitionService{
 
 
         updatingPermissions(fromStage,toStage, request, "Approve",RequestPayment.class,requestPayment.getId());
+        updatingPermissions(fromStage,toStage,request,"Approve",RequestApproval.class,requestApprovalService.getApproval(request.getId()).getId());
 
     }
 

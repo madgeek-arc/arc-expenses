@@ -113,8 +113,8 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     }
 
 
-    @PreAuthorize("hasPermission(#request,'EDIT')")
-    public void approve(Request request, RequestPayment requestPayment, HttpServletRequest req) {
+    @PreAuthorize("hasPermission(#requestPayment,'EDIT')")
+    public void approve(RequestPayment requestPayment, HttpServletRequest req) {
 
         logger.info("Approving payment with id " + requestPayment.getId());
         StateMachine<Stages, StageEvents> sm = this.build(requestPayment);
@@ -132,8 +132,8 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     }
 
 
-    @PreAuthorize("hasPermission(#request,'EDIT')")
-    public void reject(Request request, RequestPayment requestPayment, HttpServletRequest req) {
+    @PreAuthorize("hasPermission(#requestPayment,'EDIT')")
+    public void reject(RequestPayment requestPayment, HttpServletRequest req) {
         logger.info("Rejecting payment with id " + requestPayment.getId());
         StateMachine<Stages, StageEvents> sm = this.build(requestPayment);
         Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.REJECT)
@@ -150,8 +150,8 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     }
 
 
-    @PreAuthorize("hasPermission(#request,'EDIT')")
-    public void downgrade(Request request, RequestPayment requestPayment, HttpServletRequest req) {
+    @PreAuthorize("hasPermission(#requestPayment,'EDIT')")
+    public void downgrade(RequestPayment requestPayment, HttpServletRequest req) {
         logger.info("Downgrading payment with id " + requestPayment.getId());
         StateMachine<Stages, StageEvents> sm = this.build(requestPayment);
         Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.DOWNGRADE)
@@ -167,12 +167,13 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
     }
 
-    @PreAuthorize("hasPermission(#request,'CANCEL')")
-    public void cancel(Request request, RequestPayment requestPayment) throws Exception {
+    @PreAuthorize("hasPermission(#requestPayment,'CANCEL')")
+    public void cancel(RequestPayment requestPayment, HttpServletRequest req) throws Exception {
         logger.info("Canceling payment with id " + requestPayment.getId());
         StateMachine<Stages, StageEvents> sm = this.build(requestPayment);
         Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.CANCEL)
                 .setHeader("paymentObj", requestPayment)
+                .setHeader("restRequest", req)
                 .build();
 
         sm.sendEvent(eventsMessage);
@@ -221,6 +222,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         requestResponse.setRequesterFullName(request.getUser().getFirstname() + " " + request.getUser().getLastname());
         if(request.getOnBehalfOf()!=null) {
             requestResponse.setOnBehalfFullName(request.getOnBehalfOf().getFirstname() + " " + request.getOnBehalfOf().getLastname());
+            requestResponse.setOnBehalfEmail(request.getOnBehalfOf().getEmail());
         }
 
         if(request.getTrip()!=null)
@@ -251,6 +253,9 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         Institute institute = instituteService.get(project.getInstituteId());
 
         AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(RequestPayment.class, requestPayment.getId()));
+        acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(request.getUser().getEmail()), true);
+        if(request.getOnBehalfOf()!=null)
+            acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(request.getOnBehalfOf().getEmail()), true);
         if(request.getType() == Request.Type.TRIP) {
             acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(institute.getTravelManager().getEmail()), true);
             acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(institute.getTravelManager().getEmail()), true);
@@ -264,6 +269,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
             acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(institute.getSuppliesOffice().getEmail()), true);
             acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(institute.getSuppliesOffice().getEmail()), true);
             acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(institute.getSuppliesOffice().getEmail()), true);
+
             institute.getTravelManager().getDelegates().forEach(delegate -> {
                 acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(delegate.getEmail()), true);
                 acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(delegate.getEmail()), true);
@@ -272,7 +278,10 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         }
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new GrantedAuthoritySid("ROLE_ADMIN"), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new GrantedAuthoritySid("ROLE_ADMIN"), true);
-        acl.setOwner(new GrantedAuthoritySid(("ROLE_EXECUTIVE")));
+        for(String oldPoi : request.getPois()) {
+            acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(oldPoi), true);
+        }
+        acl.setOwner(new GrantedAuthoritySid(("ROLE_USER")));
         aclService.updateAcl(acl);
 
         return requestPayment;

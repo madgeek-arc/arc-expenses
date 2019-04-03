@@ -230,6 +230,8 @@ public class RequestServiceImpl extends GenericService<Request> {
         AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(RequestApproval.class, requestApproval.getId()));
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+        if(request.getOnBehalfOf()!=null)
+            acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(request.getOnBehalfOf().getEmail()), true);
 
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new GrantedAuthoritySid("ROLE_ADMIN"), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
@@ -245,7 +247,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         for(Delegate person : project.getScientificCoordinator().getDelegates())
             acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(person.getEmail()), true);
 
-        acl.setOwner(new GrantedAuthoritySid(("ROLE_EXECUTIVE")));
+        acl.setOwner(new GrantedAuthoritySid(("ROLE_USER")));
         aclService.updateAcl(acl);
 
 
@@ -310,17 +312,35 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        String roles = "";
+        boolean isAdmin = false;
         for(GrantedAuthority grantedAuthority : authentication.getAuthorities()){
-            roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");
+            if(grantedAuthority.getAuthority().equals("ROLE_ADMIN")) {
+                isAdmin = true;
+                break;
+            }
         }
-        String aclEntriesQuery = "SELECT acl_class.class as class, object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct on(acl_object_identity) acl_object_identity, CASE WHEN mask=32 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+authentication.getPrincipal()+"' "+roles+" ORDER BY acl_object_identity,canedit DESC ) as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id INNER JOIN acl_class ON acl_class.id=acl_object_identity.object_id_class";
 
+        String aclEntriesQuery = "select distinct on (d.object_id_identity) d.object_id_identity as id, d.request_id, r.request_type, d.creation_date, d.stage, d.status, d.canEdit, p.project_acronym, i.institute_id, i.institute_name, p.project_scientificcoordinator, p.project_operator, p.project_operator_delegate" +
+                " from (" +
+                "select o.object_id_identity, a.stage, a.status, a.request_id, a.creation_date, e.mask, CASE WHEN mask=32 THEN true ELSE false END AS canEdit" +
+                " from acl_entry e, acl_object_identity o, acl_sid s, approval_view a" +
+                " where e.acl_object_identity = o.id and o.object_id_identity=a.approval_id and e.sid = s.id and s.sid in ('"+SecurityContextHolder.getContext().getAuthentication().getPrincipal()+"'"+(isAdmin ? ", 'ROLE_ADMIN'" : "")+" )" +
+                "union " +
+                "select o.object_id_identity, p.stage, p.status, p.request_id, p.creation_date, e.mask, CASE WHEN mask=32 THEN true ELSE false END AS canEdit " +
+                " from acl_entry e, acl_object_identity o, acl_sid s, payment_view p" +
+                " where e.acl_object_identity = o.id and o.object_id_identity=p.payment_id and e.sid = s.id and s.sid in ('"+SecurityContextHolder.getContext().getAuthentication().getPrincipal()+"'"+(isAdmin ? ", 'ROLE_ADMIN'" : "")+" )" +
+                ") d, request_view r, project_view p, institute_view i " +
+                "where d.request_id = r.request_id AND r.request_project = p.project_id AND p.project_institute = i.institute_id " +
+                "order by object_id_identity, canEdit desc";
 
-        String viewQuery = "select acls.class, acls.canEdit as canEdit, request_view.creation_date as creation_date, project_view.project_scientificcoordinator as scientificCoordinator, request_view.request_type as type, approval_view.status as approval_status, payment_view.status as payment_status, request_view.request_id as request_id, approval_view.stage as approval_stage, payment_view.stage as payment_stage, project_view.project_operator as operator, project_view.project_acronym as acronym, institute_view.institute_name as institute, approval_view.approval_id as approval_id, CASE WHEN acls.class='gr.athenarc.domain.RequestApproval' THEN approval_view.approval_id ELSE payment_view.payment_id END AS baseinfo_id from request_view inner join project_view on request_project=project_view.project_id inner join institute_view on institute_view.institute_id=project_view.project_institute left join approval_view on approval_view.request_id=request_view.request_id left join payment_view on payment_view.request_id=request_view.request_id";
-        viewQuery+=" inner join (" + aclEntriesQuery+") as acls on acls.object_id_identity=approval_view.approval_id or acls.object_id_identity=payment_view.payment_id ";
+        // String viewQuery = "SELECT * FROM ("+aclEntriesQuery+")  d, request_view r, project_view p, institute_view i WHERE d.request_id = r.request_id AND r.request_project = p.project_id AND p.project_institute = i.institute_id ORDER BY object_id_identity, canEdit desc ";
+        // viewQuery+=" inner join (" + aclEntriesQuery+") as acls on acls.object_id_identity=approval_view.approval_id or acls.object_id_identity=payment_view.payment_id ";
 
-        viewQuery+= " where (approval_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") or payment_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+")) and request_view.request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true" : "" )+" and (approval_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") or payment_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+")) "+(!searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
+        String viewQuery = "SELECT * FROM ("+aclEntriesQuery+") aclQ ";
+
+        // viewQuery+= " where (approval_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") or payment_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+")) and request_view.request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true" : "" )+" and (approval_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") or payment_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+")) "+(!searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
+
+        viewQuery+= " where status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") and request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true " : "" )+"and stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") "+(!searchField.isEmpty() ? "and (project_scientificcoordinator=? or ? = any(project_operator) or ? = any(project_operator_delegate) or request_id=? or project_acronym=? or institute_id=? or institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
 
         System.out.println(viewQuery);
 
@@ -331,8 +351,10 @@ public class RequestServiceImpl extends GenericService<Request> {
                 ps.setString(3, searchField);
                 ps.setString(4, searchField);
                 ps.setString(5, searchField);
-                ps.setInt(6, from);
-                ps.setInt(7, quantity);
+                ps.setString(6, searchField);
+                ps.setString(7, searchField);
+                ps.setInt(8, from);
+                ps.setInt(9, quantity);
             }else{
                 ps.setInt(1, from);
                 ps.setInt(2, quantity);
@@ -341,21 +363,17 @@ public class RequestServiceImpl extends GenericService<Request> {
             List<RequestSummary> results = new ArrayList<>();
             while(rs.next()){
                 BaseInfo baseInfo = new BaseInfo();
-                if(rs.getString("approval_status") !=null && !rs.getString("approval_status").isEmpty() && rs.getString("class").equals("gr.athenarc.domain.RequestApproval"))
-                    baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("approval_status")));
-                if(rs.getString("payment_status") !=null && !rs.getString("payment_status").isEmpty() && rs.getString("class").equals("gr.athenarc.domain.RequestPayment"))
-                    baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("payment_status")));
+                if(rs.getString("status") !=null && !rs.getString("status").isEmpty())
+                    baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("status")));
 
-                if(rs.getString("approval_stage") !=null && !rs.getString("approval_stage").isEmpty())
-                    baseInfo.setStage(rs.getString("approval_stage"));
-                if(rs.getString("payment_stage") !=null && !rs.getString("payment_stage").isEmpty())
-                    baseInfo.setStage(rs.getString("payment_stage"));
+                if(rs.getString("stage") !=null && !rs.getString("stage").isEmpty())
+                    baseInfo.setStage(rs.getString("stage"));
 
                 Request request = get(rs.getString("request_id"));
                 Project project = projectService.get(request.getProjectId());
                 Institute institute = instituteService.get(project.getInstituteId());
 
-                baseInfo.setId(rs.getString("baseinfo_id"));
+                baseInfo.setId(rs.getString("id"));
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                 try {
@@ -367,7 +385,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                 RequestSummary requestSummary = new RequestSummary();
 
                 requestSummary.setBaseInfo(baseInfo);
-                requestSummary.setCanEdit(rs.getBoolean("canedit"));
+                requestSummary.setCanEdit(rs.getBoolean("canEdit"));
                 requestSummary.setRequestFullName(request.getUser().getFirstname() + " " + request.getUser().getLastname());
                 requestSummary.setRequestType(request.getType().toString());
                 requestSummary.setProjectAcronym(project.getAcronym());
@@ -455,8 +473,19 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     }
 
-    @PreAuthorize("hasPermission(#request,'READ')")
-    public File downloadFile(File file,Request request,String url) {
+    @PreAuthorize("hasPermission(#requestApproval,'READ')")
+    public File downloadFile(File file,RequestApproval requestApproval,String url) {
+        try {
+            storeRESTClient.downloadFile(url, file.getAbsolutePath());
+            return file;
+        } catch (Exception e) {
+            logger.error("error downloading file", e);
+        }
+        return null;
+    }
+
+    @PreAuthorize("hasPermission(#requestPayment,'READ')")
+    public File downloadFile(File file,RequestPayment requestPayment,String url) {
         try {
             storeRESTClient.downloadFile(url, file.getAbsolutePath());
             return file;

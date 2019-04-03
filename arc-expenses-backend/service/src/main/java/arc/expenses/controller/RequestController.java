@@ -9,7 +9,6 @@ import arc.expenses.service.RequestPaymentServiceImpl;
 import arc.expenses.service.RequestServiceImpl;
 import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.Paging;
-import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.ParserPool;
 import eu.openminted.registry.core.service.SearchService;
@@ -227,26 +226,23 @@ public class RequestController {
     @ResponseBody
     public void downloadFile(@RequestParam("archiveId") String archiveId,
                                @RequestParam("filename") String filename,
-                               HttpServletResponse response) throws IOException {
-        Request request = new Request();
-
-        List rs = searchService.cqlQuery("searchableArea=*"+ archiveId.substring(0,archiveId.lastIndexOf("/"))+"*","*").getResults();
-        Resource resource;
-        if(rs.size() > 0) {
-            resource = (Resource) rs.get(0);
-            if(resource.getResourceTypeName().equals("approval"))
-                request = requestService.get(parserPool.deserialize(resource, RequestApproval.class).getRequestId());
-            else if(resource.getResourceTypeName().equals("payment"))
-                request = requestService.get(parserPool.deserialize(resource, RequestPayment.class).getRequestId());
-            else if (resource.getResourceTypeName().equals("request"))
-                request = parserPool.deserialize(resource, Request.class);
-        }else{
-            request = null;
-        }
+                               @RequestParam("id") String objectId,
+                               @RequestParam("mode") String mode,
+                               HttpServletResponse response) throws Exception {
         File temp = File.createTempFile(filename, "tmp");
-        temp = requestService.downloadFile(temp,request,archiveId+"/"+filename);
+        if(mode.equals("approval")){
+            RequestApproval requestApproval = requestApprovalService.get(objectId);
+            temp = requestService.downloadFile(temp,requestApproval,archiveId+"/"+filename);
+        }else if(mode.equals("payment")){
+            RequestPayment requestPayment = requestPaymentService.get(objectId);
+            temp = requestService.downloadFile(temp,requestPayment,archiveId+"/"+filename);
+        }else{
+            return;
+        }
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
         IOUtils.copyLarge(new FileInputStream(temp), response.getOutputStream());
+
+
     }
 
 

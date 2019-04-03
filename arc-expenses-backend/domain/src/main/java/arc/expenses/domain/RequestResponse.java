@@ -18,6 +18,7 @@ public class RequestResponse {
     private String instituteName;
     private String requesterFullName;
     private String onBehalfFullName;
+    private String onBehalfEmail;
     private String tripDestination;
     private boolean canEdit;
 
@@ -109,5 +110,13 @@ public class RequestResponse {
 
     public void setTripDestination(String tripDestination) {
         this.tripDestination = tripDestination;
+    }
+
+    public String getOnBehalfEmail() {
+        return onBehalfEmail;
+    }
+
+    public void setOnBehalfEmail(String onBehalfEmail) {
+        this.onBehalfEmail = onBehalfEmail;
     }
 }

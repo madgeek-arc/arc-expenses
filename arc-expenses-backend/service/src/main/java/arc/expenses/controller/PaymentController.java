@@ -56,7 +56,7 @@ public class PaymentController {
 
         Request request = requestService.get(requestPayment.getRequestId());
         try {
-            requestPaymentService.approve(request, requestPayment, req);
+            requestPaymentService.approve(requestPayment, req);
         }catch (Exception ex){
             ex.printStackTrace();
             throw new ServiceException(ex.getMessage());
@@ -78,7 +78,7 @@ public class PaymentController {
 
         Request request = requestService.get(requestPayment.getRequestId());
         try {
-            requestPaymentService.reject(request, requestPayment, req);
+            requestPaymentService.reject(requestPayment, req);
         }catch (Exception ex){
             ex.printStackTrace();
             throw new ServiceException(ex.getMessage());
@@ -99,7 +99,28 @@ public class PaymentController {
 
         Request request = requestService.get(requestPayment.getRequestId());
         try {
-            requestPaymentService.downgrade(request, requestPayment, req);
+            requestPaymentService.downgrade(requestPayment, req);
+        }catch (Exception ex){
+            ex.printStackTrace();
+            throw new ServiceException(ex.getMessage());
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation("Cancel payment")
+    @RequestMapping(value = "/cancel/{paymentId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity cancel(
+            @PathVariable("paymentId") String paymentId,
+            HttpServletRequest req
+    ){
+        RequestPayment requestPayment = requestPaymentService.get(paymentId);
+
+        if(requestPayment==null)
+            throw new ServiceException("Payment not found");
+
+        Request request = requestService.get(requestPayment.getRequestId());
+        try {
+            requestPaymentService.cancel(requestPayment, req);
         }catch (Exception ex){
             ex.printStackTrace();
             throw new ServiceException(ex.getMessage());

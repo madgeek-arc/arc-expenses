@@ -1,6 +1,5 @@
 package arc.expenses.config.stateMachine;
 
-import arc.expenses.acl.ArcPermission;
 import arc.expenses.domain.StageEvents;
 import arc.expenses.domain.Stages;
 import arc.expenses.service.*;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.messaging.Message;
-import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
@@ -22,6 +20,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -36,13 +35,13 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
     private TransitionService transitionService;
 
     @Autowired
+    private RequestApprovalServiceImpl requestApprovalService;
+
+    @Autowired
     private RequestPaymentServiceImpl requestPaymentService;
 
     @Autowired
     private RequestServiceImpl requestService;
-
-    @Autowired
-    private AclService aclService;
 
     @Autowired
     private MailService mailService;
@@ -54,7 +53,6 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                 .initial(Stages.Stage1)
                 .choice(Stages.Stage5a)
                 .choice(Stages.Stage6ChoiceDowngrade)
-                .choice(Stages.FinalizeContracts)
                 .end(Stages.FINISHED)
                 .end(Stages.REJECTED)
                 .end(Stages.CANCELLED)
@@ -99,7 +97,24 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                 .source(Stages.Stage1)
                 .target(Stages.Stage2)
                 .event(StageEvents.APPROVE)
-                .guard(stateContext -> transitionService.checkContains(stateContext, Stage2.class))
+                .guard(stateContext -> transitionService.checkContains(stateContext, Stage1.class))
+                .action(context -> {
+                    RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                    MultipartHttpServletRequest req = (MultipartHttpServletRequest) context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
+                    try {
+                        Stage1 stage1 = requestApproval.getStage1();
+                        stage1.setAmountInEuros(Double.parseDouble(req.getParameter("amount")));
+                        stage1.setFinalAmount(stage1.getAmountInEuros());
+                        stage1.setSubject(req.getParameter("subject"));
+                        stage1.setSupplier(Optional.ofNullable(req.getParameter("supplier")).orElse(stage1.getSupplier()));
+                        stage1.setSupplierSelectionMethod(Optional.ofNullable(Stage1.SupplierSelectionMethod.fromValue(req.getParameter("supplier_selection_method"))).orElse(stage1.getSupplierSelectionMethod()));
+                        transitionService.approveApproval(context,"1","2",stage1);
+                    } catch (Exception e) {
+                        logger.error("Error occurred on approval of request " + requestApproval.getId(),e);
+                        context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                        throw new ServiceException(e.getMessage());
+                    }
+                })
                 .and()
                 .withExternal()
                 .source(Stages.Stage1)
@@ -121,9 +136,11 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                 .event(StageEvents.DOWNGRADE)
                 .action(context -> {
                     RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                    MultipartHttpServletRequest req = (MultipartHttpServletRequest) context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
                     try {
-                        Stage1 stage1 = Optional.ofNullable(requestApproval.getStage1()).orElse(new Stage1());
-                        transitionService.downgradeApproval(context,"2","1",stage1);
+                        Stage2 stage2 = new Stage2(Optional.ofNullable(Boolean.parseBoolean(req.getParameter("checkFeasibility"))).orElse(false),Optional.ofNullable(Boolean.parseBoolean(req.getParameter("checkNecessity"))).orElse(false),true);
+                        stage2.setDate(new Date().toInstant().toEpochMilli());
+                        transitionService.downgradeApproval(context,"2","1",stage2);
                     } catch (Exception e) {
                         logger.error("Error occurred on downgrading approval of request " + requestApproval.getId(),e);
                         context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -391,8 +408,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
 
                     }, context -> {
                         try {
-                            Stage5b stage5b = new Stage5b(true);
-                            transitionService.approveApproval(context,"5a","5b",stage5b);
+                            Stage5a stage5a = new Stage5a(true);
+                            stage5a.setDate(new Date().toInstant().toEpochMilli());
+                            transitionService.approveApproval(context,"5a","5b",stage5a);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request ",e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -401,8 +419,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     })
                     .last(Stages.Stage6, context -> {
                         try {
-                            Stage6 stage6 = new Stage6();
-                            transitionService.approveApproval(context,"5a","6",stage6);
+                            Stage5a stage5a = new Stage5a(true);
+                            stage5a.setDate(new Date().toInstant().toEpochMilli());
+                            transitionService.approveApproval(context,"5a","6",stage5a);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request ",e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -539,49 +558,21 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         }
                     })
                     .and()
-                .withChoice()
-                    .source(Stages.FinalizeContracts)
-                    .first(Stages.Stage7, context -> {
-                        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
-                        Request request = requestService.get(requestApproval.getRequestId());
-                        if(!transitionService.checkContains(context, Stage6.class))
-                            return false;
-
-                        if(request.getType() != Request.Type.CONTRACT) {
-                            return true;
-                        }
-                        return false;
-                    }, context -> {
-                        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
-                        Request request = requestService.get(requestApproval.getRequestId());
-                        try {
-                            RequestPayment requestPayment = requestPaymentService.createPayment(request);
-                            transitionService.updatingPermissions("6","7", request,"Approve",RequestApproval.class,requestApproval.getId());
-
-                            aclService.removePermissionFromSid(Collections.singletonList(ArcPermission.CANCEL),new PrincipalSid(request.getUser().getEmail()),requestApproval.getId(),RequestApproval.class); //request can no longer get canceled
-                        } catch (Exception e) {
-                            logger.error("Error occurred on downgradeApproval of request " + request.getId(),e);
-                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
-                            throw new ServiceException(e.getMessage());
-                        }
-                    })
-                    .last(Stages.FINISHED, context -> {
-                        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
-                        Request request = requestService.get(requestApproval.getRequestId());
-                        try {
-                            transitionService.modifyRequestApproval(context, new Stage13(), "13", BaseInfo.Status.ACCEPTED);
-                            aclService.removePermissionFromSid(Collections.singletonList(ArcPermission.CANCEL),new PrincipalSid(request.getUser().getEmail()),request.getId(),Request.class); //request can no longer get canceled
-                        } catch (Exception e) {
-                            logger.error("Error occurred on downgradeApproval of request " + request.getId(),e);
-                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
-                            throw new ServiceException(e.getMessage());
-                        }
-                    })
-                    .and()
                 .withExternal()
                     .source(Stages.Stage6)
-                    .target(Stages.FinalizeContracts)
+                    .target(Stages.Stage7)
                     .event(StageEvents.APPROVE)
+                    .action(context -> {
+                        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                        Request request = requestService.get(requestApproval.getRequestId());
+                        try {
+                            transitionService.modifyRequestApproval(context, new Stage13(), "6", BaseInfo.Status.ACCEPTED);
+                        } catch (Exception e) {
+                            logger.error("Error occurred on downgradeApproval of request " + request.getId(),e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
                     .and()
                 .withExternal()
                     .source(Stages.Stage7)

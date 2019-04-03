@@ -224,8 +224,8 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         requestResponse.setRequesterFullName(request.getUser().getFirstname() + " " + request.getUser().getLastname());
         if(request.getOnBehalfOf()!=null) {
             requestResponse.setOnBehalfFullName(request.getOnBehalfOf().getFirstname() + " " + request.getOnBehalfOf().getLastname());
+            requestResponse.setOnBehalfEmail(request.getOnBehalfOf().getEmail());
         }
-
         if(request.getTrip()!=null)
             requestResponse.setTripDestination(request.getTrip().getDestination());
 
