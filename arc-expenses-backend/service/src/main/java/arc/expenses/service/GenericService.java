@@ -73,11 +73,6 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
        return null;
     }
 
-    @Override
-    public void delete(T t) throws ResourceNotFoundException {
-
-    }
-
     public T getByField(String key, String value) throws Exception {
         Resource resource;
         try {

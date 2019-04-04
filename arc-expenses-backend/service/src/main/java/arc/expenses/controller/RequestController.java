@@ -198,9 +198,10 @@ public class RequestController {
                                                  @RequestParam(value = "stage") List<String> stage,
                                                  @RequestParam(value = "order",required=false,defaultValue = "ASC") OrderByType orderType,
                                                  @RequestParam(value = "orderField") OrderByField orderField,
-                                                 @RequestParam(value = "editable", required = false, defaultValue = "false") boolean canEdit) {
+                                                 @RequestParam(value = "editable", required = false, defaultValue = "false") boolean canEdit,
+                                                 @RequestParam(value = "isMine", required = false, defaultValue = "false") boolean isMine) {
 
-        return requestService.criteriaSearch(from,quantity,status,type,searchField,stage,orderType,orderField, canEdit);
+        return requestService.criteriaSearch(from,quantity,status,type,searchField,stage,orderType,orderField, canEdit, isMine);
 
     }
 

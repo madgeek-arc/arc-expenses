@@ -306,7 +306,8 @@ public class RequestServiceImpl extends GenericService<Request> {
                                                  List<BaseInfo.Status> status, List<Request.Type> types, String searchField,
                                                  List<String> stages, OrderByType orderType,
                                                  OrderByField orderField,
-                                                 boolean canEdit) {
+                                                 boolean canEdit,
+                                                 boolean isMine) {
 
         //TODO prepare statement for stages
 
@@ -320,7 +321,7 @@ public class RequestServiceImpl extends GenericService<Request> {
             }
         }
 
-        String aclEntriesQuery = "select distinct on (d.object_id_identity) d.object_id_identity as id, d.request_id, r.request_type, d.creation_date, d.stage, d.status, d.canEdit, p.project_acronym, i.institute_id, i.institute_name, p.project_scientificcoordinator, p.project_operator, p.project_operator_delegate" +
+        String aclEntriesQuery = "select distinct on (d.object_id_identity) d.object_id_identity as id, r.request_requester as requester, d.request_id, r.request_type, d.creation_date, d.stage, d.status, d.canEdit, p.project_acronym, i.institute_id, i.institute_name, p.project_scientificcoordinator, p.project_operator, p.project_operator_delegate" +
                 " from (" +
                 "select o.object_id_identity, a.stage, a.status, a.request_id, a.creation_date, e.mask, CASE WHEN mask=32 THEN true ELSE false END AS canEdit" +
                 " from acl_entry e, acl_object_identity o, acl_sid s, approval_view a" +
@@ -340,7 +341,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         // viewQuery+= " where (approval_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") or payment_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+")) and request_view.request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true" : "" )+" and (approval_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") or payment_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+")) "+(!searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
 
-        viewQuery+= " where status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") and request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true " : "" )+"and stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") "+(!searchField.isEmpty() ? "and (project_scientificcoordinator=? or ? = any(project_operator) or ? = any(project_operator_delegate) or request_id=? or project_acronym=? or institute_id=? or institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
+        viewQuery+= " where status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") and request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true " : "" )+"and stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") "+(!searchField.isEmpty() ? "and (project_scientificcoordinator=? or ? = any(project_operator) or ? = any(project_operator_delegate) or request_id=? or project_acronym=? or institute_id=? or institute_name=? )" : "")+ (isMine ? " AND requester='"+SecurityContextHolder.getContext().getAuthentication().getPrincipal()+"'" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
 
         System.out.println(viewQuery);
 

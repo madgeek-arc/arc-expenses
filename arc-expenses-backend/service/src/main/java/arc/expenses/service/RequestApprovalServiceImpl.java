@@ -222,6 +222,7 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         requestResponse.setProjectAcronym(project.getAcronym());
         requestResponse.setInstituteName(institute.getName());
         requestResponse.setRequesterFullName(request.getUser().getFirstname() + " " + request.getUser().getLastname());
+        requestResponse.setRequesterEmail(request.getUser().getEmail());
         if(request.getOnBehalfOf()!=null) {
             requestResponse.setOnBehalfFullName(request.getOnBehalfOf().getFirstname() + " " + request.getOnBehalfOf().getLastname());
             requestResponse.setOnBehalfEmail(request.getOnBehalfOf().getEmail());

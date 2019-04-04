@@ -112,20 +112,31 @@ public class TransitionService{
 
         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
-        boolean wholeRequest = Boolean.parseBoolean(Optional.ofNullable(req.getParameter("cancel_request")).orElse("false"));
-
         Request request = requestService.get(requestPayment.getRequestId());
-        if(wholeRequest)
-            request.setRequestStatus(Request.RequestStatus.CANCELLED);
 
+        Browsing<RequestPayment> payments = requestPaymentService.getPayments(request.getId(),null);
         requestPayment.setStage(stage+"");
         requestPayment.setStatus(BaseInfo.Status.CANCELLED);
+        if(payments.getTotal()<=1) {
+            boolean wholeRequest = Boolean.parseBoolean(Optional.ofNullable(req.getParameter("cancel_request")).orElse("false"));
+            if (wholeRequest) {
+                request.setRequestStatus(Request.RequestStatus.CANCELLED);
+                RequestApproval requestApproval = requestApprovalService.getApproval(request.getId());
+                requestApproval.setCurrentStage(Stages.CANCELLED.name());
+                requestApproval.setStatus(BaseInfo.Status.CANCELLED);
+                requestApprovalService.update(requestApproval, requestApproval.getId());
+                requestService.update(request, request.getId());
+            }else{
+                requestPaymentService.delete(requestPayment);
+                requestPaymentService.createPayment(request);
+            }
+        }else{
+            requestPaymentService.delete(requestPayment);
+        }
+
         requestPaymentService.update(requestPayment,requestPayment.getId());
 
         mailService.sendMail("Canceled",request.getPois());
-
-        requestService.update(request, request.getId());
-        aclService.deleteAcl(new ObjectIdentityImpl(Request.class,request.getId()), true);
     }
 
     public void modifyRequestApproval(

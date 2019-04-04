@@ -16,6 +16,7 @@ public class RequestResponse {
 
     private String projectAcronym;
     private String instituteName;
+    private String requesterEmail;
     private String requesterFullName;
     private String onBehalfFullName;
     private String onBehalfEmail;
@@ -118,5 +119,13 @@ public class RequestResponse {
 
     public void setOnBehalfEmail(String onBehalfEmail) {
         this.onBehalfEmail = onBehalfEmail;
+    }
+
+    public String getRequesterEmail() {
+        return requesterEmail;
+    }
+
+    public void setRequesterEmail(String requesterEmail) {
+        this.requesterEmail = requesterEmail;
     }
 }

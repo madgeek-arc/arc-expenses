@@ -128,4 +128,21 @@ public class PaymentController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @ApiOperation("Add payment")
+    @RequestMapping(value = "/add/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity cancel(
+            @PathVariable("requestId") String requestId
+    ){
+        Request request = requestService.get(requestId);
+        if(request==null)
+            throw new ServiceException("Request not found");
+        try {
+            RequestPayment requestPayment = requestPaymentService.createPayment(request);
+            return new ResponseEntity<>("{\"id\":\""+requestPayment.getId()+"\"}",HttpStatus.OK);
+        }catch (Exception ex){
+            ex.printStackTrace();
+            throw new ServiceException(ex.getMessage());
+        }
+    }
+
 }
