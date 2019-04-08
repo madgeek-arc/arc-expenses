@@ -350,5 +350,9 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         return null;
     }
 
+    @Override
+    public void delete(RequestPayment requestPayment) throws ResourceNotFoundException {
+        super.delete(requestPayment);
+    }
 }
 
