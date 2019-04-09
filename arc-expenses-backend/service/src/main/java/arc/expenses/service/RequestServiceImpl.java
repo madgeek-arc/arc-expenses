@@ -323,7 +323,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         String aclEntriesQuery = "select distinct on (d.object_id_identity) d.object_id_identity as id, r.request_requester as requester, d.request_id, r.request_type, d.creation_date, d.stage, d.status, d.canEdit, p.project_acronym, i.institute_id, i.institute_name, p.project_scientificcoordinator, p.project_operator, p.project_operator_delegate" +
                 " from (" +
-                "select o.object_id_identity, a.stage, a.status, a.request_id, a.creation_date, e.mask, CASE WHEN mask=32 and p.status in ('PENDING','UNDER_REVIEW') THEN true ELSE false END AS canEdit" +
+                "select o.object_id_identity, a.stage, a.status, a.request_id, a.creation_date, e.mask, CASE WHEN mask=32 and a.status in ('PENDING','UNDER_REVIEW') THEN true ELSE false END AS canEdit" +
                 " from acl_entry e, acl_object_identity o, acl_sid s, approval_view a" +
                 " where e.acl_object_identity = o.id and o.object_id_identity=a.approval_id and e.sid = s.id and s.sid in ('"+SecurityContextHolder.getContext().getAuthentication().getPrincipal()+"'"+(isAdmin ? ", 'ROLE_ADMIN'" : "")+" )" +
                 "union " +
