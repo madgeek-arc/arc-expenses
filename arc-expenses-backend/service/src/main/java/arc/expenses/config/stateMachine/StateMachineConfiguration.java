@@ -657,6 +657,19 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .and()
                 .withExternal()
                     .source(Stages.Stage8)
+                    .target(Stages.CANCELLED)
+                    .event(StageEvents.CANCEL)
+                    .action(context -> {
+                        try {
+                            transitionService.cancelRequestPayment(context,"8");
+                        } catch (Exception e) {
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                    .and()
+                .withExternal()
+                    .source(Stages.Stage8)
                     .target(Stages.Stage7)
                     .event(StageEvents.DOWNGRADE)
                     .action(context -> {
@@ -708,6 +721,19 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .and()
                 .withExternal()
                     .source(Stages.Stage9)
+                    .target(Stages.CANCELLED)
+                    .event(StageEvents.CANCEL)
+                    .action(context -> {
+                        try {
+                            transitionService.cancelRequestPayment(context,"9");
+                        } catch (Exception e) {
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                .and()
+                .withExternal()
+                    .source(Stages.Stage9)
                     .target(Stages.Stage8)
                     .event(StageEvents.DOWNGRADE)
                     .action(context -> {
@@ -739,7 +765,20 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                             throw new ServiceException(e.getMessage());
                         }
                     })
-                    .and()
+                  .and()
+                .withExternal()
+                    .source(Stages.Stage10)
+                    .target(Stages.CANCELLED)
+                    .event(StageEvents.CANCEL)
+                    .action(context -> {
+                        try {
+                            transitionService.cancelRequestPayment(context,"10");
+                        } catch (Exception e) {
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                .and()
                 .withExternal()
                     .source(Stages.Stage10)
                     .target(Stages.REJECTED)
@@ -790,7 +829,20 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                             throw new ServiceException(e.getMessage());
                         }
                     })
-                    .and()
+                 .and()
+                .withExternal()
+                    .source(Stages.Stage11)
+                    .target(Stages.CANCELLED)
+                    .event(StageEvents.CANCEL)
+                    .action(context -> {
+                        try {
+                            transitionService.cancelRequestPayment(context,"11");
+                        } catch (Exception e) {
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                .and()
                 .withExternal()
                     .source(Stages.Stage11)
                     .target(Stages.Stage10)
@@ -840,7 +892,20 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                             throw new ServiceException(e.getMessage());
                         }
                     })
-                    .and()
+                 .and()
+                .withExternal()
+                    .source(Stages.Stage12)
+                    .target(Stages.CANCELLED)
+                    .event(StageEvents.CANCEL)
+                    .action(context -> {
+                        try {
+                            transitionService.cancelRequestPayment(context,"12");
+                        } catch (Exception e) {
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                .and()
                 .withExternal()
                     .source(Stages.Stage12)
                     .target(Stages.REJECTED)
@@ -874,6 +939,19 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         }
                     })
                     .and()
+                .withExternal()
+                    .source(Stages.Stage13)
+                    .target(Stages.CANCELLED)
+                    .event(StageEvents.CANCEL)
+                    .action(context -> {
+                        try {
+                            transitionService.cancelRequestPayment(context,"13");
+                        } catch (Exception e) {
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                .and()
                 .withExternal()
                     .source(Stages.Stage13)
                     .target(Stages.Stage12)
