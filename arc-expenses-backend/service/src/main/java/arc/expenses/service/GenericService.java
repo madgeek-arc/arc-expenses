@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.UnknownHostException;
 
 public abstract class GenericService<T> extends AbstractGenericService<T> implements ResourceCRUDService<T, Authentication> {
@@ -120,4 +121,17 @@ public abstract class GenericService<T> extends AbstractGenericService<T> implem
         return null;
     }
 
+    @Override
+    public void delete(T t) throws ResourceNotFoundException {
+        try {
+            String id = (String) t.getClass().getMethod("getId").invoke(t);
+            String id_field = String.format("%s_id", resourceType.getName());
+            Resource resource = searchService.searchId(resourceType.getName(),
+                    new SearchService.KeyValue(id_field,id));
+            if(resource != null)
+                resourceService.deleteResource(resource.getId());
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
 }

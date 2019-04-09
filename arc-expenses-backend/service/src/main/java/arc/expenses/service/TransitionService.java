@@ -134,8 +134,6 @@ public class TransitionService{
             requestPaymentService.delete(requestPayment);
         }
 
-        requestPaymentService.update(requestPayment,requestPayment.getId());
-
         mailService.sendMail("Canceled",request.getPois());
     }
 

@@ -167,7 +167,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
     }
 
-    @PreAuthorize("hasPermission(#requestPayment,'CANCEL')")
+//    @PreAuthorize("hasPermission(#requestPayment,'CANCEL')")
     public void cancel(RequestPayment requestPayment, HttpServletRequest req) throws Exception {
         logger.info("Canceling payment with id " + requestPayment.getId());
         StateMachine<Stages, StageEvents> sm = this.build(requestPayment);
@@ -255,6 +255,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
         AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(RequestPayment.class, requestPayment.getId()));
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(request.getUser().getEmail()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(request.getUser().getEmail()), true);
         if(request.getOnBehalfOf()!=null)
             acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(request.getOnBehalfOf().getEmail()), true);
         if(request.getType() == Request.Type.TRIP) {
