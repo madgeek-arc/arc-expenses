@@ -1,11 +1,10 @@
 package arc.expenses.config.security;
 
 import arc.expenses.config.SAMLAuthenticationToken;
-import arc.expenses.service.UserServiceImpl;
+import arc.expenses.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;

@@ -1,10 +1,10 @@
 package arc.expenses.controller;
 
 import arc.expenses.domain.RequestSummary;
-import arc.expenses.service.PolicyCheckerService;
-import arc.expenses.service.RequestApprovalServiceImpl;
-import arc.expenses.service.RequestPaymentServiceImpl;
-import arc.expenses.service.RequestServiceImpl;
+import arc.expenses.PolicyCheckerService;
+import arc.expenses.RequestApprovalServiceImpl;
+import arc.expenses.RequestPaymentServiceImpl;
+import arc.expenses.RequestServiceImpl;
 import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
@@ -116,29 +116,30 @@ public class RequestController {
     }
 
     @RequestMapping(value = "/store/uploadFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> uploadFile(@RequestParam("archiveID") String archiveID,
+    public ResponseEntity<Object> uploadFile(@RequestParam("id") String id,
+                                             @RequestParam("archiveID") String archiveID,
                                              @RequestParam("stage") String stage,
                                              @RequestParam("mode") String mode,
-                                             @RequestParam("file") MultipartFile file) throws IOException {
-        return requestService.upLoadFile(mode,archiveID,stage,file);
+                                             @RequestParam("files") MultipartFile[] files) throws IOException {
+        return requestService.upLoadFile(id,mode,archiveID,stage,files);
     }
 
     @RequestMapping(value = "/store/download", method = RequestMethod.GET)
     @ResponseBody
-    @PreAuthorize("@annotationChecks.validateDownload(#requestId,#mode,authentication.principal)")
+    @PreAuthorize("@annotationChecks.validateDownload(#id,#mode,authentication.principal)")
     public void downloadFile(@RequestParam("mode") String mode,
-                             @RequestParam("requestId") String requestId,
+                             @RequestParam("id") String id,
                              @RequestParam("stage") String stage,
-                            // @RequestParam("index") String index,
+                             @RequestParam("filename") String filename,
                              HttpServletResponse response) throws IOException, ResourceNotFoundException {
-        Attachment attachment = requestService.getAttachment(mode,requestId,stage);;//.get(Integer.parseInt(index));
+        Attachment attachment = requestService.getAttachment(mode,id,stage,filename);
 
         if(attachment == null)
             throw new ResourceNotFoundException();
 
         response.setContentType(attachment.getMimetype());
         response.setHeader("Content-Disposition", "attachment; filename=\"" + attachment.getFilename() + "\"");
-        IOUtils.copyLarge(requestService.downloadFile(mode,requestId,stage), response.getOutputStream());
+        IOUtils.copyLarge(requestService.downloadFile(attachment), response.getOutputStream());
     }
 
     @RequestMapping(value = "/addRequestApproval", method = RequestMethod.POST,

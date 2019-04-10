@@ -1,7 +1,7 @@
 package arc.expenses.controller;
 
 import arc.expenses.config.SAMLAuthenticationToken;
-import arc.expenses.service.UserServiceImpl;
+import arc.expenses.UserServiceImpl;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.User;
 import io.swagger.annotations.Api;
@@ -39,8 +39,8 @@ public class UserController {
                 user = userService.getByField("user_email",authentication.getEmail());
                 if(user == null){
                     User u = new User();
-                    u.setId(authentication.getEmail());
-                    u.setEmail(authentication.getEmail());
+                    u.setId(authentication.getEmail().toLowerCase());
+                    u.setEmail(authentication.getEmail().toLowerCase());
                     u.setFirstnameLatin(authentication.getFirstname());
                     u.setFirstname("null");
                     u.setLastnameLatin(authentication.getLastname());
@@ -48,7 +48,7 @@ public class UserController {
                     u.setSignatureArchiveId(userService.getSignatureArchiveID());
                     u.setImmediateEmails("false");
                     u.setReceiveEmails("false");
-                    u.setAttachment(null);
+                    u.setAttachments(null);
                     user = userService.add(u,authentication);
                 }
                 body.put("user",user);
@@ -77,9 +77,9 @@ public class UserController {
         return userService.getUsersWithImmediateEmailPreference();
     }
 
-    @RequestMapping(value = "/store/uploadSignatureFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+   /* @RequestMapping(value = "/store/uploadSignatureFile", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> upLoadSignatureFile(@RequestParam("email") String email,
                                              @RequestParam("file") MultipartFile file) throws IOException {
         return userService.upLoadSignatureFile(email,file);
-    }
+    }*/
 }

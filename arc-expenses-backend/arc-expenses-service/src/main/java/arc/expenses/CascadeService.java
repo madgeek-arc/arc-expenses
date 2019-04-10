@@ -1,11 +1,10 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Institute;
 import gr.athenarc.domain.Organization;
 import gr.athenarc.domain.Project;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 

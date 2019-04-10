@@ -1,4 +1,4 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import gr.athenarc.domain.RequestApproval;
 import org.apache.log4j.Logger;

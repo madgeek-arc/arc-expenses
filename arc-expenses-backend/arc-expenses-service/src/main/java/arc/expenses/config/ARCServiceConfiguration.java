@@ -1,10 +1,7 @@
 package arc.expenses.config;
 
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -16,7 +13,8 @@ import javax.xml.bind.JAXBContext;
 @Configuration
 @EnableWebMvc
 @EnableAsync
-@ComponentScan(basePackages = {"eu.openminted.registry.core","arc.expenses.*"})
+@EnableAspectJAutoProxy(proxyTargetClass = true)
+@ComponentScan(basePackages = {"eu.openminted.registry.core","arc.expenses"})
 @PropertySource(value = {"classpath:application.properties", "classpath:registry.properties"})
 public class ARCServiceConfiguration extends WebMvcConfigurerAdapter {
 

@@ -1,4 +1,4 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import arc.expenses.config.StoreRestConfig;
 import eu.openminted.registry.core.domain.Paging;
@@ -140,7 +140,7 @@ public class UserServiceImpl extends GenericService<User> {
         return DS_ARCHIVE;
     }
 
-    public ResponseEntity<Object> upLoadSignatureFile(String email,MultipartFile file) {
+    /*public ResponseEntity<Object> upLoadSignatureFile(String email,MultipartFile file) {
 
         if(Boolean.parseBoolean(storeRESTClient.fileExistsInArchive(DS_ARCHIVE,email).getResponse()))
             storeRESTClient.deleteFile(DS_ARCHIVE,email);
@@ -153,7 +153,7 @@ public class UserServiceImpl extends GenericService<User> {
         }
         return new ResponseEntity<>(DS_ARCHIVE+"/"+email,
                 HttpStatus.OK);
-    }
+    }*/
 
     public boolean exists(String email) throws UnknownHostException {
         return  searchService.searchId(resourceType.getName(),

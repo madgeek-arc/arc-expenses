@@ -1,8 +1,7 @@
 package arc.expenses.controller;
 
 import arc.expenses.domain.Executive;
-import arc.expenses.service.POIServiceImpl;
-import gr.athenarc.domain.PersonOfInterest;
+import arc.expenses.POIServiceImpl;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;

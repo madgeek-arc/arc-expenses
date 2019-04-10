@@ -1,9 +1,9 @@
 package arc.expenses.config.security;
 
-import arc.expenses.service.PolicyCheckerService;
-import arc.expenses.service.RequestApprovalServiceImpl;
-import arc.expenses.service.RequestPaymentServiceImpl;
-import arc.expenses.service.RequestServiceImpl;
+import arc.expenses.PolicyCheckerService;
+import arc.expenses.RequestApprovalServiceImpl;
+import arc.expenses.RequestPaymentServiceImpl;
+import arc.expenses.RequestServiceImpl;
 import eu.openminted.registry.core.domain.Browsing;
 import gr.athenarc.domain.Request;
 import gr.athenarc.domain.RequestApproval;
@@ -11,7 +11,6 @@ import gr.athenarc.domain.RequestPayment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -64,7 +63,7 @@ public class AnnotationChecks {
                 policyCheckerService.isOrganizationDirectorOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isTravelManagerOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isAdmin(request,email.toLowerCase()) ||
-                policyCheckerService.isTravelManagerOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isTraveller(request,email.toLowerCase()) ||
                 policyCheckerService.isInspectionTeamOrDelegate(request,email.toLowerCase());
     }
 
@@ -92,7 +91,7 @@ public class AnnotationChecks {
                 policyCheckerService.isTravelManagerOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isOrganizationDirectorOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isAdmin(request,email.toLowerCase()) ||
-                policyCheckerService.isTravelManagerOrDelegate(request,email.toLowerCase()) ||
+                policyCheckerService.isTraveller(request,email.toLowerCase()) ||
                 policyCheckerService.isOperatorOrDelegate(request,email.toLowerCase()) ||
                 policyCheckerService.isInspectionTeamOrDelegate(request,email.toLowerCase());
     }

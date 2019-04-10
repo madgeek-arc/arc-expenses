@@ -1,9 +1,10 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import arc.expenses.domain.RequestSummary;
 import gr.athenarc.domain.Delegate;
 import gr.athenarc.domain.PersonOfInterest;
 import gr.athenarc.domain.Request;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,9 @@ public class PolicyCheckerService {
 
     @Value("#{'${admin.emails}'.split(',')}")
     private List<String> admins;
+
+    @Autowired
+    ProjectServiceImpl projectService;
 
     public List<Request> searchFilter(List<Request> rs, String email) {
 
@@ -41,8 +45,15 @@ public class PolicyCheckerService {
         if(inspectionTeam!=null){
             for(PersonOfInterest operator:inspectionTeam){
 
+                if(operator.getEmail().equals(email.toLowerCase()) && request.getUser().getEmail().equals(email))
+                    return false;
+
                 if(operator.getEmail().equals(email.toLowerCase()))
                     return true;
+
+                if(request.getType().equals("trip") && request.getTrip().getEmail().equals(email.toLowerCase())
+                       &&  operator.getEmail().equals(email.toLowerCase()))
+                    return false;
 
                 if(isDelegate(operator.getDelegates(),email.toLowerCase()))
                     return true;
@@ -88,7 +99,7 @@ public class PolicyCheckerService {
     }
 
     public boolean isRequestor(Request request, String email) {
-        return request.getUser().getEmail().equals(email.toLowerCase());
+        return request.getUser().getEmail().toLowerCase().equals(email.toLowerCase());
     }
 
     public boolean updateFilter(RequestSummary requestSummary, String email) {
@@ -148,7 +159,10 @@ public class PolicyCheckerService {
     private Boolean isProperPOI(Request request, String email) {
         Boolean value;
         String requester = request.getUser().getEmail();
-        String diataktis = request.getProject().getInstitute().getDiataktis().getEmail();
+//        String diataktis = request.getProject().getInstitute().getDiataktis().getEmail();
+
+        String diataktis = getDiataktisOrScientificCoordinator(request).getEmail();
+
         String traveller = "";
         if(request.getTrip()!=null)
             traveller = request.getTrip().getEmail();
@@ -163,6 +177,26 @@ public class PolicyCheckerService {
             value = isDiataktisOrDelegate(request,email);
 
         return value;
+    }
+
+    public PersonOfInterest getDiataktisOrScientificCoordinator(Request request) {
+
+        if(request.getProject().getScientificCoordinatorAsDiataktis() != null && request.getProject().getScientificCoordinatorAsDiataktis())
+            if(scientificCoordinatorCanApprove(request))
+                return request.getProject().getScientificCoordinator();
+
+        return request.getProject().getInstitute().getDiataktis();
+    }
+
+    private boolean scientificCoordinatorCanApprove(Request request) {
+
+        double approvedRequests = projectService.getApprovedRequestsByScientificCoordinator(request);
+        double projectBudget = Double.parseDouble(request.getProject().getTotalCost());
+
+        if(request.getStage1().getFinalAmount() <= 2500)
+            if(approvedRequests <= 0.25*projectBudget)
+                return true;
+        return false;
     }
 
     public Boolean isViceDirectorOrDelegate(Request request, String email) {
@@ -216,5 +250,11 @@ public class PolicyCheckerService {
         }
         return false;
 
+    }
+
+    public boolean isTraveller(Request request, String email) {
+        if(request.getType().equals("trip"))
+            return request.getTrip().getEmail().equals(email);
+        return false;
     }
 }

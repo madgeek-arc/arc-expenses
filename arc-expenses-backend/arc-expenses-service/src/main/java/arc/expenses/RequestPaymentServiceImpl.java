@@ -1,8 +1,7 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
-import eu.openminted.registry.core.domain.Resource;
 import gr.athenarc.domain.RequestPayment;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +75,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
                 .query("select r.payment_id as maxID\n" +
                         "from payment_view r , resource res\n" +
                         "where fk_name = 'payment' and r.id = res.id and r.request_id = '" + requestId  + "'" +
-                        " order by creation_date desc\n" +
+                        " order by r.creation_date desc\n" +
                         "limit 1;",maxIDRowMapper);
     }
 

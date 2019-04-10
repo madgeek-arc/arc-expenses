@@ -1,7 +1,6 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import arc.expenses.domain.Vocabulary;
-import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
@@ -11,12 +10,9 @@ import gr.athenarc.domain.Organization;
 import gr.athenarc.domain.Project;
 import gr.athenarc.domain.Request;
 import org.apache.log4j.Logger;
-import org.codehaus.groovy.tools.GrapeMain;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -157,4 +153,37 @@ public class ProjectServiceImpl extends GenericService<Project> {
                 "", "ASC");
         return rs.getResults();
     }
+
+    public double getApprovedRequestsByScientificCoordinator(Request request) {
+        String scientificCoordinator = request.getProject().getScientificCoordinator().getEmail();
+        float totalApprovals = getTotalApprovalsAmount(scientificCoordinator,request.getProject().getId());
+        float totalPayments = getTotalPaymentsAmount(scientificCoordinator,request.getProject().getId());
+        return totalApprovals+totalPayments;
+    }
+
+    private float getTotalPaymentsAmount(String scientificCoordinator,String projectId) {
+
+        String query = "select sum(((rs.payload::json)->'stage1'->>'finalAmount')::float) as total\n" +
+                "from request_view r,resource rs\n" +
+                "where r.request_id in ( select request_id from payment_view where stage = '11'  )\n" +
+                "and r.request_project_scientificcoordinator = '" + scientificCoordinator + "'"+
+                "and r.id = rs.id and rs.fk_name = 'request' and cast(rs.payload::json->'project'->'id' as varchar) = '" + projectId + "'";
+
+        return new JdbcTemplate(dataSource).query(query,floatRowMapper).get(0);
+    }
+
+    private float getTotalApprovalsAmount(String scientificCoordinator,String projectId) {
+
+        String query = "select sum(((rs.payload::json)->'stage1'->>'finalAmount')::float) as total\n" +
+                "from request_view r,resource rs\n" +
+                "where r.request_id in ( select request_id from approval_view where stage = '6'\n" +
+                "                        except\n" +
+                "                        select request_id from payment_view where stage = '11'  )\n" +
+                "and r.request_project_scientificcoordinator = '" + scientificCoordinator + "'"+
+                "and r.id = rs.id and rs.fk_name = 'request' and cast(rs.payload::json->'project'->'id' as varchar) = '" + projectId + "'";
+
+        return new JdbcTemplate(dataSource).query(query,floatRowMapper).get(0);
+    }
+
+    private RowMapper<Float> floatRowMapper = (rs, i) -> (rs.getFloat("total"));
 }

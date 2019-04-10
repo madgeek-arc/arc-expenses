@@ -2,7 +2,7 @@ package arc.expenses.messages;
 
 import arc.expenses.RequestWrapper;
 import arc.expenses.mail.EmailMessage;
-import arc.expenses.service.RequestServiceImpl;
+import arc.expenses.RequestServiceImpl;
 import gr.athenarc.domain.BaseInfo;
 import gr.athenarc.domain.PersonOfInterest;
 import gr.athenarc.domain.Request;

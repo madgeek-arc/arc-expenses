@@ -2,7 +2,7 @@
 package unitest;
 
 import arc.expenses.config.ARCServiceConfiguration;
-import arc.expenses.service.RequestServiceImpl;
+import RequestServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

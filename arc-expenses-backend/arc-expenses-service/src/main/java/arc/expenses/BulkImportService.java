@@ -1,4 +1,4 @@
-package arc.expenses.service;
+package arc.expenses;
 
 import au.com.bytecode.opencsv.CSVReader;
 import gr.athenarc.domain.*;
