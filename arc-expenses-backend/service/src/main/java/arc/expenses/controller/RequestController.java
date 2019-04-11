@@ -134,6 +134,23 @@ public class RequestController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @ApiOperation("Downgrade request approval")
+    @RequestMapping(value = "/edit/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity edit(
+            @PathVariable("requestId") String requestId,
+            HttpServletRequest req
+    ) throws Exception {
+        RequestApproval requestApproval = requestApprovalService.getApproval(requestId);
+        if(requestApproval==null)
+            throw new ServiceException("Request approval not found");
+        try {
+            requestApprovalService.edit(requestApproval,req);
+        }catch (Exception ex){
+            throw new ServiceException(ex.getMessage());
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @ApiOperation("Cancel request approval")
     @RequestMapping(value = "/cancel/{requestId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity cancel(

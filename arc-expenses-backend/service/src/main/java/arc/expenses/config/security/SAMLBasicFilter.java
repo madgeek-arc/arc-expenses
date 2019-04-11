@@ -5,7 +5,6 @@ import arc.expenses.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
@@ -47,11 +46,15 @@ public class SAMLBasicFilter extends GenericFilterBean{
         if(SecurityContextHolder.getContext().getAuthentication() == null){
 
             Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-            grantedAuthorities.addAll(userService.getRole(request.getHeader("AJP_email")));
+
+            String email = request.getHeader("AJP_email").toLowerCase();
+            String uid = request.getHeader("AJP_uid").toLowerCase();
+
+            grantedAuthorities.addAll(userService.getRole(email));
 
             SAMLAuthenticationToken samlAuthentication = new SAMLAuthenticationToken(request.getHeader("AJP_firstname"),
-                    request.getHeader("AJP_lastname"),request.getHeader("AJP_email"),
-                    request.getHeader("AJP_uid"), grantedAuthorities);
+                    request.getHeader("AJP_lastname"),email,
+                    uid, grantedAuthorities);
 
             SecurityContextHolder.getContext().setAuthentication(samlAuthentication);
 
@@ -60,7 +63,7 @@ public class SAMLBasicFilter extends GenericFilterBean{
         if(!debug_idp && !request.getHeader("AJP_eppn").equals(""))
             sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_eppn"));
         else if(debug_idp && !request.getHeader("AJP_uid").equals(""))
-            sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_uid"));
+            sessionCookie = new Cookie("arc_currentUser", request.getHeader("AJP_uid").toLowerCase() );
         else {
             response.sendRedirect(redirect_error_url);
             return ;

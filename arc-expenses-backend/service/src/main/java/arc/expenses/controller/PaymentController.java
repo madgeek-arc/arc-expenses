@@ -120,12 +120,12 @@ public class PaymentController {
 
         Request request = requestService.get(requestPayment.getRequestId());
         try {
-            requestPaymentService.cancel(requestPayment, req);
+            return new ResponseEntity<>("{\"id\":\""+requestPaymentService.cancel(requestPayment, req)+"\"}",HttpStatus.OK);
         }catch (Exception ex){
             ex.printStackTrace();
             throw new ServiceException(ex.getMessage());
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 
     @ApiOperation("Add payment")

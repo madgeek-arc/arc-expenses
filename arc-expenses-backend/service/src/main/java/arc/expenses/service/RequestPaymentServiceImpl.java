@@ -167,8 +167,8 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
     }
 
-//    @PreAuthorize("hasPermission(#requestPayment,'CANCEL')")
-    public void cancel(RequestPayment requestPayment, HttpServletRequest req) throws Exception {
+    @PreAuthorize("hasPermission(#requestPayment,'CANCEL')")
+    public String cancel(RequestPayment requestPayment, HttpServletRequest req) throws Exception {
         logger.info("Canceling payment with id " + requestPayment.getId());
         StateMachine<Stages, StageEvents> sm = this.build(requestPayment);
         Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.CANCEL)
@@ -181,6 +181,11 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
             throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
 
         sm.stop();
+        Browsing<RequestPayment> payments = getPayments(requestPayment.getRequestId(), null);
+        if(payments.getTotal()>0)
+            return payments.getResults().get(0).getId();
+        else
+            return "";
     }
 
 

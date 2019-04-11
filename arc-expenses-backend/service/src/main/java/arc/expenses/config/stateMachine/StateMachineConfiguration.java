@@ -130,6 +130,22 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     }
                 })
                 .and()
+            .withExternal()
+                .source(Stages.Stage2)
+                .target(Stages.Stage2)
+                .event(StageEvents.EDIT)
+                .guard(stateContext -> transitionService.checkContains(stateContext, Stage1.class))
+                .action(context -> {
+                    RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                    try {
+                        transitionService.editApproval(context, requestApproval.getStage1());
+                    } catch (Exception e) {
+                        logger.error("Error occurred on downgrading approval of request " + requestApproval.getId(),e);
+                        context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                        throw new ServiceException(e.getMessage());
+                    }
+                })
+                .and()
                 .withExternal()
                 .source(Stages.Stage2)
                 .target(Stages.Stage1)
@@ -202,9 +218,10 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .target(Stages.Stage2)
                     .event(StageEvents.DOWNGRADE)
                     .action(context -> {
-                        Stage2 stage2 = new Stage2(true,true,false);
-                        stage2.setDate(new Date().toInstant().toEpochMilli());
-                        transitionService.downgradeApproval(context,"3","2",stage2);
+                        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                        Stage3 stage3 = Optional.ofNullable(requestApproval.getStage3()).orElse(new Stage3());
+                        stage3.setDate(new Date().toInstant().toEpochMilli());
+                        transitionService.downgradeApproval(context,"3","2",stage3);
                     })
                     .and()
                 .withExternal()
@@ -251,6 +268,22 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         }
                     })
                     .and()
+                    .withExternal()
+                    .source(Stages.Stage3)
+                    .target(Stages.Stage3)
+                    .event(StageEvents.EDIT)
+                    .guard(stateContext -> transitionService.checkContains(stateContext, Stage2.class))
+                    .action(context -> {
+                        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                        try {
+                            transitionService.editApproval(context, requestApproval.getStage2());
+                        } catch (Exception e) {
+                            logger.error("Error occurred on downgrading approval of request " + requestApproval.getId(),e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                    .and()
                 .withExternal()
                     .source(Stages.Stage3)
                     .target(Stages.REJECTED)
@@ -268,6 +301,24 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         }
                     })
                     .and()
+                    .withExternal()
+                    .and()
+                    .withExternal()
+                    .source(Stages.Stage4)
+                    .target(Stages.Stage4)
+                    .event(StageEvents.EDIT)
+                    .guard(stateContext -> transitionService.checkContains(stateContext, Stage3.class))
+                    .action(context -> {
+                        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                        try {
+                            transitionService.editApproval(context, requestApproval.getStage3());
+                        } catch (Exception e) {
+                            logger.error("Error occurred on downgrading approval of request " + requestApproval.getId(),e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                    .and()
                 .withExternal()
                     .source(Stages.Stage4)
                     .target(Stages.Stage3)
@@ -275,9 +326,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .action(context -> {
                         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
                         try {
-                            Stage3 stage3 = Optional.ofNullable(requestApproval.getStage3()).orElse(new Stage3());
-                            stage3.setApproved(false);
-                            transitionService.downgradeApproval(context,"4","3",stage3);
+                            Stage4 stage4 = Optional.ofNullable(requestApproval.getStage4()).orElse(new Stage4());
+                            stage4.setApproved(false);
+                            transitionService.downgradeApproval(context,"4","3",stage4);
                         } catch (Exception e) {
                             logger.error("Error occurred on downgrading approval of request " + requestApproval.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -317,6 +368,24 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         }
                     })
                     .and()
+                    .withExternal()
+                    .and()
+                    .withExternal()
+                    .source(Stages.Stage5)
+                    .target(Stages.Stage5)
+                    .event(StageEvents.EDIT)
+                    .guard(stateContext -> transitionService.checkContains(stateContext, Stage4.class))
+                    .action(context -> {
+                        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                        try {
+                            transitionService.editApproval(context, requestApproval.getStage4());
+                        } catch (Exception e) {
+                            logger.error("Error occurred on downgrading approval of request " + requestApproval.getId(),e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                    .and()
                 .withExternal()
                     .source(Stages.Stage4)
                     .target(Stages.REJECTED)
@@ -341,9 +410,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .action(context -> {
                         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
                         try {
-                            Stage4 stage4 = Optional.ofNullable(requestApproval.getStage4()).orElse(new Stage4());
-                            stage4.setApproved(false);
-                            transitionService.downgradeApproval(context,"5a","4",stage4);
+                            Stage5a stage5a = Optional.ofNullable(requestApproval.getStage5a()).orElse(new Stage5a());
+                            stage5a.setApproved(false);
+                            transitionService.downgradeApproval(context,"5a","4",stage5a);
                         } catch (Exception e) {
                             logger.error("Error occurred on downgradeApproval of request " + requestApproval.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -452,6 +521,22 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         }
                     })
                     .and()
+                    .withExternal()
+                    .source(Stages.Stage5b)
+                    .target(Stages.Stage5b)
+                    .event(StageEvents.EDIT)
+                    .guard(stateContext -> transitionService.checkContains(stateContext, Stage5a.class))
+                    .action(context -> {
+                        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                        try {
+                            transitionService.editApproval(context, requestApproval.getStage5a());
+                        } catch (Exception e) {
+                            logger.error("Error occurred on downgrading approval of request " + requestApproval.getId(),e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                    .and()
                 .withExternal()
                     .source(Stages.Stage5b)
                     .target(Stages.CANCELLED)
@@ -517,9 +602,8 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     }, context -> {
                         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
                         try {
-                            Stage5b stage5b = Optional.ofNullable(requestApproval.getStage5b()).orElse(new Stage5b());
-                            stage5b.setApproved(false);
-                            transitionService.downgradeApproval(context,"6","5b",stage5b);
+                            Stage6 stage6 = Optional.ofNullable(requestApproval.getStage6()).orElse(new Stage6());
+                            transitionService.downgradeApproval(context,"6","5b",stage6);
                         } catch (Exception e) {
                             logger.error("Error occurred on downgrading approval of request " + requestApproval.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -529,11 +613,36 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .last(Stages.Stage5, context -> {
                         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
                         try {
-                            Stage5a stage5a = Optional.ofNullable(requestApproval.getStage5a()).orElse(new Stage5a());
-                            stage5a.setApproved(false);
-                            transitionService.downgradeApproval(context,"6","5a",stage5a);
+                            Stage6 stage6 = Optional.ofNullable(requestApproval.getStage6()).orElse(new Stage6());
+                            transitionService.downgradeApproval(context,"6","5a",stage6);
                         } catch (Exception e) {
                             logger.error("Error occurred on downgradeApproval of request " + requestApproval.getId(),e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                    .and()
+                    .withExternal()
+                    .source(Stages.Stage6)
+                    .target(Stages.Stage6)
+                    .event(StageEvents.EDIT)
+                    .guard(stateContext -> {
+                        RequestApproval requestApproval = stateContext.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                        if(requestApproval.getStage5b()!=null)
+                            return transitionService.checkContains(stateContext, Stage5b.class);
+                        else{
+                            return transitionService.checkContains(stateContext, Stage5a.class);
+                        }
+                    })
+                    .action(context -> {
+                        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                        try {
+                            if(requestApproval.getStage5b()!=null)
+                                transitionService.editApproval(context, requestApproval.getStage5b());
+                            else
+                                transitionService.editApproval(context, requestApproval.getStage5a());
+                        } catch (Exception e) {
+                            logger.error("Error occurred on downgrading approval of request " + requestApproval.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
                             throw new ServiceException(e.getMessage());
                         }
@@ -566,7 +675,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
                         Request request = requestService.get(requestApproval.getRequestId());
                         try {
-                            transitionService.modifyRequestApproval(context, new Stage13(), "6", BaseInfo.Status.ACCEPTED);
+                            transitionService.modifyRequestApproval(context, new Stage6(), "6", BaseInfo.Status.ACCEPTED);
                         } catch (Exception e) {
                             logger.error("Error occurred on downgradeApproval of request " + request.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -603,6 +712,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
                             throw new ServiceException(e.getMessage());
                         }
+
                     })
                     .and()
                 .withExternal()

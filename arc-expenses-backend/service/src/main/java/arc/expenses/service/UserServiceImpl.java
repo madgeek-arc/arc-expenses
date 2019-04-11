@@ -156,6 +156,6 @@ public class UserServiceImpl extends GenericService<User> {
 
     @Override
     public void delete(User user) throws ResourceNotFoundException {
-        
+
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,6 +63,18 @@ public class TransitionService{
     @Autowired
     private RequestPaymentServiceImpl requestPaymentService;
 
+    public boolean checkContains(HttpServletRequest request, Class stageClass){
+        List<String> requiredFields = Arrays.stream(stageClass.getDeclaredFields()).filter(p -> p.isAnnotationPresent(NotNull.class)).flatMap(p -> Stream.of(p.getName())).collect(Collectors.toList());
+        Map<String, String[]> parameters = request.getParameterMap();
+        for(String field: requiredFields){
+            if(!parameters.containsKey(field)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 
     public boolean checkContains(StateContext<Stages, StageEvents> context, Class stageClass){
 
@@ -85,6 +98,42 @@ public class TransitionService{
         }
 
         return true;
+    }
+
+    public void editApproval(StateContext<Stages, StageEvents> context, Stage stage) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ResourceNotFoundException, InstantiationException {
+
+        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+        HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
+
+        Map<String, Class> keyValuePair = new HashMap<>();
+        Arrays.stream(stage.getClass().getDeclaredFields()).forEach(p -> {
+            keyValuePair.put(p.getName(),p.getType());
+        });
+        Map<String, String[]> parameters = req.getParameterMap();
+        for(Map.Entry<String, Class> entry: keyValuePair.entrySet()){
+            String field = entry.getKey();
+            if(parameters.containsKey(field)) {
+                    String upperCaseField = field.substring(0, 1).toUpperCase() + field.substring(1);
+                    stage.getClass().getMethod("set"+upperCaseField, entry.getValue()).invoke(stage, entry.getValue().getConstructor(String.class).newInstance(req.getParameter(field)));
+            }
+        }
+        if(stage instanceof Stage1)
+            requestApproval.setStage1((Stage1) stage);
+        else if(stage instanceof Stage2)
+            requestApproval.setStage2((Stage2) stage);
+        else if(stage instanceof Stage3)
+            requestApproval.setStage3((Stage3) stage);
+        else if(stage instanceof Stage4)
+            requestApproval.setStage4((Stage4) stage);
+        else if(stage instanceof Stage5a)
+            requestApproval.setStage5a((Stage5a) stage);
+        else if(stage instanceof Stage5b)
+            requestApproval.setStage5b((Stage5b) stage);
+        else if(stage instanceof Stage6)
+            requestApproval.setStage6((Stage6) stage);
+
+        requestApprovalService.update(requestApproval,requestApproval.getId());
+
     }
 
     public void cancelRequestApproval(
@@ -116,21 +165,32 @@ public class TransitionService{
 
         Browsing<RequestPayment> payments = requestPaymentService.getPayments(request.getId(),null);
         requestPayment.setStage(stage+"");
-        requestPayment.setStatus(BaseInfo.Status.CANCELLED);
         if(payments.getTotal()<=1) {
             boolean wholeRequest = Boolean.parseBoolean(Optional.ofNullable(req.getParameter("cancel_request")).orElse("false"));
             if (wholeRequest) {
                 request.setRequestStatus(Request.RequestStatus.CANCELLED);
+
                 RequestApproval requestApproval = requestApprovalService.getApproval(request.getId());
                 requestApproval.setCurrentStage(Stages.CANCELLED.name());
                 requestApproval.setStatus(BaseInfo.Status.CANCELLED);
+
+                requestPayment.setStatus(BaseInfo.Status.CANCELLED);
+                requestPayment.setCurrentStage(Stages.CANCELLED.name());
+
                 requestApprovalService.update(requestApproval, requestApproval.getId());
+                requestPaymentService.update(requestPayment,requestPayment.getId());
                 requestService.update(request, request.getId());
             }else{
-                requestPaymentService.delete(requestPayment);
                 requestPaymentService.createPayment(request);
+                requestPaymentService.delete(requestPayment);
             }
         }else{
+            request.setRequestStatus(Request.RequestStatus.CANCELLED);
+            RequestApproval requestApproval = requestApprovalService.getApproval(request.getId());
+            requestApproval.setCurrentStage(Stages.CANCELLED.name());
+            requestApproval.setStatus(BaseInfo.Status.CANCELLED);
+            requestApprovalService.update(requestApproval, requestApproval.getId());
+            requestService.update(request, request.getId());
             requestPaymentService.delete(requestPayment);
         }
 

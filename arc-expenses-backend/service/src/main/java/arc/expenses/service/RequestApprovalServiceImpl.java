@@ -45,6 +45,9 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
     private InstituteServiceImpl instituteService;
 
     @Autowired
+    private TransitionService transitionService;
+
+    @Autowired
     private DataSource dataSource;
 
     @Autowired
@@ -186,6 +189,22 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         if(sm.hasStateMachineError())
             throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
         sm.stop();
+    }
+
+    @PreAuthorize("hasPermission(#requestApproval,'WRITE')")
+    public void edit(RequestApproval requestApproval, HttpServletRequest req) {
+        logger.info("Editing request approval with id " + requestApproval.getId());
+        StateMachine<Stages, StageEvents> sm = this.build(requestApproval);
+        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.EDIT)
+                .setHeader("requestApprovalObj", requestApproval)
+                .setHeader("restRequest", req)
+                .build();
+
+        sm.sendEvent(eventsMessage);
+        if(sm.hasStateMachineError())
+            throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
+        sm.stop();
+
     }
 
 
