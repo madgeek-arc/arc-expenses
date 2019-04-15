@@ -1,6 +1,7 @@
 package arc.expenses.service;
 
 
+import arc.expenses.acl.ArcPermission;
 import arc.expenses.domain.StageEvents;
 import arc.expenses.domain.Stages;
 import eu.openminted.registry.core.domain.Browsing;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -100,7 +102,7 @@ public class TransitionService{
         return true;
     }
 
-    public void editApproval(StateContext<Stages, StageEvents> context, Stage stage) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ResourceNotFoundException, InstantiationException {
+    public void editApproval(StateContext<Stages, StageEvents> context, Stage stage, String stageString) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ResourceNotFoundException, InstantiationException, IOException {
 
         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
@@ -114,9 +116,27 @@ public class TransitionService{
             String field = entry.getKey();
             if(parameters.containsKey(field)) {
                     String upperCaseField = field.substring(0, 1).toUpperCase() + field.substring(1);
-                    stage.getClass().getMethod("set"+upperCaseField, entry.getValue()).invoke(stage, entry.getValue().getConstructor(String.class).newInstance(req.getParameter(field)));
+                    if(entry.getValue().isEnum())
+                        stage.getClass().getMethod("set"+upperCaseField, entry.getValue()).invoke(stage, entry.getValue().getMethod("fromValue",String.class).invoke(entry.getValue(),req.getParameter(field)));
+                    else
+                        stage.getClass().getMethod("set"+upperCaseField, entry.getValue()).invoke(stage, entry.getValue().getConstructor(String.class).newInstance(req.getParameter(field)));
+
+
+                    if(field.equals("amountInEuros")){
+                        stage.getClass().getMethod("setFinalAmount", entry.getValue()).invoke(stage, entry.getValue().getConstructor(String.class).newInstance(req.getParameter(field)));
+                    }
             }
         }
+
+        MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
+        Request request = requestService.get(requestApproval.getRequestId());
+        List<Attachment> attachments = Optional.ofNullable(stage.getAttachments()).orElse(new ArrayList<>());
+        for(MultipartFile file : multiPartRequest.getFiles("attachments")){
+            storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/stage"+stageString, file.getOriginalFilename());
+            attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
+        }
+        stage.setAttachments(attachments);
+
         if(stage instanceof Stage1)
             requestApproval.setStage1((Stage1) stage);
         else if(stage instanceof Stage2)
@@ -133,6 +153,60 @@ public class TransitionService{
             requestApproval.setStage6((Stage6) stage);
 
         requestApprovalService.update(requestApproval,requestApproval.getId());
+
+    }
+
+    public void editPayment(StateContext<Stages, StageEvents> context, Stage stage, String stageString) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException, IOException, ResourceNotFoundException {
+
+        RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+        HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
+
+        Map<String, Class> keyValuePair = new HashMap<>();
+        Arrays.stream(stage.getClass().getDeclaredFields()).forEach(p -> {
+            keyValuePair.put(p.getName(),p.getType());
+        });
+        Map<String, String[]> parameters = req.getParameterMap();
+        for(Map.Entry<String, Class> entry: keyValuePair.entrySet()){
+            String field = entry.getKey();
+            if(parameters.containsKey(field)) {
+                String upperCaseField = field.substring(0, 1).toUpperCase() + field.substring(1);
+                if(entry.getValue().isEnum())
+                    stage.getClass().getMethod("set"+upperCaseField, entry.getValue()).invoke(stage, entry.getValue().getMethod("fromValue",String.class).invoke(entry.getValue(),req.getParameter(field)));
+                else
+                    stage.getClass().getMethod("set"+upperCaseField, entry.getValue()).invoke(stage, entry.getValue().getConstructor(String.class).newInstance(req.getParameter(field)));
+
+
+                if(field.equals("amountInEuros")){
+                    stage.getClass().getMethod("setFinalAmount", entry.getValue()).invoke(stage, entry.getValue().getConstructor(String.class).newInstance(req.getParameter(field)));
+                }
+            }
+        }
+
+        MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
+        Request request = requestService.get(requestPayment.getRequestId());
+        List<Attachment> attachments = Optional.ofNullable(stage.getAttachments()).orElse(new ArrayList<>());
+        for(MultipartFile file : multiPartRequest.getFiles("attachments")){
+            storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/stage"+stageString, file.getOriginalFilename());
+            attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
+        }
+        stage.setAttachments(attachments);
+
+        if(stage instanceof Stage7)
+            requestPayment.setStage7((Stage7) stage);
+        else if(stage instanceof Stage8)
+            requestPayment.setStage8((Stage8) stage);
+        else if(stage instanceof Stage9)
+            requestPayment.setStage9((Stage9) stage);
+        else if(stage instanceof Stage10)
+            requestPayment.setStage10((Stage10) stage);
+        else if(stage instanceof Stage11)
+            requestPayment.setStage11((Stage11) stage);
+        else if(stage instanceof Stage12)
+            requestPayment.setStage12((Stage12) stage);
+        else if(stage instanceof Stage13)
+            requestPayment.setStage13((Stage13) stage);
+
+        requestPaymentService.update(requestPayment,requestPayment.getId());
 
     }
 
@@ -413,7 +487,8 @@ public class TransitionService{
     }
 
     public void updatingPermissions(String from, String to, Request request, String mailType, Class persistentClass, String id){
-        List<Sid> revokeAccess = new ArrayList<>();
+        List<Sid> revokeEditAccess = new ArrayList<>();
+        List<Sid> revokeWriteAccess = new ArrayList<>();
         List<Sid> grantAccess = new ArrayList<>();
         Project project = projectService.get(request.getProjectId());
         Institute institute = instituteService.get(project.getInstituteId());
@@ -421,74 +496,131 @@ public class TransitionService{
 
         switch (from){
             case "1":
-                revokeAccess.add(new PrincipalSid(request.getUser().getEmail()));
+                revokeEditAccess.add(new PrincipalSid(request.getUser().getEmail()));
                 break;
             case "2":
-                revokeAccess.add(new PrincipalSid(project.getScientificCoordinator().getEmail()));
-                project.getScientificCoordinator().getDelegates().forEach(person -> revokeAccess.add(new PrincipalSid(person.getEmail())));
+
+                revokeWriteAccess.add(new PrincipalSid(request.getUser().getEmail()));
+
+                revokeEditAccess.add(new PrincipalSid(project.getScientificCoordinator().getEmail()));
+                project.getScientificCoordinator().getDelegates().forEach(person -> revokeEditAccess.add(new PrincipalSid(person.getEmail())));
                 break;
             case "3":
+
+                revokeWriteAccess.add(new PrincipalSid(project.getScientificCoordinator().getEmail()));
+                project.getScientificCoordinator().getDelegates().forEach(person -> revokeWriteAccess.add(new PrincipalSid(person.getEmail())));
+
                 project.getOperator().forEach(entry -> {
-                    revokeAccess.add(new PrincipalSid(entry.getEmail()));
+                    revokeEditAccess.add(new PrincipalSid(entry.getEmail()));
                     entry.getDelegates().forEach(person -> {
-                        revokeAccess.add(new PrincipalSid(person.getEmail()));
+                        revokeEditAccess.add(new PrincipalSid(person.getEmail()));
                     });
                 });
                 break;
             case "9":
             case "4":
-                revokeAccess.add(new PrincipalSid(organization.getPoy().getEmail()));
+                project.getOperator().forEach(entry -> {
+                    revokeWriteAccess.add(new PrincipalSid(entry.getEmail()));
+                    entry.getDelegates().forEach(person -> {
+                        revokeWriteAccess.add(new PrincipalSid(person.getEmail()));
+                    });
+                });
+
+                revokeEditAccess.add(new PrincipalSid(organization.getPoy().getEmail()));
                 organization.getPoy().getDelegates().forEach(delegate -> {
-                    revokeAccess.add(new PrincipalSid(delegate.getEmail()));
+                    revokeEditAccess.add(new PrincipalSid(delegate.getEmail()));
                 });
                 break;
             case "10":
             case "5a":
-                revokeAccess.add(new PrincipalSid(request.getDiataktis().getEmail()));
+                revokeWriteAccess.add(new PrincipalSid(organization.getPoy().getEmail()));
+                organization.getPoy().getDelegates().forEach(delegate -> {
+                    revokeWriteAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+
+
+                revokeEditAccess.add(new PrincipalSid(request.getDiataktis().getEmail()));
                 request.getDiataktis().getDelegates().forEach( delegate -> {
-                    revokeAccess.add(new PrincipalSid(delegate.getEmail()));
+                    revokeEditAccess.add(new PrincipalSid(delegate.getEmail()));
                 });
                 break;
             case "5b":
-                revokeAccess.add(new PrincipalSid(organization.getDioikitikoSumvoulio().getEmail()));
-                organization.getDioikitikoSumvoulio().getDelegates().forEach(delegate -> revokeAccess.add(new PrincipalSid(delegate.getEmail())));
+                revokeWriteAccess.add(new PrincipalSid(request.getDiataktis().getEmail()));
+                request.getDiataktis().getDelegates().forEach( delegate -> {
+                    revokeWriteAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+
+                revokeEditAccess.add(new PrincipalSid(organization.getDioikitikoSumvoulio().getEmail()));
+                organization.getDioikitikoSumvoulio().getDelegates().forEach(delegate -> revokeEditAccess.add(new PrincipalSid(delegate.getEmail())));
                 break;
             case "11":
             case "6":
-                revokeAccess.add(new PrincipalSid(institute.getDiaugeia().getEmail()));
-                institute.getDiaugeia().getDelegates().forEach(delegate -> revokeAccess.add(new PrincipalSid(delegate.getEmail())));
+                revokeWriteAccess.add(new PrincipalSid(organization.getDioikitikoSumvoulio().getEmail()));
+                organization.getDioikitikoSumvoulio().getDelegates().forEach(delegate -> revokeWriteAccess.add(new PrincipalSid(delegate.getEmail())));
+
+                revokeEditAccess.add(new PrincipalSid(institute.getDiaugeia().getEmail()));
+                institute.getDiaugeia().getDelegates().forEach(delegate -> revokeEditAccess.add(new PrincipalSid(delegate.getEmail())));
                 break;
             case "7":
+                revokeWriteAccess.add(new PrincipalSid(institute.getDiaugeia().getEmail()));
+                institute.getDiaugeia().getDelegates().forEach(delegate -> revokeWriteAccess.add(new PrincipalSid(delegate.getEmail())));
+
                 if(request.getType() == Request.Type.TRIP) {
-                    revokeAccess.add(new PrincipalSid(institute.getTravelManager().getEmail()));
+                    revokeEditAccess.add(new PrincipalSid(institute.getTravelManager().getEmail()));
                     institute.getTravelManager().getDelegates().forEach(delegate -> {
-                        revokeAccess.add(new PrincipalSid(delegate.getEmail()));
+                        revokeEditAccess.add(new PrincipalSid(delegate.getEmail()));
                     });
                 }else{
-                    revokeAccess.add(new PrincipalSid(institute.getSuppliesOffice().getEmail()));
+                    revokeEditAccess.add(new PrincipalSid(institute.getSuppliesOffice().getEmail()));
                     institute.getSuppliesOffice().getDelegates().forEach(delegate -> {
-                        revokeAccess.add(new PrincipalSid(delegate.getEmail()));
+                        revokeEditAccess.add(new PrincipalSid(delegate.getEmail()));
                     });
                 }
                 break;
             case "8":
+                if(request.getType() == Request.Type.TRIP) {
+                    revokeWriteAccess.add(new PrincipalSid(institute.getTravelManager().getEmail()));
+                    institute.getTravelManager().getDelegates().forEach(delegate -> {
+                        revokeWriteAccess.add(new PrincipalSid(delegate.getEmail()));
+                    });
+                }else{
+                    revokeWriteAccess.add(new PrincipalSid(institute.getSuppliesOffice().getEmail()));
+                    institute.getSuppliesOffice().getDelegates().forEach(delegate -> {
+                        revokeWriteAccess.add(new PrincipalSid(delegate.getEmail()));
+                    });
+                }
+
+
                 organization.getInspectionTeam().forEach(inspector -> {
-                    revokeAccess.add(new PrincipalSid(inspector.getEmail()));
+                    revokeEditAccess.add(new PrincipalSid(inspector.getEmail()));
                     inspector.getDelegates().forEach(delegate -> {
-                        revokeAccess.add(new PrincipalSid(delegate.getEmail()));
+                        revokeEditAccess.add(new PrincipalSid(delegate.getEmail()));
                     });
                 });
                 break;
             case "12":
-                revokeAccess.add(new PrincipalSid(institute.getAccountingRegistration().getEmail()));
+                organization.getInspectionTeam().forEach(inspector -> {
+                    revokeWriteAccess.add(new PrincipalSid(inspector.getEmail()));
+                    inspector.getDelegates().forEach(delegate -> {
+                        revokeWriteAccess.add(new PrincipalSid(delegate.getEmail()));
+                    });
+                });
+
+
+                revokeEditAccess.add(new PrincipalSid(institute.getAccountingRegistration().getEmail()));
                 institute.getAccountingRegistration().getDelegates().forEach(delegate -> {
-                    revokeAccess.add(new PrincipalSid(delegate.getEmail()));
+                    revokeEditAccess.add(new PrincipalSid(delegate.getEmail()));
                 });
                 break;
             case "13":
-                revokeAccess.add(new PrincipalSid(institute.getAccountingPayment().getEmail()));
+                revokeWriteAccess.add(new PrincipalSid(institute.getAccountingRegistration().getEmail()));
+                institute.getAccountingRegistration().getDelegates().forEach(delegate -> {
+                    revokeWriteAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+
+                revokeEditAccess.add(new PrincipalSid(institute.getAccountingPayment().getEmail()));
                 institute.getAccountingPayment().getDelegates().forEach(delegate -> {
-                    revokeAccess.add(new PrincipalSid(delegate.getEmail()));
+                    revokeEditAccess.add(new PrincipalSid(delegate.getEmail()));
                 });
                 break;
             default:
@@ -577,7 +709,8 @@ public class TransitionService{
                 break;
         }
 
-        aclService.updateAclEntries(revokeAccess,grantAccess,id, persistentClass);
+        aclService.updateAclEntries(revokeEditAccess,grantAccess,id, persistentClass);
+        aclService.removePermissionFromSid(Collections.singletonList(ArcPermission.WRITE),revokeWriteAccess,id, persistentClass);
         if(!mailType.isEmpty())
             mailService.sendMail(mailType, grantAccess.stream().map(entry -> ((PrincipalSid) entry).getPrincipal()).collect(Collectors.toList()));
 

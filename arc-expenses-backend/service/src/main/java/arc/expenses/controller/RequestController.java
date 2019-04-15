@@ -146,6 +146,7 @@ public class RequestController {
         try {
             requestApprovalService.edit(requestApproval,req);
         }catch (Exception ex){
+            ex.printStackTrace();
             throw new ServiceException(ex.getMessage());
         }
         return new ResponseEntity<>(HttpStatus.OK);
@@ -166,29 +167,30 @@ public class RequestController {
     @ApiOperation("Add request")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "projectId", value = "Id of project of request", required = true, dataType = "string", paramType = "form"),
-            @ApiImplicitParam(name = "requester_position", value = "The position of requester", required = true, dataType = "string", paramType = "form"),
+            @ApiImplicitParam(name = "requesterPosition", value = "The position of requester", required = true, dataType = "string", paramType = "form"),
             @ApiImplicitParam(name = "subject", value = "Subject of request", required = true, dataType = "string", paramType = "form"),
             @ApiImplicitParam(name = "type", value = "Request's type", required = true, dataType = "string", paramType = "form"),
             @ApiImplicitParam(name = "supplier", value = "Who is the supplier of the request", dataType = "string", paramType = "form"),
-            @ApiImplicitParam(name = "supplier_selection_method", value = "The method of supply", dataType = "string", paramType = "form"),
-            @ApiImplicitParam(name = "amount", value = "Money of request", required = true, dataType = "double", paramType = "form"),
+            @ApiImplicitParam(name = "supplierSelectionMethod", value = "The method of supply", dataType = "string", paramType = "form"),
+            @ApiImplicitParam(name = "amountInEuros", value = "Money of request", required = true, dataType = "double", paramType = "form"),
             @ApiImplicitParam(name = "attachments", value = "Attachments about request", dataType = "file", paramType = "form"),
             @ApiImplicitParam(name = "destination", value = "Destination for trip (if such request)", dataType = "string", paramType = "form"),
             @ApiImplicitParam(name = "firstName", value = "First name of the yoloman (if such request)", dataType = "string", paramType = "form"),
             @ApiImplicitParam(name = "lastName", value = "Last name of the yoloman (if such request)", dataType = "string", paramType = "form"),
+            @ApiImplicitParam(name = "paymentCycles", value = "Cycles of payment if contract", dataType = "string", paramType = "form"),
             @ApiImplicitParam(name = "email", value = "Email of the yoloman (if such request)", dataType = "string", paramType = "form")
     })
     @RequestMapping(value = "/add", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public Request addRequest(
             @RequestParam(value = "projectId") String projectId,
             @RequestParam(value = "onBehalf", required = false, defaultValue = "false") boolean onBehalf,
-            @RequestParam(value = "requester_position") Request.RequesterPosition requesterPosition,
+            @RequestParam(value = "requesterPosition") Request.RequesterPosition requesterPosition,
             @RequestParam(value = "subject") String subject,
             @RequestParam(value = "type") Request.Type type,
             @RequestParam(value = "supplier", required = false, defaultValue = "") String supplier,
-            @RequestParam(value = "supplier_selection_method", required = false, defaultValue = "") Stage1.SupplierSelectionMethod supplierSelectionMethod,
-            @RequestParam(value = "amount") double amount,
-            @RequestParam(value = "cycles", required = false, defaultValue = "0") int cycles,
+            @RequestParam(value = "supplierSelectionMethod", required = false, defaultValue = "") Stage1.SupplierSelectionMethod supplierSelectionMethod,
+            @RequestParam(value = "amountInEuros") double amount,
+            @RequestParam(value = "paymentCycles", required = false, defaultValue = "0") int cycles,
             @RequestParam(value = "attachments") Optional<List<MultipartFile>> files,
             @RequestParam(value = "destination", required = false, defaultValue = "") String destination,
             @RequestParam(value = "firstName", required = false, defaultValue = "") String firstName,

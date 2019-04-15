@@ -31,7 +31,7 @@ public class AclService extends JdbcMutableAclService{
             MutableAcl acl = (MutableAcl) readAclById(objectIdentity);
             for(int i=0; i<acl.getEntries().size();i++){
                 for(Sid sid : principals) {
-                    if(acl.getEntries().get(i).getSid().equals(sid) && !acl.getEntries().get(i).getPermission().equals(ArcPermission.READ)){
+                    if(acl.getEntries().get(i).getSid().equals(sid) && acl.getEntries().get(i).getPermission().equals(ArcPermission.EDIT)){
                         acl.deleteAce(i);
                         i--;
                     }
@@ -44,15 +44,17 @@ public class AclService extends JdbcMutableAclService{
 
     }
 
-    public void removePermissionFromSid(List<Permission> permissions, Sid principal, String id, Class persistentClass) {
+    public void removePermissionFromSid(List<Permission> permissions, List<Sid> principals, String id, Class persistentClass) {
         ObjectIdentity objectIdentity = new ObjectIdentityImpl(persistentClass, id);
         try {
             MutableAcl acl = (MutableAcl) readAclById(objectIdentity);
             for(int i=0; i<acl.getEntries().size();i++){
                 for(Permission permission: permissions) {
-                    if (acl.getEntries().get(i).getSid().equals(principal) && acl.getEntries().get(i).getPermission() == permission) {
-                        acl.deleteAce(i);
-                        i--;
+                    for(Sid principal : principals){
+                        if (acl.getEntries().get(i).getSid().equals(principal) && acl.getEntries().get(i).getPermission() == permission) {
+                            acl.deleteAce(i);
+                            i--;
+                        }
                     }
                 }
             }

@@ -1,16 +1,6 @@
 version: "3.1"
 
 services:
-  platform:
-    container_name: platform
-    build: ~/WebstormProjects/arc-expenses-ui/arc-expenses-ui/
-    ports:
-      - "3000:80"
-    networks:
-      - arcnet
-    restart: unless-stopped
-
-
   mailer:
     container_name: mailer
     build: ../../mailer

@@ -2,8 +2,8 @@ package arc.expenses.domain;
 
 public enum OrderByField {
 
-    REQUEST_PROJECT_ACRONYM("project_view.project_acronym"),
-    REQUEST_INSTITUTE("institute_view.institute_name"),
+    REQUEST_PROJECT_ACRONYM("project_acronym"),
+    REQUEST_INSTITUTE("institute_name"),
     CREATION_DATE("creation_date");
 
     private final String text;

@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <corpus.api.version>1.0.1-SNAPSHOT</corpus.api.version>
         <latest.jolt.version>0.1.1</latest.jolt.version>
-        <spring.security>5.1.4.RELEASE</spring.security>
+        <spring.security>5.1.5.RELEASE</spring.security>
     </properties>
 
     <dependencies>
@@ -95,7 +95,17 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-acl</artifactId>
-            <version>${spring.security}</version>
+            <version>5.2.0.BUILD-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jdbc</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-tx</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.statemachine</groupId>
@@ -286,12 +296,6 @@
             <artifactId>json-utils</artifactId>
             <version>${latest.jolt.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-acl</artifactId>
-            <version>5.2.0.BUILD-SNAPSHOT</version>
-        </dependency>
-
     </dependencies>
 
     <repositories>
