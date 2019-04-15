@@ -53,6 +53,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                 .initial(Stages.Stage1)
                 .choice(Stages.Stage5a)
                 .choice(Stages.Stage6ChoiceDowngrade)
+                .choice(Stages.Stage7aOr8)
                 .end(Stages.FINISHED)
                 .end(Stages.REJECTED)
                 .end(Stages.CANCELLED)
@@ -103,11 +104,11 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     MultipartHttpServletRequest req = (MultipartHttpServletRequest) context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
                     try {
                         Stage1 stage1 = requestApproval.getStage1();
-                        stage1.setAmountInEuros(Double.parseDouble(req.getParameter("amount")));
+                        stage1.setAmountInEuros(Double.parseDouble(req.getParameter("amountInEuros")));
                         stage1.setFinalAmount(stage1.getAmountInEuros());
                         stage1.setSubject(req.getParameter("subject"));
                         stage1.setSupplier(Optional.ofNullable(req.getParameter("supplier")).orElse(stage1.getSupplier()));
-                        stage1.setSupplierSelectionMethod(Optional.ofNullable(Stage1.SupplierSelectionMethod.fromValue(req.getParameter("supplier_selection_method"))).orElse(stage1.getSupplierSelectionMethod()));
+                        stage1.setSupplierSelectionMethod(Optional.ofNullable(Stage1.SupplierSelectionMethod.fromValue(req.getParameter("supplierSelectionMethod"))).orElse(stage1.getSupplierSelectionMethod()));
                         transitionService.approveApproval(context,"1","2",stage1);
                     } catch (Exception e) {
                         logger.error("Error occurred on approval of request " + requestApproval.getId(),e);
@@ -751,15 +752,56 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .and()
                 .withExternal()
                     .source(Stages.Stage7)
-                    .target(Stages.Stage8)
+                    .target(Stages.Stage7aOr8)
                     .event(StageEvents.APPROVE)
-                    .guard(stateContext -> transitionService.checkContains(stateContext, Stage7.class))
-                    .action(context -> {
+                .and()
+                    .withChoice()
+                    .source(Stages.Stage7aOr8)
+                    .first(Stages.Stage7a, stateContext -> {
+                        RequestPayment requestPayment = stateContext.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
                         try {
+                            RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
+                            return requestApproval.getStage3().getLoan();
 
-                            Stage7 stage7 = new Stage7(true);
+                        } catch (Exception e) {
+                            logger.error("Error occurred on downgrading approval of request " + requestPayment.getId(),e);
+                            stateContext.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    }, context -> {
+                        RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+                        try {
+                            Stage7 stage7 = Optional.ofNullable(requestPayment.getStage7()).orElse(new Stage7());
+                            stage7.setDate(new Date().toInstant().toEpochMilli());
+                            transitionService.approvePayment(context,"7","7a",stage7);
+                        } catch (Exception e) {
+                            logger.error("Error occurred on upgrading payment of request " + requestPayment.getId(),e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                    .last(Stages.Stage8, context -> {
+                        RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+                        try {
+                            Stage7 stage7 = Optional.ofNullable(requestPayment.getStage7()).orElse(new Stage7());
                             stage7.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.approvePayment(context,"7","8",stage7);
+                        } catch (Exception e) {
+                            logger.error("Error occurred on upgrading payment of request " + requestPayment.getId(),e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                    .and()
+                .withExternal()
+                    .source(Stages.Stage7a)
+                    .target(Stages.Stage8)
+                    .event(StageEvents.APPROVE)
+                    .guard(stateContext -> transitionService.checkContains(stateContext, Stage7a.class))
+                    .action(context -> {
+                        try {
+                            Stage7a stage7a = new Stage7a(true);
+                            transitionService.approvePayment(context,"7a","8",stage7a);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request ",e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -813,11 +855,30 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         }
                     })
                     .and()
-                .withExternal()
-                    .source(Stages.Stage8)
-                    .target(Stages.Stage7)
-                    .event(StageEvents.DOWNGRADE)
-                    .action(context -> {
+                .withChoice()
+                    .source(Stages.Stage8ChoiceDowngrade)
+                    .first(Stages.Stage7a, stateContext -> {
+                        RequestPayment requestPayment = stateContext.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+                        try {
+                            RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
+                            return requestApproval.getStage3().getLoan();
+                        }catch (Exception e) {
+                            logger.error("Error occurred on downgradePayment of payment " + requestPayment.getId(),e);
+                            stateContext.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    },context -> {
+                        RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+                        try {
+                            Stage8 stage8 = Optional.ofNullable(requestPayment.getStage8()).orElse(new Stage8());
+                            stage8.setApproved(false);
+                            transitionService.downgradePayment(context,"8","7a",stage8);
+                        } catch (Exception e) {
+                            logger.error("Error occurred on downgradePayment of payment " + requestPayment.getId(),e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    }).last(Stages.Stage7, context -> {
                         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
                         try {
                             Stage8 stage8 = Optional.ofNullable(requestPayment.getStage8()).orElse(new Stage8());
@@ -828,7 +889,12 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
                             throw new ServiceException(e.getMessage());
                         }
-                    })
+                     })
+                    .and()
+                .withExternal()
+                    .source(Stages.Stage8)
+                    .target(Stages.Stage8ChoiceDowngrade)
+                    .event(StageEvents.DOWNGRADE)
                     .and()
                 .withExternal()
                     .source(Stages.Stage8)

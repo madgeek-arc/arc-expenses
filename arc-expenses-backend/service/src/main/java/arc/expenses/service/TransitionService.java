@@ -577,7 +577,7 @@ public class TransitionService{
                     });
                 }
                 break;
-            case "8":
+            case "7a":
                 if(request.getType() == Request.Type.TRIP) {
                     revokeWriteAccess.add(new PrincipalSid(institute.getTravelManager().getEmail()));
                     institute.getTravelManager().getDelegates().forEach(delegate -> {
@@ -590,6 +590,23 @@ public class TransitionService{
                     });
                 }
 
+                revokeEditAccess.add(new PrincipalSid(organization.getDioikitikoSumvoulio().getEmail()));
+                organization.getDioikitikoSumvoulio().getDelegates().forEach(p -> revokeEditAccess.add(new PrincipalSid(p.getEmail())));
+                break;
+            case "8":
+                if(request.getType() == Request.Type.TRIP) {
+                    revokeWriteAccess.add(new PrincipalSid(institute.getTravelManager().getEmail()));
+                    institute.getTravelManager().getDelegates().forEach(delegate -> {
+                        revokeWriteAccess.add(new PrincipalSid(delegate.getEmail()));
+                    });
+                }else{
+                    revokeWriteAccess.add(new PrincipalSid(institute.getSuppliesOffice().getEmail()));
+                    institute.getSuppliesOffice().getDelegates().forEach(delegate -> {
+                        revokeWriteAccess.add(new PrincipalSid(delegate.getEmail()));
+                    });
+                }
+                revokeWriteAccess.add(new PrincipalSid(organization.getDioikitikoSumvoulio().getEmail()));
+                organization.getDioikitikoSumvoulio().getDelegates().forEach(p -> revokeWriteAccess.add(new PrincipalSid(p.getEmail())));
 
                 organization.getInspectionTeam().forEach(inspector -> {
                     revokeEditAccess.add(new PrincipalSid(inspector.getEmail()));
@@ -684,6 +701,10 @@ public class TransitionService{
                         grantAccess.add(new PrincipalSid(delegate.getEmail()));
                     });
                 }
+                break;
+            case "7a":
+                grantAccess.add(new PrincipalSid(organization.getDioikitikoSumvoulio().getEmail()));
+                organization.getDioikitikoSumvoulio().getDelegates().forEach(p -> grantAccess.add(new PrincipalSid(p.getEmail())));
                 break;
             case "8":
                 organization.getInspectionTeam().forEach(inspector -> {
