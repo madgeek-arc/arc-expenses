@@ -15,6 +15,10 @@
       "type": "object",
       "javaType": "gr.athenarc.domain.Stage7"
     },
+    "stage7a": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage7a"
+    },
     "stage8": {
       "type": "object",
       "javaType": "gr.athenarc.domain.Stage8"

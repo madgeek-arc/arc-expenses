@@ -511,7 +511,15 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .guard(stateContext -> transitionService.checkContains(stateContext, Stage5b.class))
                     .action(context -> {
                         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                        HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
                         try {
+                            Stage1 stage1 = requestApproval.getStage1();
+                            stage1.setAmountInEuros(Double.parseDouble(req.getParameter("amountInEuros")));
+                            stage1.setFinalAmount(stage1.getAmountInEuros());
+                            stage1.setSupplier(Optional.ofNullable(req.getParameter("supplier")).orElse(stage1.getSupplier()));
+                            requestApproval.setStage1(stage1);
+                            requestApprovalService.update(requestApproval, requestApproval.getId());
+
                             Stage5b stage5b = new Stage5b(true);
                             stage5b.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.approveApproval(context,"5b","6",stage5b);
@@ -529,9 +537,16 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .guard(stateContext -> transitionService.checkContains(stateContext, Stage5a.class))
                     .action(context -> {
                         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+                        HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
                         try {
+                            Stage1 stage1 = requestApproval.getStage1();
+                            stage1.setAmountInEuros(Double.parseDouble(req.getParameter("amountInEuros")));
+                            stage1.setFinalAmount(stage1.getAmountInEuros());
+                            stage1.setSupplier(Optional.ofNullable(req.getParameter("supplier")).orElse(stage1.getSupplier()));
+                            requestApproval.setStage1(stage1);
+                            requestApprovalService.update(requestApproval, requestApproval.getId());
+
                             transitionService.editApproval(context, requestApproval.getStage5a(), "5a");
-                            transitionService.editApproval(context, requestApproval.getStage1(), "1");
                         } catch (Exception e) {
                             logger.error("Error occurred on downgrading approval of request " + requestApproval.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -677,7 +692,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
                         Request request = requestService.get(requestApproval.getRequestId());
                         try {
-                            transitionService.modifyRequestApproval(context, new Stage6(), "6", BaseInfo.Status.ACCEPTED);
+                            Stage6 stage6 = Optional.ofNullable(requestApproval.getStage6()).orElse(new Stage6());
+                            stage6.setDate(new Date().toInstant().toEpochMilli());
+                            transitionService.modifyRequestApproval(context, stage6, "6", BaseInfo.Status.ACCEPTED);
                         } catch (Exception e) {
                             logger.error("Error occurred on downgradeApproval of request " + request.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -762,7 +779,6 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         try {
                             RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
                             return requestApproval.getStage3().getLoan();
-
                         } catch (Exception e) {
                             logger.error("Error occurred on downgrading approval of request " + requestPayment.getId(),e);
                             stateContext.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -771,7 +787,18 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     }, context -> {
                         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
                         try {
+                            HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
+                            RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
+                            Stage1 stage1 = requestApproval.getStage1();
+                            String finalAmount = Optional.ofNullable(req.getParameter("finalAmount")).orElse("");
+                            if(!finalAmount.isEmpty())
+                                stage1.setFinalAmount(Double.parseDouble(finalAmount));
+
+                            requestApproval.setStage1(stage1);
+                            requestApprovalService.update(requestApproval, requestApproval.getId());
+
                             Stage7 stage7 = Optional.ofNullable(requestPayment.getStage7()).orElse(new Stage7());
+                            stage7.setApproved(true);
                             stage7.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.approvePayment(context,"7","7a",stage7);
                         } catch (Exception e) {
@@ -783,7 +810,17 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .last(Stages.Stage8, context -> {
                         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
                         try {
+                            HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
+                            RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
+                            Stage1 stage1 = requestApproval.getStage1();
+                            String finalAmount = Optional.ofNullable(req.getParameter("finalAmount")).orElse("");
+                            if(!finalAmount.isEmpty())
+                                stage1.setFinalAmount(Double.parseDouble(finalAmount));
+                            requestApproval.setStage1(stage1);
+                            requestApprovalService.update(requestApproval, requestApproval.getId());
+
                             Stage7 stage7 = Optional.ofNullable(requestPayment.getStage7()).orElse(new Stage7());
+                            stage7.setApproved(true);
                             stage7.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.approvePayment(context,"7","8",stage7);
                         } catch (Exception e) {
@@ -801,9 +838,50 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .action(context -> {
                         try {
                             Stage7a stage7a = new Stage7a(true);
+                            stage7a.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.approvePayment(context,"7a","8",stage7a);
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of request ",e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                    .and()
+                    .withExternal()
+                    .source(Stages.Stage7a)
+                    .target(Stages.CANCELLED)
+                    .event(StageEvents.CANCEL)
+                    .action(context -> {
+                        RequestPayment payment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+                        try {
+                            transitionService.cancelRequestPayment(context, "7a");
+                        } catch (Exception e) {
+                            logger.error("Error occurred on approval of payment " + payment.getId(),e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                    .and()
+                    .withExternal()
+                    .source(Stages.Stage7a)
+                    .target(Stages.Stage7a)
+                    .event(StageEvents.EDIT)
+                    .action(context -> {
+                        RequestPayment payment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+                        try {
+                            HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
+                            RequestApproval requestApproval = requestApprovalService.getApproval(payment.getRequestId());
+                            Stage1 stage1 = requestApproval.getStage1();
+                            String finalAmount = Optional.ofNullable(req.getParameter("finalAmount")).orElse("");
+                            if(!finalAmount.isEmpty())
+                                stage1.setFinalAmount(Double.parseDouble(finalAmount));
+                            requestApproval.setStage1(stage1);
+                            requestApprovalService.update(requestApproval, requestApproval.getId());
+
+
+                            transitionService.editPayment(context, payment.getStage7(),"7");
+                        } catch (Exception e) {
+                            logger.error("Error occurred on approval of payment " + payment.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
                             throw new ServiceException(e.getMessage());
                         }
@@ -830,11 +908,15 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .source(Stages.Stage8)
                     .target(Stages.Stage8)
                     .event(StageEvents.EDIT)
-                    .guard(stateContext -> transitionService.checkContains(stateContext, Stage7.class))
                     .action(context -> {
                         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+
                         try {
-                            transitionService.editApproval(context, requestPayment.getStage7(), "7");
+                            RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
+                            if(requestApproval.getStage3().getLoan())
+                                transitionService.editPayment(context, requestPayment.getStage7a(), "7a");
+                            else
+                                transitionService.editPayment(context, requestPayment.getStage7(), "7");
                         } catch (Exception e) {
                             logger.error("Error occurred on editing of payment " + requestPayment.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -921,7 +1003,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .action(context -> {
                         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
                         try {
-                            transitionService.editApproval(context, requestPayment.getStage8(), "8");
+                            transitionService.editPayment(context, requestPayment.getStage8(), "8");
                         } catch (Exception e) {
                             logger.error("Error occurred on editing of payment " + requestPayment.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -1001,7 +1083,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .action(context -> {
                         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
                         try {
-                            transitionService.editApproval(context, requestPayment.getStage9(), "9");
+                            transitionService.editPayment(context, requestPayment.getStage9(), "9");
                         } catch (Exception e) {
                             logger.error("Error occurred on editing of payment " + requestPayment.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -1081,7 +1163,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .action(context -> {
                         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
                         try {
-                            transitionService.editApproval(context, requestPayment.getStage10(), "10");
+                            transitionService.editPayment(context, requestPayment.getStage10(), "10");
                         } catch (Exception e) {
                             logger.error("Error occurred on editing of payment " + requestPayment.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -1160,7 +1242,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .action(context -> {
                         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
                         try {
-                            transitionService.editApproval(context, requestPayment.getStage11(), "11");
+                            transitionService.editPayment(context, requestPayment.getStage11(), "11");
                         } catch (Exception e) {
                             logger.error("Error occurred on editing of payment " + requestPayment.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -1252,7 +1334,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .action(context -> {
                         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
                         try {
-                            transitionService.editApproval(context, requestPayment.getStage12(), "12");
+                            transitionService.editPayment(context, requestPayment.getStage12(), "12");
                         } catch (Exception e) {
                             logger.error("Error occurred on editing of payment " + requestPayment.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));

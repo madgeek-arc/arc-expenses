@@ -22,6 +22,7 @@ public class RequestResponse {
     private String onBehalfEmail;
     private String tripDestination;
     private boolean canEdit;
+    private boolean canEditPrevious;
 
     public RequestResponse() { }
 
@@ -127,5 +128,13 @@ public class RequestResponse {
 
     public void setRequesterEmail(String requesterEmail) {
         this.requesterEmail = requesterEmail;
+    }
+
+    public boolean isCanEditPrevious() {
+        return canEditPrevious;
+    }
+
+    public void setCanEditPrevious(boolean canEditPrevious) {
+        this.canEditPrevious = canEditPrevious;
     }
 }

@@ -249,7 +249,8 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         if(request.getTrip()!=null)
             requestResponse.setTripDestination(request.getTrip().getDestination());
 
-        requestResponse.setCanEdit(canEdit(requestApproval.getId()));
+        requestResponse.setCanEdit(hasPermission(requestApproval.getId(),32));
+        requestResponse.setCanEditPrevious(hasPermission(requestApproval.getId(),2));
 
         return requestResponse;
     }
@@ -265,13 +266,15 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
     }
 
 
-    public boolean canEdit(String requestApprovalId){
+    public boolean hasPermission(String requestApprovalId,int mask){
+        //if mask=32 we are looking for EDIT right
+        //if mask==2 we are looking for WRITE right
         String roles = "";
         for(GrantedAuthority grantedAuthority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()){
             roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");
         }
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, CASE WHEN mask=32 THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+email+"' and acl_entry.mask=32) as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id where acl_object_identity.object_id_identity='"+requestApprovalId+"'";
+        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, CASE WHEN mask="+mask+" THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+email+"' and acl_entry.mask="+mask+") as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id where acl_object_identity.object_id_identity='"+requestApprovalId+"'";
         return new JdbcTemplate(dataSource).query(aclEntriesQuery , rs -> {
 
             if(rs.next())
@@ -281,6 +284,7 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         });
 
     }
+
 
 
 

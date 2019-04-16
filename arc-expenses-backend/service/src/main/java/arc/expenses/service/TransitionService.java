@@ -128,6 +128,8 @@ public class TransitionService{
             }
         }
 
+        String comment = Optional.ofNullable(req.getParameter("comment")).orElse(stage.getComment());
+
         MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
         Request request = requestService.get(requestApproval.getRequestId());
         List<Attachment> attachments = Optional.ofNullable(stage.getAttachments()).orElse(new ArrayList<>());
@@ -135,7 +137,9 @@ public class TransitionService{
             storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/stage"+stageString, file.getOriginalFilename());
             attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
         }
+        stage.setComment(comment);
         stage.setAttachments(attachments);
+
 
         if(stage instanceof Stage1)
             requestApproval.setStage1((Stage1) stage);
@@ -181,6 +185,7 @@ public class TransitionService{
                 }
             }
         }
+        String comment = Optional.ofNullable(req.getParameter("comment")).orElse(stage.getComment());
 
         MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
         Request request = requestService.get(requestPayment.getRequestId());
@@ -189,10 +194,13 @@ public class TransitionService{
             storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/stage"+stageString, file.getOriginalFilename());
             attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
         }
+        stage.setComment(comment);
         stage.setAttachments(attachments);
 
         if(stage instanceof Stage7)
             requestPayment.setStage7((Stage7) stage);
+        else if(stage instanceof Stage7a)
+            requestPayment.setStage7a((Stage7a) stage);
         else if(stage instanceof Stage8)
             requestPayment.setStage8((Stage8) stage);
         else if(stage instanceof Stage9)
@@ -365,6 +373,8 @@ public class TransitionService{
 
         if(stage instanceof Stage7)
             requestPayment.setStage7((Stage7) stage);
+        else if(stage instanceof Stage7a)
+            requestPayment.setStage7a((Stage7a) stage);
         else if(stage instanceof Stage8)
             requestPayment.setStage8((Stage8) stage);
         else if(stage instanceof Stage9)
@@ -565,6 +575,7 @@ public class TransitionService{
                 revokeWriteAccess.add(new PrincipalSid(institute.getDiaugeia().getEmail()));
                 institute.getDiaugeia().getDelegates().forEach(delegate -> revokeWriteAccess.add(new PrincipalSid(delegate.getEmail())));
 
+                revokeEditAccess.add(new PrincipalSid(request.getUser().getEmail()));
                 if(request.getType() == Request.Type.TRIP) {
                     revokeEditAccess.add(new PrincipalSid(institute.getTravelManager().getEmail()));
                     institute.getTravelManager().getDelegates().forEach(delegate -> {
@@ -576,8 +587,11 @@ public class TransitionService{
                         revokeEditAccess.add(new PrincipalSid(delegate.getEmail()));
                     });
                 }
+
                 break;
             case "7a":
+                revokeWriteAccess.add(new PrincipalSid(request.getUser().getEmail()));
+
                 if(request.getType() == Request.Type.TRIP) {
                     revokeWriteAccess.add(new PrincipalSid(institute.getTravelManager().getEmail()));
                     institute.getTravelManager().getDelegates().forEach(delegate -> {
@@ -594,6 +608,8 @@ public class TransitionService{
                 organization.getDioikitikoSumvoulio().getDelegates().forEach(p -> revokeEditAccess.add(new PrincipalSid(p.getEmail())));
                 break;
             case "8":
+                revokeWriteAccess.add(new PrincipalSid(request.getUser().getEmail()));
+
                 if(request.getType() == Request.Type.TRIP) {
                     revokeWriteAccess.add(new PrincipalSid(institute.getTravelManager().getEmail()));
                     institute.getTravelManager().getDelegates().forEach(delegate -> {

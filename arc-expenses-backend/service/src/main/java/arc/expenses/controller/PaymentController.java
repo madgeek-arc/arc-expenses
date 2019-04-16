@@ -53,8 +53,6 @@ public class PaymentController {
 
         if(requestPayment==null)
             throw new ServiceException("Payment not found");
-
-        Request request = requestService.get(requestPayment.getRequestId());
         try {
             requestPaymentService.approve(requestPayment, req);
         }catch (Exception ex){
@@ -75,8 +73,6 @@ public class PaymentController {
 
         if(requestPayment==null)
             throw new ServiceException("Payment not found");
-
-        Request request = requestService.get(requestPayment.getRequestId());
         try {
             requestPaymentService.reject(requestPayment, req);
         }catch (Exception ex){
@@ -96,10 +92,28 @@ public class PaymentController {
 
         if(requestPayment==null)
             throw new ServiceException("Payment not found");
-
-        Request request = requestService.get(requestPayment.getRequestId());
         try {
             requestPaymentService.downgrade(requestPayment, req);
+        }catch (Exception ex){
+            ex.printStackTrace();
+            throw new ServiceException(ex.getMessage());
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation("Edit request")
+    @RequestMapping(value = "/edit/{paymentId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity edit(
+            @PathVariable("paymentId") String paymentId,
+            HttpServletRequest req
+    ){
+        RequestPayment requestPayment = requestPaymentService.get(paymentId);
+
+        if(requestPayment==null)
+            throw new ServiceException("Payment not found");
+
+        try {
+            requestPaymentService.edit(requestPayment, req);
         }catch (Exception ex){
             ex.printStackTrace();
             throw new ServiceException(ex.getMessage());
@@ -117,8 +131,6 @@ public class PaymentController {
 
         if(requestPayment==null)
             throw new ServiceException("Payment not found");
-
-        Request request = requestService.get(requestPayment.getRequestId());
         try {
             return new ResponseEntity<>("{\"id\":\""+requestPaymentService.cancel(requestPayment, req)+"\"}",HttpStatus.OK);
         }catch (Exception ex){

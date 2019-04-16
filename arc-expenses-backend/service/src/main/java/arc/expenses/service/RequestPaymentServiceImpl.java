@@ -188,6 +188,22 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
             return "";
     }
 
+    @PreAuthorize("hasPermission(#requestPayment,'WRITE')")
+    public void edit(RequestPayment requestPayment, HttpServletRequest req) {
+        logger.info("Rejecting request payment with id " + requestPayment.getId());
+        StateMachine<Stages, StageEvents> sm = this.build(requestPayment);
+        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.REJECT)
+                .setHeader("paymentObj", requestPayment)
+                .setHeader("restRequest", req)
+                .build();
+        sm.sendEvent(eventsMessage);
+        if(sm.hasStateMachineError())
+            throw new ServiceException((String) sm.getExtendedState().getVariables().get("error"));
+
+        sm.stop();
+
+    }
+
 
     public RequestResponse getRequestResponse(String id) throws Exception {
         RequestPayment requestPayment = get(id);
@@ -234,7 +250,8 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         if(request.getTrip()!=null)
             requestResponse.setTripDestination(request.getTrip().getDestination());
 
-        requestResponse.setCanEdit(requestApprovalService.canEdit(requestPayment.getId()));
+        requestResponse.setCanEdit(requestApprovalService.hasPermission(requestPayment.getId(),32));
+        requestResponse.setCanEditPrevious(requestApprovalService.hasPermission(requestPayment.getId(),2));
 
         return requestResponse;
     }
@@ -260,6 +277,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
         AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(RequestPayment.class, requestPayment.getId()));
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(request.getUser().getEmail()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(request.getUser().getEmail()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(request.getUser().getEmail()), true);
         if(request.getOnBehalfOf()!=null)
             acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(request.getOnBehalfOf().getEmail()), true);
