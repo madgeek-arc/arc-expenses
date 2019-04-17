@@ -756,12 +756,11 @@ public class TransitionService{
                 });
 
 
-                organization.getInspectionTeam().forEach(inspector -> {
-                    grantWrite.add(new PrincipalSid(inspector.getEmail()));
-                    inspector.getDelegates().forEach(delegate -> {
-                        grantWrite.add(new PrincipalSid(delegate.getEmail()));
-                    });
+                grantWrite.add(new PrincipalSid(institute.getDiaugeia().getEmail()));
+                institute.getDiaugeia().getDelegates().forEach(delegate -> {
+                    grantWrite.add(new PrincipalSid(delegate.getEmail()));
                 });
+
                 break;
             case "13":
                 grantAccess.add(new PrincipalSid(institute.getAccountingPayment().getEmail()));

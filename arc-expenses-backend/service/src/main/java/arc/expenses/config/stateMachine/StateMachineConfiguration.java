@@ -1243,8 +1243,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .event(StageEvents.APPROVE)
                     .guard(stateContext -> transitionService.checkContains(stateContext, Stage11.class))
                     .action(context -> {
+                        RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
                         try {
-                            Stage11 stage11 = new Stage11();
+                            Stage11 stage11 = Optional.ofNullable(requestPayment.getStage11()).orElse(new Stage11());
                             stage11.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.approvePayment(context,"11","12",stage11);
                         } catch (Exception e) {
@@ -1322,8 +1323,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .event(StageEvents.APPROVE)
                     .guard(stateContext -> transitionService.checkContains(stateContext, Stage12.class))
                     .action(context -> {
+                        RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
                         try {
-                            Stage12 stage12 = new Stage12(true);
+                            Stage12 stage12 = Optional.ofNullable(requestPayment.getStage12()).orElse(new Stage12(true));
                             stage12.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.approvePayment(context,"12","13",stage12);
                         } catch (Exception e) {
@@ -1401,8 +1403,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .event(StageEvents.APPROVE)
                     .guard(stateContext -> transitionService.checkContains(stateContext, Stage13.class))
                     .action(context -> {
+                        RequestPayment payment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
                         try {
-                            Stage13 stage13 = new Stage13(true);
+                            Stage13 stage13 = Optional.ofNullable(payment.getStage13()).orElse(new Stage13(true));
                             stage13.setDate(new Date().toInstant().toEpochMilli());
                             transitionService.approvePayment(context,"13","13",stage13);
                         } catch (Exception e) {

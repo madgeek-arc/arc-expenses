@@ -265,6 +265,26 @@ public class RequestController {
 
     }
 
+    @RequestMapping(value = "/store/delete", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void deleteFile(@RequestParam("archiveId") String archiveId,
+                             @RequestParam("filename") String filename,
+                             @RequestParam("id") String objectId,
+                             @RequestParam("mode") String mode) {
+
+        if (mode.equals("payment")) {
+            RequestPayment requestPayment = requestPaymentService.get(objectId);
+            if (requestPayment == null)
+                throw new ServiceException("Payment not found");
+            requestService.deleteFile(archiveId, requestPayment, filename);
+        }else if(mode.equals("approval")){
+            RequestApproval requestApproval = requestApprovalService.get(objectId);
+            if(requestApproval == null)
+                throw new ServiceException("Approval not found");
+            requestService.deleteFile(archiveId,requestApproval,objectId);
+        }
+    }
+
 
     @RequestMapping(value =  "/approval/getById/{id}", method = RequestMethod.GET)
     public ResponseEntity<RequestResponse> getApprovalById(@PathVariable("id") String id) throws Exception {

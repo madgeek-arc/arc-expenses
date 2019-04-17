@@ -495,7 +495,23 @@ public class RequestServiceImpl extends GenericService<Request> {
         return null;
     }
 
+    @PreAuthorize("hasPermission(#requestPayment,'READ')")
+    public void deleteFile(String filename,RequestPayment requestPayment,String archiveId) {
+        try {
+            storeRESTClient.deleteFile(archiveId, filename);
+        } catch (Exception e) {
+            logger.error("error downloading file", e);
+        }
+    }
 
+    @PreAuthorize("hasPermission(#requestApproval,'READ')")
+    public void deleteFile(String filename,RequestApproval requestApproval,String archiveId) {
+        try {
+            storeRESTClient.deleteFile(archiveId, filename);
+        } catch (Exception e) {
+            logger.error("error downloading file", e);
+        }
+    }
 
 
 }
