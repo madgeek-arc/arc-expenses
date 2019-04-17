@@ -266,12 +266,6 @@ public class TransitionService{
                 requestPaymentService.delete(requestPayment);
             }
         }else{
-            request.setRequestStatus(Request.RequestStatus.CANCELLED);
-            RequestApproval requestApproval = requestApprovalService.getApproval(request.getId());
-            requestApproval.setCurrentStage(Stages.CANCELLED.name());
-            requestApproval.setStatus(BaseInfo.Status.CANCELLED);
-            requestApprovalService.update(requestApproval, requestApproval.getId());
-            requestService.update(request, request.getId());
             requestPaymentService.delete(requestPayment);
         }
         aclService.removeEdit(requestPayment.getId(),RequestPayment.class);
@@ -333,6 +327,7 @@ public class TransitionService{
             }else{
                 requestPaymentService.createPayment(request);
             }
+            aclService.removeEdit(requestApproval.getId(),RequestApproval.class);
             requestService.update(request,request.getId());
         }
         requestApprovalService.update(requestApproval,requestApproval.getId());
@@ -609,7 +604,6 @@ public class TransitionService{
                 grantWrite.add(new PrincipalSid(project.getScientificCoordinator().getEmail()));
                 project.getScientificCoordinator().getDelegates().forEach(person -> grantWrite.add(new PrincipalSid(person.getEmail())));
                 break;
-            case "9":
             case "4":
                 grantAccess.add(new PrincipalSid(organization.getPoy().getEmail()));
                 organization.getPoy().getDelegates().forEach(delegate -> {
@@ -648,7 +642,6 @@ public class TransitionService{
                     grantWrite.add(new PrincipalSid(delegate.getEmail()));
                 });
                 break;
-            case "11":
             case "6":
                 grantAccess.add(new PrincipalSid(institute.getDiaugeia().getEmail()));
                 institute.getDiaugeia().getDelegates().forEach(delegate -> {
@@ -729,6 +722,31 @@ public class TransitionService{
                         });
                     }
                 }
+
+                break;
+            case "9":
+                grantAccess.add(new PrincipalSid(organization.getPoy().getEmail()));
+                organization.getPoy().getDelegates().forEach(delegate -> {
+                    grantAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+
+                organization.getInspectionTeam().forEach(entry -> {
+                    grantWrite.add(new PrincipalSid(entry.getEmail()));
+                    entry.getDelegates().forEach(person -> {
+                        grantWrite.add(new PrincipalSid(person.getEmail()));
+                    });
+                });
+                break;
+            case "11":
+                grantAccess.add(new PrincipalSid(institute.getDiaugeia().getEmail()));
+                institute.getDiaugeia().getDelegates().forEach(delegate -> {
+                    grantAccess.add(new PrincipalSid(delegate.getEmail()));
+                });
+
+                grantWrite.add(new PrincipalSid(request.getDiataktis().getEmail()));
+                request.getDiataktis().getDelegates().forEach( delegate -> {
+                    grantWrite.add(new PrincipalSid(delegate.getEmail()));
+                });
 
                 break;
             case "12":
