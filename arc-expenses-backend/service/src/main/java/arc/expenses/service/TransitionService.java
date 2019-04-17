@@ -274,7 +274,8 @@ public class TransitionService{
             requestService.update(request, request.getId());
             requestPaymentService.delete(requestPayment);
         }
-
+        aclService.removeEdit(requestPayment.getId(),RequestPayment.class);
+        aclService.removeWrite(requestPayment.getId(),RequestPayment.class);
         mailService.sendMail("Canceled",request.getPois());
     }
 
