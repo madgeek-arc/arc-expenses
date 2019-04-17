@@ -193,6 +193,15 @@ public class PolicyCheckerService {
         double approvedRequests = projectService.getApprovedRequestsByScientificCoordinator(request);
         double projectBudget = Double.parseDouble(request.getProject().getTotalCost());
 
+        String traveller = "";
+        if(request.getTrip()!=null)
+            traveller = request.getTrip().getEmail();
+
+        String sc = request.getProject().getScientificCoordinator().getEmail();
+
+        if(traveller.equals(sc) || sc.equals(request.getUser().getEmail()))
+            return false;
+
         if(request.getStage1().getFinalAmount() <= 2500)
             if(approvedRequests <= 0.25*projectBudget)
                 return true;
