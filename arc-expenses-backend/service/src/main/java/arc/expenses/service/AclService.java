@@ -92,6 +92,22 @@ public class AclService extends JdbcMutableAclService{
         }
     }
 
+    public void removeEdit(String id, Class persistentClass){
+        ObjectIdentity objectIdentity = new ObjectIdentityImpl(persistentClass, id);
+        try {
+            MutableAcl acl = (MutableAcl) readAclById(objectIdentity);
+            for(int i=0; i<acl.getEntries().size();i++){
+                if(acl.getEntries().get(i).getPermission().equals(ArcPermission.EDIT)){
+                    acl.deleteAce(i);
+                    i--;
+                }
+            }
+            updateAcl(acl);
+        } catch (NotFoundException nfe) {
+            logger.error("Could not delete acl entries" ,nfe);
+        }
+    }
+
     public void addWrite(List<Sid> principals, String id, Class persistentClass){
         AclImpl acl = (AclImpl) readAclById(new ObjectIdentityImpl(persistentClass, id));
         for(Sid principal : principals){
