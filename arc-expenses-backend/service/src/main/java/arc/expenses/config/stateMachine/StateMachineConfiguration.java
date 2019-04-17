@@ -849,6 +849,23 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         }
                     })
                     .and()
+                .withExternal()
+                    .source(Stages.Stage7a)
+                    .target(Stages.REJECTED)
+                    .event(StageEvents.REJECT)
+                    .action(context -> {
+                        RequestPayment payment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+                        try {
+                            Stage7a stage7a = Optional.ofNullable(payment.getStage7a()).orElse(new Stage7a());
+                            stage7a.setApproved(false);
+                            transitionService.rejectPayment(context, stage7a,"7a");
+                        } catch (Exception e) {
+                            logger.error("Error occurred on approval of payment " + payment.getId(),e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                    .and()
                     .withExternal()
                     .source(Stages.Stage7a)
                     .target(Stages.CANCELLED)
