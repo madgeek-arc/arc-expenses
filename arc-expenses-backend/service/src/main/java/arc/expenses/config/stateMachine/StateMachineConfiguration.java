@@ -54,6 +54,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                 .choice(Stages.Stage5a)
                 .choice(Stages.Stage6ChoiceDowngrade)
                 .choice(Stages.Stage7aOr8)
+                .choice(Stages.Stage8ChoiceDowngrade)
                 .end(Stages.FINISHED)
                 .end(Stages.REJECTED)
                 .end(Stages.CANCELLED)
@@ -539,13 +540,6 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
                         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
                         try {
-                            Stage1 stage1 = requestApproval.getStage1();
-                            stage1.setAmountInEuros(Double.parseDouble(req.getParameter("amountInEuros")));
-                            stage1.setFinalAmount(stage1.getAmountInEuros());
-                            stage1.setSupplier(Optional.ofNullable(req.getParameter("supplier")).orElse(stage1.getSupplier()));
-                            requestApproval.setStage1(stage1);
-                            requestApprovalService.update(requestApproval, requestApproval.getId());
-
                             transitionService.editApproval(context, requestApproval.getStage5a(), "5a");
                         } catch (Exception e) {
                             logger.error("Error occurred on downgrading approval of request " + requestApproval.getId(),e);
@@ -654,9 +648,17 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .action(context -> {
                         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
                         try {
-                            if(requestApproval.getStage5b()!=null)
-                                transitionService.editApproval(context, requestApproval.getStage5b(),"5b");
-                            else
+                            if(requestApproval.getStage5b()!=null) {
+                                HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
+                                Stage1 stage1 = requestApproval.getStage1();
+                                stage1.setAmountInEuros(Double.parseDouble(req.getParameter("amountInEuros")));
+                                stage1.setFinalAmount(stage1.getAmountInEuros());
+                                stage1.setSupplier(Optional.ofNullable(req.getParameter("supplier")).orElse(stage1.getSupplier()));
+                                requestApproval.setStage1(stage1);
+                                requestApprovalService.update(requestApproval, requestApproval.getId());
+
+                                transitionService.editApproval(context, requestApproval.getStage5b(), "5b");
+                            }else
                                 transitionService.editApproval(context, requestApproval.getStage5a(),"5a");
                         } catch (Exception e) {
                             logger.error("Error occurred on downgrading approval of request " + requestApproval.getId(),e);
@@ -737,7 +739,7 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                             throw new ServiceException(e.getMessage());
                         }
                     })
-                    .and()
+                .and()
                 .withExternal()
                     .source(Stages.Stage7)
                     .target(Stages.CANCELLED)
@@ -882,6 +884,24 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                             transitionService.editPayment(context, payment.getStage7(),"7");
                         } catch (Exception e) {
                             logger.error("Error occurred on approval of payment " + payment.getId(),e);
+                            context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
+                    })
+                    .and()
+                .withExternal()
+                    .source(Stages.Stage7a)
+                    .target(Stages.Stage7)
+                    .event(StageEvents.DOWNGRADE)
+                    .action(context -> {
+                        RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+                        try {
+                            Stage7a stage7a = Optional.ofNullable(requestPayment.getStage7a()).orElse(new Stage7a());
+                            stage7a.setApproved(false);
+                            stage7a.setDate(new Date().toInstant().toEpochMilli());
+                            transitionService.downgradePayment(context,"7a","7",stage7a);
+                        } catch (Exception e) {
+                            logger.error("Error occurred on downgrading payment " + requestPayment.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
                             throw new ServiceException(e.getMessage());
                         }

@@ -192,7 +192,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     public void edit(RequestPayment requestPayment, HttpServletRequest req) {
         logger.info("Rejecting request payment with id " + requestPayment.getId());
         StateMachine<Stages, StageEvents> sm = this.build(requestPayment);
-        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.REJECT)
+        Message<StageEvents> eventsMessage = MessageBuilder.withPayload(StageEvents.EDIT)
                 .setHeader("paymentObj", requestPayment)
                 .setHeader("restRequest", req)
                 .build();
@@ -284,21 +284,17 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         if(request.getType() == Request.Type.TRIP) {
             acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(institute.getTravelManager().getEmail()), true);
             acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(institute.getTravelManager().getEmail()), true);
-            acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(institute.getTravelManager().getEmail()), true);
             institute.getTravelManager().getDelegates().forEach(delegate -> {
                 acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(delegate.getEmail()), true);
                 acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(delegate.getEmail()), true);
-                acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(delegate.getEmail()), true);
             });
         }else{
             acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(institute.getSuppliesOffice().getEmail()), true);
             acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(institute.getSuppliesOffice().getEmail()), true);
-            acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(institute.getSuppliesOffice().getEmail()), true);
 
             institute.getTravelManager().getDelegates().forEach(delegate -> {
                 acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(delegate.getEmail()), true);
                 acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(delegate.getEmail()), true);
-                acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(delegate.getEmail()), true);
             });
         }
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new GrantedAuthoritySid("ROLE_ADMIN"), true);

@@ -31,9 +31,9 @@ public class AclService extends JdbcMutableAclService{
             MutableAcl acl = (MutableAcl) readAclById(objectIdentity);
             for(int i=0; i<acl.getEntries().size();i++){
                 for(Sid sid : principals) {
-                    if(acl.getEntries().get(i).getSid().equals(sid) && acl.getEntries().get(i).getPermission().equals(ArcPermission.EDIT)){
+                    if(acl.getEntries().get(i).getSid().equals(sid) && !acl.getEntries().get(i).getPermission().equals(ArcPermission.READ)){
                         acl.deleteAce(i);
-                        i--;
+                        i = (i==1 ? 0:i--);
                     }
                 }
             }
@@ -72,6 +72,29 @@ public class AclService extends JdbcMutableAclService{
         for(Sid principal : newPrincipal){
             acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, principal, true);
             acl.insertAce(acl.getEntries().size(), ArcPermission.READ, principal, true);
+        }
+        updateAcl(acl);
+    }
+
+    public void removeWrite(String id, Class persistentClass){
+        ObjectIdentity objectIdentity = new ObjectIdentityImpl(persistentClass, id);
+        try {
+            MutableAcl acl = (MutableAcl) readAclById(objectIdentity);
+            for(int i=0; i<acl.getEntries().size();i++){
+                if(acl.getEntries().get(i).getPermission().equals(ArcPermission.WRITE)){
+                    acl.deleteAce(i);
+                    i--;
+                }
+            }
+            updateAcl(acl);
+        } catch (NotFoundException nfe) {
+            logger.error("Could not delete acl entries" ,nfe);
+        }
+    }
+
+    public void addWrite(List<Sid> principals, String id, Class persistentClass){
+        AclImpl acl = (AclImpl) readAclById(new ObjectIdentityImpl(persistentClass, id));
+        for(Sid principal : principals){
             acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, principal, true);
         }
         updateAcl(acl);
