@@ -38,6 +38,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service("requestService")
 public class RequestServiceImpl extends GenericService<Request> {
@@ -498,18 +499,47 @@ public class RequestServiceImpl extends GenericService<Request> {
     @PreAuthorize("hasPermission(#requestPayment,'READ')")
     public void deleteFile(String filename,RequestPayment requestPayment,String archiveId) {
         try {
+            //SEARCHING FOR THE FILE INTO STAGES' ATTACHMENTS
+            List<Class> stagesClasses = Arrays.stream(RequestPayment.class.getDeclaredFields()).filter(p-> Stage.class.isAssignableFrom(p.getType())).flatMap(p -> Stream.of(p.getType())).collect(Collectors.toList());
+            for(Class stageClass : stagesClasses) {
+                if (RequestPayment.class.getMethod("get" + stageClass.getSimpleName()).invoke(requestPayment) != null) {
+                    Stage stage = (Stage) RequestPayment.class.getMethod("get" + stageClass.getSimpleName()).invoke(requestPayment);
+                    List<Attachment> attachmentsToRemove = new ArrayList<>();
+                    for(Attachment attachment : stage.getAttachments()){
+                        if(attachment.getUrl().equals(archiveId) && attachment.getFilename().equals(filename))
+                            attachmentsToRemove.add(attachment);
+                    }
+                    stage.getAttachments().removeAll(attachmentsToRemove);
+                    RequestPayment.class.getMethod("set" + stageClass.getSimpleName(),stageClass).invoke(requestPayment, stageClass.cast(stage));
+                }
+            }
+            requestPaymentService.update(requestPayment,requestPayment.getId());
             storeRESTClient.deleteFile(archiveId, filename);
         } catch (Exception e) {
-            logger.error("error downloading file", e);
+            logger.error("error deleting file", e);
         }
     }
 
     @PreAuthorize("hasPermission(#requestApproval,'READ')")
     public void deleteFile(String filename,RequestApproval requestApproval,String archiveId) {
         try {
+            List<Class> stagesClasses = Arrays.stream(RequestApproval.class.getDeclaredFields()).filter(p-> Stage.class.isAssignableFrom(p.getType())).flatMap(p -> Stream.of(p.getType())).collect(Collectors.toList());
+            for(Class stageClass : stagesClasses) {
+                if (RequestApproval.class.getMethod("get" + stageClass.getSimpleName()).invoke(requestApproval) != null) {
+                    Stage stage = (Stage) RequestApproval.class.getMethod("get" + stageClass.getSimpleName()).invoke(requestApproval);
+                    List<Attachment> attachmentsToRemove = new ArrayList<>();
+                    for(Attachment attachment : stage.getAttachments()){
+                        if(attachment.getUrl().equals(archiveId) && attachment.getFilename().equals(filename))
+                            attachmentsToRemove.add(attachment);
+                    }
+                    stage.getAttachments().removeAll(attachmentsToRemove);
+                    RequestApproval.class.getMethod("set" + stageClass.getSimpleName(),stageClass).invoke(requestApproval, stageClass.cast(stage));
+                }
+            }
+            requestApprovalService.update(requestApproval,requestApproval.getId());
             storeRESTClient.deleteFile(archiveId, filename);
         } catch (Exception e) {
-            logger.error("error downloading file", e);
+            logger.error("error deleting file", e);
         }
     }
 

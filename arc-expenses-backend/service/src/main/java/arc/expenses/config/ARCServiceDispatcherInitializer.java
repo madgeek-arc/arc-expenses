@@ -1,6 +1,6 @@
 package arc.expenses.config;
 
-import com.thetransactioncompany.cors.CORSFilter;
+import arc.expenses.config.security.CORSFilter;
 import eu.openminted.registry.core.configuration.HibernateConfiguration;
 import eu.openminted.registry.core.configuration.JmsConfiguration;
 import org.springframework.web.filter.CharacterEncodingFilter;

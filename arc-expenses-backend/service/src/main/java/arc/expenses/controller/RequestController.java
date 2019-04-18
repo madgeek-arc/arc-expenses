@@ -276,12 +276,12 @@ public class RequestController {
             RequestPayment requestPayment = requestPaymentService.get(objectId);
             if (requestPayment == null)
                 throw new ServiceException("Payment not found");
-            requestService.deleteFile(archiveId, requestPayment, filename);
+            requestService.deleteFile(filename, requestPayment, archiveId);
         }else if(mode.equals("approval")){
             RequestApproval requestApproval = requestApprovalService.get(objectId);
             if(requestApproval == null)
                 throw new ServiceException("Approval not found");
-            requestService.deleteFile(archiveId,requestApproval,objectId);
+            requestService.deleteFile(filename,requestApproval,archiveId);
         }
     }
 
