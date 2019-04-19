@@ -6,7 +6,6 @@ import arc.expenses.domain.StageEvents;
 import arc.expenses.domain.Stages;
 import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.domain.FacetFilter;
-import eu.openminted.registry.core.domain.Resource;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.ServiceException;
 import gr.athenarc.domain.*;
@@ -14,6 +13,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,7 +32,7 @@ import org.springframework.statemachine.transition.Transition;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+import javax.sql.DataSource;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -60,6 +60,9 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
     @Autowired
     private AclService aclService;
+
+    @Autowired
+    private DataSource dataSource;
 
     @Autowired
     @Lazy
@@ -256,7 +259,8 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
         return requestResponse;
     }
 
-    public RequestPayment createPayment(Request request){
+    public RequestPayment createPayment(Request request) throws Exception {
+        Browsing<RequestPayment> payments = getPayments(request.getId(),null);
         RequestPayment requestPayment = new RequestPayment();
         requestPayment.setId(generateID(request.getId()));
         requestPayment.setRequestId(request.getId());
@@ -277,10 +281,11 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
         AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(RequestPayment.class, requestPayment.getId()));
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(request.getUser().getEmail()), true);
-        acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(request.getUser().getEmail()), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(request.getUser().getEmail()), true);
+
         if(request.getOnBehalfOf()!=null)
             acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(request.getOnBehalfOf().getEmail()), true);
+
         if(request.getType() == Request.Type.TRIP) {
             acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(institute.getTravelManager().getEmail()), true);
             acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(institute.getTravelManager().getEmail()), true);
@@ -297,11 +302,25 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
                 acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(delegate.getEmail()), true);
             });
         }
+
+        if(request.getType() != Request.Type.SERVICES_CONTRACT){
+            acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(institute.getDiaugeia().getEmail()), true);
+            institute.getDiaugeia().getDelegates().forEach(delegate -> acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(delegate.getEmail()), true));
+        }else{
+            if(payments.getTotal()==0){
+                acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(institute.getDiaugeia().getEmail()), true);
+                institute.getDiaugeia().getDelegates().forEach(delegate -> acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(delegate.getEmail()), true));
+            }
+        }
+
+
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new GrantedAuthoritySid("ROLE_ADMIN"), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+
         for(String oldPoi : request.getPois()) {
             acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(oldPoi), true);
         }
+
         acl.setOwner(new GrantedAuthoritySid(("ROLE_USER")));
         aclService.updateAcl(acl);
 
@@ -331,7 +350,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     }
 
     public String generateID(String requestId) {
-        String maxID = getMaxID();
+        String maxID = getMaxID(requestId);
         if(maxID == null)
             return requestId+"-p1";
         else
@@ -339,35 +358,11 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     }
 
 
-    private String getMaxID() {
-
-        FacetFilter filter = new FacetFilter();
-        filter.setResourceType(getResourceType());
-        filter.setKeyword("");
-        filter.setFrom(0);
-        filter.setQuantity(1);
-
-        Map<String,Object> sort = new HashMap<>();
-        Map<String,Object> order = new HashMap<>();
-
-        String orderDirection = "desc";
-        String orderField = "payment_id";
-
-        order.put("order",orderDirection);
-        sort.put(orderField, order);
-        filter.setOrderBy(sort);
-
-        try {
-            List rs = searchService.search(filter).getResults();
-            Resource payment;
-            if(rs.size() > 0) {
-                payment = ((Resource) rs.get(0));
-                return parserPool.deserialize(payment, RequestPayment.class).getId();
-            }
-        } catch (IOException e) {
-            logger.debug("Error on search controller",e);
-        }
-        return null;
+    public String getMaxID(String requestId) {
+        return new JdbcTemplate(dataSource).query("select payment_id from payment_view where request_id=? order by creation_date desc limit 1", ps -> ps.setString(1,requestId), resultSet -> {
+            resultSet.next();
+           return resultSet.getString("payment_id");
+        });
     }
 
     @Override
