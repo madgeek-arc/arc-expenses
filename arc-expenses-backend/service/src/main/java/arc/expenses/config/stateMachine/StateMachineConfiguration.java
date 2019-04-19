@@ -759,14 +759,18 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .target(Stages.FINISHED)
                     .event(StageEvents.FINALIZE)
                     .action(stateContext -> {
-                        Request request = stateContext.getMessage().getHeaders().get("requestObj", Request.class);
-
-                        List<String> sendFinal = new ArrayList<>();
-                        sendFinal.add(request.getUser().getEmail());
-                        if(request.getOnBehalfOf()!=null)
-                            sendFinal.add(request.getOnBehalfOf().getEmail());
-
-                        mailService.sendMail("Finalized",sendFinal);
+//                        Request request = stateContext.getMessage().getHeaders().get("requestObj", Request.class);
+//
+//                        List<String> sendFinal = new ArrayList<>();
+//                        sendFinal.add(request.getUser().getEmail());
+//                        if(request.getOnBehalfOf()!=null)
+//                            sendFinal.add(request.getOnBehalfOf().getEmail());
+//
+//
+//
+//
+//
+//                        mailService.sendMail("Finalized",sendFinal);
                     })
                     .and()
                 .withExternal()

@@ -242,7 +242,7 @@ public class RequestController {
         return requestService.upLoadFile(mode,archiveID,stage,file);
     }
 
-    @RequestMapping(value = "/store/download", method = RequestMethod.GET)
+    @RequestMapping(value = "/store", method = RequestMethod.GET)
     @ResponseBody
     public void downloadFile(@RequestParam("archiveId") String archiveId,
                                @RequestParam("filename") String filename,
@@ -265,7 +265,7 @@ public class RequestController {
 
     }
 
-    @RequestMapping(value = "/store/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/store", method = RequestMethod.DELETE)
     @ResponseBody
     public void deleteFile(@RequestParam("archiveId") String archiveId,
                              @RequestParam("filename") String filename,

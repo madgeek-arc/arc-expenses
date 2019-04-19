@@ -388,7 +388,6 @@ public class TransitionService{
         requestPaymentService.update(requestPayment,requestPayment.getId());
 
         if(status == BaseInfo.Status.REJECTED){
-//            aclService.deleteAcl(new ObjectIdentityImpl(Request.class,request.getId()), true);
             mailService.sendMail("Rejected", request.getPois());
         }
     }
@@ -423,22 +422,18 @@ public class TransitionService{
 
     public void approvePayment(StateContext<Stages, StageEvents> context, String fromStage, String toStage, Stage stage) throws Exception {
         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
-        modifyRequestPayment(context, stage, toStage, BaseInfo.Status.PENDING);
 
         Request request = requestService.get(requestPayment.getRequestId());
-
-
+        BaseInfo.Status status = (toStage.equals("13") && fromStage.equals("13") ? BaseInfo.Status.ACCEPTED : BaseInfo.Status.PENDING);
         if(toStage.equals("13") && fromStage.equals("13")){ // that's the signal for a finished payment
             Browsing<RequestPayment> payments = requestPaymentService.getPayments(request.getId(),null);
             if(payments.getTotal()>=request.getPaymentCycles()){ //if we have reached the max of payment cycles then request should be automatically move to FINISHED state
+                //TODO do we count REJECTED payments in "totals"?
                 requestApprovalService.finalize(requestApprovalService.getApproval(request.getId()));
-            }else{ //if we haven't yet, create another payment request
-                requestPaymentService.createPayment(request);
-                updatingPermissions("6","7", request,"Approve",RequestPayment.class,requestPayment.getId());
-                return;
             }
         }
 
+        modifyRequestPayment(context, stage, toStage, status);
 
         updatingPermissions(fromStage,toStage, request, "Approve",RequestPayment.class,requestPayment.getId());
         updatingPermissions(fromStage,toStage,request,"Approve",RequestApproval.class,requestApprovalService.getApproval(request.getId()).getId());
