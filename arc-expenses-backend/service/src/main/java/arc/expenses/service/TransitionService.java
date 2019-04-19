@@ -327,6 +327,7 @@ public class TransitionService{
             }else{
                 requestPaymentService.createPayment(request);
             }
+            updatingPermissions("6","7",request, "Approve", RequestApproval.class,requestApproval.getId());
             aclService.removeEdit(requestApproval.getId(),RequestApproval.class);
             requestService.update(request,request.getId());
         }

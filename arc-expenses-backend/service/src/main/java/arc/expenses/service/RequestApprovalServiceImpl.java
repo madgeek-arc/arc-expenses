@@ -257,16 +257,11 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
 
 
     public String generateID(String requestId) {
-        //String maxID = getMaxID();
-        //if(maxID == null)
         return requestId+"-a1";
-        //else
-         //   return requestId+"-a"+(Integer.valueOf(maxID.split("-a")[1])+1);
-
     }
 
 
-    public boolean hasPermission(String requestApprovalId,int mask){
+    public boolean hasPermission(String approvalOrEditId,int mask){
         //if mask=32 we are looking for EDIT right
         //if mask==2 we are looking for WRITE right
         String roles = "";
@@ -274,7 +269,7 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
             roles = roles.concat(" or acl_sid.sid='"+grantedAuthority.getAuthority()+"'");
         }
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, CASE WHEN mask="+mask+" THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+email+"' and acl_entry.mask="+mask+") as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id where acl_object_identity.object_id_identity='"+requestApprovalId+"'";
+        String aclEntriesQuery = "SELECT object_id_identity, canEdit FROM acl_object_identity INNER JOIN (select distinct acl_object_identity, CASE WHEN mask="+mask+" THEN true ELSE false END AS canEdit from acl_entry INNER JOIN acl_sid ON acl_sid.id=acl_entry.sid where acl_sid.sid='"+email+"' and acl_entry.mask="+mask+") as acl_entries ON acl_entries.acl_object_identity=acl_object_identity.id where acl_object_identity.object_id_identity='"+approvalOrEditId+"'";
         return new JdbcTemplate(dataSource).query(aclEntriesQuery , rs -> {
 
             if(rs.next())

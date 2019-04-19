@@ -360,8 +360,10 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
 
     public String getMaxID(String requestId) {
         return new JdbcTemplate(dataSource).query("select payment_id from payment_view where request_id=? order by creation_date desc limit 1", ps -> ps.setString(1,requestId), resultSet -> {
-            resultSet.next();
-           return resultSet.getString("payment_id");
+            if(resultSet.next())
+                return resultSet.getString("payment_id");
+            else
+                return null;
         });
     }
 
