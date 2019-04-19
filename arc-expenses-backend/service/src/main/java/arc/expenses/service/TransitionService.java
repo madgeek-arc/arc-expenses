@@ -534,7 +534,6 @@ public class TransitionService{
                 institute.getDiaugeia().getDelegates().forEach(delegate -> revokeEditAccess.add(new PrincipalSid(delegate.getEmail())));
                 break;
             case "7":
-
                 revokeEditAccess.add(new PrincipalSid(request.getUser().getEmail()));
 
                 if(request.getType() == Request.Type.TRIP) {

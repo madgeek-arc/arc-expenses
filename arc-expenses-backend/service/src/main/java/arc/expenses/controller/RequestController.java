@@ -218,9 +218,12 @@ public class RequestController {
                                                  @RequestParam(value = "order",required=false,defaultValue = "ASC") OrderByType orderType,
                                                  @RequestParam(value = "orderField") OrderByField orderField,
                                                  @RequestParam(value = "editable", required = false, defaultValue = "false") boolean canEdit,
-                                                 @RequestParam(value = "isMine", required = false, defaultValue = "false") boolean isMine) {
+                                                 @RequestParam(value = "isMine", required = false, defaultValue = "false") boolean isMine,
+                                                 @RequestParam(value = "projectAcronym", required = false, defaultValue = "") String projectAcronym,
+                                                 @RequestParam(value = "institute", required = false, defaultValue = "") String institute,
+                                                 @RequestParam(value = "requester", required = false, defaultValue = "") String requester) {
 
-        return requestService.criteriaSearch(from,quantity,status,type,searchField,stage,orderType,orderField, canEdit, isMine);
+        return requestService.criteriaSearch(from,quantity,status,type,searchField,stage,orderType,orderField, canEdit, isMine, projectAcronym, institute, requester);
 
     }
 

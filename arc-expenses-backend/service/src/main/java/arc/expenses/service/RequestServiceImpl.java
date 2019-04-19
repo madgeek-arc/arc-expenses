@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.AclImpl;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -307,7 +309,10 @@ public class RequestServiceImpl extends GenericService<Request> {
                                                  List<String> stages, OrderByType orderType,
                                                  OrderByField orderField,
                                                  boolean canEdit,
-                                                 boolean isMine) {
+                                                 boolean isMine,
+                                                 String projectAcronym,
+                                                 String instituteName,
+                                                 String requester) {
 
         //TODO prepare statement for stages
 
@@ -341,26 +346,18 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         // viewQuery+= " where (approval_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") or payment_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+")) and request_view.request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true" : "" )+" and (approval_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") or payment_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+")) "+(!searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
 
-        viewQuery+= " where status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") and request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true " : "" )+"and stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") "+(!searchField.isEmpty() ? "and (project_scientificcoordinator=? or ? = any(project_operator) or ? = any(project_operator_delegate) or request_id=? or project_acronym=? or institute_id=? or institute_name=? )" : "")+ (isMine ? " AND requester='"+SecurityContextHolder.getContext().getAuthentication().getPrincipal()+"'" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
+        viewQuery+= " where "+(projectAcronym.isEmpty() ? "" : "project_acronym ILIKE :projectAcronym and ")+" "+(instituteName.isEmpty() ? "" : " ( institute_name ILIKE :institute OR institute_id ILIKE :institute) and ")+""+(requester.isEmpty() ? " " : " requester ILIKE :requester and ")+" status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") and request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true " : "" )+"and stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") "+(!searchField.isEmpty() ? "and (project_scientificcoordinator ILIKE :searchField or :searchField = any(project_operator) or :searchField = any(project_operator_delegate) or request_id=:searchField)" : "")+ (isMine ? " AND requester='"+SecurityContextHolder.getContext().getAuthentication().getPrincipal()+"'" : "")+" order by "+orderField+" "  +  orderType + " offset :offset limit :limit";
+        MapSqlParameterSource in = new MapSqlParameterSource();
+        in.addValue("searchField",searchField);
+        in.addValue("projectAcronym","%"+projectAcronym+"%");
+        in.addValue("institute", instituteName);
+        in.addValue("requester", requester);
+        in.addValue("offset",from);
+        in.addValue("limit",quantity);
 
         System.out.println(viewQuery);
 
-        return new JdbcTemplate(dataSource).query(viewQuery, ps -> {
-            if(!searchField.isEmpty()) {
-                ps.setString(1, searchField);
-                ps.setString(2, searchField);
-                ps.setString(3, searchField);
-                ps.setString(4, searchField);
-                ps.setString(5, searchField);
-                ps.setString(6, searchField);
-                ps.setString(7, searchField);
-                ps.setInt(8, from);
-                ps.setInt(9, quantity);
-            }else{
-                ps.setInt(1, from);
-                ps.setInt(2, quantity);
-            }
-        }, rs -> {
+        return new NamedParameterJdbcTemplate(dataSource).query(viewQuery, in, rs -> {
             List<RequestSummary> results = new ArrayList<>();
             while(rs.next()){
                 BaseInfo baseInfo = new BaseInfo();
