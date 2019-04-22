@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.util.List;
 
 @Component
@@ -32,8 +32,9 @@ public class EmailServiceImpl implements EmailService {
                 helper.setFrom(mailMessage.getFrom(), mailMessage.getFromName());
                 helper.setTo(mailMessage.getTo());
                 helper.setSubject(mailMessage.getSubject());
-                javaMailSender.send(mimeMessage);
-            } catch (MessagingException | UnsupportedEncodingException e) {
+                logger.info((String) mimeMessage.getContent());
+//                javaMailSender.send(mimeMessage);
+            } catch (MessagingException | IOException e) {
                 logger.error("Could not send message", e);
             }
         }

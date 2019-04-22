@@ -206,7 +206,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         requestApproval.setStage1(stage1);
 
         requestApprovalService.update(requestApproval,requestApproval.getId());
-        mailService.sendMail("Initial", request.getPois());
+//        mailService.sendMail("Initial", request.getPois());
 
         return request;
     }

@@ -230,7 +230,7 @@ public class TransitionService{
         requestApproval.setStatus(BaseInfo.Status.CANCELLED);
         requestApprovalService.update(requestApproval,requestApproval.getId());
 
-        mailService.sendMail("Canceled",request.getPois());
+//        mailService.sendMail("Canceled",request.getPois());
 
         requestService.update(request, request.getId());
         aclService.deleteAcl(new ObjectIdentityImpl(Request.class,request.getId()), true);
@@ -270,7 +270,7 @@ public class TransitionService{
         }
         aclService.removeEdit(requestPayment.getId(),RequestPayment.class);
         aclService.removeWrite(requestPayment.getId(),RequestPayment.class);
-        mailService.sendMail("Canceled",request.getPois());
+//        mailService.sendMail("Canceled",request.getPois());
     }
 
     public void modifyRequestApproval(
@@ -327,14 +327,14 @@ public class TransitionService{
             }else{
                 requestPaymentService.createPayment(request);
             }
-            updatingPermissions("6","7",request, "Approve", RequestApproval.class,requestApproval.getId());
+            updatingPermissions("6","7",request, "APPROVE", RequestApproval.class,requestApproval.getId(), stage.getDate()+"");
             aclService.removeEdit(requestApproval.getId(),RequestApproval.class);
             requestService.update(request,request.getId());
         }
         requestApprovalService.update(requestApproval,requestApproval.getId());
         if(status == BaseInfo.Status.REJECTED){
 //            aclService.deleteAcl(new ObjectIdentityImpl(Request.class,request.getId()), true);
-            mailService.sendMail("Rejected", request.getPois());
+//            mailService.sendMail("Rejected", request.getPois());
         }
     }
 
@@ -389,7 +389,7 @@ public class TransitionService{
         requestPaymentService.update(requestPayment,requestPayment.getId());
 
         if(status == BaseInfo.Status.REJECTED){
-            mailService.sendMail("Rejected", request.getPois());
+//            mailService.sendMail("REJECTED",request.getPois());
         }
     }
 
@@ -397,7 +397,7 @@ public class TransitionService{
         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
         Request request = requestService.get(requestApproval.getRequestId());
         modifyRequestApproval(context, stage, toStage, BaseInfo.Status.PENDING);
-        updatingPermissions(fromStage,toStage,request, "Approve", RequestApproval.class,requestApproval.getId());
+        updatingPermissions(fromStage,toStage,request, "APPROVE", RequestApproval.class,requestApproval.getId(), stage.getDate()+"");
 
         if(toStage.equals("5a") || toStage.equals("5b")){
             Project project = projectService.get(request.getProjectId());
@@ -406,7 +406,7 @@ public class TransitionService{
 
             request.setDiataktis(institute.getDiataktis());
 
-            if((project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis()) && request.getFinalAmount()<=2500  && requestService.exceedsProjectBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
+            if((project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis() && !request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail())) && request.getFinalAmount()<=2500  && requestService.exceedsProjectBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
                 request.setDiataktis(project.getScientificCoordinator());
 
             if(request.getUser().getEmail().equals(request.getDiataktis().getEmail())){
@@ -436,8 +436,8 @@ public class TransitionService{
 
         modifyRequestPayment(context, stage, toStage, status);
 
-        updatingPermissions(fromStage,toStage, request, "Approve",RequestPayment.class,requestPayment.getId());
-        updatingPermissions(fromStage,toStage,request,"Approve",RequestApproval.class,requestApprovalService.getApproval(request.getId()).getId());
+        updatingPermissions(fromStage,toStage, request, "APPROVE",RequestPayment.class,requestPayment.getId(),stage.getDate()+"");
+        updatingPermissions(fromStage,toStage,request,"",RequestApproval.class,requestApprovalService.getApproval(request.getId()).getId(), stage.getDate()+"");
 
     }
 
@@ -461,7 +461,7 @@ public class TransitionService{
         try {
             Request request = requestService.get(requestApproval.getRequestId());
             modifyRequestApproval(context, stage,toStage, BaseInfo.Status.UNDER_REVIEW);
-            updatingPermissions(fromStage,toStage,request,"Downgrade",RequestApproval.class,requestApproval.getId());
+            updatingPermissions(fromStage,toStage,request,"Downgrade",RequestApproval.class,requestApproval.getId(), stage.getDate()+"");
         } catch (Exception e) {
             logger.error("Error occurred on approval of request " + requestApproval.getId(),e);
             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -479,7 +479,7 @@ public class TransitionService{
         }
         try {
             modifyRequestPayment(context, stage,toStage, BaseInfo.Status.UNDER_REVIEW);
-            updatingPermissions(fromStage,toStage,requestService.get(requestPayment.getRequestId()),"Downgrade", RequestPayment.class,requestPayment.getId());
+            updatingPermissions(fromStage,toStage,requestService.get(requestPayment.getRequestId()),"Downgrade", RequestPayment.class,requestPayment.getId(), stage.getDate()+"");
         } catch (Exception e) {
             logger.error("Error occurred on approval of payment " + requestPayment.getId(),e);
             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -487,7 +487,7 @@ public class TransitionService{
         }
     }
 
-    public void updatingPermissions(String from, String to, Request request, String mailType, Class persistentClass, String id) throws Exception {
+    public void updatingPermissions(String from, String to, Request request, String mailType, Class persistentClass, String id, String dateToSend) throws Exception {
         List<Sid> revokeEditAccess = new ArrayList<>();
         List<Sid> grantAccess = new ArrayList<>();
         List<Sid> grantWrite = new ArrayList<>();
@@ -618,7 +618,8 @@ public class TransitionService{
             case "5a":
                 grantAccess.add(new PrincipalSid(request.getDiataktis().getEmail()));
                 request.getDiataktis().getDelegates().forEach( delegate -> {
-                    grantAccess.add(new PrincipalSid(delegate.getEmail()));
+                    if(!request.getUser().getEmail().equals(delegate.getEmail()))
+                        grantAccess.add(new PrincipalSid(delegate.getEmail()));
                 });
 
                 grantWrite.add(new PrincipalSid(organization.getPoy().getEmail()));
@@ -634,7 +635,8 @@ public class TransitionService{
 
                 grantWrite.add(new PrincipalSid(request.getDiataktis().getEmail()));
                 request.getDiataktis().getDelegates().forEach( delegate -> {
-                    grantWrite.add(new PrincipalSid(delegate.getEmail()));
+                    if(!request.getUser().getEmail().equals(delegate.getEmail()))
+                        grantWrite.add(new PrincipalSid(delegate.getEmail()));
                 });
                 break;
             case "6":
@@ -646,7 +648,8 @@ public class TransitionService{
                 if(requestApproval.getStage5b()==null){
                     grantWrite.add(new PrincipalSid(request.getDiataktis().getEmail()));
                     request.getDiataktis().getDelegates().forEach( delegate -> {
-                        grantWrite.add(new PrincipalSid(delegate.getEmail()));
+                        if(!request.getUser().getEmail().equals(delegate.getEmail()))
+                            grantWrite.add(new PrincipalSid(delegate.getEmail()));
                     });
                 }else {
                     grantWrite.add(new PrincipalSid(organization.getDioikitikoSumvoulio().getEmail()));
@@ -695,9 +698,12 @@ public class TransitionService{
                 break;
             case "8":
                 organization.getInspectionTeam().forEach(inspector -> {
-                    grantAccess.add(new PrincipalSid(inspector.getEmail()));
+                    if(!request.getUser().getEmail().equals(inspector.getEmail()))
+                        grantAccess.add(new PrincipalSid(inspector.getEmail()));
+
                     inspector.getDelegates().forEach(delegate -> {
-                        grantAccess.add(new PrincipalSid(delegate.getEmail()));
+                        if(!request.getUser().getEmail().equals(delegate.getEmail()))
+                            grantAccess.add(new PrincipalSid(delegate.getEmail()));
                     });
                 });
 
@@ -726,9 +732,11 @@ public class TransitionService{
                 });
 
                 organization.getInspectionTeam().forEach(entry -> {
-                    grantWrite.add(new PrincipalSid(entry.getEmail()));
+                    if(!request.getUser().getEmail().equals(entry.getEmail()))
+                        grantWrite.add(new PrincipalSid(entry.getEmail()));
                     entry.getDelegates().forEach(person -> {
-                        grantWrite.add(new PrincipalSid(person.getEmail()));
+                        if(!request.getUser().getEmail().equals(person.getEmail()))
+                            grantWrite.add(new PrincipalSid(person.getEmail()));
                     });
                 });
                 break;
@@ -740,7 +748,8 @@ public class TransitionService{
 
                 grantWrite.add(new PrincipalSid(request.getDiataktis().getEmail()));
                 request.getDiataktis().getDelegates().forEach( delegate -> {
-                    grantWrite.add(new PrincipalSid(delegate.getEmail()));
+                    if(!request.getUser().getEmail().equals(delegate.getEmail()))
+                        grantWrite.add(new PrincipalSid(delegate.getEmail()));
                 });
 
                 break;
@@ -777,9 +786,12 @@ public class TransitionService{
         aclService.removeWrite(id,persistentClass);
         aclService.addWrite(grantWrite,id,persistentClass);
 
-        if(!mailType.isEmpty())
-            mailService.sendMail(mailType, grantAccess.stream().map(entry -> ((PrincipalSid) entry).getPrincipal()).collect(Collectors.toList()));
-
+        if(!mailType.isEmpty()) {
+            boolean isPayment=false;
+            if(persistentClass == RequestPayment.class)
+                isPayment=true;
+            mailService.sendMail(mailType, request.getId(), project.getAcronym(), dateToSend, request.getFinalAmount()+"", requestApprovalService.getApproval(request.getId()).getStage1().getSubject(),isPayment,id, grantAccess.stream().map(entry -> ((PrincipalSid) entry).getPrincipal()).collect(Collectors.toList()));
+        }
         List<String> pois = request.getPois();
 
         grantAccess.forEach(granted -> {

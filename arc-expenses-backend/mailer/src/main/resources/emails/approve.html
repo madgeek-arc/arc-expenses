@@ -20,9 +20,11 @@
         }
         p {
             text-align: justify;
-            text-indent: 20px;
             padding-bottom: 10px;
             line-height: 21px;
+        }
+        .add-text-indent {
+            text-indent: 20px;
         }
         a {
             color: #2d2e33;
@@ -35,8 +37,8 @@
             display: inline-block;
         }
         .navbar-brand-athena {
-            /*background-image: url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-symbol.svg'),url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-type-el.svg'),url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-blurb-el.svg');*/
-            background-image: url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-symbol.svg');
+            background-image: url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-symbol.svg'),url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-type-el.svg'),url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-blurb-el.svg');
+            /*background-image: url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-symbol.svg');*/
             background-repeat: no-repeat;
             /*width: 105px;*/
             height: 100px;
@@ -60,25 +62,43 @@
             margin-bottom: 10px;
         }
         .closing-lines {
-            float: right;
+            /*float: right;*/
             text-align: right;
-            margin-top: 20px;
+            margin-top: 40px;
+        }
+        .central-container {
+            width: 800px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: white;
+            -webkit-box-shadow: 7px 7px 26px -10px rgba(26,26,26,0.6);
+            -moz-box-shadow: 7px 7px 26px -10px rgba(26,26,26,0.6);
+            box-shadow: 7px 7px 26px -10px rgba(26,26,26,0.6);
         }
     </style>
 </head>
 
 <body>
 
-<div>
+<div class="central-container">
     <div class="margin-bottom">
         <div class="navbar-brand-athena top-title">
-            <span class="h2">Ενημέρωση σχετικά με το αίτημα 20190310-00</span>
+            <span class="h2"></span>
         </div>
     </div>
     <div style="padding: 10px 40px;">
         Αγαπητέ χρήστη,
-        <p>mpla mpla mplampla mlpa mlpa mlpa keno keno keno mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla</p>
-        <p>mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla mpla: <a href="#">https://n4485.athenarc.gr/requests/request-stage/20190310-00</a></p>
+
+        <p>το ακόλουθο αίτημα προχώρησε στο επόμενο στάδιο:</p>
+        <p>
+            Αριθμός πρωτοκόλλου: $entity.request_id<br>
+            Έργο: $entity.project_acronym<br>
+            Ημερομηνία: $entity.creation_date<br>
+            Ποσό: $entity.final_amount<br>
+            Θέμα: $entity.subject
+        </p>
+
+        <p>Μπορείτε να παρακολουθήσετε την εξέλιξή του ακολουθώντας τον παρακάτω σύνδεσμο: <br><a href="$entity.url">$entity.url</a></p>
         <div class="closing-lines">
             <div class="margin-bottom">Με εκτίμηση,</div>
             <div>arc-expenses helpdesk</div>
