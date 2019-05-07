@@ -21,7 +21,6 @@ import javax.sql.DataSource;
 @Configuration
 public class AclConfiguration {
 
-
     @Autowired
     DataSource dataSource;
 

@@ -20,6 +20,20 @@
       "type": "java.lang.Boolean",
       "primaryKey":false,
       "multivalued":false
+    },
+    {
+      "name": "first_name",
+      "path": "$.firstname",
+      "type": "java.lang.String",
+      "primaryKey":false,
+      "multivalued":false
+    },
+    {
+      "name": "last_name",
+      "path": "$.lastname",
+      "type": "java.lang.String",
+      "primaryKey":false,
+      "multivalued":false
     }
   ],
   "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",

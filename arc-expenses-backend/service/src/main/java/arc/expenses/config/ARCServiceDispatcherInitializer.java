@@ -1,5 +1,6 @@
 package arc.expenses.config;
 
+import arc.expenses.config.cache.CachingConfiguration;
 import arc.expenses.config.security.CORSFilter;
 import eu.openminted.registry.core.configuration.HibernateConfiguration;
 import eu.openminted.registry.core.configuration.JmsConfiguration;
@@ -20,7 +21,8 @@ public class ARCServiceDispatcherInitializer extends AbstractAnnotationConfigDis
         return new Class[]{
                 ARCServiceConfiguration.class,
                 HibernateConfiguration.class,
-                JmsConfiguration.class
+                JmsConfiguration.class,
+                CachingConfiguration.class
         };
     }
 

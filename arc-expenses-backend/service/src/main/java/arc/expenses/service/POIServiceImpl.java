@@ -2,6 +2,7 @@ package arc.expenses.service;
 
 import arc.expenses.domain.Executive;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -13,21 +14,64 @@ import java.util.List;
 public class POIServiceImpl {
 
     @Autowired
-    DataSource dataSource;
+    private DataSource dataSource;
 
+    @Cacheable("executives")
     public List<Executive> getPois() {
         return new JdbcTemplate(dataSource)
-                .query(" select distinct(email) , firstname,lastname \n" +
-                        "from ( select split_part(poi::text,',',1) as email,\n" +
-                        "              split_part(poi::text,',',2) as firstname,\n" +
-                        "              regexp_replace(split_part(poi::text,',',3),'[^[:alpha:]]','') as lastname\n" +
-                        "      from   (\n" +
-                        "                select regexp_matches(payload,'(?:\"email\":\")(.*?)(?:\",\"firstname\":\"(.*?)(?:\",\"lastname\":\"(.*?)(?:\")))','g')\n" +
-                        "                from resource\n" +
-                        "                where fk_name = 'project'\n" +
-                        "             )  as poi\n" +
-                        "     ) as poi\n" +
-                        "where poi.firstname!='\"\"\"\"' and poi.lastname != '\"\"\"\"'",poiRowMapper);
+                .query(" SELECT foo.unnest as email, user_view.first_name as firstname, user_view.last_name as lastname FROM (SELECT DISTINCT UNNEST(project_operator) FROM project_view  " +
+                        "UNION  " +
+                        "SELECT DISTINCT UNNEST(project_operator_delegate) FROM project_view  " +
+                        "UNION  " +
+                        "SELECT DISTINCT project_scientificcoordinator FROM project_view " +
+                        "UNION " +
+                        "SELECT DISTINCT accountingdirector FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT accountingpayment FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT accountingregistration FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT diataktis FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT diaugeia FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT director FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT suppliesoffice FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT travelmanager FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(accountingdirector_delegate) FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(accountingpayment_delegate) FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(accountingregistration_delegate) FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(diataktis_delegate) FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(diaugeia_delegate) FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(director_delegate) FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(suppliesoffice_delegate) FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(travelmanager_delegate) FROM institute_view " +
+                        "UNION " +
+                        "SELECT DISTINCT dioikitikosumvoulio FROM organization_view " +
+                        "UNION " +
+                        "SELECT DISTINCT director FROM organization_view " +
+                        "UNION " +
+                        "SELECT DISTINCT organization_poy FROM organization_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(dioikitikosumvoulio_delegate) FROM organization_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(director_delegate) FROM organization_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(inspectionteam) FROM organization_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(inspectionteam_delegate) FROM organization_view " +
+                        "UNION " +
+                        "SELECT DISTINCT UNNEST(poy_delegate) FROM organization_view) as foo INNER JOIN user_view on user_view.user_id= foo.unnest;",poiRowMapper);
 
     }
 

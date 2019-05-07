@@ -1,10 +1,16 @@
 package arc.expenses.domain;
 
-public class Executive {
+import java.io.Serializable;
+
+public class Executive implements Serializable {
 
     private String firstname;
     private String lastname;
     private String email;
+
+    public Executive(){
+
+    }
 
     public Executive(String email, String firstname, String lastname) {
         this.firstname = firstname;

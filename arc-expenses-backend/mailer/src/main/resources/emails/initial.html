@@ -1,0 +1,110 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!--[if !mso]><!-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!--<![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style type="text/css">
+        * {
+            -webkit-font-smoothing: antialiased;
+        }
+        body {
+            padding:10px;
+            background-color:#e5e5e5;
+            color: #2d2e33;
+            font-family: 'Open Sans' serif;
+            font-size: 15px;
+            font-weight: 400;
+        }
+        p {
+            text-align: justify;
+            padding-bottom: 10px;
+            line-height: 21px;
+        }
+        .add-text-indent {
+            text-indent: 20px;
+        }
+        a {
+            color: #2d2e33;
+        }
+        a:hover {
+            color: #0f6ccd;
+            text-decoration: underline;
+        }
+        .display-inline {
+            display: inline-block;
+        }
+        .navbar-brand-athena {
+            background-image: url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-symbol.svg'),url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-type-el.svg'),url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-blurb-el.svg');
+            /*background-image: url('https://www.athena-innovation.gr/sites/all/themes/aohna/images/athena-logo-symbol.svg');*/
+            background-repeat: no-repeat;
+            /*width: 105px;*/
+            height: 100px;
+            top: 12px;
+            left: 20px;
+        }
+        .top-title {
+            text-align: right;
+            /*padding-left: 115px;*/
+            padding-right: 20px;
+            padding-top: 40px;
+        }
+        .h2 {
+            font-size: 18px;
+            line-height: 1.3;
+            font-weight: 300;
+            color: #2d2e33;
+            letter-spacing: 0;
+        }
+        .margin-bottom {
+            margin-bottom: 10px;
+        }
+        .closing-lines {
+            /*float: right;*/
+            text-align: right;
+            margin-top: 40px;
+        }
+        .central-container {
+            width: 800px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: white;
+            -webkit-box-shadow: 7px 7px 26px -10px rgba(26,26,26,0.6);
+            -moz-box-shadow: 7px 7px 26px -10px rgba(26,26,26,0.6);
+            box-shadow: 7px 7px 26px -10px rgba(26,26,26,0.6);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="central-container">
+    <div class="margin-bottom">
+        <div class="navbar-brand-athena top-title">
+            <span class="h2"></span>
+        </div>
+    </div>
+    <div style="padding: 10px 40px;">
+        Αγαπητέ χρήστη,
+
+        <p>έχει υποβληθεί νέο αίτημα στην πλατφόρμα και αναμένει τις ενέργειές σας:</p>
+        <p>
+            Αριθμός πρωτοκόλλου: $entity.request_id<br>
+            Έργο: $entity.project_acronym<br>
+            Ημερομηνία: $entity.creation_date<br>
+            Ποσό: $entity.final_amount<br>
+            Θέμα: $entity.subject
+        </p>
+
+        <p>Μπορείτε να παρακολουθήσετε την εξέλιξή του ακολουθώντας τον παρακάτω σύνδεσμο: <br><a href="$entity.url">$entity.url</a></p>
+        <div class="closing-lines">
+            <div class="margin-bottom">Με εκτίμηση,</div>
+            <div>arc-expenses helpdesk</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
