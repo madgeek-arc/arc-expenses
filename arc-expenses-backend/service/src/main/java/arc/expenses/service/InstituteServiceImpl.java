@@ -5,6 +5,7 @@ import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Institute;
 import org.apache.log4j.Logger;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,7 @@ public class InstituteServiceImpl extends GenericService<Institute>{
     }
 
     @Override
+    @CacheEvict(value = "executives", allEntries = true)
     public Institute update(Institute institute, Authentication authentication) throws ResourceNotFoundException {
         update(institute,institute.getId());
         return institute;

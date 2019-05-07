@@ -4,6 +4,7 @@ import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Organization;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,7 @@ public class OrganizationServiceImpl extends GenericService<Organization>{
     }
 
     @Override
+    @CacheEvict(value = "executives", allEntries = true)
     public Organization update(Organization organization,Authentication authentication) throws ResourceNotFoundException {
         update(organization,organization.getId());
         return organization;
