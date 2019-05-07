@@ -85,16 +85,21 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
                         public void postStateChange(State state, Message message, Transition transition, StateMachine stateMachine) {
                             Optional.ofNullable(message).ifPresent(msg -> {
                                 Optional.ofNullable((RequestApproval) msg.getHeaders().get("requestApprovalObj"))
-                                        .ifPresent(request ->{
-                                            request = get(request.getId());
-                                            request.setCurrentStage(state.getId()+""); // <-- casting to String causes uncertain behavior. Keep it this way
+                                        .ifPresent(requestApproval ->{
+                                            requestApproval = get(requestApproval.getId());
+                                            requestApproval.setLastModified(new LastModified((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), new Date().toInstant().toEpochMilli()));
+                                            requestApproval.setCurrentStage(state.getId()+""); // <-- casting to String causes uncertain behavior. Keep it this way
+
+                                            Request request = requestService.get(requestApproval.getRequestId());
+                                            request.setLastModified(new LastModified((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), new Date().toInstant().toEpochMilli()));
                                             try {
-                                                logger.info("Updating "+ request.getId()+" request approval's stage to " + state.getId());
-                                                update(request, request.getId());
+                                                logger.info("Updating "+ requestApproval.getId()+" request approval's stage to " + state.getId());
+                                                requestService.update(request,request.getId());
+                                                update(requestApproval, requestApproval.getId());
                                             } catch (ResourceNotFoundException e) {
-                                                throw new ServiceException("Request approval with id " + request.getId() + " not found");
+                                                throw new ServiceException("Request approval with id " + requestApproval.getId() + " not found");
                                             }
-                                            msg.getHeaders().replace("requestApprovalObj",request);
+                                            msg.getHeaders().replace("requestApprovalObj",requestApproval);
                                         });
                             });
                         }

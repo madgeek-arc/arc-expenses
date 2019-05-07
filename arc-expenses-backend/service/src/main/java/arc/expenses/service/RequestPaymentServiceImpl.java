@@ -23,6 +23,7 @@ import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AlreadyExistsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.state.State;
@@ -93,8 +94,12 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
                                 Optional.ofNullable((RequestPayment) msg.getHeaders().get("paymentObj"))
                                         .ifPresent(payment ->{
                                             payment.setCurrentStage(state.getId()+""); // <-- casting to String causes uncertain behavior. Keep it this way
+                                            payment.setLastModified(new LastModified((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), new Date().toInstant().toEpochMilli()));
+                                            Request request = requestService.get(payment.getRequestId());
+                                            request.setLastModified(new LastModified((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), new Date().toInstant().toEpochMilli()));
                                             try {
                                                 logger.info("Updating "+ payment.getId()+" payment's stage to " + state.getId());
+                                                requestService.update(request,request.getId());
                                                 update(payment, payment.getId());
                                             } catch (ResourceNotFoundException e) {
                                                 throw new ServiceException("Request with id " + payment.getId() + " not found");

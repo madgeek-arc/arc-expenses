@@ -221,6 +221,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         requestApproval.setCreationDate(new Date().toInstant().toEpochMilli());
         requestApproval.setStage("2");
         requestApproval.setStatus(BaseInfo.Status.PENDING);
+        requestApproval.setLastModified(new LastModified((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), new Date().toInstant().toEpochMilli()));
 
         requestApproval = requestApprovalService.add(requestApproval, null);
 

@@ -16,6 +16,9 @@
     "stage": {
       "type": "string"
     },
+    "lastModified": {
+      "javaType": "gr.athenarc.domain.LastModified"
+    },
     "status": {
       "type": "string",
       "enum": [

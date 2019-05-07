@@ -70,7 +70,11 @@
       }
     },
     "trip": {
-      "javaType": "gr.athenarc.domain.Trip" }
+      "javaType": "gr.athenarc.domain.Trip"
+    },
+    "lastModified": {
+      "javaType": "gr.athenarc.domain.LastModified"
+    }
   },
   "required": [
     "finalAmount"
