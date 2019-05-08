@@ -343,7 +343,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         // String viewQuery = "SELECT * FROM ("+aclEntriesQuery+")  d, request_view r, project_view p, institute_view i WHERE d.request_id = r.request_id AND r.request_project = p.project_id AND p.project_institute = i.institute_id ORDER BY object_id_identity, canEdit desc ";
         // viewQuery+=" inner join (" + aclEntriesQuery+") as acls on acls.object_id_identity=approval_view.approval_id or acls.object_id_identity=payment_view.payment_id ";
 
-        String viewQuery = "SELECT * FROM ("+aclEntriesQuery+") aclQ ";
+        String viewQuery = "SELECT *, count(*) OVER() as totals FROM ("+aclEntriesQuery+") aclQ ";
 
         // viewQuery+= " where (approval_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") or payment_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+")) and request_view.request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true" : "" )+" and (approval_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") or payment_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+")) "+(!searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
 
@@ -360,7 +360,9 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         return new NamedParameterJdbcTemplate(dataSource).query(viewQuery, in, rs -> {
             List<RequestSummary> results = new ArrayList<>();
+            int totals = 0;
             while(rs.next()){
+                totals = rs.getInt("totals");
                 BaseInfo baseInfo = new BaseInfo();
                 if(rs.getString("status") !=null && !rs.getString("status").isEmpty())
                     baseInfo.setStatus(BaseInfo.Status.valueOf(rs.getString("status")));
@@ -375,10 +377,20 @@ public class RequestServiceImpl extends GenericService<Request> {
                 baseInfo.setId(rs.getString("id"));
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                boolean failedToParse = false;
                 try {
                     baseInfo.setCreationDate(sdf.parse(rs.getString("creation_date")).getTime());
                 } catch (ParseException e) {
-                    logger.warn("Failed to parse creation date from sql query");
+                    failedToParse = true;
+                }
+                if(failedToParse){
+                    sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    try {
+                        baseInfo.setCreationDate(sdf.parse(rs.getString("creation_date")).getTime());
+                    } catch (ParseException e) {
+                        logger.warn("Failed to parse creation date from sql query");
+                    }
+
                 }
                 baseInfo.setRequestId(request.getId());
                 RequestSummary requestSummary = new RequestSummary();
@@ -393,7 +405,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
                 results.add(requestSummary);
             }
-            return new Paging<>(results.size(),from, from + results.size(), results, new ArrayList<>());
+            return new Paging<>(totals,from, from + results.size(), results, new ArrayList<>());
         });
     }
 
