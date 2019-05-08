@@ -315,8 +315,6 @@ public class RequestServiceImpl extends GenericService<Request> {
                                                  String instituteName,
                                                  String requester) {
 
-        //TODO prepare statement for stages
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         boolean isAdmin = false;
@@ -343,14 +341,16 @@ public class RequestServiceImpl extends GenericService<Request> {
         String viewQuery = "SELECT *, count(*) OVER() as totals FROM ("+aclEntriesQuery+") aclQ ";
 
 
-        viewQuery+= " where "+(projectAcronym.isEmpty() ? "" : "project_acronym ILIKE :projectAcronym and ")+" "+(instituteName.isEmpty() ? "" : " ( institute_name ILIKE :institute OR institute_id ILIKE :institute) and ")+""+(requester.isEmpty() ? " " : " requester ILIKE :requester and ")+" status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") and request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true " : "" )+"and stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") "+(!searchField.isEmpty() ? "and (project_scientificcoordinator ILIKE :searchField or :searchField = any(project_operator) or :searchField = any(project_operator_delegate) or request_id=:searchField)" : "")+ (isMine ? " AND requester='"+SecurityContextHolder.getContext().getAuthentication().getPrincipal()+"'" : "")+" order by "+orderField+" "  +  orderType + " offset :offset limit :limit";
+        viewQuery+= " where "+(projectAcronym.isEmpty() ? "" : "project_acronym ILIKE :projectAcronym and ")+" "+(instituteName.isEmpty() ? "" : " ( institute_name ILIKE :institute OR institute_id ILIKE :institute) and ")+""+(requester.isEmpty() ? " " : " requester ILIKE :requester and ")+" status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") and request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true " : "" )+"and stage in (:stages) "+(!searchField.isEmpty() ? "and (project_scientificcoordinator ILIKE :searchField or :searchField = any(project_operator) or :searchField = any(project_operator_delegate) or request_id=:searchField)" : "")+ (isMine ? " AND requester='"+SecurityContextHolder.getContext().getAuthentication().getPrincipal()+"'" : "")+" order by "+orderField+" "  +  orderType + " offset :offset limit :limit";
         MapSqlParameterSource in = new MapSqlParameterSource();
         in.addValue("searchField",searchField);
         in.addValue("projectAcronym","%"+projectAcronym+"%");
         in.addValue("institute", "%"+instituteName+"%");
         in.addValue("requester", "%"+requester+"%");
+        in.addValue("stages",stages);
         in.addValue("offset",from);
         in.addValue("limit",quantity);
+
 
         System.out.println(viewQuery);
 
