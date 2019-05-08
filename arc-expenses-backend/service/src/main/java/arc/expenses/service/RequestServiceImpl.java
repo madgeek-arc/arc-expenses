@@ -340,19 +340,15 @@ public class RequestServiceImpl extends GenericService<Request> {
                 "where d.request_id = r.request_id AND r.request_project = p.project_id AND p.project_institute = i.institute_id " +
                 "order by object_id_identity, canEdit desc";
 
-        // String viewQuery = "SELECT * FROM ("+aclEntriesQuery+")  d, request_view r, project_view p, institute_view i WHERE d.request_id = r.request_id AND r.request_project = p.project_id AND p.project_institute = i.institute_id ORDER BY object_id_identity, canEdit desc ";
-        // viewQuery+=" inner join (" + aclEntriesQuery+") as acls on acls.object_id_identity=approval_view.approval_id or acls.object_id_identity=payment_view.payment_id ";
-
         String viewQuery = "SELECT *, count(*) OVER() as totals FROM ("+aclEntriesQuery+") aclQ ";
 
-        // viewQuery+= " where (approval_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") or payment_view.status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+")) and request_view.request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true" : "" )+" and (approval_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") or payment_view.stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+")) "+(!searchField.isEmpty() ? "and ( project_view.project_scientificcoordinator=? or project_view.project_operator=? or request_view.request_id=? or project_view.project_acronym=? or institute_view.institute_name=? )" : "")+" order by "+orderField+" "  +  orderType + " offset ? limit ?";
 
         viewQuery+= " where "+(projectAcronym.isEmpty() ? "" : "project_acronym ILIKE :projectAcronym and ")+" "+(instituteName.isEmpty() ? "" : " ( institute_name ILIKE :institute OR institute_id ILIKE :institute) and ")+""+(requester.isEmpty() ? " " : " requester ILIKE :requester and ")+" status in ("+status.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") and request_type in ("+types.stream().map(p -> "'"+p.toString()+"'").collect(Collectors.joining(","))+") "+(canEdit ? "and canEdit=true " : "" )+"and stage in ("+stages.stream().map(p -> "'"+p+"'").collect(Collectors.joining(","))+") "+(!searchField.isEmpty() ? "and (project_scientificcoordinator ILIKE :searchField or :searchField = any(project_operator) or :searchField = any(project_operator_delegate) or request_id=:searchField)" : "")+ (isMine ? " AND requester='"+SecurityContextHolder.getContext().getAuthentication().getPrincipal()+"'" : "")+" order by "+orderField+" "  +  orderType + " offset :offset limit :limit";
         MapSqlParameterSource in = new MapSqlParameterSource();
         in.addValue("searchField",searchField);
         in.addValue("projectAcronym","%"+projectAcronym+"%");
-        in.addValue("institute", instituteName);
-        in.addValue("requester", requester);
+        in.addValue("institute", "%"+instituteName+"%");
+        in.addValue("requester", "%"+requester+"%");
         in.addValue("offset",from);
         in.addValue("limit",quantity);
 
