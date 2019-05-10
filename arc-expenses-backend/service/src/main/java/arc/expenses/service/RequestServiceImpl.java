@@ -204,7 +204,6 @@ public class RequestServiceImpl extends GenericService<Request> {
         RequestApproval requestApproval = createRequestApproval(request);
         requestApproval.setCurrentStage(Stages.Stage2.name());
         requestApproval.setStage1(stage1);
-
         requestApprovalService.update(requestApproval,requestApproval.getId());
 //        mailService.sendMail("Initial", request.getPois());
 
@@ -260,7 +259,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     public boolean exceedsProjectBudget(PersonOfInterest scientificCoordinator, String projectId, Double amount){
 
-        String budgetQuery = "select CASE WHEN sum(request_final_amount) + "+amount+" >(0.25 * project_view.project_total_cost) THEN false ELSE true END AS canBeDiataktis from request_view INNER JOIN project_view ON project_view.project_id=request_view.request_project WHERE request_view.request_diataktis='"+scientificCoordinator.getEmail()+"' AND project_view.project_id='"+projectId+"' GROUP BY project_view.project_total_cost;";
+        String budgetQuery = "select CASE WHEN sum(request_final_amount) + "+amount+" >(0.25 * project_view.project_total_cost) THEN false ELSE true END AS canBeDiataktis from request_view INNER JOIN project_view ON project_view.project_id=request_view.request_project WHERE request_view.request_diataktis='"+scientificCoordinator.getEmail()+"' AND project_view.project_id='"+projectId+"' AND request_view.request_status IN ('PENDING','ACCEPTED') GROUP BY project_view.project_total_cost;";
 
         return new JdbcTemplate(dataSource).query(budgetQuery , rs -> {
             if(rs.next())
@@ -547,6 +546,51 @@ public class RequestServiceImpl extends GenericService<Request> {
         } catch (Exception e) {
             logger.error("error deleting file", e);
         }
+    }
+
+    public void updateDiataktis() throws Exception {
+        FacetFilter filter = new FacetFilter();
+        filter.setQuantity(10000);
+        List<Request> requests = getAll(filter,null).getResults();
+        int i=0;
+        for(Request request : requests){
+            Project project = projectService.get(request.getProjectId());
+            if(project == null)
+                continue;
+            Institute institute = instituteService.get(project.getInstituteId());
+            Organization organization = organizationService.get(institute.getOrganizationId());
+
+            RequestApproval requestApproval = requestApprovalService.getApproval(request.getId());
+            if(requestApproval == null){
+                i++;
+                continue;
+            }
+            if(requestApproval.getStage5a()==null && !requestApproval.getStage().equals("5a"))
+                request.setDiataktis(institute.getDiataktis());
+            else if(requestApproval.getStage5a()==null && requestApproval.getStage().equals("5a")){
+                request.setDiataktis(institute.getDiataktis());
+                if((project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis() && !request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail())) && request.getFinalAmount()<=2500  && exceedsProjectBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
+                    request.setDiataktis(project.getScientificCoordinator());
+
+                if(request.getUser().getEmail().equals(request.getDiataktis().getEmail())){
+                    if(request.getUser().getEmail().equals(organization.getDirector().getEmail()))
+                        request.setDiataktis(organization.getViceDirector());
+                    else
+                        request.setDiataktis(organization.getDirector());
+                }
+            }else{
+                PersonOfInterest personOfInterest = new PersonOfInterest();
+                personOfInterest.setEmail(requestApproval.getStage5a().getUser().getEmail());
+                personOfInterest.setFirstname(requestApproval.getStage5a().getUser().getFirstname());
+                personOfInterest.setLastname(requestApproval.getStage5a().getUser().getLastname());
+                request.setDiataktis(personOfInterest);
+            }
+
+            update(request,request.getId());
+        }
+
+        logger.info(i + " approvals not found");
+
     }
 
 

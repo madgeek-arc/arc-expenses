@@ -216,7 +216,7 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     public RequestResponse getRequestResponse(String id) throws Exception {
         RequestPayment requestPayment = get(id);
         if(requestPayment == null)
-            throw new ServiceException("Request approval not found");
+            throw new ServiceException("Request payment not found");
 
         RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
 

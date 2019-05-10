@@ -102,7 +102,7 @@ public class TransitionService{
     }
 
     public void editApproval(StateContext<Stages, StageEvents> context, Stage stage, String stageString) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ResourceNotFoundException, InstantiationException, IOException {
-
+        stage.setDate(new Date().toInstant().toEpochMilli());
         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
 
@@ -160,7 +160,7 @@ public class TransitionService{
     }
 
     public void editPayment(StateContext<Stages, StageEvents> context, Stage stage, String stageString) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException, IOException, ResourceNotFoundException {
-
+        stage.setDate(new Date().toInstant().toEpochMilli());
         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
 
@@ -239,7 +239,6 @@ public class TransitionService{
     public void cancelRequestPayment(
             StateContext<Stages, StageEvents> context,
             String stage) throws Exception {
-
         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
         Request request = requestService.get(requestPayment.getRequestId());
@@ -281,7 +280,7 @@ public class TransitionService{
 
         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
         MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
-
+        stage.setDate(new Date().toInstant().toEpochMilli());
         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
         Request request = requestService.get(requestApproval.getRequestId());
 
@@ -343,7 +342,7 @@ public class TransitionService{
             Stage stage,
             String stageString,
             BaseInfo.Status status) throws Exception {
-
+        stage.setDate(new Date().toInstant().toEpochMilli());
         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
         MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
 
@@ -395,6 +394,7 @@ public class TransitionService{
 
     public void approveApproval(StateContext<Stages, StageEvents> context, String fromStage, String toStage, Stage stage) throws Exception {
         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
+        stage.setDate(new Date().toInstant().toEpochMilli());
         Request request = requestService.get(requestApproval.getRequestId());
         modifyRequestApproval(context, stage, toStage, BaseInfo.Status.PENDING);
         updatingPermissions(fromStage,toStage,request, "APPROVE", RequestApproval.class,requestApproval.getId(), stage.getDate()+"");
@@ -423,7 +423,7 @@ public class TransitionService{
 
     public void approvePayment(StateContext<Stages, StageEvents> context, String fromStage, String toStage, Stage stage) throws Exception {
         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
-
+        stage.setDate(new Date().toInstant().toEpochMilli());
         Request request = requestService.get(requestPayment.getRequestId());
         BaseInfo.Status status = (toStage.equals("13") && fromStage.equals("13") ? BaseInfo.Status.ACCEPTED : BaseInfo.Status.PENDING);
         if(toStage.equals("13") && fromStage.equals("13")){ // that's the signal for a finished payment
@@ -442,10 +442,12 @@ public class TransitionService{
     }
 
     public void rejectApproval(StateContext<Stages, StageEvents> context, Stage stage, String rejectedAt) throws Exception {
+        stage.setDate(new Date().toInstant().toEpochMilli());
         modifyRequestApproval(context, stage,rejectedAt, BaseInfo.Status.REJECTED);
     }
 
     public void rejectPayment(StateContext<Stages, StageEvents> context,Stage stage, String rejectedAt) throws Exception {
+        stage.setDate(new Date().toInstant().toEpochMilli());
         modifyRequestPayment(context, stage,rejectedAt, BaseInfo.Status.REJECTED);
     }
 
@@ -454,6 +456,7 @@ public class TransitionService{
         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
         MultipartHttpServletRequest req = (MultipartHttpServletRequest) context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
         String comment = Optional.ofNullable(req.getParameter("comment")).orElse("");
+        stage.setDate(new Date().toInstant().toEpochMilli());
         if(comment.isEmpty()) {
             context.getStateMachine().setStateMachineError(new ServiceException("We need a comment!"));
             throw new ServiceException("We need a comment!");
@@ -471,6 +474,7 @@ public class TransitionService{
 
     public void downgradePayment(StateContext<Stages, StageEvents> context, String fromStage, String toStage, Stage stage){
         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+        stage.setDate(new Date().toInstant().toEpochMilli());
         MultipartHttpServletRequest req = (MultipartHttpServletRequest) context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
         String comment = Optional.ofNullable(req.getParameter("comment")).orElse("");
         if(comment.isEmpty()) {

@@ -31,6 +31,8 @@ public class AclService extends JdbcMutableAclService{
             MutableAcl acl = (MutableAcl) readAclById(objectIdentity);
             for(int i=0; i<acl.getEntries().size();i++){
                 for(Sid sid : principals) {
+                    if(i == acl.getEntries().size())
+                        break;
                     if(acl.getEntries().get(i).getSid().equals(sid) && !acl.getEntries().get(i).getPermission().equals(ArcPermission.READ) && !acl.getEntries().get(i).getPermission().equals(ArcPermission.CANCEL)){
                         acl.deleteAce(i);
                         i = (i==1 ? 0:i--);
