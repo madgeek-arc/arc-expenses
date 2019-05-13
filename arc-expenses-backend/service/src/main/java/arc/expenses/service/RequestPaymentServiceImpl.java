@@ -213,11 +213,8 @@ public class RequestPaymentServiceImpl extends GenericService<RequestPayment> {
     }
 
 
-    public RequestResponse getRequestResponse(String id) throws Exception {
-        RequestPayment requestPayment = get(id);
-        if(requestPayment == null)
-            throw new ServiceException("Request payment not found");
-
+    @PreAuthorize("hasPermission(#requestPayment,'READ')")
+    public RequestResponse getRequestResponse(RequestPayment requestPayment) throws Exception {
         RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
 
         Request request = requestService.get(requestApproval.getRequestId());

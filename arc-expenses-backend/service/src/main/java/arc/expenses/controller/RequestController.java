@@ -291,7 +291,10 @@ public class RequestController {
 
     @RequestMapping(value =  "/approval/getById/{id}", method = RequestMethod.GET)
     public ResponseEntity<RequestResponse> getApprovalById(@PathVariable("id") String id) throws Exception {
-        return new ResponseEntity(requestApprovalService.getRequestResponse(id),HttpStatus.OK);
+        RequestApproval requestApproval = requestApprovalService.get(id);
+        if(requestApproval == null)
+            throw new ServiceException("Request approval not found");
+        return new ResponseEntity(requestApprovalService.getRequestResponse(requestApproval),HttpStatus.OK);
     }
 
     @RequestMapping(value =  "/payments/getByRequestId/{request_id}", method = RequestMethod.GET)

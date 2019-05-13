@@ -41,7 +41,8 @@ public class AclService extends JdbcMutableAclService{
             }
             updateAcl(acl);
         } catch (NotFoundException nfe) {
-            logger.error("Could not delete acl entries" ,nfe);
+            logger.warn("Could not delete acl entries" ,nfe);
+            return;
         }
 
     }
@@ -69,6 +70,12 @@ public class AclService extends JdbcMutableAclService{
 
     public void updateAclEntries(List<Sid> oldPrincipal, List<Sid> newPrincipal, String id, Class persistentClass){
         deleteEntries(oldPrincipal,id, persistentClass);
+
+        try{
+            createAcl(new ObjectIdentityImpl(persistentClass, id));
+        }catch (AlreadyExistsException ex){
+            logger.debug("Object identity already exists");
+        }
 
         AclImpl acl = (AclImpl) readAclById(new ObjectIdentityImpl(persistentClass, id));
         for(Sid principal : newPrincipal){

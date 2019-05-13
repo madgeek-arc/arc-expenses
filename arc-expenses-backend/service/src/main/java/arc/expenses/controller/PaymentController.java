@@ -37,7 +37,10 @@ public class PaymentController {
 
     @RequestMapping(value =  "/getById/{id}", method = RequestMethod.GET)
     public RequestResponse getPaymentById(@PathVariable("id") String id) throws Exception {
-        RequestResponse requestResponse = requestPaymentService.getRequestResponse(id);
+        RequestPayment requestPayment = requestPaymentService.get(id);
+        if(requestPayment == null)
+            throw new ServiceException("Request payment not found");
+        RequestResponse requestResponse = requestPaymentService.getRequestResponse(requestPayment);
         if(requestResponse == null)
             throw new ResourceNotFoundException();
         return requestResponse;

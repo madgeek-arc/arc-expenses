@@ -212,12 +212,8 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
 
     }
 
-
-    public RequestResponse getRequestResponse(String id) throws Exception {
-        RequestApproval requestApproval = get(id);
-        if(requestApproval == null)
-            throw new ServiceException("Request approval not found");
-
+    @PreAuthorize("hasPermission(#requestApproval,'READ')")
+    public RequestResponse getRequestResponse(RequestApproval requestApproval) throws Exception {
         Request request = requestService.get(requestApproval.getRequestId());
         Project project = projectService.get(request.getProjectId());
         Institute institute = instituteService.get(project.getInstituteId());
@@ -284,10 +280,6 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
         });
 
     }
-
-
-
-
 
     @Override
     public RequestApproval getByField(String key, String value) throws Exception {
