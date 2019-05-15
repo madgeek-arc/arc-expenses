@@ -728,13 +728,12 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .event(StageEvents.EDIT)
                     .guard(stateContext -> transitionService.checkContains(stateContext, Stage6.class))
                     .action(context -> {
-                        RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
+                        RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
                         try {
-                            RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
                             transitionService.editApproval(context, requestApproval.getStage6(), "6");
                             transitionService.editApproval(context, requestApproval.getStage1(), "1");
                         } catch (Exception e) {
-                            logger.error("Error occurred on editing of payment " + requestPayment.getId(),e);
+                            logger.error("Error occurred on editing of approval " + requestApproval.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
                             throw new ServiceException(e.getMessage());
                         }
