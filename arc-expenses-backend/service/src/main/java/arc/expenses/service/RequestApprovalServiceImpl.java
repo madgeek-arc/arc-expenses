@@ -263,7 +263,7 @@ public class RequestApprovalServiceImpl extends GenericService<RequestApproval> 
 
 
     public boolean hasPermission(String approvalOrEditId,int mask){
-        //if mask=32 we are looking for EDIT right
+        //if mask==32 we are looking for EDIT right
         //if mask==2 we are looking for WRITE right
         String roles = "";
         for(GrantedAuthority grantedAuthority : SecurityContextHolder.getContext().getAuthentication().getAuthorities()){

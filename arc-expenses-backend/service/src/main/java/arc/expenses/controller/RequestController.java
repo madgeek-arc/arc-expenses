@@ -29,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -248,22 +249,33 @@ public class RequestController {
     @RequestMapping(value = "/store", method = RequestMethod.GET)
     @ResponseBody
     public void downloadFile(@RequestParam("archiveId") String archiveId,
-                               @RequestParam("filename") String filename,
                                @RequestParam("id") String objectId,
                                @RequestParam("mode") String mode,
                                HttpServletResponse response) throws Exception {
-        File temp = File.createTempFile(filename, "tmp");
         if(mode.equals("approval")){
             RequestApproval requestApproval = requestApprovalService.get(objectId);
-            temp = requestService.downloadFile(temp,requestApproval,archiveId+"/"+filename);
+            Attachment attachment = requestService.getAttachmentFromApproval(requestApproval,archiveId);
+            if(attachment == null)
+                throw new ServiceException("Attachment not found");
+
+            File temp = File.createTempFile(attachment.getFilename(), "tmp");
+            temp = requestService.downloadFile(temp,requestApproval,archiveId);
+            response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''"+ UriUtils.encode(attachment.getFilename(),"UTF-8") +"");
+            IOUtils.copyLarge(new FileInputStream(temp), response.getOutputStream());
         }else if(mode.equals("payment")){
             RequestPayment requestPayment = requestPaymentService.get(objectId);
-            temp = requestService.downloadFile(temp,requestPayment,archiveId+"/"+filename);
+
+            Attachment attachment = requestService.getAttachmentFromPayment(requestPayment,archiveId);
+            if(attachment == null)
+                throw new ServiceException("Attachment not found");
+            File temp = File.createTempFile(attachment.getFilename(), "tmp");
+            temp = requestService.downloadFile(temp,requestPayment,archiveId);
+            response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''"+ UriUtils.encode(attachment.getFilename(),"UTF-8") +"");
+            IOUtils.copyLarge(new FileInputStream(temp), response.getOutputStream());
         }else{
             return;
         }
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-        IOUtils.copyLarge(new FileInputStream(temp), response.getOutputStream());
+
 
 
     }
@@ -271,7 +283,6 @@ public class RequestController {
     @RequestMapping(value = "/store", method = RequestMethod.DELETE)
     @ResponseBody
     public void deleteFile(@RequestParam("archiveId") String archiveId,
-                             @RequestParam("filename") String filename,
                              @RequestParam("id") String objectId,
                              @RequestParam("mode") String mode) {
 
@@ -279,12 +290,12 @@ public class RequestController {
             RequestPayment requestPayment = requestPaymentService.get(objectId);
             if (requestPayment == null)
                 throw new ServiceException("Payment not found");
-            requestService.deleteFile(filename, requestPayment, archiveId);
+            requestService.deleteFile(requestPayment, archiveId);
         }else if(mode.equals("approval")){
             RequestApproval requestApproval = requestApprovalService.get(objectId);
             if(requestApproval == null)
                 throw new ServiceException("Approval not found");
-            requestService.deleteFile(filename,requestApproval,archiveId);
+            requestService.deleteFile(requestApproval,archiveId);
         }
     }
 

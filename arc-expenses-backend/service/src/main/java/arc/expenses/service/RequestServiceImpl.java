@@ -36,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -73,6 +74,9 @@ public class RequestServiceImpl extends GenericService<Request> {
 
     @Autowired
     private AclService aclService;
+
+    @Autowired
+    private TransitionService transitionService;
 
     @Autowired
     private RequestPaymentServiceImpl requestPaymentService;
@@ -160,8 +164,9 @@ public class RequestServiceImpl extends GenericService<Request> {
         ArrayList<Attachment> attachments = new ArrayList<>();
         if(files.isPresent()){
             for(MultipartFile file : files.get()){
-                storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/stage1", file.getOriginalFilename());
-                attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()), file.getSize(), request.getArchiveId()+"/stage1"));
+                String checksum = transitionService.checksum(file.getOriginalFilename());
+                storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/", checksum);
+                attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/"+checksum));
             }
         }
 
@@ -243,7 +248,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         if(request.getOnBehalfOf()!=null)
             acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(request.getOnBehalfOf().getEmail()), true);
 
-        acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new GrantedAuthoritySid("ROLE_ADMIN"), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
 
         acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
         for(Delegate person : project.getScientificCoordinator().getDelegates())
@@ -502,50 +507,47 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
     @PreAuthorize("hasPermission(#requestPayment,'READ')")
-    public void deleteFile(String filename,RequestPayment requestPayment,String archiveId) {
-        try {
-            //SEARCHING FOR THE FILE INTO STAGES' ATTACHMENTS
-            List<Class> stagesClasses = Arrays.stream(RequestPayment.class.getDeclaredFields()).filter(p-> Stage.class.isAssignableFrom(p.getType())).flatMap(p -> Stream.of(p.getType())).collect(Collectors.toList());
-            for(Class stageClass : stagesClasses) {
-                if (RequestPayment.class.getMethod("get" + stageClass.getSimpleName()).invoke(requestPayment) != null) {
-                    Stage stage = (Stage) RequestPayment.class.getMethod("get" + stageClass.getSimpleName()).invoke(requestPayment);
-                    List<Attachment> attachmentsToRemove = new ArrayList<>();
-                    for(Attachment attachment : stage.getAttachments()){
-                        if(attachment.getUrl().equals(archiveId) && attachment.getFilename().equals(filename))
-                            attachmentsToRemove.add(attachment);
-                    }
-                    stage.getAttachments().removeAll(attachmentsToRemove);
-                    RequestPayment.class.getMethod("set" + stageClass.getSimpleName(),stageClass).invoke(requestPayment, stageClass.cast(stage));
-                }
-            }
-            requestPaymentService.update(requestPayment,requestPayment.getId());
-            storeRESTClient.deleteFile(archiveId, filename);
-        } catch (Exception e) {
-            logger.error("error deleting file", e);
-        }
+    public void deleteFile(RequestPayment requestPayment,String archiveId) {
+        String[] splitted = archiveId.split("/");
+        if(splitted.length!=2)
+            throw new ServiceException("Bad archiveId format");
+        storeRESTClient.deleteFile(splitted[0], splitted[1]);
     }
 
     @PreAuthorize("hasPermission(#requestApproval,'READ')")
-    public void deleteFile(String filename,RequestApproval requestApproval,String archiveId) {
-        try {
-            List<Class> stagesClasses = Arrays.stream(RequestApproval.class.getDeclaredFields()).filter(p-> Stage.class.isAssignableFrom(p.getType())).flatMap(p -> Stream.of(p.getType())).collect(Collectors.toList());
-            for(Class stageClass : stagesClasses) {
-                if (RequestApproval.class.getMethod("get" + stageClass.getSimpleName()).invoke(requestApproval) != null) {
-                    Stage stage = (Stage) RequestApproval.class.getMethod("get" + stageClass.getSimpleName()).invoke(requestApproval);
-                    List<Attachment> attachmentsToRemove = new ArrayList<>();
-                    for(Attachment attachment : stage.getAttachments()){
-                        if(attachment.getUrl().equals(archiveId) && attachment.getFilename().equals(filename))
-                            attachmentsToRemove.add(attachment);
-                    }
-                    stage.getAttachments().removeAll(attachmentsToRemove);
-                    RequestApproval.class.getMethod("set" + stageClass.getSimpleName(),stageClass).invoke(requestApproval, stageClass.cast(stage));
+    public void deleteFile(RequestApproval requestApproval,String archiveId) {
+        String[] splitted = archiveId.split("/");
+        if(splitted.length!=2)
+            throw new ServiceException("Bad archiveId format");
+        storeRESTClient.deleteFile(splitted[0], splitted[1]);
+    }
+
+    public Attachment getAttachmentFromApproval(RequestApproval requestApproval, String archiveId) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        List<Class> stagesClasses = Arrays.stream(RequestApproval.class.getDeclaredFields()).filter(p-> Stage.class.isAssignableFrom(p.getType())).flatMap(p -> Stream.of(p.getType())).collect(Collectors.toList());
+        for(Class stageClass : stagesClasses) {
+            if (RequestApproval.class.getMethod("get" + stageClass.getSimpleName()).invoke(requestApproval) != null) {
+                Stage stage = (Stage) RequestApproval.class.getMethod("get" + stageClass.getSimpleName()).invoke(requestApproval);
+                for(Attachment attachment : stage.getAttachments()){
+                    if(attachment.getUrl().equals(archiveId))
+                        return attachment;
                 }
             }
-            requestApprovalService.update(requestApproval,requestApproval.getId());
-            storeRESTClient.deleteFile(archiveId, filename);
-        } catch (Exception e) {
-            logger.error("error deleting file", e);
         }
+        return null;
+    }
+
+    public Attachment getAttachmentFromPayment(RequestPayment requestPayment, String archiveId) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        List<Class> stagesClasses = Arrays.stream(RequestPayment.class.getDeclaredFields()).filter(p-> Stage.class.isAssignableFrom(p.getType())).flatMap(p -> Stream.of(p.getType())).collect(Collectors.toList());
+        for(Class stageClass : stagesClasses) {
+            if (RequestPayment.class.getMethod("get" + stageClass.getSimpleName()).invoke(requestPayment) != null) {
+                Stage stage = (Stage) RequestPayment.class.getMethod("get" + stageClass.getSimpleName()).invoke(requestPayment);
+                for(Attachment attachment : stage.getAttachments()){
+                    if(attachment.getUrl().equals(archiveId))
+                        return attachment;
+                }
+            }
+        }
+        return null;
     }
 
     public void updateDiataktis() throws Exception {

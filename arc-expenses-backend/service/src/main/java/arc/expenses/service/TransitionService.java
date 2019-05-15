@@ -23,8 +23,11 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -129,15 +132,9 @@ public class TransitionService{
 
         String comment = Optional.ofNullable(req.getParameter("comment")).orElse(stage.getComment());
 
-        MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
         Request request = requestService.get(requestApproval.getRequestId());
-        List<Attachment> attachments = Optional.ofNullable(stage.getAttachments()).orElse(new ArrayList<>());
-        for(MultipartFile file : multiPartRequest.getFiles("attachments")){
-            storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/stage"+stageString, file.getOriginalFilename());
-            attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
-        }
         stage.setComment(comment);
-        stage.setAttachments(attachments);
+        stage.setAttachments(exportAttachments(request,(MultipartHttpServletRequest) req, stage));
 
 
         if(stage instanceof Stage1)
@@ -186,15 +183,10 @@ public class TransitionService{
         }
         String comment = Optional.ofNullable(req.getParameter("comment")).orElse(stage.getComment());
 
-        MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
         Request request = requestService.get(requestPayment.getRequestId());
-        List<Attachment> attachments = Optional.ofNullable(stage.getAttachments()).orElse(new ArrayList<>());
-        for(MultipartFile file : multiPartRequest.getFiles("attachments")){
-            storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/stage"+stageString, file.getOriginalFilename());
-            attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
-        }
+
         stage.setComment(comment);
-        stage.setAttachments(attachments);
+        stage.setAttachments(exportAttachments(request,(MultipartHttpServletRequest) req, stage));
 
         if(stage instanceof Stage7)
             requestPayment.setStage7((Stage7) stage);
@@ -279,20 +271,14 @@ public class TransitionService{
             BaseInfo.Status status) throws Exception {
 
         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
-        MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
         stage.setDate(new Date().toInstant().toEpochMilli());
         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
         Request request = requestService.get(requestApproval.getRequestId());
 
         String comment = Optional.ofNullable(req.getParameter("comment")).orElse("");
 
-        List<Attachment> attachments = Optional.ofNullable(stage.getAttachments()).orElse(new ArrayList<>());
-        for(MultipartFile file : multiPartRequest.getFiles("attachments")){
-            storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/stage"+stageString, file.getOriginalFilename());
-            attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
-        }
 
-        stage.setAttachments(attachments);
+        stage.setAttachments(exportAttachments(request,(MultipartHttpServletRequest) req, stage));
         stage.setComment(comment);
         try {
             User user = userService.getByField("user_email",(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
@@ -320,7 +306,6 @@ public class TransitionService{
         requestApproval.setStage(stageString);
         requestApproval.setStatus(status);
         if(status== BaseInfo.Status.ACCEPTED) {
-            requestApproval.setCurrentStage(Stages.FINISHED.name());
             if(request.getType() == Request.Type.CONTRACT){
                 request.setRequestStatus(Request.RequestStatus.ACCEPTED);
             }else{
@@ -344,19 +329,12 @@ public class TransitionService{
             BaseInfo.Status status) throws Exception {
         stage.setDate(new Date().toInstant().toEpochMilli());
         HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
-        MultipartHttpServletRequest multiPartRequest = (MultipartHttpServletRequest) req;
 
         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
         Request request = requestService.get(requestPayment.getRequestId());
         String comment = Optional.ofNullable(req.getParameter("comment")).orElse("");
 
-        List<Attachment> attachments = Optional.ofNullable(stage.getAttachments()).orElse(new ArrayList<>());
-        for(MultipartFile file : multiPartRequest.getFiles("attachments")){
-            storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/stage"+stageString, file.getOriginalFilename());
-            attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/stage"+stageString));
-        }
-
-        stage.setAttachments(attachments);
+        stage.setAttachments(exportAttachments(request,(MultipartHttpServletRequest) req, stage));
         stage.setComment(comment);
         try {
             User user = userService.getByField("user_email",(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
@@ -432,6 +410,11 @@ public class TransitionService{
                 //TODO do we count REJECTED payments in "totals"?
                 requestApprovalService.finalize(requestApprovalService.getApproval(request.getId()));
             }
+        }
+        if(fromStage.equals("7") || fromStage.equals("7a")){
+            RequestApproval requestApproval = requestApprovalService.getApproval(request.getId());
+            requestApproval.setCurrentStage(Stages.FINISHED.name());
+            requestApprovalService.update(requestApproval,requestApproval.getId());
         }
 
         modifyRequestPayment(context, stage, toStage, status);
@@ -813,5 +796,45 @@ public class TransitionService{
 
     }
 
+
+    public String checksum(String filename){
+        MessageDigest md = null;
+        try {
+            String extension = FileUtils.extension(filename);
+            filename = filename + new Date().getTime();
+            md = MessageDigest.getInstance("MD5");
+            md.update(filename.getBytes());
+            byte[] digest = md.digest();
+            return DatatypeConverter.printHexBinary(digest).toLowerCase() + "."+extension;
+        } catch (NoSuchAlgorithmException e) {
+            logger.warn("Failed to generate MD5 hash of filename:"+filename);
+            return filename;
+        }
+
+    }
+
+    private List<Attachment> exportAttachments(Request request,MultipartHttpServletRequest multiPartRequest, Stage stage) throws IOException {
+        List<Attachment> attachments = Optional.ofNullable(stage.getAttachments()).orElse(new ArrayList<>());
+        List<String> removed = Arrays.asList(multiPartRequest.getParameterValues("removed"));
+        if(removed.size()>0){
+            for(String toBeRemoved : removed){
+                String[] splitted = toBeRemoved.split("/");
+                storeRESTClient.deleteFile(splitted[0],splitted[1]);
+            }
+            attachments = attachments.stream().filter(attachment -> {
+                for(String remove : removed){
+                    if(remove.equals(attachment.getUrl()))
+                        return false;
+                }
+                return true;
+            }).collect(Collectors.toList());
+        }
+        for(MultipartFile file : multiPartRequest.getFiles("attachments")){
+            String checksum = checksum(file.getOriginalFilename());
+            storeRESTClient.storeFile(file.getBytes(), request.getArchiveId()+"/", checksum);
+            attachments.add(new Attachment(file.getOriginalFilename(), FileUtils.extension(file.getOriginalFilename()),new Long(file.getSize()+""), request.getArchiveId()+"/"+checksum));
+        }
+        return attachments;
+    }
 
 }
