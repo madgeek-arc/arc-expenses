@@ -506,7 +506,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         return null;
     }
 
-    @PreAuthorize("hasPermission(#requestPayment,'READ')")
+    @PreAuthorize("hasPermission(#requestPayment,'WRITE')")
     public void deleteFile(RequestPayment requestPayment,String archiveId) {
         String[] splitted = archiveId.split("/");
         if(splitted.length!=2)
@@ -514,7 +514,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         storeRESTClient.deleteFile(splitted[0], splitted[1]);
     }
 
-    @PreAuthorize("hasPermission(#requestApproval,'READ')")
+    @PreAuthorize("hasPermission(#requestApproval,'WRITE')")
     public void deleteFile(RequestApproval requestApproval,String archiveId) {
         String[] splitted = archiveId.split("/");
         if(splitted.length!=2)

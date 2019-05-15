@@ -375,7 +375,6 @@ public class TransitionService{
         stage.setDate(new Date().toInstant().toEpochMilli());
         Request request = requestService.get(requestApproval.getRequestId());
         modifyRequestApproval(context, stage, toStage, BaseInfo.Status.PENDING);
-        updatingPermissions(fromStage,toStage,request, "APPROVE", RequestApproval.class,requestApproval.getId(), stage.getDate()+"");
 
         if(toStage.equals("5a") || toStage.equals("5b")){
             Project project = projectService.get(request.getProjectId());
@@ -394,8 +393,10 @@ public class TransitionService{
                     request.setDiataktis(organization.getDirector());
             }
 
+
             requestService.update(request,request.getId());
         }
+        updatingPermissions(fromStage,toStage,request, "APPROVE", RequestApproval.class,requestApproval.getId(), stage.getDate()+"");
 
     }
 
@@ -815,7 +816,7 @@ public class TransitionService{
 
     private List<Attachment> exportAttachments(Request request,MultipartHttpServletRequest multiPartRequest, Stage stage) throws IOException {
         List<Attachment> attachments = Optional.ofNullable(stage.getAttachments()).orElse(new ArrayList<>());
-        List<String> removed = Arrays.asList(multiPartRequest.getParameterValues("removed"));
+        List<String> removed = Arrays.asList(Optional.ofNullable(multiPartRequest.getParameterValues("removed")).orElse(new String[]{}));
         if(removed.size()>0){
             for(String toBeRemoved : removed){
                 String[] splitted = toBeRemoved.split("/");
