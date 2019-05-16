@@ -3,6 +3,7 @@ package arc.expenses.controller;
 import arc.expenses.domain.RequestResponse;
 import arc.expenses.service.RequestPaymentServiceImpl;
 import arc.expenses.service.RequestServiceImpl;
+import eu.openminted.registry.core.domain.Browsing;
 import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.ServiceException;
 import gr.athenarc.domain.Request;
@@ -152,12 +153,16 @@ public class PaymentController {
         if(request==null)
             throw new ServiceException("Request not found");
         try {
-            RequestPayment requestPayment = requestPaymentService.createPayment(request);
-            return new ResponseEntity<>("{\"id\":\""+requestPayment.getId()+"\"}",HttpStatus.OK);
+            Browsing<RequestPayment> payments = requestPaymentService.getPayments(request.getId(),null);
+            if(payments.getTotal()<=request.getPaymentCycles()){ //if we have reached the max of payment cycles then dont create new payments
+                RequestPayment requestPayment = requestPaymentService.createPayment(request);
+                return new ResponseEntity<>("{\"id\":\""+requestPayment.getId()+"\"}",HttpStatus.OK);
+            }
         }catch (Exception ex){
             ex.printStackTrace();
             throw new ServiceException(ex.getMessage());
         }
+        return new ResponseEntity(HttpStatus.OK);
     }
 
 }

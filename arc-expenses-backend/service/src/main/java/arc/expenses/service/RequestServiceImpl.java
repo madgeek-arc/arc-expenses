@@ -96,16 +96,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
 
     public String generateID() {
-        String maxID = getMaxID();
-        if(maxID == null)
-            return new SimpleDateFormat("yyyyMMdd").format(new Date())+"-1";
-        else{
-            String number[] = maxID.split("-");
-            if(number[0].equals(new SimpleDateFormat("yyyyMMdd").format(new Date())))
-                return number[0]+"-"+(Integer.parseInt(number[1])+1);
-            else
-                return new SimpleDateFormat("yyyyMMdd").format(new Date())+"-1";
-        }
+        return new SimpleDateFormat("yyyyMMdd").format(new Date())+"-"+getMaxID();
     }
 
 
@@ -205,12 +196,13 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         Stage1 stage1 = new Stage1(new Date().toInstant().toEpochMilli()+"", amount, subject, supplier, supplierSelectionMethod, amount);
         stage1.setAttachments(attachments);
+        stage1.setDate(new Date().toInstant().toEpochMilli());
 
         RequestApproval requestApproval = createRequestApproval(request);
         requestApproval.setCurrentStage(Stages.Stage2.name());
         requestApproval.setStage1(stage1);
         requestApprovalService.update(requestApproval,requestApproval.getId());
-//        mailService.sendMail("Initial", request.getPois());
+        mailService.sendMail("INITIAL", request.getId(), project.getAcronym(), stage1.getRequestDate(), stage1.getFinalAmount()+"", subject, false, requestApproval.getId(), request.getPois());
 
         return request;
     }
@@ -275,37 +267,15 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
 
-    public String getMaxID() {
+    public int getMaxID() {
 
-        FacetFilter filter = new FacetFilter();
-        filter.setResourceType("request");
-        filter.setKeyword("");
-        filter.setFrom(0);
-        filter.setQuantity(1);
+        return new JdbcTemplate(dataSource).query("select count(*)+1 AS next_id from request_view where creation_date > current_date;", resultSet -> {
+            if(resultSet.next())
+                return resultSet.getInt("next_id");
+            else
+                return 1;
+        });
 
-        Map<String,Object> sort = new HashMap<>();
-        Map<String,Object> order = new HashMap<>();
-
-        String orderDirection = "desc";
-        String orderField = "request_id";
-
-        if (orderField != null) {
-            order.put("order",orderDirection);
-            sort.put(orderField, order);
-            filter.setOrderBy(sort);
-        }
-
-        try {
-            List rs = searchService.search(filter).getResults();
-            Resource request;
-            if(rs.size() > 0) {
-                request = (Resource) rs.get(0);
-                return parserPool.deserialize(request,Request.class).getId();
-            }
-        } catch (IOException e) {
-            logger.debug("Error on search controller",e);
-        }
-        return null;
     }
 
 

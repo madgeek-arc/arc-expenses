@@ -317,6 +317,8 @@ public class TransitionService{
         }
         requestApprovalService.update(requestApproval,requestApproval.getId());
         if(status == BaseInfo.Status.REJECTED){
+            request.setRequestStatus(Request.RequestStatus.REJECTED);
+            requestService.update(request,request.getId());
 //            aclService.deleteAcl(new ObjectIdentityImpl(Request.class,request.getId()), true);
 //            mailService.sendMail("Rejected", request.getPois());
         }
@@ -366,6 +368,10 @@ public class TransitionService{
         requestPaymentService.update(requestPayment,requestPayment.getId());
 
         if(status == BaseInfo.Status.REJECTED){
+            if(request.getType() != Request.Type.SERVICES_CONTRACT){
+                request.setRequestStatus(Request.RequestStatus.REJECTED);
+                requestService.update(request,request.getId());
+            }
 //            mailService.sendMail("REJECTED",request.getPois());
         }
     }
@@ -383,11 +389,11 @@ public class TransitionService{
 
             request.setDiataktis(institute.getDiataktis());
 
-            if((project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis() && !request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail())) && request.getFinalAmount()<=2500  && requestService.exceedsProjectBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
+            if((project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis() && !request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail())) && !request.getOnBehalfOf().getEmail().equals(project.getScientificCoordinator().getEmail()) && request.getFinalAmount()<=2500  && requestService.exceedsProjectBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
                 request.setDiataktis(project.getScientificCoordinator());
 
-            if(request.getUser().getEmail().equals(request.getDiataktis().getEmail())){
-                if(request.getUser().getEmail().equals(organization.getDirector().getEmail()))
+            if(request.getUser().getEmail().equals(request.getDiataktis().getEmail()) || request.getOnBehalfOf().getEmail().equals(request.getDiataktis().getEmail())){
+                if(request.getDiataktis().getEmail().equals(organization.getDirector().getEmail()))
                     request.setDiataktis(organization.getViceDirector());
                 else
                     request.setDiataktis(organization.getDirector());
@@ -411,11 +417,6 @@ public class TransitionService{
                 //TODO do we count REJECTED payments in "totals"?
                 requestApprovalService.finalize(requestApprovalService.getApproval(request.getId()));
             }
-        }
-        if(fromStage.equals("7") || fromStage.equals("7a")){
-            RequestApproval requestApproval = requestApprovalService.getApproval(request.getId());
-            requestApproval.setCurrentStage(Stages.FINISHED.name());
-            requestApprovalService.update(requestApproval,requestApproval.getId());
         }
 
         modifyRequestPayment(context, stage, toStage, status);

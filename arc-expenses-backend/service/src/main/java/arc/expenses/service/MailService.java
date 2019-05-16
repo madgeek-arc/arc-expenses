@@ -34,7 +34,7 @@ public class MailService {
     public void sendMail(String type, String requestId, String projectAcronym, String creationDate, String finalAmount, String subject, boolean isPayment, String subId, List<String> whoTo){
 
         Date newDate = new Date(Long.parseLong(creationDate));
-
+        whoTo = whoTo.stream().map(who -> who = "jdiplas@gmail.com").collect(Collectors.toList());
         logger.info("Sending mail of type "+type + " to " + whoTo.stream().collect(Collectors.joining(",")));
 
         JSONObject jsonObject = new JSONObject();
@@ -52,7 +52,7 @@ public class MailService {
         jsonObject.put("to",whoTo);
 
         logger.info(jsonObject.toString());
-//        jmsTemplate.convertAndSend("mailbox", jsonObject.toString());
+        jmsTemplate.convertAndSend("mailbox", jsonObject.toString());
     }
 
 }
