@@ -308,6 +308,7 @@ public class TransitionService{
         if(status== BaseInfo.Status.ACCEPTED) {
             if(request.getType() == Request.Type.CONTRACT){
                 request.setRequestStatus(Request.RequestStatus.ACCEPTED);
+                requestApproval.setCurrentStage(Stages.FINISHED.name());
             }else{
                 requestPaymentService.createPayment(request);
             }
@@ -413,9 +414,12 @@ public class TransitionService{
         BaseInfo.Status status = (toStage.equals("13") && fromStage.equals("13") ? BaseInfo.Status.ACCEPTED : BaseInfo.Status.PENDING);
         if(toStage.equals("13") && fromStage.equals("13")){ // that's the signal for a finished payment
             Browsing<RequestPayment> payments = requestPaymentService.getPayments(request.getId(),null);
-            if(payments.getTotal()>=request.getPaymentCycles()){ //if we have reached the max of payment cycles then request should be automatically move to FINISHED state
-                //TODO do we count REJECTED payments in "totals"?
-                requestApprovalService.finalize(requestApprovalService.getApproval(request.getId()));
+            if(payments.getResults().size()>=request.getPaymentCycles()){ //if we have reached the max of payment cycles then request should be automatically move to FINISHED state
+                RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
+                request.setRequestStatus(Request.RequestStatus.ACCEPTED);
+                requestApproval.setCurrentStage(Stages.FINISHED.name());
+                requestService.update(request,request.getId());
+                requestApprovalService.update(requestApproval,requestApproval.getId());
             }
         }
 

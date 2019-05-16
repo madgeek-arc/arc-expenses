@@ -154,7 +154,7 @@ public class PaymentController {
             throw new ServiceException("Request not found");
         try {
             Browsing<RequestPayment> payments = requestPaymentService.getPayments(request.getId(),null);
-            if(payments.getTotal()<=request.getPaymentCycles()){ //if we have reached the max of payment cycles then dont create new payments
+            if(payments.getTotal()<request.getPaymentCycles()){ //if we have reached the max of payment cycles then dont create new payments
                 RequestPayment requestPayment = requestPaymentService.createPayment(request);
                 return new ResponseEntity<>("{\"id\":\""+requestPayment.getId()+"\"}",HttpStatus.OK);
             }

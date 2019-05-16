@@ -758,17 +758,24 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                     .target(Stages.FINISHED)
                     .event(StageEvents.FINALIZE)
                     .action(stateContext -> {
-//                        Request request = stateContext.getMessage().getHeaders().get("requestObj", Request.class);
-//
-//                        List<String> sendFinal = new ArrayList<>();
-//                        sendFinal.add(request.getUser().getEmail());
-//                        if(request.getOnBehalfOf()!=null)
-//                            sendFinal.add(request.getOnBehalfOf().getEmail());
-//
-//
-//
-//
-//
+                        Request request = stateContext.getMessage().getHeaders().get("requestObj", Request.class);
+                        List<String> sendFinal = new ArrayList<>();
+                        sendFinal.add(request.getUser().getEmail());
+                        if(request.getOnBehalfOf()!=null)
+                            sendFinal.add(request.getOnBehalfOf().getEmail());
+
+                        request.setRequestStatus(Request.RequestStatus.ACCEPTED);
+
+                        try {
+                            RequestApproval requestApproval = requestApprovalService.getApproval(request.getId());
+                            requestApproval.setCurrentStage(Stages.FINISHED.name());
+                            requestApprovalService.update(requestApproval,requestApproval.getId());
+                            requestService.update(request,request.getId());
+                        } catch (Exception e) {
+                            logger.error("Failed to finalize request with id " + request.getId(),e);
+                            stateContext.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
+                            throw new ServiceException(e.getMessage());
+                        }
 //                        mailService.sendMail("Finalized",sendFinal);
                     })
                     .and()
