@@ -1,8 +1,6 @@
 package gr.athenarc.mailer.services;
 
-import gr.athenarc.mailer.domain.ApproveMessage;
-import gr.athenarc.mailer.domain.MailMessage;
-import gr.athenarc.mailer.domain.MailType;
+import gr.athenarc.mailer.domain.*;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +31,28 @@ public class MailReceiver {
                 case APPROVE:
                     for(Object toMail : jsonObject.getJSONArray("to")) {
                         mailMessages.add(new ApproveMessage((String) toMail,
+                                jsonObject.getString("request_id"),
+                                jsonObject.getString("project_acronym"),
+                                jsonObject.getString("creation_date"),
+                                jsonObject.getString("final_amount"),
+                                jsonObject.getString("subject"),
+                                jsonObject.getString("url")));
+                    }
+                    break;
+                case INITIAL:
+                    for(Object toMail: jsonObject.getJSONArray("to")){
+                        mailMessages.add(new InitialMessage((String) toMail,
+                                jsonObject.getString("request_id"),
+                                jsonObject.getString("project_acronym"),
+                                jsonObject.getString("creation_date"),
+                                jsonObject.getString("final_amount"),
+                                jsonObject.getString("subject"),
+                                jsonObject.getString("url")));
+                    }
+                    break;
+                case CANCEL:
+                    for(Object toMail: jsonObject.getJSONArray("to")){
+                        mailMessages.add(new CancelMessage((String) toMail,
                                 jsonObject.getString("request_id"),
                                 jsonObject.getString("project_acronym"),
                                 jsonObject.getString("creation_date"),
