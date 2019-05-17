@@ -21,6 +21,7 @@ public class TempController {
     @RequestMapping(value =  "/", method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
     public void updateDiataktis() throws Exception {
         requestService.updateDiataktis();
+        requestService.updatePois();
     }
 
 }

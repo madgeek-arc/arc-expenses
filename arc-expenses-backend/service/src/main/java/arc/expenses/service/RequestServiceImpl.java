@@ -8,6 +8,7 @@ import arc.expenses.domain.Stages;
 import eu.openminted.registry.core.domain.FacetFilter;
 import eu.openminted.registry.core.domain.Paging;
 import eu.openminted.registry.core.domain.Resource;
+import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import eu.openminted.registry.core.service.ServiceException;
 import eu.openminted.store.restclient.StoreRESTClient;
 import gr.athenarc.domain.*;
@@ -254,7 +255,7 @@ public class RequestServiceImpl extends GenericService<Request> {
     }
 
 
-    public boolean exceedsProjectBudget(PersonOfInterest scientificCoordinator, String projectId, Double amount){
+    public boolean doesntExceedBudget(PersonOfInterest scientificCoordinator, String projectId, Double amount){
 
         String budgetQuery = "select CASE WHEN sum(request_final_amount) + "+amount+" >(0.25 * project_view.project_total_cost) THEN false ELSE true END AS canBeDiataktis from request_view INNER JOIN project_view ON project_view.project_id=request_view.request_project WHERE request_view.request_diataktis='"+scientificCoordinator.getEmail()+"' AND project_view.project_id='"+projectId+"' AND request_view.request_status IN ('PENDING','ACCEPTED') GROUP BY project_view.project_total_cost;";
 
@@ -541,7 +542,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                 request.setDiataktis(institute.getDiataktis());
             else if(requestApproval.getStage5a()==null && requestApproval.getStage().equals("5a")){
                 request.setDiataktis(institute.getDiataktis());
-                if((project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis() && !request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail())) && request.getFinalAmount()<=2500  && exceedsProjectBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
+                if((project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis() && !request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail())) && request.getFinalAmount()<=2500  && doesntExceedBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
                     request.setDiataktis(project.getScientificCoordinator());
 
                 if(request.getUser().getEmail().equals(request.getDiataktis().getEmail())){
@@ -563,6 +564,40 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         logger.info(i + " approvals not found");
 
+    }
+
+    public void updatePois() throws ResourceNotFoundException {
+        FacetFilter filter = new FacetFilter();
+        filter.setQuantity(10000);
+        List<RequestApproval> requestApprovals = requestApprovalService.getAll(filter,null).getResults();
+        for(RequestApproval requestApproval : requestApprovals) {
+            Request request = get(requestApproval.getRequestId());
+            if(request == null)
+                continue;
+            List<String> toAdd = aclService.getPois(requestApproval.getId(),RequestApproval.class);
+            List<String> pois = new ArrayList<>();
+            for(String adding : toAdd){
+                if(!pois.contains(adding))
+                    pois.add(adding);
+            }
+            request.setPois(pois);
+            update(request,request.getId());
+        }
+
+        List<RequestPayment> requestPayments = requestPaymentService.getAll(filter,null).getResults();
+        for(RequestPayment requestPayment : requestPayments) {
+            Request request = get(requestPayment.getRequestId());
+            if(request == null)
+                continue;
+            List<String> toAdd = aclService.getPois(requestPayment.getId(),RequestPayment.class);
+            List<String> pois = new ArrayList<>();
+            for(String adding : toAdd){
+                if(!pois.contains(adding))
+                    pois.add(adding);
+            }
+            request.setPois(pois);
+            update(request,request.getId());
+        }
     }
 
 

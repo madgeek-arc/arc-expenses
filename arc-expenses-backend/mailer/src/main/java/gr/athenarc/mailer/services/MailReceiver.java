@@ -61,6 +61,17 @@ public class MailReceiver {
                                 jsonObject.getString("url")));
                     }
                     break;
+                case REJECT:
+                    for(Object toMail: jsonObject.getJSONArray("to")){
+                        mailMessages.add(new RejectMessage((String) toMail,
+                                jsonObject.getString("request_id"),
+                                jsonObject.getString("project_acronym"),
+                                jsonObject.getString("creation_date"),
+                                jsonObject.getString("final_amount"),
+                                jsonObject.getString("subject"),
+                                jsonObject.getString("url")));
+                    }
+                    break;
                 default:
                     mailMessages=null;
             }

@@ -222,7 +222,7 @@ public class TransitionService{
         requestApproval.setStatus(BaseInfo.Status.CANCELLED);
         requestApprovalService.update(requestApproval,requestApproval.getId());
 
-//        mailService.sendMail("Canceled",request.getPois());
+        mailService.sendMail("CANCEL", request.getId(), projectService.get(request.getProjectId()).getAcronym(), requestApproval.getStage1().getRequestDate(), requestApproval.getStage1().getFinalAmount()+"", requestApproval.getStage1().getSubject(),false, requestApproval.getId(), request.getPois());
 
         requestService.update(request, request.getId());
         aclService.deleteAcl(new ObjectIdentityImpl(Request.class,request.getId()), true);
@@ -261,7 +261,9 @@ public class TransitionService{
         }
         aclService.removeEdit(requestPayment.getId(),RequestPayment.class);
         aclService.removeWrite(requestPayment.getId(),RequestPayment.class);
-//        mailService.sendMail("Canceled",request.getPois());
+        RequestApproval requestApproval = requestApprovalService.getApproval(request.getId());
+        mailService.sendMail("CANCEL", request.getId(), projectService.get(request.getProjectId()).getAcronym(), requestApproval.getStage1().getRequestDate(), requestApproval.getStage1().getFinalAmount()+"", requestApproval.getStage1().getSubject(),true, requestPayment.getId(), request.getPois());
+
     }
 
     public void modifyRequestApproval(
@@ -321,7 +323,7 @@ public class TransitionService{
             request.setRequestStatus(Request.RequestStatus.REJECTED);
             requestService.update(request,request.getId());
 //            aclService.deleteAcl(new ObjectIdentityImpl(Request.class,request.getId()), true);
-//            mailService.sendMail("Rejected", request.getPois());
+            mailService.sendMail("REJECT", request.getId(), projectService.get(request.getProjectId()).getAcronym(), requestApproval.getStage1().getRequestDate(), requestApproval.getStage1().getFinalAmount()+"", requestApproval.getStage1().getSubject(),false, requestApproval.getId(), request.getPois());
         }
     }
 
@@ -372,8 +374,10 @@ public class TransitionService{
             if(request.getType() != Request.Type.SERVICES_CONTRACT){
                 request.setRequestStatus(Request.RequestStatus.REJECTED);
                 requestService.update(request,request.getId());
+                RequestApproval requestApproval = requestApprovalService.getApproval(request.getId());
+                mailService.sendMail("REJECT", request.getId(), projectService.get(request.getProjectId()).getAcronym(), requestApproval.getStage1().getRequestDate(), requestApproval.getStage1().getFinalAmount()+"", requestApproval.getStage1().getSubject(),true, requestPayment.getId(), request.getPois());
             }
-//            mailService.sendMail("REJECTED",request.getPois());
+
         }
     }
 
@@ -390,10 +394,12 @@ public class TransitionService{
 
             request.setDiataktis(institute.getDiataktis());
 
-            if((project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis() && !request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail())) && !request.getOnBehalfOf().getEmail().equals(project.getScientificCoordinator().getEmail()) && request.getFinalAmount()<=2500  && requestService.exceedsProjectBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
+            String onBehalfUser = (request.getOnBehalfOf() == null ? "" : request.getOnBehalfOf().getEmail());
+
+            if( (project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis() && !request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail())) && !onBehalfUser.equals(project.getScientificCoordinator().getEmail()) && request.getFinalAmount()<=2500  && requestService.doesntExceedBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
                 request.setDiataktis(project.getScientificCoordinator());
 
-            if(request.getUser().getEmail().equals(request.getDiataktis().getEmail()) || request.getOnBehalfOf().getEmail().equals(request.getDiataktis().getEmail())){
+            if(request.getUser().getEmail().equals(request.getDiataktis().getEmail()) || (request.getOnBehalfOf() != null && request.getOnBehalfOf().getEmail().equals(request.getDiataktis().getEmail()))){
                 if(request.getDiataktis().getEmail().equals(organization.getDirector().getEmail()))
                     request.setDiataktis(organization.getViceDirector());
                 else
