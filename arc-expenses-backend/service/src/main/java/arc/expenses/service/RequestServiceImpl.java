@@ -263,7 +263,7 @@ public class RequestServiceImpl extends GenericService<Request> {
             if(rs.next())
                 return rs.getBoolean("canbediataktis");
             else
-                return false;
+                return true;
         });
     }
 

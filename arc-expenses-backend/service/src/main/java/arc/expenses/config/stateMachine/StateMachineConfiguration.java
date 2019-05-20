@@ -731,7 +731,6 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         RequestApproval requestApproval = context.getMessage().getHeaders().get("requestApprovalObj", RequestApproval.class);
                         try {
                             transitionService.editApproval(context, requestApproval.getStage6(), "6");
-                            transitionService.editApproval(context, requestApproval.getStage1(), "1");
                         } catch (Exception e) {
                             logger.error("Error occurred on editing of approval " + requestApproval.getId(),e);
                             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
@@ -960,7 +959,12 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
 
                         try {
                             RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
-                            if(requestApproval.getStage3().getLoan())
+                            HttpServletRequest req = context.getMessage().getHeaders().get("restRequest", HttpServletRequest.class);
+                            Stage1 stage1 = requestApproval.getStage1();
+                            stage1.setFinalAmount(Double.parseDouble(req.getParameter("finalAmount")));
+                            requestApproval.setStage1(stage1);
+                            requestApprovalService.update(requestApproval, requestApproval.getId());
+                            if(requestApproval.getStage3().getLoan()!=null && requestApproval.getStage3().getLoan())
                                 transitionService.editPayment(context, requestPayment.getStage7a(), "7a");
                             else
                                 transitionService.editPayment(context, requestPayment.getStage7(), "7");
