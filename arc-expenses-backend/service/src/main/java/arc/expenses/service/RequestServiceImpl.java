@@ -229,11 +229,11 @@ public class RequestServiceImpl extends GenericService<Request> {
         }
         Project project = projectService.get(request.getProjectId());
         AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(RequestApproval.class, requestApproval.getId()));
-        acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
+        acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString().toLowerCase()), true);
 
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new GrantedAuthoritySid("ROLE_ADMIN"), true);
         if(request.getOnBehalfOf()!=null)
-            acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(request.getOnBehalfOf().getEmail()), true);
+            acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(request.getOnBehalfOf().getEmail().toLowerCase()), true);
 
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new GrantedAuthoritySid("ROLE_ADMIN"), true);
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
@@ -304,11 +304,11 @@ public class RequestServiceImpl extends GenericService<Request> {
                 " from (" +
                 "select o.object_id_identity, a.stage, a.status, a.request_id, a.creation_date, e.mask, CASE WHEN mask=32 and a.status in ('PENDING','UNDER_REVIEW') THEN true ELSE false END AS canEdit" +
                 " from acl_entry e, acl_object_identity o, acl_sid s, approval_view a" +
-                " where e.acl_object_identity = o.id and o.object_id_identity=a.approval_id and e.sid = s.id and s.sid in ('"+SecurityContextHolder.getContext().getAuthentication().getPrincipal()+"'"+(isAdmin ? ", 'ROLE_ADMIN'" : "")+" )" +
+                " where e.acl_object_identity = o.id and o.object_id_identity=a.approval_id and e.sid = s.id and s.sid in ('"+SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString().toLowerCase()+"'"+(isAdmin ? ", 'ROLE_ADMIN'" : "")+" )" +
                 "union " +
                 "select o.object_id_identity, p.stage, p.status, p.request_id, p.creation_date, e.mask, CASE WHEN mask=32 and p.status in ('PENDING','UNDER_REVIEW') THEN true ELSE false END AS canEdit " +
                 " from acl_entry e, acl_object_identity o, acl_sid s, payment_view p" +
-                " where e.acl_object_identity = o.id and o.object_id_identity=p.payment_id and e.sid = s.id and s.sid in ('"+SecurityContextHolder.getContext().getAuthentication().getPrincipal()+"'"+(isAdmin ? ", 'ROLE_ADMIN'" : "")+" )" +
+                " where e.acl_object_identity = o.id and o.object_id_identity=p.payment_id and e.sid = s.id and s.sid in ('"+SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString().toLowerCase()+"'"+(isAdmin ? ", 'ROLE_ADMIN'" : "")+" )" +
                 ") d, request_view r, project_view p, institute_view i " +
                 "where d.request_id = r.request_id AND r.request_project = p.project_id AND p.project_institute = i.institute_id " +
                 "order by object_id_identity, canEdit desc";
