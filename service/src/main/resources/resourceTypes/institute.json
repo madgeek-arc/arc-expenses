@@ -1,0 +1,119 @@
+{
+  "indexFields": [
+    {
+      "name": "institute_id",
+      "path": "$.id",
+      "type": "java.lang.String",
+      "primaryKey":true,
+      "multivalued":false
+    },
+    {
+      "name": "institute_name",
+      "path": "$.name",
+      "type": "java.lang.String",
+      "primaryKey":false,
+      "multivalued":false
+    },
+    {
+      "name": "institute_organization",
+      "path": "$.organizationId",
+      "type": "java.lang.String",
+      "primaryKey":false,
+      "multivalued":false
+    },
+    {
+      "name": "travelManager",
+      "path": "$.travelManager.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "travelManager_delegate",
+      "path": "$.travelManager.delegates[*].email",
+      "type": "java.lang.String"
+    },
+
+    {
+      "name": "suppliesOffice",
+      "path": "$.suppliesOffice.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "suppliesOffice_delegate",
+      "path": "$.suppliesOffice.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "director",
+      "path": "$.director.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "director_delegate",
+      "path": "$.director.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "accountingRegistration",
+      "path": "$.accountingRegistration.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "accountingRegistration_delegate",
+      "path": "$.accountingRegistration.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "accountingPayment",
+      "path": "$.accountingPayment.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "accountingPayment_delegate",
+      "path": "$.accountingPayment.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "accountingDirector",
+      "path": "$.accountingDirector.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "accountingDirector_delegate",
+      "path": "$.accountingDirector.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "diaugeia",
+      "path": "$.diaugeia.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "diaugeia_delegate",
+      "path": "$.diaugeia.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "diataktis",
+      "path": "$.diataktis.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "diataktis_delegate",
+      "path": "$.diataktis.delegates[*].email",
+      "type": "java.lang.String"
+    }
+  ],
+  "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
+  "name": "institute",
+  "aliasGroup" : null,
+  "payloadType": "json",
+  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/domain/src/main/resources/jsonSchema/institute.json"
+}

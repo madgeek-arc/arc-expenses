@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "title": "Request",
+  "type": "object",
+  "properties": {
+    "currentStage" : {
+      "type" : "string"
+    },
+    "id": {
+      "description": "The unique identifier of the request.",
+      "title": "Request ID",
+      "type": "string"
+    },
+    "type": {
+      "description": "The type of the request.",
+      "type": "string",
+      "enum": [
+        "REGULAR",
+        "CONTRACT",
+        "SERVICES_CONTRACT",
+        "TRIP"
+      ]
+    },
+    "archiveId": {
+      "description": "The archiveId of the request.",
+      "type": "string"
+    },
+    "finalAmount": {
+      "type": "number"
+    },
+    "paymentCycles": {
+      "type": "integer"
+    },
+    "projectId": {
+      "type": "string"
+    },
+    "user": {
+      "javaType": "gr.athenarc.domain.User"
+    },
+    "onBehalfOf": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "diataktis": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "requesterPosition": {
+      "description": "Position of the requester in the Institute.",
+      "title": "Requester Position",
+      "type": "string",
+      "enum": [
+        "RESEARCHER",
+        "COLLABORATIVE_RESEARCHER",
+        "ADMINISTRATIVE"
+      ]
+    },
+    "requestStatus": {
+        "type": "string",
+        "enum" : [
+          "CANCELLED",
+          "PENDING",
+          "ACCEPTED",
+          "REJECTED"
+        ]
+    },
+    "pois": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "trip": {
+      "javaType": "gr.athenarc.domain.Trip"
+    },
+    "lastModified": {
+      "javaType": "gr.athenarc.domain.LastModified"
+    }
+  },
+  "required": [
+    "finalAmount"
+  ]
+}

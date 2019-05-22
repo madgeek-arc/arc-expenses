@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Stage13",
+  "type": "object",
+  "properties": {
+    "approved": { "type": "boolean"}
+  },
+  "extends": {
+    "type": "object",
+    "javaType": "gr.athenarc.domain.Stage"
+  }
+
+}

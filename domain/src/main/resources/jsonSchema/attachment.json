@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Attachment",
+  "type": "object",
+  "properties": {
+    "filename": {
+      "type": "string"
+    },
+    "mimetype": {
+      "type": "string"
+    },
+    "size": {
+      "javaType": "java.lang.Long"
+    },
+    "url": {
+      "type": "string"
+    }
+  }
+}

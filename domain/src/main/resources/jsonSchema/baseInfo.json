@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "BaseInfo",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "requestId": {
+      "type": "string"
+    },
+    "creationDate": {
+      "type":"string",
+      "format":"utc-millisec"
+    },
+    "stage": {
+      "type": "string"
+    },
+    "lastModified": {
+      "javaType": "gr.athenarc.domain.LastModified"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "CANCELLED",
+        "PENDING",
+        "ACCEPTED",
+        "UNDER_REVIEW",
+        "REJECTED"
+      ]
+    }
+  }
+}

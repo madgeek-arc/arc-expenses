@@ -1,0 +1,68 @@
+{
+  "indexFields": [
+    {
+      "name": "organization_id",
+      "path": "$.id",
+      "type": "java.lang.String",
+      "primaryKey":true,
+      "multivalued":false
+    },
+    {
+      "name": "organization_name",
+      "path": "$.name",
+      "type": "java.lang.String",
+      "primaryKey":false,
+      "multivalued":false
+    },
+    {
+      "name": "organization_poy",
+      "path": "$.poy.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "poy_delegate",
+      "path": "$.poy.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "director",
+      "path": "$.director.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "director_delegate",
+      "path": "$.director.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "dioikitikoSumvoulio",
+      "path": "$.dioikitikoSumvoulio.email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "dioikitikoSumvoulio_delegate",
+      "path": "$.dioikitikoSumvoulio.delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "inspectionTeam",
+      "path": "$.inspectionTeam[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "inspectionTeam_delegate",
+      "path": "$.inspectionTeam[*].delegates[*].email",
+      "type": "java.lang.String"
+    }
+  ],
+  "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
+  "name": "organization",
+  "aliasGroup" : null,
+  "payloadType": "json",
+  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/domain/src/main/resources/jsonSchema/organization.json"
+}

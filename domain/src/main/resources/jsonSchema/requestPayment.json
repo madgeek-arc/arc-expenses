@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "title": "RequestPayment",
+  "type": "object",
+  "extends": {
+    "type" : "object",
+    "javaType" : "gr.athenarc.domain.BaseInfo"
+  },
+  "properties": {
+    "currentStage" : {
+      "type" : "string"
+    },
+    "stage7": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage7"
+    },
+    "stage7a": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage7a"
+    },
+    "stage8": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage8"
+    },
+    "stage9": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage9"
+    },
+    "stage10": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage10"
+    },
+    "stage11": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage11"
+    },
+    "stage12": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage12"
+    },
+    "stage13": {
+      "type": "object",
+      "javaType": "gr.athenarc.domain.Stage13"
+    }
+  }
+}

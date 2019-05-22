@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Stage9",
+  "type": "object",
+  "properties": {
+    "checkRegularity": { "type": "boolean"},
+    "checkLegality": { "type": "boolean"},
+    "approved": { "type": "boolean"}
+  },
+  "extends": {
+    "type": "object",
+    "javaType": "gr.athenarc.domain.Stage"
+  }
+
+}

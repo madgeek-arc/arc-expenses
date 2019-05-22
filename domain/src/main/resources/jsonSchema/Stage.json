@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Stage",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string"
+    },
+    "user": {
+      "javaType": "gr.athenarc.domain.User"
+    },
+    "date": {
+      "type": "string",
+      "format":"utc-millisec"
+    },
+    "comment": {
+      "type": "string"
+    },
+    "attachments" : {
+      "type" : "array",
+      "items" :{
+        "javaType" : "gr.athenarc.domain.Attachment"
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "indexFields": [
+    {
+      "name": "request_id",
+      "path": "$.id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_requester",
+      "path": "$.user.email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "current_stage",
+      "path": "$.currentStage",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_status",
+      "path": "$.requestStatus",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_type",
+      "path": "$.type",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_project",
+      "path": "$.projectId",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_diataktis",
+      "path": "$.diataktis.email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "request_final_amount",
+      "path": "$.finalAmount",
+      "type": "java.lang.Float"
+    }
+  ],
+  "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
+  "name": "request",
+  "aliasGroup" : "requestGroup",
+  "payloadType": "json",
+  "schemaUrl":"https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/domain/src/main/resources/jsonSchema/request.json"
+}

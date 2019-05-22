@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Institute",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "organizationId": {
+      "type": "string"
+    },
+    "director": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "accountingRegistration": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "accountingPayment": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "accountingDirector": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "diaugeia": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "suppliesOffice": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "travelManager": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    },
+    "diataktis": {
+      "javaType": "gr.athenarc.domain.PersonOfInterest"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "organizationId",
+    "director",
+    "accountingRegistration",
+    "accountingPayment",
+    "accountingDirector",
+    "diaugeia"
+  ]
+}
+
+
+

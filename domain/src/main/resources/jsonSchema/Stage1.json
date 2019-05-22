@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Stage1",
+  "type": "object",
+  "extends": {
+    "type": "object",
+    "javaType": "gr.athenarc.domain.Stage"
+  },
+  "properties": {
+    "requestDate": {
+      "type": "string"
+    },
+    "finalAmount": {
+      "type": "number"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "supplier": {
+      "type": "string"
+    },
+    "supplierSelectionMethod": {
+      "type": "string",
+      "enum": [
+        "DIRECT",
+        "MARKET_RESEARCH",
+        "AWARD_PROCEDURE"
+      ]
+    },
+    "amountInEuros": {
+      "type": "number"
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "indexFields": [
+    {
+      "name": "project_id",
+      "path": "$.id",
+      "type": "java.lang.String",
+      "primaryKey":true,
+      "multivalued":false
+    },
+    {
+      "name": "project_acronym",
+      "path": "$.acronym",
+      "type": "java.lang.String",
+      "primaryKey":false,
+      "multivalued":false
+    },
+    {
+      "name": "project_total_cost",
+      "path": "$.totalCost",
+      "type": "java.lang.Float"
+    },
+    {
+      "multivalued": true,
+      "primaryKey":false,
+      "name": "project_operator",
+      "path": "$.operator[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "primaryKey":false,
+      "name": "project_institute",
+      "path": "$.instituteId",
+      "type": "java.lang.String"
+    },
+    {
+      "multivalued": true,
+      "name": "project_operator_delegate",
+      "path": "$.operator[*].delegates[*].email",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "project_scientificCoordinator",
+      "path": "$.scientificCoordinator.email",
+      "type": "java.lang.String"
+    }
+  ],
+  "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
+  "name": "project",
+  "aliasGroup" : null,
+  "payloadType": "json",
+  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/domain/src/main/resources/jsonSchema/project.json"
+}

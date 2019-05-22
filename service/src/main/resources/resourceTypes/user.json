@@ -1,0 +1,44 @@
+{
+  "indexFields": [
+    {
+      "name": "user_id",
+      "path": "$.id",
+      "type": "java.lang.String",
+      "primaryKey":true,
+      "multivalued":false
+    },
+    {
+      "name": "user_email",
+      "path": "$.email",
+      "type": "java.lang.String",
+      "primaryKey":false,
+      "multivalued":false
+    },
+    {
+      "name": "user_immediate_emails",
+      "path": "$.immediateEmails",
+      "type": "java.lang.Boolean",
+      "primaryKey":false,
+      "multivalued":false
+    },
+    {
+      "name": "first_name",
+      "path": "$.firstname",
+      "type": "java.lang.String",
+      "primaryKey":false,
+      "multivalued":false
+    },
+    {
+      "name": "last_name",
+      "path": "$.lastname",
+      "type": "java.lang.String",
+      "primaryKey":false,
+      "multivalued":false
+    }
+  ],
+  "indexMapperClass": "eu.openminted.registry.core.index.DefaultIndexMapper",
+  "name": "user",
+  "aliasGroup" : null,
+  "payloadType": "json",
+  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/domain/src/main/resources/jsonSchema/user.json"
+}

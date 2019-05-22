@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "LastModified",
+  "type": "object",
+  "properties": {
+    "by": {
+      "type": "string"
+    },
+    "at": {
+      "type":"string",
+      "format":"utc-millisec"
+    }
+  }
+}
