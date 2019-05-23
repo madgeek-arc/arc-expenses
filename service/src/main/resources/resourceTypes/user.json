@@ -40,5 +40,5 @@
   "name": "user",
   "aliasGroup" : null,
   "payloadType": "json",
-  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/domain/src/main/resources/jsonSchema/user.json"
+  "schemaUrl" : "https://raw.githubusercontent.com/madgeek-arc/arc-expenses/develop/domain/src/main/resources/jsonSchema/user.json"
 }

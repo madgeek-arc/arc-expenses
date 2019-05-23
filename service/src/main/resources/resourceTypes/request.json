@@ -45,5 +45,5 @@
   "name": "request",
   "aliasGroup" : "requestGroup",
   "payloadType": "json",
-  "schemaUrl":"https://raw.githubusercontent.com/madgeek-arc/arc-expenses/spring-saml/arc-expenses-backend/domain/src/main/resources/jsonSchema/request.json"
+  "schemaUrl":"https://raw.githubusercontent.com/madgeek-arc/arc-expenses/develop/domain/src/main/resources/jsonSchema/request.json"
 }
