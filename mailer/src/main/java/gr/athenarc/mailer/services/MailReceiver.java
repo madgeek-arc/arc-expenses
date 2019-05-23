@@ -72,6 +72,9 @@ public class MailReceiver {
                                 jsonObject.getString("url")));
                     }
                     break;
+                case CONTACT:
+                    mailMessages.add(new ContactMessage(jsonObject.getString("subject"),jsonObject.getString("body"), jsonObject.getString("fullname"), jsonObject.getString("email")));
+                    break;
                 default:
                     mailMessages=null;
             }

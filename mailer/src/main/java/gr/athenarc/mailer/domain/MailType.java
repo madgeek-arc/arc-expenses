@@ -5,6 +5,7 @@ public enum MailType {
     INITIAL,
     APPROVE,
     CANCEL,
-    REJECT
+    REJECT,
+    CONTACT
 
 }

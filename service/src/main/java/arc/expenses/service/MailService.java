@@ -50,7 +50,7 @@ public class MailService {
         jsonObject.put("to",whoTo);
 
         logger.info(jsonObject.toString());
-        jmsTemplate.convertAndSend("mailbox", jsonObject.toString());
+//        jmsTemplate.convertAndSend("mailbox", jsonObject.toString());
     }
 
 }
