@@ -212,6 +212,9 @@ public class RequestServiceImpl extends GenericService<Request> {
     private RequestApproval createRequestApproval(Request request) {
         logger.debug("Request with id " + request.getId() + " has just been created");
 
+        Project project = projectService.get(request.getProjectId());
+        Institute institute = instituteService.get(project.getInstituteId());
+
         RequestApproval requestApproval = new RequestApproval();
         requestApproval.setId(request.getId()+"-a1");
         requestApproval.setRequestId(request.getId());
@@ -227,7 +230,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         }catch (AlreadyExistsException ex){
             logger.debug("Object identity already exists");
         }
-        Project project = projectService.get(request.getProjectId());
+
         AclImpl acl = (AclImpl) aclService.readAclById(new ObjectIdentityImpl(RequestApproval.class, requestApproval.getId()));
         acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString().toLowerCase()), true);
 
@@ -244,6 +247,18 @@ public class RequestServiceImpl extends GenericService<Request> {
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
 
         acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
+
+        if(request.getType() == Request.Type.REGULAR){
+            acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(institute.getSuppliesOffice().getEmail()), true);
+            institute.getSuppliesOffice().getDelegates().forEach(delegate -> {
+                acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(delegate.getEmail()), true);
+            });
+        }else if(request.getType() == Request.Type.TRIP){
+            acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(institute.getTravelManager().getEmail()), true);
+            institute.getTravelManager().getDelegates().forEach(delegate -> {
+                acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(delegate.getEmail()), true);
+            });
+        }
         for(Delegate person : project.getScientificCoordinator().getDelegates())
             acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(person.getEmail()), true);
 
