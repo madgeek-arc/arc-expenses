@@ -697,11 +697,11 @@ public class TransitionService{
                 break;
             case "8":
                 organization.getInspectionTeam().forEach(inspector -> {
-                    if(!request.getUser().getEmail().equals(inspector.getEmail()) && (request.getOnBehalfOf()!=null && !request.getOnBehalfOf().getEmail().equals(inspector.getEmail())))
+                    if(!request.getUser().getEmail().equals(inspector.getEmail()) && (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equals(inspector.getEmail())))
                         grantAccess.add(new PrincipalSid(inspector.getEmail()));
 
                     inspector.getDelegates().forEach(delegate -> {
-                        if(!request.getUser().getEmail().equals(delegate.getEmail()) && (request.getOnBehalfOf()!=null && !request.getOnBehalfOf().getEmail().equals(delegate.getEmail())))
+                        if(!request.getUser().getEmail().equals(delegate.getEmail()) && (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equals(delegate.getEmail())))
                             grantAccess.add(new PrincipalSid(delegate.getEmail()));
                     });
                 });
@@ -731,10 +731,10 @@ public class TransitionService{
                 });
 
                 organization.getInspectionTeam().forEach(entry -> {
-                    if(!request.getUser().getEmail().equals(entry.getEmail()) && (request.getOnBehalfOf()!=null && !request.getOnBehalfOf().getEmail().equals(entry.getEmail())))
+                    if(!request.getUser().getEmail().equals(entry.getEmail()) && (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equals(entry.getEmail())))
                         grantWrite.add(new PrincipalSid(entry.getEmail()));
                     entry.getDelegates().forEach(person -> {
-                        if(!request.getUser().getEmail().equals(person.getEmail()) && (request.getOnBehalfOf()!=null && !request.getOnBehalfOf().getEmail().equals(person.getEmail())))
+                        if(!request.getUser().getEmail().equals(person.getEmail()) && (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equals(person.getEmail())))
                             grantWrite.add(new PrincipalSid(person.getEmail()));
                     });
                 });
@@ -747,7 +747,7 @@ public class TransitionService{
 
                 grantWrite.add(new PrincipalSid(request.getDiataktis().getEmail()));
                 request.getDiataktis().getDelegates().forEach( delegate -> {
-                    if(!request.getUser().getEmail().equals(delegate.getEmail())&& (request.getOnBehalfOf()!=null && !request.getOnBehalfOf().getEmail().equals(delegate.getEmail())))
+                    if(!request.getUser().getEmail().equals(delegate.getEmail())&& (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equals(delegate.getEmail())))
                         grantWrite.add(new PrincipalSid(delegate.getEmail()));
                 });
 
