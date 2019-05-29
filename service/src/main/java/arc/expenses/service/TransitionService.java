@@ -124,7 +124,7 @@ public class TransitionService{
                         stage.getClass().getMethod("set"+upperCaseField, entry.getValue()).invoke(stage, entry.getValue().getConstructor(String.class).newInstance(req.getParameter(field)));
 
 
-                    if(field.equals("amountInEuros")){
+                    if(field.equalsIgnoreCase("amountInEuros")){
                         stage.getClass().getMethod("setFinalAmount", entry.getValue()).invoke(stage, entry.getValue().getConstructor(String.class).newInstance(req.getParameter(field)));
                     }
             }
@@ -176,7 +176,7 @@ public class TransitionService{
                     stage.getClass().getMethod("set"+upperCaseField, entry.getValue()).invoke(stage, entry.getValue().getConstructor(String.class).newInstance(req.getParameter(field)));
 
 
-                if(field.equals("amountInEuros")){
+                if(field.equalsIgnoreCase("amountInEuros")){
                     stage.getClass().getMethod("setFinalAmount", entry.getValue()).invoke(stage, entry.getValue().getConstructor(String.class).newInstance(req.getParameter(field)));
                 }
             }
@@ -387,7 +387,7 @@ public class TransitionService{
         Request request = requestService.get(requestApproval.getRequestId());
         modifyRequestApproval(context, stage, toStage, BaseInfo.Status.PENDING);
 
-        if(toStage.equals("5a") || toStage.equals("5b")){
+        if(toStage.equalsIgnoreCase("5a") || toStage.equalsIgnoreCase("5b")){
             Project project = projectService.get(request.getProjectId());
             Institute institute = instituteService.get(project.getInstituteId());
             Organization organization = organizationService.get(institute.getOrganizationId());
@@ -396,11 +396,11 @@ public class TransitionService{
 
             String onBehalfUser = (request.getOnBehalfOf() == null ? "" : request.getOnBehalfOf().getEmail());
 
-            if( (project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis() && !request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail())) && !onBehalfUser.equals(project.getScientificCoordinator().getEmail()) && request.getFinalAmount()<=2500  && requestService.doesntExceedBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
+            if( (project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis() && !request.getUser().getEmail().equalsIgnoreCase(project.getScientificCoordinator().getEmail())) && !onBehalfUser.equalsIgnoreCase(project.getScientificCoordinator().getEmail()) && request.getFinalAmount()<=2500  && requestService.doesntExceedBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
                 request.setDiataktis(project.getScientificCoordinator());
 
-            if(request.getUser().getEmail().equals(request.getDiataktis().getEmail()) || (request.getOnBehalfOf() != null && request.getOnBehalfOf().getEmail().equals(request.getDiataktis().getEmail()))){
-                if(request.getDiataktis().getEmail().equals(organization.getDirector().getEmail()))
+            if(request.getUser().getEmail().equalsIgnoreCase(request.getDiataktis().getEmail()) || (request.getOnBehalfOf() != null && request.getOnBehalfOf().getEmail().equalsIgnoreCase(request.getDiataktis().getEmail()))){
+                if(request.getDiataktis().getEmail().equalsIgnoreCase(organization.getDirector().getEmail()))
                     request.setDiataktis(organization.getViceDirector());
                 else
                     request.setDiataktis(organization.getDirector());
@@ -417,8 +417,8 @@ public class TransitionService{
         RequestPayment requestPayment = context.getMessage().getHeaders().get("paymentObj", RequestPayment.class);
         stage.setDate(new Date().toInstant().toEpochMilli());
         Request request = requestService.get(requestPayment.getRequestId());
-        BaseInfo.Status status = (toStage.equals("13") && fromStage.equals("13") ? BaseInfo.Status.ACCEPTED : BaseInfo.Status.PENDING);
-        if(toStage.equals("13") && fromStage.equals("13")){ // that's the signal for a finished payment
+        BaseInfo.Status status = (toStage.equalsIgnoreCase("13") && fromStage.equalsIgnoreCase("13") ? BaseInfo.Status.ACCEPTED : BaseInfo.Status.PENDING);
+        if(toStage.equalsIgnoreCase("13") && fromStage.equalsIgnoreCase("13")){ // that's the signal for a finished payment
             Browsing<RequestPayment> payments = requestPaymentService.getPayments(request.getId(),null);
             if(payments.getResults().size()>=request.getPaymentCycles()){ //if we have reached the max of payment cycles then request should be automatically move to FINISHED state
                 RequestApproval requestApproval = requestApprovalService.getApproval(requestPayment.getRequestId());
@@ -617,7 +617,7 @@ public class TransitionService{
             case "5a":
                 grantAccess.add(new PrincipalSid(request.getDiataktis().getEmail()));
                 request.getDiataktis().getDelegates().forEach( delegate -> {
-                    if(!request.getUser().getEmail().equals(delegate.getEmail()))
+                    if(!request.getUser().getEmail().equalsIgnoreCase(delegate.getEmail()))
                         grantAccess.add(new PrincipalSid(delegate.getEmail()));
                 });
 
@@ -634,7 +634,7 @@ public class TransitionService{
 
                 grantWrite.add(new PrincipalSid(request.getDiataktis().getEmail()));
                 request.getDiataktis().getDelegates().forEach( delegate -> {
-                    if(!request.getUser().getEmail().equals(delegate.getEmail()))
+                    if(!request.getUser().getEmail().equalsIgnoreCase(delegate.getEmail()))
                         grantWrite.add(new PrincipalSid(delegate.getEmail()));
                 });
                 break;
@@ -647,7 +647,7 @@ public class TransitionService{
                 if(requestApproval.getStage5b()==null){
                     grantWrite.add(new PrincipalSid(request.getDiataktis().getEmail()));
                     request.getDiataktis().getDelegates().forEach( delegate -> {
-                        if(!request.getUser().getEmail().equals(delegate.getEmail()))
+                        if(!request.getUser().getEmail().equalsIgnoreCase(delegate.getEmail()))
                             grantWrite.add(new PrincipalSid(delegate.getEmail()));
                     });
                 }else {
@@ -697,16 +697,16 @@ public class TransitionService{
                 break;
             case "8":
                 organization.getInspectionTeam().forEach(inspector -> {
-                    if(!request.getUser().getEmail().equals(inspector.getEmail()) && (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equals(inspector.getEmail())))
+                    if(!request.getUser().getEmail().equalsIgnoreCase(inspector.getEmail()) && (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equalsIgnoreCase(inspector.getEmail())))
                         grantAccess.add(new PrincipalSid(inspector.getEmail()));
 
                     inspector.getDelegates().forEach(delegate -> {
-                        if(!request.getUser().getEmail().equals(delegate.getEmail()) && (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equals(delegate.getEmail())))
+                        if(!request.getUser().getEmail().equalsIgnoreCase(delegate.getEmail()) && (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equalsIgnoreCase(delegate.getEmail())))
                             grantAccess.add(new PrincipalSid(delegate.getEmail()));
                     });
                 });
 
-                if(from.equals("7a")){
+                if(from.equalsIgnoreCase("7a")){
                     grantWrite.add(new PrincipalSid(organization.getDioikitikoSumvoulio().getEmail()));
                     organization.getDioikitikoSumvoulio().getDelegates().forEach(p -> grantWrite.add(new PrincipalSid(p.getEmail())));
                 }else{
@@ -731,10 +731,10 @@ public class TransitionService{
                 });
 
                 organization.getInspectionTeam().forEach(entry -> {
-                    if(!request.getUser().getEmail().equals(entry.getEmail()) && (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equals(entry.getEmail())))
+                    if(!request.getUser().getEmail().equalsIgnoreCase(entry.getEmail()) && (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equalsIgnoreCase(entry.getEmail())))
                         grantWrite.add(new PrincipalSid(entry.getEmail()));
                     entry.getDelegates().forEach(person -> {
-                        if(!request.getUser().getEmail().equals(person.getEmail()) && (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equals(person.getEmail())))
+                        if(!request.getUser().getEmail().equalsIgnoreCase(person.getEmail()) && (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equalsIgnoreCase(person.getEmail())))
                             grantWrite.add(new PrincipalSid(person.getEmail()));
                     });
                 });
@@ -747,7 +747,7 @@ public class TransitionService{
 
                 grantWrite.add(new PrincipalSid(request.getDiataktis().getEmail()));
                 request.getDiataktis().getDelegates().forEach( delegate -> {
-                    if(!request.getUser().getEmail().equals(delegate.getEmail())&& (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equals(delegate.getEmail())))
+                    if(!request.getUser().getEmail().equalsIgnoreCase(delegate.getEmail())&& (request.getOnBehalfOf()==null || !request.getOnBehalfOf().getEmail().equalsIgnoreCase(delegate.getEmail())))
                         grantWrite.add(new PrincipalSid(delegate.getEmail()));
                 });
 
@@ -835,7 +835,7 @@ public class TransitionService{
             }
             attachments = attachments.stream().filter(attachment -> {
                 for(String remove : removed){
-                    if(remove.equals(attachment.getUrl()))
+                    if(remove.equalsIgnoreCase(attachment.getUrl()))
                         return false;
                 }
                 return true;
