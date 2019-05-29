@@ -106,10 +106,10 @@ public class UserServiceImpl extends GenericService<User> {
                 " or director_delegate="+email+
                 " or inspectionTeam="+email+
                 " or inspectionTeam_delegate="+email+
-                " or travelmanager="+email+
-                " or suppliesoffice="+email+
-                " or travelmanager_delegate="+email+
-                " or suppliesoffice_delegate="+email;
+                " or travelManager="+email+
+                " or suppliesOffice="+email+
+                " or travelManager_delegate="+email+
+                " or suppliesOffice_delegate="+email;
 
 
         return searchService.cqlQuery(cqlQuery,"*",1,0,"","ASC").getResults().size()>0;
