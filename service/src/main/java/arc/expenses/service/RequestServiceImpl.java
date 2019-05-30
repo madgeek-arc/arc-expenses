@@ -175,7 +175,27 @@ public class RequestServiceImpl extends GenericService<Request> {
                 if (!pois.contains(email))
                     pois.add(email);
             }
+
         }
+
+        if(type == Request.Type.REGULAR){
+            if(!pois.contains(institute.getSuppliesOffice().getEmail()))
+                pois.add(institute.getSuppliesOffice().getEmail());
+
+            institute.getSuppliesOffice().getDelegates().forEach(delegate -> {
+                if(!pois.contains(delegate.getEmail()))
+                    pois.add(delegate.getEmail());
+            });
+        }else if (type == Request.Type.TRIP){
+            if(!pois.contains(institute.getTravelManager().getEmail()))
+                pois.add(institute.getTravelManager().getEmail());
+
+            institute.getTravelManager().getDelegates().forEach(delegate -> {
+                if(!pois.contains(delegate.getEmail()))
+                    pois.add(delegate.getEmail());
+            });
+        }
+
 
         if(!pois.contains(project.getScientificCoordinator().getEmail()))
             pois.add(project.getScientificCoordinator().getEmail());
