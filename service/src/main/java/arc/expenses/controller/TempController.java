@@ -4,9 +4,7 @@ import arc.expenses.service.RequestServiceImpl;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/temp/diataktis")
@@ -19,9 +17,9 @@ public class TempController {
     private RequestServiceImpl requestService;
 
     @RequestMapping(value =  "/", method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-    public void updateDiataktis() throws Exception {
-        requestService.updateDiataktis();
-        requestService.updatePois();
+    public void updateDiataktis(@RequestParam(name = "id", required = false, defaultValue= "") String requestId) throws Exception {
+        requestService.updateDiataktis(requestId);
+        requestService.updatePois(requestId);
     }
 
 }

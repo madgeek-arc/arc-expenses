@@ -556,15 +556,25 @@ public class RequestServiceImpl extends GenericService<Request> {
         return null;
     }
 
-    public void updateDiataktis() throws Exception {
+    public void updateDiataktis(String id) throws Exception {
         FacetFilter filter = new FacetFilter();
         filter.setQuantity(10000);
+        if(!id.isEmpty()) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("request_id", id);
+            filter.setFilter(map);
+        }
         List<Request> requests = getAll(filter,null).getResults();
         int i=0;
+        int j=0;
         for(Request request : requests){
             Project project = projectService.get(request.getProjectId());
             if(project == null)
                 continue;
+            if(request.getDiataktis()!= null & !request.getDiataktis().getEmail().isEmpty()) {
+                j++;
+                continue;
+            }
             Institute institute = instituteService.get(project.getInstituteId());
             Organization organization = organizationService.get(institute.getOrganizationId());
 
@@ -598,12 +608,18 @@ public class RequestServiceImpl extends GenericService<Request> {
         }
 
         logger.info(i + " approvals not found");
+        logger.info(j + " requests have already been set");
 
     }
 
-    public void updatePois() throws ResourceNotFoundException {
+    public void updatePois(String id) throws ResourceNotFoundException {
         FacetFilter filter = new FacetFilter();
         filter.setQuantity(10000);
+        if(!id.isEmpty()) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("request_id", id);
+            filter.setFilter(map);
+        }
         List<RequestApproval> requestApprovals = requestApprovalService.getAll(filter,null).getResults();
         for(RequestApproval requestApproval : requestApprovals) {
             Request request = get(requestApproval.getRequestId());
