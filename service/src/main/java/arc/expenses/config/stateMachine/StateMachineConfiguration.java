@@ -109,7 +109,9 @@ public class StateMachineConfiguration extends EnumStateMachineConfigurerAdapter
                         stage1.setFinalAmount(stage1.getAmountInEuros());
                         stage1.setSubject(req.getParameter("subject"));
                         stage1.setSupplier(Optional.ofNullable(req.getParameter("supplier")).orElse(stage1.getSupplier()));
-                        stage1.setSupplierSelectionMethod(Optional.ofNullable(Stage1.SupplierSelectionMethod.fromValue(req.getParameter("supplierSelectionMethod"))).orElse(stage1.getSupplierSelectionMethod()));
+                        String supplierMethod = req.getParameter("supplierSelectionMethod");
+                        if(supplierMethod!=null && !supplierMethod.isEmpty())
+                            stage1.setSupplierSelectionMethod(Stage1.SupplierSelectionMethod.fromValue(supplierMethod));
                         transitionService.approveApproval(context,"1","2",stage1);
                     } catch (Exception e) {
                         logger.error("Error occurred on approval of request " + requestApproval.getId(),e);
