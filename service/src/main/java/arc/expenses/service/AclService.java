@@ -27,6 +27,8 @@ public class AclService extends JdbcMutableAclService{
         super(dataSource, lookupStrategy, aclCache);
     }
 
+
+
     public List<String> getPois(String id, Class persistentClass){
         ObjectIdentity objectIdentity = new ObjectIdentityImpl(persistentClass, id);
         List<String> pois = new ArrayList<>();
@@ -146,5 +148,11 @@ public class AclService extends JdbcMutableAclService{
         updateAcl(acl);
     }
 
-
+    public void addRead(List<Sid> principals, String id, Class persistentClass){
+        AclImpl acl = (AclImpl) readAclById(new ObjectIdentityImpl(persistentClass, id));
+        for(Sid principal : principals){
+            acl.insertAce(acl.getEntries().size(), ArcPermission.READ, principal, true);
+        }
+        updateAcl(acl);
+    }
 }

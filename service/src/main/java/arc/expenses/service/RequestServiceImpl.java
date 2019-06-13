@@ -565,16 +565,17 @@ public class RequestServiceImpl extends GenericService<Request> {
             filter.setFilter(map);
         }
         List<Request> requests = getAll(filter,null).getResults();
+        updateDiataktis(requests,null);
+    }
+
+    public void updateDiataktis(List<Request> requests, Project project) throws Exception {
         int i=0;
-        int j=0;
         for(Request request : requests){
-            Project project = projectService.get(request.getProjectId());
+            if(project == null)
+                project = projectService.get(request.getProjectId());
             if(project == null)
                 continue;
-            if(request.getDiataktis()!= null & !request.getDiataktis().getEmail().isEmpty()) {
-                j++;
-                continue;
-            }
+
             Institute institute = instituteService.get(project.getInstituteId());
             Organization organization = organizationService.get(institute.getOrganizationId());
 
@@ -585,9 +586,9 @@ public class RequestServiceImpl extends GenericService<Request> {
             }
             if(requestApproval.getStage5a()==null && !requestApproval.getStage().equals("5a"))
                 request.setDiataktis(institute.getDiataktis());
-            else if(requestApproval.getStage5a()==null && requestApproval.getStage().equals("5a")){
+            else{
                 request.setDiataktis(institute.getDiataktis());
-                if((project.getScientificCoordinatorAsDiataktis()!=null && project.getScientificCoordinatorAsDiataktis() && !request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail())) && request.getFinalAmount()<=2500  && doesntExceedBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
+                if((!request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail())) && request.getFinalAmount()<=2500  && doesntExceedBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
                     request.setDiataktis(project.getScientificCoordinator());
 
                 if(request.getUser().getEmail().equals(request.getDiataktis().getEmail())){
@@ -596,20 +597,12 @@ public class RequestServiceImpl extends GenericService<Request> {
                     else
                         request.setDiataktis(organization.getDirector());
                 }
-            }else{
-                PersonOfInterest personOfInterest = new PersonOfInterest();
-                personOfInterest.setEmail(requestApproval.getStage5a().getUser().getEmail());
-                personOfInterest.setFirstname(requestApproval.getStage5a().getUser().getFirstname());
-                personOfInterest.setLastname(requestApproval.getStage5a().getUser().getLastname());
-                request.setDiataktis(personOfInterest);
             }
 
             update(request,request.getId());
         }
 
         logger.info(i + " approvals not found");
-        logger.info(j + " requests have already been set");
-
     }
 
     public void updatePois(String id) throws ResourceNotFoundException {
