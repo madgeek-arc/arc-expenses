@@ -394,11 +394,6 @@ public class TransitionService{
 
             request.setDiataktis(institute.getDiataktis());
 
-            String onBehalfUser = (request.getOnBehalfOf() == null ? "" : request.getOnBehalfOf().getEmail());
-
-            if( (!request.getUser().getEmail().equalsIgnoreCase(project.getScientificCoordinator().getEmail())) && !onBehalfUser.equalsIgnoreCase(project.getScientificCoordinator().getEmail()) && request.getFinalAmount()<=2500  && requestService.doesntExceedBudget(project.getScientificCoordinator(),project.getId(), request.getFinalAmount()))
-                request.setDiataktis(project.getScientificCoordinator());
-
             if(request.getUser().getEmail().equalsIgnoreCase(request.getDiataktis().getEmail()) || (request.getOnBehalfOf() != null && request.getOnBehalfOf().getEmail().equalsIgnoreCase(request.getDiataktis().getEmail()))){
                 if(request.getDiataktis().getEmail().equalsIgnoreCase(organization.getDirector().getEmail()))
                     request.setDiataktis(organization.getViceDirector());

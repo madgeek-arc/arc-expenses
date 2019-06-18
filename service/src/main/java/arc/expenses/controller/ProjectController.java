@@ -3,7 +3,6 @@ package arc.expenses.controller;
 import arc.expenses.domain.Vocabulary;
 import arc.expenses.service.ProjectServiceImpl;
 import eu.openminted.registry.core.domain.Paging;
-import eu.openminted.registry.core.exception.ResourceNotFoundException;
 import gr.athenarc.domain.Project;
 import io.swagger.annotations.Api;
 import org.slf4j.Logger;
@@ -51,12 +50,11 @@ public class ProjectController {
         return projectService.getAllProjectNames();
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    Project updateProject(@RequestBody Project project, Authentication auth) throws ResourceNotFoundException {
-        return projectService.update(project, auth);
+    @RequestMapping(value = "/update", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Project updateProject(
+            @RequestBody Project project
+    ) throws Exception {
+        return projectService.update(project);
     }
 
     @RequestMapping(value =  "/getProjectsOfOperator", method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
