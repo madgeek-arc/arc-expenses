@@ -454,7 +454,7 @@ public class TransitionService{
         try {
             Request request = requestService.get(requestApproval.getRequestId());
             modifyRequestApproval(context, stage,toStage, BaseInfo.Status.UNDER_REVIEW);
-            updatingPermissions(fromStage,toStage,request,"Downgrade",RequestApproval.class,requestApproval.getId(), stage.getDate()+"");
+            updatingPermissions(fromStage,toStage,request,"DOWNGRADE",RequestApproval.class,requestApproval.getId(), stage.getDate()+"");
         } catch (Exception e) {
             logger.error("Error occurred on approval of request " + requestApproval.getId(),e);
             context.getStateMachine().setStateMachineError(new ServiceException(e.getMessage()));
