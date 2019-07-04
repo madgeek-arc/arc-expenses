@@ -368,6 +368,7 @@ public class RequestServiceImpl extends GenericService<Request> {
             List<RequestSummary> results = new ArrayList<>();
             int totals = 0;
             while(rs.next()){
+                logger.info(rs.getString("request_id"));
                 totals = rs.getInt("totals");
                 BaseInfo baseInfo = new BaseInfo();
                 if(rs.getString("status") !=null && !rs.getString("status").isEmpty())
