@@ -2,7 +2,6 @@ package arc.expenses.service;
 
 import arc.expenses.domain.Executive;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ public class POIServiceImpl {
     @Autowired
     private DataSource dataSource;
 
-    @Cacheable("executives")
     public List<Executive> getPois() {
         return new JdbcTemplate(dataSource)
                 .query(" SELECT foo.unnest as email, user_view.first_name as firstname, user_view.last_name as lastname FROM (SELECT DISTINCT UNNEST(project_operator) FROM project_view  " +
