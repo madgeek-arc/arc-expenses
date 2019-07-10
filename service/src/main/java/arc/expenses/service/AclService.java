@@ -58,7 +58,7 @@ public class AclService extends JdbcMutableAclService{
                         break;
                     if(acl.getEntries().get(i).getSid().equals(sid) && !acl.getEntries().get(i).getPermission().equals(ArcPermission.READ) && !acl.getEntries().get(i).getPermission().equals(ArcPermission.CANCEL)){
                         acl.deleteAce(i);
-                        i = (i==1 ? 0:i--);
+                        i = (i==1 ? 0: --i);
                     }
                 }
             }
