@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -195,7 +194,6 @@ public class ProjectServiceImpl extends GenericService<Project> {
     }
 
     @Override
-    @CacheEvict(value = "executives", allEntries = true)
     public Project update(Project project, Authentication authentication) throws ResourceNotFoundException {
         update(project,project.getId());
         return project;
