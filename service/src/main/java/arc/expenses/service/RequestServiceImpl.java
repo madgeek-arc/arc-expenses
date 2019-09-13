@@ -281,9 +281,10 @@ public class RequestServiceImpl extends GenericService<Request> {
                 acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(delegate.getEmail()), true);
             });
         }
-        for(Delegate person : project.getScientificCoordinator().getDelegates())
+        for(Delegate person : project.getScientificCoordinator().getDelegates()) {
             acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(person.getEmail()), true);
-
+            acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(person.getEmail()), true);
+        }
         acl.setOwner(new GrantedAuthoritySid(("ROLE_USER")));
         aclService.updateAcl(acl);
 
