@@ -234,6 +234,7 @@ public class RequestServiceImpl extends GenericService<Request> {
 
         Project project = projectService.get(request.getProjectId());
         Institute institute = instituteService.get(project.getInstituteId());
+        Organization organization = organizationService.get(institute.getOrganizationId());
 
         RequestApproval requestApproval = new RequestApproval();
         requestApproval.setId(request.getId()+"-a1");
@@ -259,16 +260,49 @@ public class RequestServiceImpl extends GenericService<Request> {
             acl.insertAce(acl.getEntries().size(), ArcPermission.CANCEL, new PrincipalSid(request.getOnBehalfOf().getEmail().toLowerCase()), true);
 
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new GrantedAuthoritySid("ROLE_ADMIN"), true);
-        if(!project.getScientificCoordinator().getEmail().equals(request.getUser().getEmail()))
+        if(!project.getScientificCoordinator().getEmail().equals(request.getUser().getEmail()) && (request.getOnBehalfOf()==null || !project.getScientificCoordinator().getEmail().equals(request.getOnBehalfOf().getEmail()))) {
             acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
-
+            acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
+            for(Delegate person : project.getScientificCoordinator().getDelegates()) {
+                acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(person.getEmail()), true);
+                acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(person.getEmail()), true);
+            }
+        }else{
+            String userEmail = request.getUser().getEmail();
+            if(!request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail()))
+                userEmail = request.getOnBehalfOf().getEmail();
+                if(userEmail.equals(institute.getDirector().getEmail())) {
+                    if (userEmail.equals(organization.getDirector().getEmail())) {
+                        acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(organization.getViceDirector().getEmail()), true);
+                        acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(organization.getViceDirector().getEmail()), true);
+                        for (Delegate person : organization.getViceDirector().getDelegates()) {
+                            acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(person.getEmail()), true);
+                            acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(person.getEmail()), true);
+                        }
+                    } else {
+                        acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(organization.getDirector().getEmail()), true);
+                        acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(organization.getDirector().getEmail()), true);
+                        for (Delegate person : organization.getDirector().getDelegates()) {
+                            acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(person.getEmail()), true);
+                            acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(person.getEmail()), true);
+                        }
+                    }
+                }
+                else {
+                    acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(institute.getDirector().getEmail()), true);
+                    acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(institute.getDirector().getEmail()), true);
+                    for (Delegate person : institute.getDirector().getDelegates()) {
+                        acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(person.getEmail()), true);
+                        acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(person.getEmail()), true);
+                    }
+                }
+        }
         acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
+
         if(request.getOnBehalfOf()!=null)
             acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(request.getOnBehalfOf().getEmail()), true);
 
         acl.insertAce(acl.getEntries().size(), ArcPermission.WRITE, new PrincipalSid(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()), true);
-
-        acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(project.getScientificCoordinator().getEmail()), true);
 
         if(request.getType() == Request.Type.REGULAR){
             acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(institute.getSuppliesOffice().getEmail()), true);
@@ -281,10 +315,7 @@ public class RequestServiceImpl extends GenericService<Request> {
                 acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(delegate.getEmail()), true);
             });
         }
-        for(Delegate person : project.getScientificCoordinator().getDelegates()) {
-            acl.insertAce(acl.getEntries().size(), ArcPermission.EDIT, new PrincipalSid(person.getEmail()), true);
-            acl.insertAce(acl.getEntries().size(), ArcPermission.READ, new PrincipalSid(person.getEmail()), true);
-        }
+
         acl.setOwner(new GrantedAuthoritySid(("ROLE_USER")));
         aclService.updateAcl(acl);
 
