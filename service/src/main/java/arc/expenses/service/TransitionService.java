@@ -489,13 +489,38 @@ public class TransitionService{
         Institute institute = instituteService.get(project.getInstituteId());
         Organization organization = organizationService.get(institute.getOrganizationId());
 
-        switch (from){
+        switch (from) {
             case "1":
                 revokeEditAccess.add(new PrincipalSid(request.getUser().getEmail()));
                 break;
             case "2":
-                revokeEditAccess.add(new PrincipalSid(project.getScientificCoordinator().getEmail()));
-                project.getScientificCoordinator().getDelegates().forEach(person -> revokeEditAccess.add(new PrincipalSid(person.getEmail())));
+                if (!project.getScientificCoordinator().getEmail().equals(request.getUser().getEmail()) && (request.getOnBehalfOf() == null || !project.getScientificCoordinator().getEmail().equals(request.getOnBehalfOf().getEmail()))){
+                    revokeEditAccess.add(new PrincipalSid(project.getScientificCoordinator().getEmail()));
+                    project.getScientificCoordinator().getDelegates().forEach(person -> revokeEditAccess.add(new PrincipalSid(person.getEmail())));
+                }else{
+                    String userEmail = request.getUser().getEmail();
+                    if(!request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail()))
+                        userEmail = request.getOnBehalfOf().getEmail();
+                    if(userEmail.equals(institute.getDirector().getEmail())) {
+                        if (userEmail.equals(organization.getDirector().getEmail())) {
+                            revokeEditAccess.add(new PrincipalSid(organization.getViceDirector().getEmail()));
+                            for (Delegate person : organization.getViceDirector().getDelegates()) {
+                                revokeEditAccess.add(new PrincipalSid(person.getEmail()));
+                            }
+                        } else {
+                            revokeEditAccess.add(new PrincipalSid(organization.getDirector().getEmail()));
+                            for (Delegate person : organization.getDirector().getDelegates()) {
+                                revokeEditAccess.add(new PrincipalSid(person.getEmail()));
+                            }
+                        }
+                    }
+                    else {
+                        revokeEditAccess.add(new PrincipalSid(institute.getDirector().getEmail()));
+                        for (Delegate person : institute.getDirector().getDelegates()) {
+                            revokeEditAccess.add(new PrincipalSid(person.getEmail()));
+                        }
+                    }
+                }
                 break;
             case "3":
                 project.getOperator().forEach(entry -> {
@@ -577,8 +602,33 @@ public class TransitionService{
                 grantAccess.add(new PrincipalSid(request.getUser().getEmail()));
                 break;
             case "2":
-                grantAccess.add(new PrincipalSid(project.getScientificCoordinator().getEmail()));
-                project.getScientificCoordinator().getDelegates().forEach(person -> grantAccess.add(new PrincipalSid(person.getEmail())));
+                if (!project.getScientificCoordinator().getEmail().equals(request.getUser().getEmail()) && (request.getOnBehalfOf() == null || !project.getScientificCoordinator().getEmail().equals(request.getOnBehalfOf().getEmail()))){
+                    grantAccess.add(new PrincipalSid(project.getScientificCoordinator().getEmail()));
+                    project.getScientificCoordinator().getDelegates().forEach(person -> grantAccess.add(new PrincipalSid(person.getEmail())));
+                }else{
+                    String userEmail = request.getUser().getEmail();
+                    if(!request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail()))
+                        userEmail = request.getOnBehalfOf().getEmail();
+                    if(userEmail.equals(institute.getDirector().getEmail())) {
+                        if (userEmail.equals(organization.getDirector().getEmail())) {
+                            grantAccess.add(new PrincipalSid(organization.getViceDirector().getEmail()));
+                            for (Delegate person : organization.getViceDirector().getDelegates()) {
+                                grantAccess.add(new PrincipalSid(person.getEmail()));
+                            }
+                        } else {
+                            grantAccess.add(new PrincipalSid(organization.getDirector().getEmail()));
+                            for (Delegate person : organization.getDirector().getDelegates()) {
+                                grantAccess.add(new PrincipalSid(person.getEmail()));
+                            }
+                        }
+                    }
+                    else {
+                        grantAccess.add(new PrincipalSid(institute.getDirector().getEmail()));
+                        for (Delegate person : institute.getDirector().getDelegates()) {
+                            grantAccess.add(new PrincipalSid(person.getEmail()));
+                        }
+                    }
+                }
 
                 grantWrite.add(new PrincipalSid(request.getUser().getEmail()));
                 break;
