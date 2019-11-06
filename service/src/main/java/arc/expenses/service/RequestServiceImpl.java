@@ -347,6 +347,7 @@ public class RequestServiceImpl extends GenericService<Request> {
         acl.setOwner(new GrantedAuthoritySid(("ROLE_USER")));
         aclService.updateAcl(acl);
 
+        logger.info("Done creating request approval..");
 
         return requestApproval;
     }
