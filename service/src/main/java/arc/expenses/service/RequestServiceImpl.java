@@ -197,15 +197,43 @@ public class RequestServiceImpl extends GenericService<Request> {
         }
 
 
-        if(!pois.contains(project.getScientificCoordinator().getEmail()))
-            pois.add(project.getScientificCoordinator().getEmail());
-
         if(!pois.contains(user.getEmail()))
             pois.add(user.getEmail());
 
-        for(Delegate delegate : project.getScientificCoordinator().getDelegates())
-            if(!pois.contains(delegate.getEmail()))
-                pois.add(delegate.getEmail());
+        if(!project.getScientificCoordinator().getEmail().equals(request.getUser().getEmail()) && (request.getOnBehalfOf()==null || !project.getScientificCoordinator().getEmail().equals(request.getOnBehalfOf().getEmail()))) {
+            pois.add(project.getScientificCoordinator().getEmail());
+            for(Delegate person : project.getScientificCoordinator().getDelegates()) {
+                if(!pois.contains(person.getEmail()))
+                    pois.add(person.getEmail());
+            }
+        }else{
+            String userEmail = request.getUser().getEmail();
+            if(!request.getUser().getEmail().equals(project.getScientificCoordinator().getEmail()))
+                userEmail = request.getOnBehalfOf().getEmail();
+            if(userEmail.equals(institute.getDirector().getEmail())) {
+                if (userEmail.equals(organization.getDirector().getEmail())) {
+                    pois.add(organization.getViceDirector().getEmail());
+                    for (Delegate person : organization.getViceDirector().getDelegates()) {
+                        if(!pois.contains(person.getEmail()))
+                            pois.add(person.getEmail());
+                    }
+                } else {
+                    pois.add(organization.getDirector().getEmail());
+                    for (Delegate person : organization.getDirector().getDelegates()) {
+                        if(!pois.contains(person.getEmail()))
+                            pois.add(person.getEmail());
+                    }
+                }
+            }
+            else {
+                pois.add(institute.getDirector().getEmail());
+                for (Delegate person : institute.getDirector().getDelegates()) {
+                    if(!pois.contains(person.getEmail()))
+                        pois.add(person.getEmail());
+                }
+            }
+        }
+
 
         request.setCurrentStage(Stages.Stage2.name());
         request.setPois(pois);
