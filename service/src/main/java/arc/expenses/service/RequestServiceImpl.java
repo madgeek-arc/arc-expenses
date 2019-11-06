@@ -247,17 +247,14 @@ public class RequestServiceImpl extends GenericService<Request> {
         stage1.setAttachments(attachments);
         stage1.setDate(new Date().toInstant().toEpochMilli());
 
-        RequestApproval requestApproval = createRequestApproval(request);
-        requestApproval.setCurrentStage(Stages.Stage2.name());
-        requestApproval.setStage1(stage1);
-        requestApprovalService.update(requestApproval,requestApproval.getId());
+        RequestApproval requestApproval = createRequestApproval(request, stage1);
         mailService.sendMail("INITIAL", request.getId(), project.getAcronym(), stage1.getRequestDate(), stage1.getFinalAmount()+"", subject, false, requestApproval.getId(), request.getPois());
 
         return request;
     }
 
 
-    private RequestApproval createRequestApproval(Request request) {
+    private RequestApproval createRequestApproval(Request request, Stage1 stage1) {
         logger.debug("Request with id " + request.getId() + " has just been created");
 
         Project project = projectService.get(request.getProjectId());
@@ -271,6 +268,8 @@ public class RequestServiceImpl extends GenericService<Request> {
         requestApproval.setStage("2");
         requestApproval.setStatus(BaseInfo.Status.PENDING);
         requestApproval.setLastModified(new LastModified((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal(), new Date().toInstant().toEpochMilli()));
+        requestApproval.setCurrentStage(Stages.Stage2.name());
+        requestApproval.setStage1(stage1);
 
         requestApproval = requestApprovalService.add(requestApproval, null);
 
