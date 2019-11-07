@@ -826,6 +826,7 @@ public class TransitionService{
                 break;
         }
 
+        aclService.removeEdit(id,persistentClass);
         aclService.updateAclEntries(revokeEditAccess,grantAccess,id, persistentClass);
         aclService.removeWrite(id,persistentClass);
         aclService.addWrite(grantWrite,id,persistentClass);
