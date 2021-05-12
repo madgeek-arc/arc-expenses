@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <corpus.api.version>1.0.1-SNAPSHOT</corpus.api.version>
         <latest.jolt.version>0.1.1</latest.jolt.version>
-        <spring.security>5.1.5.RELEASE</spring.security>
+        <spring.security>5.2.10.RELEASE</spring.security>
     </properties>
 
     <dependencies>
